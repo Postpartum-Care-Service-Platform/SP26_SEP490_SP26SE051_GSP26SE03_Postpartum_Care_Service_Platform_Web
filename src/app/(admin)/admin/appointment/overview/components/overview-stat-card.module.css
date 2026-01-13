@@ -1,0 +1,87 @@
+.card {
+  background-color: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  width: 100%;
+}
+
+.cardBody {
+  padding: 16px;
+  color: #343a40;
+  font-family: var(--font-body);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.topSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.iconWrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  font-size: 13px;
+  font-family: var(--font-body);
+}
+
+.trendValue {
+  font-family: var(--font-body);
+}
+
+.trendIcon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #343a40;
+  margin-bottom: 12px;
+}
+
+.mainLabel {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: #6c757d;
+  margin-bottom: 8px;
+}
+
+.description {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: #6c757d;
+  line-height: 1.5;
+}
+
+.descriptionBold {
+  font-weight: 600;
+  color: #343a40;
+}
+

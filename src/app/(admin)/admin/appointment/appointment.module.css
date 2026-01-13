@@ -1,0 +1,21 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contentRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.tableSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar {
+  width: 400px;
+  flex-shrink: 0;
+}

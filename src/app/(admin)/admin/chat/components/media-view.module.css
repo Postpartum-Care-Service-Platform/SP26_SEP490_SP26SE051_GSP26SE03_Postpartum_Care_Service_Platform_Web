@@ -1,0 +1,163 @@
+.mediaView {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: var(--spacing-md);
+  gap: var(--spacing-lg);
+  background-color: #fff;
+}
+
+.mediaView::-webkit-scrollbar {
+  display: none;
+}
+
+.cameraSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background-color: #fff;
+  border-radius: 4.8px;
+}
+
+.cameraFrame {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.cameraPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(250, 131, 20, 0.1) 0%, rgba(250, 131, 20, 0.05) 100%);
+}
+
+.cameraIcon {
+  color: var(--color-brand-accent);
+  opacity: 0.5;
+}
+
+.sectionTitle {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.instructions {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(30, 30, 30, 0.6);
+  text-align: center;
+  max-width: 400px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.actionButtons {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+}
+
+.captureButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 10px 20px;
+  background-color: var(--color-brand-accent);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: 4.8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.captureButton:hover {
+  background-color: #e67310;
+}
+
+.uploadButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 10px 20px;
+  background-color: #fff;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-default);
+  border-radius: 4.8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.uploadButton:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+  border-color: var(--color-brand-accent);
+}
+
+.buttonIcon {
+  flex-shrink: 0;
+}
+
+.imagesSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.imagesTitle {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.imageItem {
+  aspect-ratio: 1;
+  border-radius: 4.8px;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.imageItem:hover {
+  transform: scale(1.02);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+

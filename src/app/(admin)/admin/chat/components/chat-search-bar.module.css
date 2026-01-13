@@ -1,0 +1,74 @@
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background-color: #fff;
+  border-bottom: 1px solid var(--color-border-default);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.searchWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid var(--color-border-default);
+  border-radius: 4.8px;
+  transition: border-color 0.2s ease;
+}
+
+.searchWrapper:focus-within {
+  border-color: var(--color-brand-accent);
+}
+
+.searchIcon {
+  width: 16px;
+  height: 16px;
+  color: rgba(30, 30, 30, 0.5);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: rgba(30, 30, 30, 0.4);
+}
+
+.newChatButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background-color: var(--color-brand-accent);
+  border: none;
+  border-radius: 4.8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: var(--color-text-inverse);
+  flex-shrink: 0;
+}
+
+.newChatButton:hover {
+  background-color: #e67310;
+}
+
+.plusIcon {
+  width: 18px;
+  height: 18px;
+}
+

@@ -1,0 +1,37 @@
+.container {
+  background-color: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.timeframe {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: #6c757d;
+}
+
+.chartWrapper {
+  flex: 1;
+  min-height: 300px;
+}
+

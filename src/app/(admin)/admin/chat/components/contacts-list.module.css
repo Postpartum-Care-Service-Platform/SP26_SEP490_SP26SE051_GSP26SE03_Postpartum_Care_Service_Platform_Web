@@ -1,0 +1,148 @@
+.contactsList {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.searchBar {
+  padding: var(--spacing-sm);
+  background-color: #fff;
+  border-bottom: 1px solid var(--color-border-default);
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.searchWrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid var(--color-border-default);
+  border-radius: 4.8px;
+  transition: border-color 0.2s ease;
+}
+
+.searchWrapper:focus-within {
+  border-color: var(--color-brand-accent);
+}
+
+.searchIcon {
+  width: 16px;
+  height: 16px;
+  color: rgba(30, 30, 30, 0.5);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.searchInput::placeholder {
+  color: rgba(30, 30, 30, 0.4);
+}
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: var(--spacing-sm);
+}
+
+.list::-webkit-scrollbar {
+  display: none;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: 12px;
+  border-bottom: 1px solid var(--color-border-default);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.contactItem:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.contactItem:last-child {
+  border-bottom: none;
+}
+
+.avatarWrapper {
+  flex-shrink: 0;
+}
+
+.avatarPlaceholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.email {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(30, 30, 30, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.role {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(30, 30, 30, 0.5);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.loading,
+.error {
+  padding: var(--spacing-md);
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.error {
+  color: #dc3545;
+}
+

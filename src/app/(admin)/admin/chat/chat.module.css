@@ -1,0 +1,54 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 65px);
+  background-color: var(--color-bg-primary);
+  gap: 0;
+}
+
+.bottomSection {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  gap: 0;
+  padding-left: 4px;
+  padding-top: 0;
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  gap: 0;
+  padding-right: 4px;
+  padding-left: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.chatListContainer {
+  width: 320px;
+  background-color: #fff;
+  border-right: 1px solid var(--color-border-default);
+  border-radius: 4.8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chatArea {
+  flex: 1;
+  min-width: 0;
+  background-color: #fff;
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+}
+
+.placeholder {
+  padding: var(--spacing-md);
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: rgba(30, 30, 30, 0.5);
+}

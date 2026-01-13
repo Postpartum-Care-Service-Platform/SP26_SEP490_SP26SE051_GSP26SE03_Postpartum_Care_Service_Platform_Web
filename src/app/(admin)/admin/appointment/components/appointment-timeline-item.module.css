@@ -1,0 +1,106 @@
+.item {
+  display: flex;
+  gap: 16px;
+  position: relative;
+}
+
+.item:not(:last-child) .line::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 32px;
+  bottom: -16px;
+  width: 1px;
+  background-color: var(--color-border-default);
+  transform: translateX(-50%);
+}
+
+.time {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  padding-top: 6px;
+  width: 50px;
+  text-align: right;
+}
+
+.line {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatarWrapper {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  position: relative;
+  z-index: 1;
+  background-color: #fff;
+}
+
+.avatar {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.details {
+  padding-bottom: 32px;
+  flex: 1;
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+}
+
+.description {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-admin-text-muted);
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusUpcoming {
+  background-color: var(--color-status-upcoming-bg);
+  color: var(--color-status-upcoming);
+}
+
+.statusCompleted {
+  background-color: #E9F8F1;
+  color: #4EC5AD;
+}
+
+.statusInProgress {
+  background-color: var(--color-status-pending-bg);
+  color: var(--color-status-pending);
+}
+
+.statusCancelled {
+  background-color: var(--color-status-cancelled-bg);
+  color: var(--color-status-cancelled);
+}
+
+.statusRescheduled {
+  background-color: #E8EAF6;
+  color: #7588DE;
+}
+
+.statusScheduled {
+  background-color: #E8EAF6;
+  color: #7588DE;
+}

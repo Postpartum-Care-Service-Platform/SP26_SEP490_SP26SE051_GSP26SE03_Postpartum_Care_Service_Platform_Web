@@ -1,0 +1,226 @@
+.tjn-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: #fffbf4;
+  width: 100%;
+}
+
+.tjn-header__container {
+  width: 100%;
+  max-width: 1715.99px;
+  margin: 0 auto;
+  padding: 0 70px;
+}
+
+.tjn-header__inner {
+  height: 81px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.tjn-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.tjn-header__brand:hover,
+.tjn-header__brand:focus-visible {
+  text-decoration: none;
+}
+
+.tjn-header__logo {
+  width: 32px;
+  height: 32px;
+}
+
+.tjn-header__brandText {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: #fa8314;
+  text-decoration: none;
+}
+
+.row-menu-inner {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: nowrap;
+}
+
+.tjn-header__link {
+  color: #111;
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1;
+  padding: 8px 6px;
+  white-space: nowrap;
+}
+
+.tjn-header__link:hover {
+  text-decoration: none;
+}
+
+.tjn-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-shrink: 0;
+}
+
+.tjn-header__login {
+  color: #111;
+  text-decoration: underline;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.tjn-header__login:hover,
+.tjn-header__login:active,
+.tjn-header__login:focus-visible {
+  color: #111;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.tjn-header__quote {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 43.77px;
+  padding: 0 35px;
+  background-color: rgb(250, 131, 20);
+  color: #fff;
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.tjn-header__quote:hover,
+.tjn-header__quote:active,
+.tjn-header__quote:focus-visible {
+  background-color: #0e256b;
+  color: #fffbf4;
+  text-decoration: none;
+}
+
+.tjn-header__user-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tjn-header__icon-button {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 9999px;
+  cursor: pointer;
+  color: #111;
+  transition: background-color 180ms ease;
+}
+
+.tjn-header__icon-button:hover {
+  background-color: rgba(17, 17, 17, 0.06);
+}
+
+.tjn-header__avatar-button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 9999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.tjn-header__avatar-img {
+  width: 55px;
+  height: 55px;
+  aspect-ratio: 1/1;
+  border-radius: 9999px;
+  object-fit: cover;
+  border: 2px solid #fa8314;
+  transition: border-color 180ms ease;
+  display: block;
+}
+
+.tjn-header__avatar-button:hover .tjn-header__avatar-img {
+  border-color: #fa8314;
+}
+
+.tjn-header__dropdown-content {
+  min-width: 200px;
+  z-index: 1000;
+  background: #fff;
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.tjn-header__dropdown-item {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #111;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+}
+
+.tjn-header__dropdown-item:hover,
+.tjn-header__dropdown-item:focus-visible {
+  background: rgba(250, 131, 20, 0.12);
+  color: #0e256b;
+}
+
+.tjn-header__dropdown-separator {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.08);
+  margin: 6px 4px;
+}
+
+@media (max-width: 1024px) {
+  .tjn-header__container {
+    padding: 0 24px;
+  }
+
+  .tjn-header__inner {
+    height: auto;
+    padding: 12px 0;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .row-menu-inner {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+}

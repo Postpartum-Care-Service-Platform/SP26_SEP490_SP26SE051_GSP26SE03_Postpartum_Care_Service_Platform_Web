@@ -1,0 +1,50 @@
+'use client';
+
+import * as React from 'react';
+import { Controller, useFormContext, type FieldValues, type Path } from 'react-hook-form';
+
+type FormFieldProps<TFieldValues extends FieldValues> = {
+  name: Path<TFieldValues>;
+  label: string;
+  render: (props: {
+    value: any;
+    onChange: (...event: any[]) => void;
+    onBlur: () => void;
+    name: string;
+    ref: React.Ref<any>;
+    error?: string;
+  }) => React.ReactElement;
+};
+
+export function FormField<TFieldValues extends FieldValues>({
+  name,
+  label,
+  render,
+}: FormFieldProps<TFieldValues>) {
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext<TFieldValues>();
+
+  const error = (errors as any)?.[name]?.message as string | undefined;
+
+  return (
+    <div className="mb-md">
+      <label htmlFor={name} className="ui-text text-text-primary block mb-xs">
+        {label}
+      </label>
+
+      <Controller
+        control={control}
+        name={name}
+        render={({ field }) => render({ ...field, error })}
+      />
+
+      {error ? (
+        <p className="ui-text mt-xs" style={{ color: 'var(--color-brand-accent)' }}>
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}

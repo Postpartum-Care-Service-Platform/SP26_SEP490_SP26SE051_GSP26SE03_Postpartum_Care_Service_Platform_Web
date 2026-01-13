@@ -1,0 +1,22 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.contentRow {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-start;
+}
+
+.statsSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.chartSection {
+  width: 600px;
+  flex-shrink: 0;
+}
+

@@ -1,0 +1,32 @@
+.rowHeader {
+  display: flex;
+  align-items: center; /* Vertically center content */
+  justify-content: center; /* Horizontally center content */
+  min-height: 60vh; /* Example height, adjust as needed */
+  padding: 48px 24px;
+  background-color: #fdf8f2; /* A light cream background as a placeholder */
+  text-align: center;
+}
+
+.columnContent {
+  max-width: 800px; /* Limit the width of the text for readability */
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 42px; /* Example size */
+  font-weight: 400;
+  color: #111;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.description {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: #333;
+  line-height: 1.6;
+  max-width: 650px;
+  margin: 0 auto; /* Center the paragraph if it's narrower than the container */
+}
+

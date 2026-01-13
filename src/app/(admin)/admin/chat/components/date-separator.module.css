@@ -1,0 +1,23 @@
+.separator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-md) 0;
+  width: 100%;
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background-color: var(--color-border-default);
+}
+
+.dateText {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  color: rgba(30, 30, 30, 0.5);
+  white-space: nowrap;
+  padding: 0 var(--spacing-xs);
+}
+
