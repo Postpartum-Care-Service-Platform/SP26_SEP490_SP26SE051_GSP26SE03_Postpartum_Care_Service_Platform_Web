@@ -10,14 +10,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AUTH_LOGIN_MESSAGES } from '@/messages/auth/login';
 import { AUTH_LOGIN_REGEX } from '@/messages/auth/login.regex';
 import authService from '@/services/auth.service';
-import { loadScript } from '@/utils/loadScript';
 import styles from './login.module.css';
 import { ROUTES } from '@/routes/routes';
 
 export function LoginForm() {
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-  const [isGoogleReady, setIsGoogleReady] = React.useState(false);
-  const googleBtnHostRef = React.useRef<HTMLDivElement | null>(null);
   const [emailOrUsername, setEmailOrUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
@@ -31,72 +27,32 @@ export function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
 
-  React.useEffect(() => {
-    let mounted = true;
-    const initGoogle = async () => {
-      if (!googleClientId) {
-        console.error('Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID');
-        setIsGoogleReady(false);
-        return;
-      }
-      try {
-        await loadScript('https://accounts.google.com/gsi/client');
-        if (!mounted) return;
-        window.google?.accounts?.id?.initialize({
-          client_id: googleClientId,
-          callback: async (response: { credential?: string }) => {
-            const idToken = response?.credential;
-            if (!idToken) {
-              toast({ title: 'Không lấy được idToken từ Google', variant: 'error' });
-              return;
-            }
+  const handleGoogleRedirect = () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim();
+    const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI?.trim();
 
-            try {
-              setIsLoading(true);
-              const authResponse = await authService.loginWithGoogle({ idToken });
-              if (!authResponse?.accessToken || !authResponse?.user) throw { status: 0, message: 'Có lỗi xảy ra' };
+    if (!clientId || !redirectUri) {
+      toast({ title: 'Thiếu cấu hình Google OAuth', variant: 'error' });
+      return;
+    }
 
-              login(authResponse);
-              toast({ title: AUTH_LOGIN_MESSAGES.loginSuccess, variant: 'success' });
-              router.push(authResponse.user.role === 'admin' ? ROUTES.admin : ROUTES.home);
-            } catch (err: any) {
-              toast({ title: err?.message || 'Đăng nhập Google thất bại', variant: 'error' });
-            } finally {
-              setIsLoading(false);
-            }
-          },
-          auto_select: false,
-        });
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'id_token',
+      scope: 'openid email profile',
+      prompt: 'select_account',
+    });
 
-        const host = googleBtnHostRef.current;
-        if (host) {
-          host.innerHTML = '';
-          window.google?.accounts?.id?.renderButton(host, {
-            type: 'standard',
-            theme: 'outline',
-            size: 'large',
-            text: 'signin_with',
-            shape: 'rectangular',
-            width: 300,
-            locale: 'vi',
-          });
-          setIsGoogleReady(true);
-        } else {
-          setIsGoogleReady(false);
-        }
-      } catch (e: any) {
-        console.error('Failed to load Google Sign-In script:', e);
-        setIsGoogleReady(false);
-        toast({ title: 'Không thể tải Google Sign-In', variant: 'error' });
-      }
-    };
+    const state = window.crypto.randomUUID();
+    params.set('state', state);
 
-    initGoogle();
+    const nonce = window.crypto.randomUUID();
+    params.set('nonce', nonce);
 
-    return () => {
-      mounted = false;
-    };
-  }, [googleClientId, login, router, toast]);
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    window.location.href = authUrl;
+  };
 
   const isEmail = (value: string) => AUTH_LOGIN_REGEX.email.test(value);
   const hasAtSymbol = (value: string) => value.includes('@');
@@ -154,36 +110,19 @@ export function LoginForm() {
         <span className={styles.brandName}>Serena Postnatal</span>
       </div>
       <div className={styles.heading}>Đăng nhập vào Serena Postnatal</div>
-
-      <button
-        type="button"
-        className={styles.googleBtn}
-        disabled={isLoading || !isGoogleReady}
-        onClick={() => {
-          const realBtn = googleBtnHostRef.current?.querySelector<HTMLElement>('div[role="button"]');
-          if (realBtn) {
-            realBtn.click();
-          } else {
-            toast({ title: 'Không tìm thấy nút Google để thực thi', variant: 'error' });
-          }
-        }}
-      >
-        <Image
-          src="/google-icon-logo-svgrepo-com.svg"
-          alt="Google logo"
-          width={18}
-          height={18}
-          className={styles.googleIcon}
-        />
-        Google
-      </button>
-
-      <div
-        ref={googleBtnHostRef}
-        style={{ position: 'absolute', top: -9999, left: -9999, height: 1, width: 1, overflow: 'hidden' }}
-      />
+      <div className={styles.googleBtnWrapper}>
+        <button type="button" className={styles.googleBtn} disabled={isLoading} onClick={handleGoogleRedirect}>
+          <Image
+            src="/google-icon-logo-svgrepo-com.svg"
+            alt="Google logo"
+            width={18}
+            height={18}
+            className={styles.googleIcon}
+          />
+          Đăng nhập bằng Google
+        </button>
+      </div>
       <div className={styles.divider}>hoặc</div>
-
       <form className={styles.form} onSubmit={handleSubmit}>
         <label className={styles.label}>
           Email hoặc Username

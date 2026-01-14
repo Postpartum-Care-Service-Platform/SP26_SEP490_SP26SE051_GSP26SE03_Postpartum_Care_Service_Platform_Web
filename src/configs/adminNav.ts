@@ -26,8 +26,8 @@ export const adminNav: AdminNavSection[] = [
       },
       {
         key: 'patients',
-        label: 'Patient',
-        href: '/admin/patients',
+        label: 'Account',
+        href: '/admin/account',
         icon: Users,
       },
       {

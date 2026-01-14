@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
+import { Button } from '@/components/ui/button';
 
 import styles from './patient-table-controls.module.css';
 
@@ -20,18 +21,16 @@ type Props = {
 };
 
 const FILTER_OPTIONS = [
-  { value: 'date-newest', label: 'Date: Newest First' },
-  { value: 'date-oldest', label: 'Date: Oldest First' },
-  { value: 'name-asc', label: 'Customer Name A-Z' },
-  { value: 'name-desc', label: 'Customer Name Z-A' },
+  { value: 'date-newest', label: 'Ngày tạo: mới nhất' },
+  { value: 'date-oldest', label: 'Ngày tạo: cũ nhất' },
+  { value: 'name-asc', label: 'Tên khách hàng A-Z' },
+  { value: 'name-desc', label: 'Tên khách hàng Z-A' },
 ];
 
 const STATUS_OPTIONS = [
-  { value: 'all', label: 'All Status' },
-  { value: 'Stable', label: 'Stable' },
-  { value: 'Under Observation', label: 'Under Observation' },
-  { value: 'Recovering', label: 'Recovering' },
-  { value: 'Critical', label: 'Critical' },
+  { value: 'all', label: 'Tất cả' },
+  { value: 'true', label: 'Đã xác thực email' },
+  { value: 'false', label: 'Chưa xác thực email' },
 ];
 
 export function PatientTableControls({
@@ -60,7 +59,7 @@ export function PatientTableControls({
     onStatusChange?.(value);
   };
 
-  const selectedStatusLabel = STATUS_OPTIONS.find((opt) => opt.value === selectedStatus)?.label || 'All Status';
+  const selectedStatusLabel = STATUS_OPTIONS.find((opt) => opt.value === selectedStatus)?.label || 'Tất cả';
 
   return (
     <div className={styles.controls}>
@@ -69,7 +68,7 @@ export function PatientTableControls({
           <MagnifyingGlassIcon className={styles.searchIcon} />
           <input
             type="text"
-            placeholder="Search Patient..."
+            placeholder="Tìm kiếm tài khoản..."
             className={styles.searchInput}
             value={searchQuery}
             onChange={handleSearchChange}
@@ -77,11 +76,11 @@ export function PatientTableControls({
         </div>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <button className={styles.filterButton}>
+            <Button variant="outline" size="sm" className={styles.filterButton}>
               <MixerHorizontalIcon className={styles.filterIcon} />
-              Filter
+              Lọc
               <ChevronDownIcon className={styles.chevronIcon} />
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent}>
             {FILTER_OPTIONS.map((option) => (
@@ -99,10 +98,10 @@ export function PatientTableControls({
       <div className={styles.right}>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
-            <button className={styles.statusButton}>
+            <Button variant="outline" size="sm" className={styles.statusButton}>
               {selectedStatusLabel}
               <ChevronDownIcon className={styles.chevronIcon} />
-            </button>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent}>
             {STATUS_OPTIONS.map((option) => (
@@ -116,10 +115,10 @@ export function PatientTableControls({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-        <button className={styles.newPatientButton} onClick={onNewPatient}>
+        <Button variant="primary" size="sm" className={styles.newPatientButton} onClick={onNewPatient}>
           <PlusIcon className={styles.plusIcon} />
-          New Patient
-        </button>
+          Tài khoản mới
+        </Button>
       </div>
     </div>
   );

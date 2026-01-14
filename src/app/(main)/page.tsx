@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { WelcomeSection } from './components/WelcomeSection';
 import styles from './home.module.css';
 
 export default function HomePage() {
@@ -14,6 +15,7 @@ export default function HomePage() {
           </p>
         </div>
       </div>
+      <WelcomeSection />
     </main>
   );
 }

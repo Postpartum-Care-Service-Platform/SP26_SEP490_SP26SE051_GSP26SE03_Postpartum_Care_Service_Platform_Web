@@ -1,15 +1,16 @@
 export interface FamilyProfile {
   id: number;
   memberTypeId: number;
+  memberTypeName: string;
   customerId: string;
   fullName: string;
-  dateOfBirth: string; // yyyy-mm-dd
+  dateOfBirth: string;
   gender: string;
   address: string;
   phoneNumber: string;
   avatarUrl: string | null;
-  createdAt: string;
-  updatedAt: string;
+  isDeleted: boolean;
+  isOwner: boolean;
 }
 
 export interface CreateFamilyProfileRequest {

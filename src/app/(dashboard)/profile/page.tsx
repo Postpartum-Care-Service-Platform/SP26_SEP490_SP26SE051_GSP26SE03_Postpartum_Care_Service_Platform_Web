@@ -1,11 +1,22 @@
 'use client';
 
-import React from 'react';
-import { PersonalInfoForm } from '@/components/profile/PersonalInfoForm';
-import { useProfile } from './ProfileContext';
+import { ProfileHeader } from './components/ProfileHeader';
+import { ProfileSidebarColumn } from './components/ProfileSidebarColumn';
+import { ProfileSummaryCards } from './components/ProfileSummaryCards';
+import { ProfileActivityFeed } from './components/ProfileActivityFeed';
+import styles from './profile.module.css';
 
 export default function ProfilePage() {
-  const { profile, setProfile } = useProfile();
-
-  return <PersonalInfoForm profile={profile} onProfileUpdate={setProfile} />;
+  return (
+    <div className={styles.page}>
+      <ProfileHeader />
+      <div className={styles.layout}>
+        <ProfileSidebarColumn />
+        <div className={styles.mainColumn}>
+          <ProfileSummaryCards />
+          <ProfileActivityFeed />
+        </div>
+      </div>
+    </div>
+  );
 }

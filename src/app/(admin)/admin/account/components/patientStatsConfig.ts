@@ -35,7 +35,7 @@ export type StatCardConfig = {
 export const patientStatsConfig: StatCardConfig[] = [
   {
     image: patientCard1,
-    label: 'Total Patients',
+    label: 'Tổng số tài khoản',
     icon: AvatarIcon,
     iconColor: '#7588DE',
     backgroundColor: 'rgba(117, 136, 222, 0.15)',
@@ -43,7 +43,7 @@ export const patientStatsConfig: StatCardConfig[] = [
   },
   {
     image: patientCard2,
-    label: 'Admitted',
+    label: 'Tài khoản hoạt động',
     icon: ActivityLogIcon,
     iconColor: '#4EC5AD',
     backgroundColor: 'rgba(78, 197, 173, 0.15)',
@@ -51,7 +51,7 @@ export const patientStatsConfig: StatCardConfig[] = [
   },
   {
     image: patientCard3,
-    label: 'Discharged',
+    label: 'Tài khoản đã rời',
     icon: CheckCircledIcon,
     iconColor: '#DD71A2',
     backgroundColor: 'rgba(221, 113, 162, 0.15)',
@@ -59,7 +59,7 @@ export const patientStatsConfig: StatCardConfig[] = [
   },
   {
     image: patientCard4,
-    label: 'Pending',
+    label: 'Chờ kích hoạt',
     icon: ClockIcon,
     iconColor: '#F4D078',
     backgroundColor: 'rgba(244, 208, 120, 0.15)',
@@ -67,7 +67,7 @@ export const patientStatsConfig: StatCardConfig[] = [
   },
   {
     image: patientCard5,
-    label: 'Critical',
+    label: 'Cảnh báo',
     icon: ExclamationTriangleIcon,
     iconColor: '#FD6161',
     backgroundColor: 'rgba(253, 97, 97, 0.15)',
@@ -75,7 +75,7 @@ export const patientStatsConfig: StatCardConfig[] = [
   },
   {
     image: patientCard6,
-    label: 'Appointments Today',
+    label: 'Lịch hẹn hôm nay',
     icon: CalendarIcon,
     iconColor: '#5288AF',
     backgroundColor: 'rgba(82, 136, 175, 0.15)',

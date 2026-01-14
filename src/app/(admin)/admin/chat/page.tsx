@@ -9,10 +9,8 @@ import { ContactsList } from './components/ContactsList';
 import { MediaView } from './components/MediaView';
 import { ChatConversation } from './components/ChatConversation';
 import { RecentChatsSidebar } from './components/RecentChatsSidebar';
-import { UserProfilePanel } from './components/UserProfilePanel';
 import { mockChats } from './components/mockChatData';
 import { mockConversations } from './components/mockChatConversations';
-import { mockUserProfiles } from './components/mockUserProfiles';
 import type { ChatEntry } from './components/types';
 
 import styles from './chat.module.css';
@@ -21,7 +19,6 @@ export default function AdminChatPage() {
   const [activeView, setActiveView] = useState('chat');
   const [activeChatId, setActiveChatId] = useState<string | undefined>('1');
   const [activeConversationId, setActiveConversationId] = useState<string | null>('1');
-  const [isProfilePanelOpen, setIsProfilePanelOpen] = useState(false);
 
   const { pinnedChats, allChats } = useMemo(() => {
     const pinned = mockChats.filter((chat) => chat.isPinned);
@@ -31,10 +28,6 @@ export default function AdminChatPage() {
 
   const activeConversation = activeConversationId
     ? mockConversations[activeConversationId] || null
-    : null;
-
-  const activeProfile = activeConversation
-    ? mockUserProfiles[activeConversation.participantId] || null
     : null;
 
   const handleSearch = (query: string) => {
@@ -60,23 +53,7 @@ export default function AdminChatPage() {
   };
 
   const handleInfoClick = () => {
-    setIsProfilePanelOpen((prev) => !prev);
-  };
-
-  const handleCloseProfile = () => {
-    setIsProfilePanelOpen(false);
-  };
-
-  const handleCall = () => {
-    console.log('Call clicked');
-  };
-
-  const handleVideoCall = () => {
-    console.log('Video call clicked');
-  };
-
-  const handleMore = () => {
-    console.log('More options clicked');
+    console.log('Info clicked');
   };
 
   const handleRecentChatSelect = (chat: ChatEntry) => {
@@ -131,15 +108,6 @@ export default function AdminChatPage() {
                   onChatSelect={handleRecentChatSelect}
                   onNewChat={handleNewChat}
                 />
-                {isProfilePanelOpen && (
-                  <UserProfilePanel
-                    profile={activeProfile}
-                    onClose={handleCloseProfile}
-                    onCall={handleCall}
-                    onVideoCall={handleVideoCall}
-                    onMore={handleMore}
-                  />
-                )}
               </>
             )}
           </div>

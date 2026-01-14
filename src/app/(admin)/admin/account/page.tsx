@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 
 import { Pagination } from '@/components/ui/pagination';
-import familyProfileService from '@/services/family-profile.service';
+import userService from '@/services/user.service';
 
 import {
   PatientListHeader,
@@ -11,7 +11,7 @@ import {
   PatientTableControls,
   PatientTable,
 } from './components';
-import { mapFamilyProfileToPatient } from './components/patientUtils';
+import { mapAccountToPatient } from './components/patientUtils';
 import type { Patient } from './components/patientTypes';
 import type { PatientStats } from './components/types';
 
@@ -30,14 +30,12 @@ export default function AdminPatientsPage() {
       try {
         setLoading(true);
         setError(null);
-        const data = await familyProfileService.getAllFamilyProfiles();
-        const mappedPatients = data.map((profile, index) =>
-          mapFamilyProfileToPatient(profile, index)
-        );
+        const data = await userService.getAllAccounts();
+        const mappedPatients = data.map((account, index) => mapAccountToPatient(account, index));
         setPatients(mappedPatients);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch patients');
-        console.error('Error fetching patients:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch accounts');
+        console.error('Error fetching accounts:', err);
       } finally {
         setLoading(false);
       }
@@ -46,7 +44,7 @@ export default function AdminPatientsPage() {
     fetchPatients();
   }, []);
 
-  const mockStats: PatientStats = useMemo(() => {
+  const stats: PatientStats = useMemo(() => {
     const total = patients.length;
     const stable = patients.filter((p) => p.status === 'Stable').length;
     const observation = patients.filter((p) => p.status === 'Under Observation').length;
@@ -127,7 +125,7 @@ export default function AdminPatientsPage() {
       <div>
         <PatientListHeader />
         <div style={{ textAlign: 'center', padding: '40px' }}>
-          Loading...
+          Đang tải dữ liệu tài khoản...
         </div>
       </div>
     );
@@ -138,7 +136,7 @@ export default function AdminPatientsPage() {
       <div>
         <PatientListHeader />
         <div style={{ textAlign: 'center', padding: '40px', color: '#dc3545' }}>
-          Error: {error}
+          Lỗi: {error}
         </div>
       </div>
     );
@@ -147,7 +145,7 @@ export default function AdminPatientsPage() {
   return (
     <div>
       <PatientListHeader />
-      <PatientStatsCards stats={mockStats} />
+      <PatientStatsCards stats={stats} />
       <PatientTableControls
         onSearch={handleSearch}
         onFilter={handleFilter}
