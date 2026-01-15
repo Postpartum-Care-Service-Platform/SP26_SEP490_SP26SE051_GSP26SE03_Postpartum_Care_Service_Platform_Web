@@ -19,6 +19,7 @@ type ChatBoxProps = {
   leftAvatar?: React.ReactNode;
   rightActions?: React.ReactNode;
   disabled?: boolean;
+  isTyping?: boolean;
 };
 
 export function ChatBox({
@@ -32,20 +33,25 @@ export function ChatBox({
   leftAvatar,
   rightActions,
   disabled,
+  isTyping,
 }: ChatBoxProps) {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+
   if (!open) return null;
 
   return (
-    <section className="chatbox" aria-label={title}>
+    <section className={`chatbox ${isExpanded ? 'chatbox--expanded' : ''}`} aria-label={title}>
       <ChatHeader
         title={title}
         subtitle={subtitle}
         onClose={onClose}
         onMinimize={onMinimize}
+        onExpand={() => setIsExpanded((v) => !v)}
+        isExpanded={isExpanded}
         leftAvatar={leftAvatar}
         rightActions={rightActions}
       />
-      <ChatMessageList messages={messages} />
+      <ChatMessageList messages={messages} isTyping={isTyping} />
       <ChatComposer onSend={onSend} disabled={disabled} />
     </section>
   );
