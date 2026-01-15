@@ -1,0 +1,39 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+}
+
+.contentCard {
+  background-color: #fffbf5;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.placeholderText {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  max-width: 480px;
+}
+
+.tableSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+

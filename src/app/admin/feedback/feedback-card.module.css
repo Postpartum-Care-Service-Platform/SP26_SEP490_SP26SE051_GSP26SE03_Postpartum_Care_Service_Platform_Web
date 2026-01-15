@@ -1,0 +1,183 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+  background-color: #fff;
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  gap: 12px;
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star,
+.starActive {
+  font-size: 12px;
+}
+
+.star {
+  color: rgba(0, 0, 0, 0.2);
+}
+
+.starActive {
+  color: #fbbf24;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.metaItem {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.content {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.8);
+  line-height: 1.4;
+  max-height: 3.6em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-brand-accent);
+  color: var(--color-text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.userMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.userName {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-primary);
+}
+
+.userSub {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.primaryAction {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background-color: var(--color-brand-accent);
+  color: var(--color-text-inverse);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.primaryAction:hover {
+  background-color: #e67310;
+}
+
+.secondaryAction {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-default);
+  background-color: #fff;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.secondaryAction:hover {
+  background-color: #f8f9fa;
+}
+
+.iconButton {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-default);
+  background-color: #fff;
+  font-family: var(--font-body);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.iconButton:hover {
+  background-color: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+  .cardFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, MessageCircle, Calendar } from 'lucide-react';
+import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare } from 'lucide-react';
 
 export type AdminNavItem = {
   key: string;
@@ -20,33 +20,51 @@ export const adminNav: AdminNavSection[] = [
     items: [
       {
         key: 'dashboard',
-        label: 'Dashboard',
+        label: 'Bảng điều khiển',
         href: '/admin',
         icon: LayoutDashboard,
       },
       {
         key: 'patients',
-        label: 'Account',
+        label: 'Tài khoản',
         href: '/admin/account',
         icon: Users,
       },
       {
         key: 'chat',
-        label: 'Chat',
+        label: 'Trò chuyện',
         href: '/admin/chat',
         icon: MessageCircle,
       },
       {
         key: 'appointment',
-        label: 'Appointment',
+        label: 'Lịch hẹn',
         href: '/admin/appointment',
         icon: Calendar,
       },
       {
         key: 'appointment-overview',
-        label: 'Appointment Overview',
+        label: 'Tổng quan lịch hẹn',
         href: '/admin/appointment/overview',
         icon: Calendar,
+      },
+      {
+        key: 'rooms-all',
+        label: 'Tất cả phòng',
+        href: '/admin/rooms',
+        icon: BedDouble,
+      },
+      {
+        key: 'room-allotment',
+        label: 'Thêm phân bổ phòng',
+        href: '/admin/rooms/allotment',
+        icon: PlusCircle,
+      },
+      {
+        key: 'feedback',
+        label: 'Phản hồi',
+        href: '/admin/feedback',
+        icon: MessageSquare,
       },
     ],
   },

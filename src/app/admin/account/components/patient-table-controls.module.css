@@ -1,0 +1,406 @@
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eae9eb;
+  gap: var(--spacing-sm);
+  background-color: #fff;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 1;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--spacing-sm);
+  width: 18px;
+  height: 18px;
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background-color: #f8f9fa;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+}
+
+.filterButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px var(--spacing-sm);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background-color: #f8f9fa;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filterButton:hover {
+  background-color: #e9ecef;
+  border-color: var(--color-brand-accent);
+}
+
+.filterIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.chevronIcon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s;
+}
+
+.filterButton[data-state='open'] .chevronIcon,
+.statusButton[data-state='open'] .chevronIcon {
+  transform: rotate(180deg);
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.statusButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background-color: #f8f9fa;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.statusButton:hover {
+  background-color: #e9ecef;
+  border-color: var(--color-brand-accent);
+}
+
+.dropdownContent {
+  background-color: #fff;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+  min-width: 200px;
+}
+
+.dropdownItem {
+  padding: 8px 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s;
+}
+
+.dropdownItem:hover {
+  background-color: rgba(250, 131, 20, 0.1);
+}
+
+.dropdownItemActive {
+  color: var(--color-brand-accent);
+  background-color: rgba(250, 131, 20, 0.1);
+}
+
+.newPatientButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px var(--spacing-sm);
+  background-color: var(--color-brand-accent);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.newPatientButton:hover {
+  background-color: #e67310;
+}
+
+.plusIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.roleButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background-color: #f8f9fa;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.roleButton:hover {
+  background-color: #e9ecef;
+  border-color: var(--color-brand-accent);
+}
+
+.roleDropdownContent {
+  background-color: #fff;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+  min-width: 280px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.roleItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s;
+}
+
+.roleItem:hover {
+  background-color: rgba(250, 131, 20, 0.1);
+}
+
+.roleItemName {
+  flex: 1;
+}
+
+.roleItemActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.roleActionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: transparent;
+  color: var(--color-text-primary);
+}
+
+.roleActionButton:hover:not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.roleActionButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.roleActionButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+.roleActionButton:first-child {
+  color: #a855f7;
+}
+
+.roleActionButton:first-child:hover:not(:disabled) {
+  background-color: rgba(168, 85, 247, 0.1);
+}
+
+.roleActionButton:last-child {
+  color: #ef4444;
+}
+
+.roleActionButton:last-child:hover:not(:disabled) {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.createRoleItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-brand-accent);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s;
+  font-weight: 500;
+}
+
+.createRoleItem:hover {
+  background-color: rgba(250, 131, 20, 0.1);
+}
+
+.loadingRoles {
+  padding: 12px;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+.roleItemWrapper {
+  width: 100%;
+}
+
+.roleEditForm,
+.roleCreateForm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: var(--radius-sm);
+  margin: 4px;
+}
+
+.roleEditInput {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background-color: #fff;
+}
+
+.roleEditInput:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+}
+
+.roleEditActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.roleSaveButton,
+.roleCancelButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.roleSaveButton {
+  background-color: #10b981;
+  color: #fff;
+}
+
+.roleSaveButton:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.roleSaveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.roleCancelButton {
+  background-color: #6b7280;
+  color: #fff;
+}
+
+.roleCancelButton:hover {
+  background-color: #4b5563;
+}
+
+.roleSaveButton svg,
+.roleCancelButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .left {
+    flex-direction: column;
+    max-width: 100%;
+  }
+
+  .searchWrapper {
+    max-width: 100%;
+  }
+
+  .right {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .statusSelect,
+  .newPatientButton {
+    width: 100%;
+  }
+}
+
