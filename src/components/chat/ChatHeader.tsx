@@ -1,13 +1,15 @@
 'use client';
 
 import React from 'react';
-import { Cross1Icon, MinusIcon } from '@radix-ui/react-icons';
+import { Cross1Icon, MinusIcon, SizeIcon, EnterFullScreenIcon, ExitFullScreenIcon } from '@radix-ui/react-icons';
 
 type ChatHeaderProps = {
   title: string;
   subtitle?: string;
   onClose: () => void;
   onMinimize?: () => void;
+  onExpand?: () => void;
+  isExpanded?: boolean;
   leftAvatar?: React.ReactNode;
   rightActions?: React.ReactNode;
 };
@@ -17,6 +19,8 @@ export function ChatHeader({
   subtitle,
   onClose,
   onMinimize,
+  onExpand,
+  isExpanded,
   leftAvatar,
   rightActions,
 }: ChatHeaderProps) {
@@ -32,6 +36,17 @@ export function ChatHeader({
 
       <div className="chatbox__header-actions">
         {rightActions}
+        {onExpand && (
+          <button
+            type="button"
+            className="chatbox__icon-btn"
+            onClick={onExpand}
+            aria-label={isExpanded ? 'Thu nhỏ' : 'Mở rộng'}
+            title={isExpanded ? 'Thu nhỏ' : 'Mở rộng'}
+          >
+            {isExpanded ? <ExitFullScreenIcon /> : <EnterFullScreenIcon />}
+          </button>
+        )}
         {onMinimize && (
           <button type="button" className="chatbox__icon-btn" onClick={onMinimize} aria-label="Thu nhỏ">
             <MinusIcon />
