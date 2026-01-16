@@ -5,6 +5,9 @@ import type {
   GoogleLoginRequest,
   ForgotPasswordRequest,
   AuthResponse,
+  LogoutRequest,
+  ChangePasswordRequest,
+  ResendVerificationRequest,
 } from '@/types/auth';
 
 const authService = {
@@ -38,6 +41,18 @@ const authService = {
 
   resetPassword: (payload: { resetToken: string; newPassword: string; confirmNewPassword: string }): Promise<{ message?: string }> => {
     return apiClient.post('/Auth/reset-password', payload);
+  },
+
+  logout: (payload: LogoutRequest): Promise<{ message?: string }> => {
+    return apiClient.post('/Auth/logout', payload);
+  },
+
+  changePassword: (payload: ChangePasswordRequest): Promise<{ message?: string }> => {
+    return apiClient.post('/Auth/change-password', payload);
+  },
+
+  resendVerification: (payload: ResendVerificationRequest): Promise<{ message?: string }> => {
+    return apiClient.post('/Auth/resend-verification', payload);
   },
 };
 

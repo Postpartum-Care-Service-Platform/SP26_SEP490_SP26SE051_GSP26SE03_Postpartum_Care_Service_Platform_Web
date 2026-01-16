@@ -6,11 +6,12 @@
 }
 
 .title {
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.25;
-  color: var(--color-text-primary);
+  font-family: var(--font-admin-title);
+  font-size: 15px;
+  font-weight: 500;
+  text-transform: capitalize;
+  line-height: 1.2;
+  color: var(--color-admin-text-primary);
   margin: 0;
 }
 

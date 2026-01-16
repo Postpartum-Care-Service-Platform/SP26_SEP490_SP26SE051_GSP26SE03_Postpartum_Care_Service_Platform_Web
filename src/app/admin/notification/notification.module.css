@@ -1,0 +1,21 @@
+.pageContainer {
+  padding: var(--spacing-md);
+}
+
+.tabs {
+  margin-top: var(--spacing-md);
+}
+
+.loading,
+.error {
+  padding: var(--spacing-xl);
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-admin-text-muted);
+}
+
+.error {
+  color: #dc3545;
+}
+

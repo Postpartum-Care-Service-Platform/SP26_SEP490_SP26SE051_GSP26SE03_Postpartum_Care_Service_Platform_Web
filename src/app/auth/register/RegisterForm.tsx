@@ -15,7 +15,7 @@ import { AUTH_REGISTER_MESSAGES } from '@/messages/auth/register';
 import { AUTH_REGISTER_REGEX } from '@/messages/auth/register.regex';
 import authService from '@/services/auth.service';
 import { setVerifyEmail } from '@/utils/emailVerificationStorage';
-import { buildVerifyEmailRoute } from '@/routes/routes';
+import { buildVerifyEmailRoute, ROUTES } from '@/routes/routes';
 import styles from './register.module.css';
 
 type FieldErrors = {
@@ -261,7 +261,7 @@ export function RegisterForm() {
       <div className={styles.footerLinks}>
         <div className={styles.footerLinksRow}>
           Đã có tài khoản?{' '}
-          <Link className={styles.footerLink} href="/login">
+          <Link className={styles.footerLink} href={ROUTES.login}>
             Đăng nhập
           </Link>
         </div>

@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import { ROUTES } from '@/routes/routes';
 
 // Đây là cấu hình NextAuth cơ bản. Bạn sẽ cần thay thế logic trong `authorize`
 // bằng logic gọi API đăng nhập thực tế của bạn.
@@ -34,7 +35,7 @@ const handler = NextAuth({
     }),
   ],
   pages: {
-    signIn: '/login',
+    signIn: ROUTES.login,
   },
   callbacks: {
     // Callback này được gọi sau khi `authorize` thành công

@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React from 'react';
-import { ChevronDown, ChevronRight, Menu } from 'lucide-react';
+import { Plus, Minus, Menu } from 'lucide-react';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-32x32.png';
 import { adminNav, type AdminNavItem } from '@/configs/adminNav';
@@ -67,34 +67,36 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
                     {item.href ? (
                       <Link
                         href={item.href}
-                        className={`${styles.item} ${isActive ? styles.itemActive : ''}`}
+                        className={`${styles.item} ${isActive ? styles.itemActive : ''} ${item.children && item.children.length > 0 ? styles.itemWithChildren : ''}`}
                         title={collapsed ? item.label : undefined}
                       >
                         {Icon ? <Icon className={styles.itemIcon} size={18} /> : null}
                         <span className={collapsed ? styles.collapsedHide : ''}>{item.label}</span>
+                        {item.children && item.children.length > 0 && !collapsed ? (
+                          <span className={styles.itemChevron}>
+                            {isOpen ? <Minus size={16} /> : <Plus size={16} />}
+                          </span>
+                        ) : null}
                       </Link>
                     ) : (
                       <button
                         type="button"
-                        className={`${styles.item} ${isActive ? styles.itemActive : ''}`}
+                        className={`${styles.item} ${isActive ? styles.itemActive : ''} ${item.children && item.children.length > 0 ? styles.itemWithChildren : ''}`}
                         onClick={() => toggleGroup(item.key)}
                         title={collapsed ? item.label : undefined}
                       >
                         {Icon ? <Icon className={styles.itemIcon} size={18} /> : null}
                         <span className={collapsed ? styles.collapsedHide : ''}>{item.label}</span>
-                        {item.children?.length && !collapsed ? (
+                        {item.children && item.children.length > 0 && !collapsed ? (
                           <span className={styles.itemChevron}>
-                            {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                            {isOpen ? <Minus size={16} /> : <Plus size={16} />}
                           </span>
                         ) : null}
                       </button>
                     )}
 
-                    {item.children?.length && isOpen && !collapsed ? (
-                      <div className={styles.submenu}>
-                        <div className={styles.submenuLineContainer}>
-                          <div className={styles.submenuLineVertical} />
-                        </div>
+                    {item.children?.length && !collapsed ? (
+                      <div className={`${styles.submenu} ${isOpen ? styles.submenuOpen : ''}`}>
                         {item.children.map((child) => {
                           const childActive = pathname === child.href;
                           return (

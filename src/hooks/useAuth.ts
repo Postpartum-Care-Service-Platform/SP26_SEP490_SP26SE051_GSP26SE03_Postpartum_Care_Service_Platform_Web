@@ -1,6 +1,7 @@
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useCallback } from 'react';
 import type { LoginRequest } from '@/types/auth';
+import { ROUTES } from '@/routes/routes';
 
 export const useAuth = () => {
   const { data: session, status } = useSession();
@@ -31,7 +32,7 @@ export const useAuth = () => {
 
   const logout = useCallback(async () => {
     try {
-      await signOut({ redirect: true, callbackUrl: '/login' });
+      await signOut({ redirect: true, callbackUrl: ROUTES.login });
     } catch (error) {
       console.error('Logout failed:', error);
     }

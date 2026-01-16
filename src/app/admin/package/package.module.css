@@ -1,0 +1,10 @@
+.pageContainer {
+  padding: 16px;
+}
+
+.content {
+  padding: var(--spacing-md);
+  background-color: #fff;
+  border-radius: var(--radius-md);
+}
+

@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-180x180.png';
 import { UserNav } from './UserNav';
+import { ROUTES } from '@/routes/routes';
 
 import '@/styles/header.css';
 
@@ -54,7 +55,7 @@ export function Header() {
               <UserNav />
             ) : (
               <>
-                <a className="tjn-header__login" href="/login">
+                <a className="tjn-header__login" href={ROUTES.login}>
                   Đăng nhập
                 </a>
                 <a className="tjn-header__quote" href="/bao-gia">

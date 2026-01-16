@@ -38,3 +38,17 @@ export interface AuthResponse {
   expiresAt: string;
   user: User;
 }
+
+export interface LogoutRequest {
+  refreshToken: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+}

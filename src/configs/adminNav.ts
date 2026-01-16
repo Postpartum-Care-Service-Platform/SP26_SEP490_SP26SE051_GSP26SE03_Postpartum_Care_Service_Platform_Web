@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare, FileText, Utensils, ClipboardList, Package, Bell } from 'lucide-react';
 
 export type AdminNavItem = {
   key: string;
@@ -63,8 +63,49 @@ export const adminNav: AdminNavSection[] = [
       {
         key: 'feedback',
         label: 'Phản hồi',
-        href: '/admin/feedback',
         icon: MessageSquare,
+        children: [
+          {
+            key: 'feedback-list',
+            label: 'Danh sách phản hồi',
+            href: '/admin/feedback',
+          },
+          {
+            key: 'feedback-types',
+            label: 'Loại phản hồi',
+            href: '/admin/feedback-type',
+          },
+        ],
+      },
+      {
+        key: 'contract',
+        label: 'Hợp đồng',
+        href: '/admin/contract',
+        icon: FileText,
+      },
+      {
+        key: 'food',
+        label: 'Món ăn',
+        href: '/admin/food',
+        icon: Utensils,
+      },
+      {
+        key: 'menu',
+        label: 'Thực đơn',
+        href: '/admin/menu',
+        icon: ClipboardList,
+      },
+      {
+        key: 'package',
+        label: 'Gói dịch vụ',
+        href: '/admin/package',
+        icon: Package,
+      },
+      {
+        key: 'notification',
+        label: 'Thông báo',
+        href: '/admin/notification',
+        icon: Bell,
       },
     ],
   },
