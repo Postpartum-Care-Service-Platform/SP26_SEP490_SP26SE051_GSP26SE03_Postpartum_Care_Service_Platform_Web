@@ -4,6 +4,7 @@ import React from 'react';
 import { Bell, ChevronDown, Grid2x2, Menu, Search, Settings } from 'lucide-react';
 
 import { UserDropdown } from './UserDropdown';
+import { NotificationDropdown } from './NotificationDropdown';
 
 import styles from './admin-layout.module.css';
 
@@ -47,9 +48,7 @@ export function AdminHeader({ collapsed, onToggleCollapsed }: Props) {
             <button className={styles.iconGhostBtn} type="button" aria-label="Settings">
               <Settings size={18} />
             </button>
-            <button className={styles.iconGhostBtn} type="button" aria-label="Notifications">
-              <Bell size={18} />
-            </button>
+            <NotificationDropdown />
           </div>
 
           <UserDropdown />

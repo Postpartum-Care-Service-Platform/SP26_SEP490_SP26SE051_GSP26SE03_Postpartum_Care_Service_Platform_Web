@@ -1,0 +1,38 @@
+.listContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  max-height: calc(100vh - 300px);
+  overflow-y: auto;
+  padding-right: var(--spacing-xs);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.listContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.listContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.listContainer::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.listContainer::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-admin-text-muted);
+  font-family: var(--font-body);
+  font-size: 14px;
+}

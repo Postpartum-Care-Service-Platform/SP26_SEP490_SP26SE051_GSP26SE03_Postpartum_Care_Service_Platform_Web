@@ -1,0 +1,112 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-md);
+  background-color: #fff;
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  gap: 10px;
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.title {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.statusBadge {
+  font-family: var(--font-body);
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.statusActive {
+  background-color: #ecfdf3;
+  color: #15803d;
+}
+
+.statusInactive {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.metaItem {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.content {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.8);
+  line-height: 1.4;
+  min-height: 36px;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.primaryAction {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background-color: var(--color-brand-accent);
+  color: var(--color-text-inverse);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.primaryAction:hover {
+  background-color: #e67310;
+}
+
+.secondaryAction {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-default);
+  background-color: #fff;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.secondaryAction:hover {
+  background-color: #f8f9fa;
+}
+
+

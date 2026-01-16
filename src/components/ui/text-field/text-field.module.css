@@ -1,0 +1,24 @@
+.fieldWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.inputError {
+  border-color: #ef4444 !important;
+}
+
+.errorText {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #ef4444;
+}
+

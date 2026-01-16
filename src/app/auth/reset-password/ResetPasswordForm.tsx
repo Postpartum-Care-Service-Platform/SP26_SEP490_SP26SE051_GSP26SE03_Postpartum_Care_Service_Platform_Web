@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import { AUTH_FORGOT_PASSWORD_MESSAGES, AUTH_FORGOT_PASSWORD_REGEX } from '@/messages/auth/forgot-password';
 import { RESET_PASSWORD_MESSAGES } from '@/messages/auth/reset-password';
 import authService from '@/services/auth.service';
+import { ROUTES } from '@/routes/routes';
 
 import { EmailStep } from './EmailStep';
 import OtpStep from './OtpStep';
@@ -185,7 +186,7 @@ export default function ResetPasswordForm() {
       <div className={styles.footerLinks}>
         <div className={styles.footerLinksRow}>
           Nhớ mật khẩu rồi?{' '}
-          <Link className={styles.footerLink} href="/login">
+          <Link className={styles.footerLink} href={ROUTES.login}>
             Đăng nhập
           </Link>
         </div>

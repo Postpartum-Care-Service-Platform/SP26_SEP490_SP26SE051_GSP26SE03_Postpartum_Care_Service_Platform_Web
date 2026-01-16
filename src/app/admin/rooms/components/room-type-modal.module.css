@@ -1,0 +1,80 @@
+.dialogContent {
+  max-width: 600px !important;
+  width: 90vw !important;
+  background-color: #fff !important;
+  border-radius: 4.8px !important;
+  padding: 0 !important;
+  display: grid !important;
+  gap: 0 !important;
+}
+
+.dialogContent button[data-radix-dialog-close],
+.dialogContent > button[data-radix-dialog-close] {
+  position: absolute !important;
+  right: 1rem !important;
+  top: 1rem !important;
+  left: auto !important;
+  bottom: auto !important;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  z-index: 50 !important;
+  margin: 0 !important;
+  transform: none !important;
+}
+
+.dialogContent button[data-radix-dialog-close]:hover {
+  opacity: 1;
+}
+
+.dialogContent button[data-radix-dialog-close]:focus {
+  outline: none;
+}
+
+.dialogTitle {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  padding: 1rem;
+  margin: 0;
+}
+
+.dialogDescription {
+  padding: 0 1rem;
+  margin: 0;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding: 1rem;
+}
+
+.formFields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .formFields {
+    gap: var(--spacing-sm);
+  }
+}
+

@@ -71,6 +71,12 @@
   flex: 1;
   padding: var(--spacing-sm);
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
 }
 
 .sectionLabel {
@@ -80,7 +86,7 @@
   color: rgba(30, 30, 30, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-sm);
   margin-bottom: var(--spacing-xs);
 }
 
@@ -88,30 +94,46 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: var(--spacing-xs);
   width: 100%;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 8px;
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
-  font-family: var(--font-body);
-  font-size: 14px;
+  font-family: "Lexend Deca", sans-serif;
+  font-size: 13.3px;
   font-weight: 500;
-  color: var(--color-text-primary);
+  color: #7E8B98;
   cursor: pointer;
   text-align: left;
   text-decoration: none !important;
   transition: background-color 0.2s ease, color 0.2s ease;
+  position: relative;
+  letter-spacing: 0.0125rem;
 }
 
 .sidebarCollapsed .item {
+  display: inline-flex;
   padding: var(--spacing-xs);
   justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border-radius: 4.8px;
 }
 
 .item:hover {
   background-color: rgba(250, 131, 20, 0.1);
+  color: var(--color-brand-accent);
   text-decoration: none !important;
+}
+
+.item:hover .itemChevron {
+  opacity: 1;
+}
+
+.sidebarCollapsed .item:hover {
+  background-color: rgba(250, 131, 20, 0.1);
 }
 
 .item a {
@@ -124,11 +146,32 @@
 
 .item span {
   text-decoration: none !important;
+  padding-left: 8px;
 }
 
 .itemActive {
   background-color: rgba(250, 131, 20, 0.15);
   color: var(--color-brand-accent);
+}
+
+.sidebarCollapsed .itemActive {
+  background-color: rgba(250, 131, 20, 0.15);
+}
+
+.itemActive::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 33px;
+  background-color: var(--color-brand-accent);
+  border-radius: 0 2px 2px 0;
+}
+
+.sidebarCollapsed .itemActive::before {
+  display: none;
 }
 
 .itemIcon {
@@ -149,23 +192,20 @@
   margin-top: 4px;
   padding-left: var(--spacing-sm);
   position: relative;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.8s ease;
+}
+
+.submenuOpen {
+  max-height: 500px;
+  transition: max-height 1.6s ease;
 }
 
 .submenuLineContainer {
-  position: absolute;
-  left: var(--spacing-sm);
-  top: 8px;
-  bottom: 0;
-  width: 20px;
-  display: flex;
-  justify-content: center;
-  pointer-events: none;
 }
 
 .submenuLineVertical {
-  width: 1px;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.15);
 }
 
 .submenuItem {
@@ -203,15 +243,17 @@
 
 .subitem {
   display: block;
-  padding: var(--spacing-xs) var(--spacing-sm);
-  font-family: var(--font-body);
-  font-size: 13px;
+  padding: var(--spacing-sm);
+  font-family: "Lexend Deca", sans-serif;
+  font-size: 13.3px;
   font-weight: 400;
-  color: var(--color-text-primary);
+  color: #7E8B98;
   text-decoration: none !important;
   border-radius: var(--radius-sm);
   transition: background-color 0.2s ease, color 0.2s ease;
   flex: 1;
+  letter-spacing: 0.0125rem;
+  padding-left: calc(var(--spacing-sm) + 5px);
 }
 
 .subitem:hover {

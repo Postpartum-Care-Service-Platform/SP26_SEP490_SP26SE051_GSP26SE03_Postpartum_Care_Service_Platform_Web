@@ -1,0 +1,125 @@
+.detailContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.detailHeader {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.detailTitle {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.detailContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.emptyDetail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: rgba(0, 0, 0, 0.6);
+  font-family: var(--font-body);
+  font-size: 14px;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.select {
+  width: 100%;
+  height: 35.77px;
+  padding: 0 14px;
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-radius: 0;
+  background-color: #fff;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+}
+
+.customerSection {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.sectionTitle {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 12px 0;
+}
+
+.customerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoRow {
+  display: flex;
+  gap: 12px;
+}
+
+.infoLabel {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.6);
+  min-width: 100px;
+}
+
+.infoValue {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-primary);
+}
+
+.actions {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-default);
+}
+
+

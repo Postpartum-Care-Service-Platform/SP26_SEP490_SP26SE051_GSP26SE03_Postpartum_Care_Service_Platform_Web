@@ -6,13 +6,15 @@ import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import roomTypeService from '@/services/room-type.service';
 import type { RoomType } from '@/types/room-type';
 import { RoomCard } from './RoomCard';
+import { RoomTypeModal } from './components/RoomTypeModal';
 
 export default function AdminRoomsPage() {
   const [rooms, setRooms] = useState<RoomType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<number | null>(null);
-  const [creating, setCreating] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<RoomType | null>(null);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -31,83 +33,22 @@ export default function AdminRoomsPage() {
     fetchRooms();
   }, []);
 
-  const handleCreateRoom = async () => {
-    const name = window.prompt('Tên loại phòng');
-    if (!name || !name.trim()) {
-      return;
-    }
-
-    const basePriceInput = window.prompt('Giá cơ bản', '0');
-    if (basePriceInput == null) {
-      return;
-    }
-    const basePrice = Number(basePriceInput);
-    if (Number.isNaN(basePrice) || basePrice < 0) {
-      return;
-    }
-
-    const capacityInput = window.prompt('Sức chứa', '1');
-    if (capacityInput == null) {
-      return;
-    }
-    const capacity = Number(capacityInput);
-    if (Number.isNaN(capacity) || capacity < 0) {
-      return;
-    }
-
-    const description = window.prompt('Mô tả', '') ?? '';
-
-    try {
-      setCreating(true);
-      const created = await roomTypeService.createRoomType({
-        name: name.trim(),
-        basePrice,
-        description,
-        capacity,
-      });
-      setRooms((prev) => [created, ...prev]);
-    } finally {
-      setCreating(false);
-    }
+  const handleCreateRoom = () => {
+    setSelectedRoom(null);
+    setIsModalOpen(true);
   };
 
-  const handleEditRoom = async (room: RoomType) => {
-    const name = window.prompt('Tên loại phòng', room.name);
-    if (name == null || name.trim() === '') {
-      return;
-    }
+  const handleEditRoom = (room: RoomType) => {
+    setSelectedRoom(room);
+    setIsModalOpen(true);
+  };
 
-    const basePriceInput = window.prompt('Giá cơ bản', String(room.basePrice));
-    if (basePriceInput == null) {
-      return;
-    }
-    const basePrice = Number(basePriceInput);
-    if (Number.isNaN(basePrice) || basePrice < 0) {
-      return;
-    }
-
-    const capacityInput = window.prompt('Sức chứa', room.capacity != null ? String(room.capacity) : '');
-    if (capacityInput == null) {
-      return;
-    }
-    const capacity = Number(capacityInput);
-    if (Number.isNaN(capacity) || capacity < 0) {
-      return;
-    }
-
-    const description = window.prompt('Mô tả', room.description ?? '') ?? '';
-
+  const handleModalSuccess = async () => {
     try {
-      setSavingId(room.id);
-      const updated = await roomTypeService.updateRoomType(room.id, {
-        name: name.trim(),
-        basePrice,
-        description,
-        capacity,
-      });
-      setRooms((prev) => prev.map((r) => (r.id === room.id ? updated : r)));
-    } finally {
-      setSavingId(null);
+      const data = await roomTypeService.getAdminRoomTypes();
+      setRooms(data);
+    } catch (err: any) {
+      setError(err?.message || 'Không thể tải danh sách phòng');
     }
   };
 
@@ -167,13 +108,19 @@ export default function AdminRoomsPage() {
         />
       </div>
       <div className={styles.actionsBar}>
-        <button type="button" className={styles.addButton} onClick={handleCreateRoom} disabled={creating}>
+        <button type="button" className={styles.addButton} onClick={handleCreateRoom}>
           Thêm loại phòng
         </button>
       </div>
       <div className={styles.contentCard}>
         {renderContent()}
       </div>
+      <RoomTypeModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        room={selectedRoom}
+        onSuccess={handleModalSuccess}
+      />
     </div>
   );
 }

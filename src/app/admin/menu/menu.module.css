@@ -1,0 +1,21 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 68px);
+  overflow: hidden;
+  padding: 16px;
+}
+
+.loading,
+.error {
+  padding: var(--spacing-lg);
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.error {
+  color: #ef4444;
+}
+

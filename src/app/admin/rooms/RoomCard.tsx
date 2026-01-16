@@ -45,7 +45,7 @@ export function RoomCard({ room, index, onEdit, onDelete }: Props) {
           </div>
           <div className={styles.detailBox}>
             <div className={styles.detailLabel}>Giá cơ bản</div>
-            <div className={styles.detailValue}>{room.basePrice.toLocaleString('vi-VN')} đ/ngày</div>
+            <div className={styles.detailValue}>{room.basePrice.toLocaleString('vi-VN')}</div>
           </div>
           <div className={styles.detailBox}>
             <div className={styles.detailLabel}>Sức chứa</div>
