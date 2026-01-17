@@ -13,7 +13,8 @@ import { Form } from '@/components/forms/Form';
 import { FormField } from '@/components/forms/FormField';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/button';
-import { appointmentService, type CreateAppointmentRequest } from '@/services/appointment.service';
+import appointmentService from '@/services/appointment.service';
+import type { CreateAppointmentRequest } from '@/types/appointment';
 
 import styles from './AppointmentForm.module.css';
 

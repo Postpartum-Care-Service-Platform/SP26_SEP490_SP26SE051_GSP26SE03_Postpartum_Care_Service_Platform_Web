@@ -46,18 +46,58 @@
 
 /* Card cho mỗi gói dịch vụ */
 .packageCard {
+  position: relative;
   background: white;
-  border-radius: 16px;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 
 .packageCard:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: rgba(250, 131, 20, 0.2);
+}
+
+/* Hình tròn màu cam di chuyển theo chuột */
+.hoverCircle {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(250, 131, 20, 0.3) 0%,
+    rgba(250, 131, 20, 0.15) 30%,
+    rgba(250, 131, 20, 0.08) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: left 0.15s ease-out, top 0.15s ease-out, opacity 0.2s ease;
+  z-index: 1;
+  mix-blend-mode: multiply;
+  will-change: left, top;
+  opacity: 0;
+  animation: circleFadeIn 0.3s ease-out forwards;
+  filter: blur(20px);
+  -webkit-filter: blur(20px);
+}
+
+@keyframes circleFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 
 /* Wrapper cho hình ảnh */
@@ -124,8 +164,9 @@
   content: '✓';
   position: absolute;
   left: 0;
-  color: #4caf50;
+  color: var(--color-brand-accent);
   font-weight: bold;
+  font-size: 16px;
 }
 
 /* Thông tin giá và thời gian */
@@ -156,7 +197,7 @@
   font-family: var(--font-display);
   font-size: 20px;
   font-weight: 600;
-  color: #d4a574;
+  color: var(--color-brand-accent);
 }
 
 .durationValue {
@@ -171,20 +212,23 @@
   display: inline-block;
   width: 100%;
   padding: 14px 24px;
-  background-color: #d4a574;
-  color: white;
+  background-color: var(--color-brand-accent);
+  color: var(--color-text-inverse);
   text-align: center;
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: 0;
+  border: none;
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 500;
   transition: background-color 0.3s ease, transform 0.2s ease;
   cursor: pointer;
+  position: relative;
+  z-index: 2;
 }
 
 .viewDetailsButton:hover {
-  background-color: #c49564;
+  background-color: #e67310;
   transform: translateY(-2px);
 }
 

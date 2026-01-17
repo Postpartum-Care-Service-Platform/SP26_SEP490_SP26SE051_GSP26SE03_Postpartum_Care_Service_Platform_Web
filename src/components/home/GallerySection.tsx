@@ -73,6 +73,8 @@ export const GallerySection: React.FC = () => {
                   className={styles.image}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
+                {/* Overlay màu đen từ trái qua phải */}
+                <div className={styles.blackOverlay} />
                 {/* Overlay với title */}
                 <div className={styles.overlay}>
                   <h3 className={styles.itemTitle}>{item.title}</h3>

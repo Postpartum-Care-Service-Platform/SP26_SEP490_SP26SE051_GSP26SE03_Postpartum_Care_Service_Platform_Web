@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -13,6 +13,9 @@ export const PackagesSection: React.FC = () => {
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [mousePositions, setMousePositions] = useState<{ [key: number]: { x: number; y: number } }>({});
+  const cardRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
   useEffect(() => {
     // Fetch danh sách packages từ API
@@ -34,6 +37,28 @@ export const PackagesSection: React.FC = () => {
 
     fetchPackages();
   }, []);
+
+  // Xử lý mouse move để di chuyển hình tròn theo chuột
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, cardId: number) => {
+    const card = cardRefs.current[cardId];
+    if (card) {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setMousePositions((prev) => ({
+        ...prev,
+        [cardId]: { x, y },
+      }));
+    }
+  };
+
+  const handleMouseEnter = (cardId: number) => {
+    setHoveredCard(cardId);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredCard(null);
+  };
 
   if (loading) {
     return (
@@ -71,7 +96,24 @@ export const PackagesSection: React.FC = () => {
         {packages.length > 0 ? (
           <div className={styles.packagesGrid}>
             {packages.map((pkg) => (
-              <div key={pkg.id} className={styles.packageCard}>
+              <div
+                key={pkg.id}
+                ref={(el) => (cardRefs.current[pkg.id] = el)}
+                className={styles.packageCard}
+                onMouseMove={(e) => handleMouseMove(e, pkg.id)}
+                onMouseEnter={() => handleMouseEnter(pkg.id)}
+                onMouseLeave={handleMouseLeave}
+              >
+                {/* Hình tròn màu cam di chuyển theo chuột */}
+                {hoveredCard === pkg.id && mousePositions[pkg.id] && (
+                  <div
+                    className={styles.hoverCircle}
+                    style={{
+                      left: `${mousePositions[pkg.id].x}px`,
+                      top: `${mousePositions[pkg.id].y}px`,
+                    }}
+                  />
+                )}
                 {/* Hình ảnh gói dịch vụ */}
                 {pkg.imageUrl && (
                   <div className={styles.imageWrapper}>
