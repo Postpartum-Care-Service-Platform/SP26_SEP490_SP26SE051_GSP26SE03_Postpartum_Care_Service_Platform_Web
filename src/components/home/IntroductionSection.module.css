@@ -1,0 +1,320 @@
+/* Container chính cho phần giới thiệu */
+.introduction {
+  padding: 80px 24px;
+  background-color: #480280; /* Màu tím đậm */
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header với tiêu đề và mô tả */
+.header {
+  text-align: center;
+  margin-bottom: 64px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.title {
+  font-family: serif; /* Font serif như trong hình */
+  font-size: clamp(32px, 4vw, 56px);
+  font-weight: 700; /* Đậm hơn */
+  color: #ffffff; /* Màu trắng */
+  margin: 0 auto 24px;
+  line-height: 1.2;
+  position: relative;
+  display: inline-block;
+  /* Banner màu cam */
+  background-color: #ff6b00; /* Màu cam */
+  padding: 20px 40px;
+  border-radius: 4px;
+  text-align: center;
+  /* Loại bỏ hiệu ứng glow */
+  text-shadow: none;
+  animation: none;
+}
+
+
+.description {
+  font-family: var(--font-body);
+  font-size: clamp(16px, 1.5vw, 20px);
+  color: #ffffff; /* Màu trắng */
+  line-height: 1.8;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Container cho không gian vũ trụ */
+.spaceContainer {
+  position: relative;
+  width: 100%;
+  min-height: 600px;
+  margin-top: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Form đặt lịch ở giữa */
+.formCenter {
+  position: relative;
+  z-index: 1; /* Cao hơn các hành tinh để form hiển thị ở trên */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Cho phép formContainer giãn theo bề ngang của section */
+  width: 100%;
+  padding:10px 96px; /* chừa khoảng trống hai bên để không đụng hành tinh */
+  box-sizing: border-box;
+}
+
+/* Các hành tinh ở vị trí ngẫu nhiên với z-index cao */
+.planet {
+  position: absolute;
+  z-index: 15; /* Z-index cao để ở trên cùng */
+  animation: float 6s ease-in-out infinite;
+}
+
+.planetEarth {
+  top: -10%;
+  left: 5%;
+  animation-delay: 0s;
+}
+
+.planetJupiter {
+  top: -15%;
+  right: 8%;
+  animation-delay: 2s;
+}
+
+.planetSaturn {
+  bottom: 20%;
+  left: 10%;
+  animation-delay: 4s;
+}
+
+.planetImage {
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  animation: rotate 20s linear infinite;
+}
+
+/* Animation cho hành tinh nổi */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) scale(1.05);
+  }
+}
+
+/* Animation xoay cho hành tinh */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Container cho tên lửa */
+.rocketContainer {
+  position: absolute;
+  bottom: 10%;
+  right: -1%;
+  z-index: 5;
+  animation: rocketFloat 4s ease-in-out infinite;
+}
+
+.rocketWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rocketImage {
+  object-fit: contain;
+  z-index: 2;
+  position: relative;
+}
+
+/* Hiệu ứng lửa phía sau tên lửa */
+.fireEffect {
+  position: absolute;
+  bottom: 19px; /* ← Chỉnh đây để di chuyển cả 3 lớp lửa lên/xuống */
+  left: 20%; /* ← Chỉnh đây để di chuyển cả 3 lớp lửa trái/phải */
+  transform: translateX(-60%); /* ← Chỉnh translateX để điều chỉnh vị trí ngang chính xác */
+  z-index: 1;
+  width: 120px;
+  height: 100px;
+}
+
+.fire1,
+.fire2,
+.fire3 {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  animation: fireAnimation 0.5s ease-in-out infinite alternate;
+}
+
+.fire1 {
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(
+    ellipse at center,
+    #ff6b00 0%,
+    #ff8c42 30%,
+    #ffaa66 60%,
+    transparent 100%
+  );
+  animation-delay: 0s;
+}
+
+.fire2 {
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(
+    ellipse at center,
+    #ff8c42 0%,
+    #ffaa66 40%,
+    #ffcc99 70%,
+    transparent 100%
+  );
+  animation-delay: 0.15s;
+  left: 45%;
+}
+
+.fire3 {
+  width: 70px;
+  height: 70px;
+  background: radial-gradient(
+    ellipse at center,
+    #ffaa66 0%,
+    #ffcc99 50%,
+    #ffe6cc 80%,
+    transparent 100%
+  );
+  animation-delay: 0.3s;
+  left: 55%;
+}
+
+/* Animation cho lửa */
+@keyframes fireAnimation {
+  0% {
+    transform: translateX(-50%) scaleY(1) scaleX(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(-50%) scaleY(1.2) scaleX(0.9);
+    opacity: 1;
+  }
+}
+
+/* Animation cho tên lửa nổi */
+@keyframes rocketFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-5deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(5deg);
+  }
+}
+
+/* Responsive cho tablet */
+@media (max-width: 1200px) {
+  .planetImage {
+    width: 120px !important;
+    height: 120px !important;
+  }
+
+  .rocketImage {
+    width: 150px !important;
+    height: 225px !important;
+  }
+}
+
+/* Responsive cho mobile */
+@media (max-width: 768px) {
+  .introduction {
+    padding: 48px 16px;
+  }
+
+  .header {
+    margin-bottom: 40px;
+  }
+
+  .title {
+    padding: 16px 24px;
+    font-size: clamp(24px, 5vw, 36px);
+  }
+
+  .spaceContainer {
+    min-height: 500px;
+    margin-top: 32px;
+  }
+
+  .planet {
+    position: absolute;
+  }
+
+  .planetEarth {
+    top: 5%;
+    left: 2%;
+  }
+
+  .planetJupiter {
+    top: 10%;
+    right: 2%;
+  }
+
+  .planetSaturn {
+    bottom: 15%;
+    left: 5%;
+  }
+
+  .planetImage {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .rocketContainer {
+    bottom: 5%;
+    right: 5%;
+  }
+
+  .rocketImage {
+    width: 120px !important;
+    height: 180px !important;
+  }
+
+  .fireEffect {
+    width: 80px;
+    height: 60px;
+  }
+
+  .fire1 {
+    width: 50px;
+    height: 50px;
+  }
+
+  .fire2 {
+    width: 40px;
+    height: 40px;
+  }
+
+  .fire3 {
+    width: 45px;
+    height: 45px;
+  }
+}
