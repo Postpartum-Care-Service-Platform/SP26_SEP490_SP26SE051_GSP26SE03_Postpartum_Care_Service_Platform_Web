@@ -1,19 +1,19 @@
 'use client';
 
 import React from 'react';
-import { ChatBubbleIcon, Cross1Icon, MagicWandIcon, PersonIcon } from '@radix-ui/react-icons';
+import { ChatBubbleIcon, Cross1Icon } from '@radix-ui/react-icons';
 
 import type { ChatMessage, ChatMode, ChatSender, ChatStructuredData } from '@/types/chat';
 import { ChatBox } from '@/components/chat/ChatBox';
 import chatService, { type MessageResponse, type ConversationResponse, type AiStructuredResponse } from '@/services/chat.service';
 import { streamMessage } from '@/services/chat-stream.service';
+import { useChatHub } from '@/hooks/useChatHub';
+import { useAuth } from '@/contexts/AuthContext';
 
 import '@/styles/support-widget.css';
 
-// Config: bật/tắt streaming
 const USE_STREAMING = true;
 
-// Helper: Convert API MessageResponse to ChatMessage
 function toFEMessage(msg: MessageResponse, chatId: string, structuredData?: AiStructuredResponse): ChatMessage {
   let sender: ChatSender = 'other';
   if (msg.senderType === 'Customer') {
@@ -22,7 +22,6 @@ function toFEMessage(msg: MessageResponse, chatId: string, structuredData?: AiSt
     sender = 'other';
   }
 
-  // Convert structured data nếu có
   let feStructuredData: ChatStructuredData | undefined;
   if (structuredData) {
     feStructuredData = {
@@ -44,67 +43,215 @@ function toFEMessage(msg: MessageResponse, chatId: string, structuredData?: AiSt
 }
 
 export function SupportWidget() {
+  const { token, user } = useAuth();
   const [open, setOpen] = React.useState(false);
   const [activeChat, setActiveChat] = React.useState<ChatMode | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [isTyping, setIsTyping] = React.useState(false);
 
-  const [aiConversation, setAiConversation] = React.useState<ConversationResponse | null>(null);
-  const [aiMessages, setAiMessages] = React.useState<ChatMessage[]>([]);
+  const [conversation, setConversation] = React.useState<ConversationResponse | null>(null);
+  const [messages, setMessages] = React.useState<ChatMessage[]>([]);
+  const [typingUsers, setTypingUsers] = React.useState<Set<string>>(new Set());
+  const [hasStaffSupport, setHasStaffSupport] = React.useState(false);
+  const [hasRequestedSupport, setHasRequestedSupport] = React.useState(false);
 
-  const [agentMessages, setAgentMessages] = React.useState<ChatMessage[]>([]);
+  const {
+    isConnected,
+    joinConversation,
+    leaveConversation,
+    sendMessage: sendSignalRMessage,
+    requestSupport,
+    onReceiveMessage,
+    onUserTyping,
+    onStaffJoined,
+    onSupportRequestCreated,
+    onSupportResolved,
+  } = useChatHub({
+    token: token || '',
+    autoConnect: !!token && !!user,
+  });
 
-  // Load hoặc tạo conversation khi mở chat AI
-  const initAiConversation = React.useCallback(async () => {
-    if (aiConversation) return;
+  const initConversation = React.useCallback(async () => {
+    if (conversation) return;
 
     setLoading(true);
     try {
-      // Lấy danh sách conversations
       const conversations = await chatService.getConversations();
 
       if (conversations.length > 0) {
-        // Dùng conversation đầu tiên
         const conv = await chatService.getConversation(conversations[0].id);
-        setAiConversation(conv);
-        setAiMessages(conv.messages.map((m) => toFEMessage(m, 'ai')));
+        setConversation(conv);
+
+        const msgs = conv.messages.map((m) => toFEMessage(m, 'chat'));
+
+        // Use hasActiveSupport from API response
+        setHasStaffSupport(conv.hasActiveSupport);
+
+        if (msgs.length === 0) {
+          msgs.unshift({
+            id: 'welcome',
+            chatId: 'chat',
+            sender: 'other',
+            text: 'Xin chào! Tôi là trợ lý AI. Bạn muốn tư vấn điều gì hôm nay?',
+            createdAt: new Date().toISOString(),
+          });
+        }
+
+        setMessages(msgs);
+
+        if (isConnected) {
+          await joinConversation(conv.id);
+        }
       } else {
-        // Tạo mới
-        const newConv = await chatService.createConversation({ name: 'Tư vấn AI' });
-        setAiConversation(newConv);
-        setAiMessages([
+        const newConv = await chatService.createConversation({ name: 'Chat tư vấn' });
+        setConversation(newConv);
+        setMessages([
           {
             id: 'welcome',
-            chatId: 'ai',
+            chatId: 'chat',
             sender: 'other',
-            text: 'Chào bạn! Mình là trợ lý AI. Bạn muốn tư vấn điều gì hôm nay?',
+            text: 'Xin chào! Tôi là trợ lý AI. Bạn muốn tư vấn điều gì hôm nay?',
             createdAt: new Date().toISOString(),
           },
         ]);
+
+        if (isConnected) {
+          await joinConversation(newConv.id);
+        }
       }
     } catch (error) {
       console.error('Failed to init conversation:', error);
-      // Fallback: hiển thị welcome message
-      setAiMessages([
+      setMessages([
         {
           id: 'welcome',
-          chatId: 'ai',
+          chatId: 'chat',
           sender: 'other',
-          text: 'Chào bạn! Mình là trợ lý AI. Bạn muốn tư vấn điều gì hôm nay?',
+          text: 'Xin chào! Tôi là trợ lý AI. Bạn muốn tư vấn điều gì hôm nay?',
           createdAt: new Date().toISOString(),
         },
       ]);
     } finally {
       setLoading(false);
     }
-  }, [aiConversation]);
+  }, [conversation, isConnected, joinConversation]);
 
-  // Khi mở chat AI
   React.useEffect(() => {
-    if (activeChat === 'ai') {
-      initAiConversation();
+    if (activeChat === 'agent') {
+      initConversation();
     }
-  }, [activeChat, initAiConversation]);
+
+    return () => {
+      if (conversation && isConnected) {
+        leaveConversation(conversation.id);
+      }
+    };
+  }, [activeChat, initConversation, conversation, isConnected, leaveConversation]);
+
+  React.useEffect(() => {
+    if (!conversation) return;
+
+    const unsubscribe = onReceiveMessage((message) => {
+      if (message.conversationId === conversation.id) {
+        const newMsg: ChatMessage = {
+          id: String(message.id),
+          chatId: 'chat',
+          sender: message.senderType === 'Customer' && message.senderId === user?.id ? 'me' : 'other',
+          text: message.content,
+          createdAt: message.createdAt,
+          author: message.senderName ? { id: message.senderId || '', name: message.senderName } : undefined,
+        };
+
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === newMsg.id)) return prev;
+          return [...prev, newMsg];
+        });
+
+        if (message.senderType === 'Staff') {
+          setHasStaffSupport(true);
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, [conversation, onReceiveMessage, user?.id]);
+
+  React.useEffect(() => {
+    if (!conversation) return;
+
+    const unsubscribe = onUserTyping((event) => {
+      if (event.conversationId === conversation.id && event.userId !== user?.id) {
+        setTypingUsers((prev) => {
+          const newSet = new Set(prev);
+          if (event.isTyping) {
+            newSet.add(event.userName);
+          } else {
+            newSet.delete(event.userName);
+          }
+          return newSet;
+        });
+
+        setTimeout(() => {
+          setTypingUsers((prev) => {
+            const newSet = new Set(prev);
+            newSet.delete(event.userName);
+            return newSet;
+          });
+        }, 3000);
+      }
+    });
+
+    return unsubscribe;
+  }, [conversation, onUserTyping, user?.id]);
+
+  React.useEffect(() => {
+    if (!conversation) return;
+
+    const unsubscribe = onStaffJoined((event) => {
+      if (event.conversationId === conversation.id) {
+        // System message đã được broadcast qua ReceiveMessage
+        // Chỉ cần update state
+        setHasStaffSupport(true);
+        setHasRequestedSupport(true);
+      }
+    });
+
+    return unsubscribe;
+  }, [conversation, onStaffJoined]);
+
+  React.useEffect(() => {
+    if (!conversation) return;
+
+    const unsubscribe = onSupportRequestCreated((event) => {
+      if (event.conversationId === conversation.id) {
+        const systemMsg: ChatMessage = {
+          id: `system-${Date.now()}`,
+          chatId: 'chat',
+          sender: 'other',
+          text: event.message,
+          createdAt: event.timestamp,
+          author: { id: 'system', name: 'Hệ thống' },
+        };
+        setMessages((prev) => [...prev, systemMsg]);
+      }
+    });
+
+    return unsubscribe;
+  }, [conversation, onSupportRequestCreated]);
+
+  React.useEffect(() => {
+    if (!conversation) return;
+
+    const unsubscribe = onSupportResolved((event) => {
+      if (event.conversationId === conversation.id) {
+        // Không cần thêm system message vì đã được broadcast qua ReceiveMessage
+        // Chỉ cần update state
+        setHasStaffSupport(false);
+        setHasRequestedSupport(false);
+      }
+    });
+
+    return unsubscribe;
+  }, [conversation, onSupportResolved]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -120,63 +267,59 @@ export function SupportWidget() {
     return () => document.removeEventListener('mousedown', onDown);
   }, [open]);
 
-  const sendMessage = async (mode: ChatMode, text: string) => {
-    if (mode === 'ai') {
-      // Thêm tin nhắn user ngay lập tức
-      const tempUserMsg: ChatMessage = {
-        id: `temp-${Date.now()}`,
-        chatId: 'ai',
-        sender: 'me',
-        text,
-        createdAt: new Date().toISOString(),
-        status: 'sending',
-      };
-      setAiMessages((prev) => [...prev, tempUserMsg]);
+  const sendMessage = async (_mode: ChatMode, text: string) => {
+    if (!conversation) return;
 
-      // Hiển thị typing indicator
-      setIsTyping(true);
+    if (text === '/request-support') {
+      await handleRequestSupport();
+      return;
+    }
 
-      try {
-        // Nếu chưa có conversation, tạo mới
-        let convId = aiConversation?.id;
-        if (!convId) {
-          const newConv = await chatService.createConversation({ name: 'Tư vấn AI' });
-          setAiConversation(newConv);
-          convId = newConv.id;
-        }
+    const tempMsg: ChatMessage = {
+      id: `temp-${Date.now()}`,
+      chatId: 'chat',
+      sender: 'me',
+      text,
+      createdAt: new Date().toISOString(),
+      status: 'sending',
+    };
+    setMessages((prev) => [...prev, tempMsg]);
+
+    try {
+      if (hasStaffSupport) {
+        // Có staff support → customer gửi qua REST API messages
+        await chatService.sendMessage(conversation.id, text);
+
+        // Remove temp message - SignalR sẽ broadcast message thật
+        setMessages((prev) => prev.filter((m) => m.id !== tempMsg.id));
+      } else {
+        // Chưa có staff → gửi qua AI streaming
+        setIsTyping(true);
 
         if (USE_STREAMING) {
-          // Streaming mode: hiển thị text real-time
           const aiMsgId = `ai-stream-${Date.now()}`;
-
-          // Cập nhật user message thành sent, KHÔNG thêm AI message trống
-          // Giữ typing indicator cho đến khi có text thực sự
-          setAiMessages((prev) => {
-            const filtered = prev.filter((m) => m.id !== tempUserMsg.id);
+          setMessages((prev) => {
+            const filtered = prev.filter((m) => m.id !== tempMsg.id);
             return [
               ...filtered,
-              { ...tempUserMsg, id: `user-${Date.now()}`, status: 'sent' as const },
+              { ...tempMsg, id: `user-${Date.now()}`, status: 'sent' as const },
             ];
           });
-          // Giữ isTyping = true để hiển thị 3 chấm
 
           let aiMessageAdded = false;
 
-          await streamMessage(convId, text, {
+          await streamMessage(conversation.id, text, {
             onChunk: (_chunk, _fullText, displayText) => {
-              // Cập nhật text của AI message (đã filter tool calls)
               if (displayText && displayText.trim() !== '') {
-                // Có text thực sự, tắt typing và hiển thị message
                 setIsTyping(false);
 
                 if (!aiMessageAdded) {
-                  // Thêm AI message lần đầu
                   aiMessageAdded = true;
-                  setAiMessages((prev) => [
+                  setMessages((prev) => [
                     ...prev,
                     {
                       id: aiMsgId,
-                      chatId: 'ai',
+                      chatId: 'chat',
                       sender: 'other' as ChatSender,
                       text: displayText,
                       createdAt: new Date().toISOString(),
@@ -184,38 +327,30 @@ export function SupportWidget() {
                     },
                   ]);
                 } else {
-                  // Cập nhật text
-                  setAiMessages((prev) =>
+                  setMessages((prev) =>
                     prev.map((m) => (m.id === aiMsgId ? { ...m, text: displayText } : m))
                   );
                 }
               }
-              // Nếu chưa có displayText (đang xử lý tool), giữ typing indicator
             },
             onComplete: async (_fullText, displayText, messageId) => {
               setIsTyping(false);
 
-              // Nếu displayText rỗng (toàn bộ là tool calls), gọi API thường để lấy kết quả
               if (!displayText || displayText.trim() === '') {
-                console.log('Stream returned only tool calls, fetching final result...');
                 setIsTyping(true);
                 try {
-                  // Đợi một chút để BE xử lý xong
                   await new Promise((r) => setTimeout(r, 500));
-
-                  // Lấy conversation mới nhất để có message cuối
-                  const conv = await chatService.getConversation(convId!);
+                  const conv = await chatService.getConversation(conversation.id);
                   const lastAiMsg = conv.messages.filter((m) => m.senderType === 'AI').pop();
 
                   setIsTyping(false);
                   if (lastAiMsg) {
                     if (!aiMessageAdded) {
-                      // Thêm message mới
-                      setAiMessages((prev) => [
+                      setMessages((prev) => [
                         ...prev,
                         {
                           id: String(lastAiMsg.id),
-                          chatId: 'ai',
+                          chatId: 'chat',
                           sender: 'other' as ChatSender,
                           text: lastAiMsg.content,
                           createdAt: new Date().toISOString(),
@@ -223,33 +358,10 @@ export function SupportWidget() {
                         },
                       ]);
                     } else {
-                      setAiMessages((prev) =>
+                      setMessages((prev) =>
                         prev.map((m) =>
                           m.id === aiMsgId
                             ? { ...m, id: String(lastAiMsg.id), text: lastAiMsg.content }
-                            : m
-                        )
-                      );
-                    }
-                  } else {
-                    // Fallback message
-                    if (!aiMessageAdded) {
-                      setAiMessages((prev) => [
-                        ...prev,
-                        {
-                          id: aiMsgId,
-                          chatId: 'ai',
-                          sender: 'other' as ChatSender,
-                          text: 'Đang xử lý yêu cầu của bạn...',
-                          createdAt: new Date().toISOString(),
-                          author: { id: '', name: 'AI Assistant' },
-                        },
-                      ]);
-                    } else {
-                      setAiMessages((prev) =>
-                        prev.map((m) =>
-                          m.id === aiMsgId
-                            ? { ...m, text: 'Đang xử lý yêu cầu của bạn...' }
                             : m
                         )
                       );
@@ -258,32 +370,10 @@ export function SupportWidget() {
                 } catch (err) {
                   setIsTyping(false);
                   console.error('Failed to fetch final result:', err);
-                  if (!aiMessageAdded) {
-                    setAiMessages((prev) => [
-                      ...prev,
-                      {
-                        id: aiMsgId,
-                        chatId: 'ai',
-                        sender: 'other' as ChatSender,
-                        text: 'Có lỗi xảy ra. Vui lòng thử lại.',
-                        createdAt: new Date().toISOString(),
-                        author: { id: '', name: 'AI Assistant' },
-                      },
-                    ]);
-                  } else {
-                    setAiMessages((prev) =>
-                      prev.map((m) =>
-                        m.id === aiMsgId
-                          ? { ...m, text: 'Có lỗi xảy ra. Vui lòng thử lại.' }
-                          : m
-                      )
-                    );
-                  }
                 }
               } else {
-                // Cập nhật với ID thật từ server nếu có
                 if (aiMessageAdded) {
-                  setAiMessages((prev) =>
+                  setMessages((prev) =>
                     prev.map((m) =>
                       m.id === aiMsgId
                         ? { ...m, id: messageId ? String(messageId) : aiMsgId, text: displayText }
@@ -294,99 +384,81 @@ export function SupportWidget() {
               }
             },
             onError: async (error) => {
-              console.error('Stream error, falling back to normal API:', error);
+              console.error('Stream error:', error);
               setIsTyping(false);
-              // Fallback: gọi API thường
               try {
                 setIsTyping(true);
-                const response = await chatService.sendMessage(convId!, text);
+                const response = await chatService.sendMessage(conversation.id, text);
                 const structuredData = response.aiStructuredData || response.AiStructuredData;
                 setIsTyping(false);
 
-                setAiMessages((prev) => {
-                  // Xóa message stream nếu có và thay bằng response thật
+                setMessages((prev) => {
                   const filtered = prev.filter((m) => m.id !== aiMsgId);
                   return [
                     ...filtered,
-                    toFEMessage(response.aiMessage, 'ai', structuredData),
+                    toFEMessage(response.aiMessage, 'chat', structuredData),
                   ];
                 });
               } catch (fallbackError) {
-                console.error('Fallback also failed:', fallbackError);
+                console.error('Fallback failed:', fallbackError);
                 setIsTyping(false);
-                // Hiển thị error message
-                setAiMessages((prev) => [
-                  ...prev,
-                  {
-                    id: aiMsgId,
-                    chatId: 'ai',
-                    sender: 'other' as ChatSender,
-                    text: 'Xin lỗi, có lỗi xảy ra. Vui lòng thử lại sau.',
-                    createdAt: new Date().toISOString(),
-                    author: { id: '', name: 'AI Assistant' },
-                  },
-                ]);
               }
             },
           });
         } else {
-          // Normal mode: đợi response đầy đủ
-          const response = await chatService.sendMessage(convId, text);
-          console.log('Chat API response:', response);
-
+          const response = await chatService.sendMessage(conversation.id, text);
           setIsTyping(false);
 
           const structuredData = response.aiStructuredData || response.AiStructuredData;
 
-          setAiMessages((prev) => {
-            const filtered = prev.filter((m) => m.id !== tempUserMsg.id);
+          setMessages((prev) => {
+            const filtered = prev.filter((m) => m.id !== tempMsg.id);
             return [
               ...filtered,
-              toFEMessage(response.userMessage, 'ai'),
-              toFEMessage(response.aiMessage, 'ai', structuredData),
+              toFEMessage(response.userMessage, 'chat'),
+              toFEMessage(response.aiMessage, 'chat', structuredData),
             ];
           });
         }
-      } catch (error) {
-        console.error('Failed to send message:', error);
-        setIsTyping(false);
-        setAiMessages((prev) =>
-          prev.map((m) => (m.id === tempUserMsg.id ? { ...m, status: 'failed' as const } : m))
-        );
       }
-    } else {
-      // Agent chat
-      const msg: ChatMessage = {
-        id: `agent-${Date.now()}`,
-        chatId: 'agent',
-        sender: 'me',
-        text,
-        createdAt: new Date().toISOString(),
-      };
-      setAgentMessages((prev) => [...prev, msg]);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+      setIsTyping(false);
+      setMessages((prev) =>
+        prev.map((m) => (m.id === tempMsg.id ? { ...m, status: 'failed' as const } : m))
+      );
+    }
+  };
+
+  const handleRequestSupport = async () => {
+    if (!conversation || !isConnected) return;
+
+    try {
+      await requestSupport(conversation.id, 'Yêu cầu hỗ trợ từ khách hàng');
+      setHasRequestedSupport(true);
+    } catch (error) {
+      console.error('Failed to request support:', error);
+      alert('Không thể gửi yêu cầu hỗ trợ. Vui lòng thử lại.');
     }
   };
 
   return (
     <>
       <ChatBox
-        open={activeChat === 'ai'}
-        title="Tư vấn bằng AI"
-        subtitle={loading ? 'Đang tải...' : 'Đang hoạt động'}
-        messages={aiMessages}
-        onSend={(text) => sendMessage('ai', text)}
-        onClose={() => setActiveChat(null)}
-        disabled={loading || isTyping}
-        isTyping={isTyping}
-      />
-
-      <ChatBox
         open={activeChat === 'agent'}
-        title="Chat với nhân viên"
-        subtitle="Đang hoạt động"
-        messages={agentMessages}
+        title="Chat tư vấn"
+        subtitle={
+          loading
+            ? 'Đang tải...'
+            : hasStaffSupport
+              ? 'Nhân viên đang hỗ trợ'
+              : 'AI Assistant'
+        }
+        messages={messages}
         onSend={(text) => sendMessage('agent', text)}
         onClose={() => setActiveChat(null)}
+        disabled={loading}
+        isTyping={isTyping || typingUsers.size > 0}
       />
 
       <div className={`support-widget ${open ? 'support-widget--open' : ''}`}>
@@ -395,26 +467,13 @@ export function SupportWidget() {
             type="button"
             className="support-widget__item"
             onClick={() => {
-              setActiveChat('ai');
-              setOpen(false);
-            }}
-            aria-label="Tư vấn bằng AI"
-          >
-            <MagicWandIcon className="support-widget__icon" />
-            <span className="support-widget__tooltip">Tư vấn bằng AI</span>
-          </button>
-
-          <button
-            type="button"
-            className="support-widget__item"
-            onClick={() => {
               setActiveChat('agent');
               setOpen(false);
             }}
-            aria-label="Chat với nhân viên"
+            aria-label="Chat tư vấn"
           >
-            <PersonIcon className="support-widget__icon" />
-            <span className="support-widget__tooltip">Chat với nhân viên</span>
+            <ChatBubbleIcon className="support-widget__icon" />
+            <span className="support-widget__tooltip">Chat tư vấn</span>
           </button>
         </div>
 
