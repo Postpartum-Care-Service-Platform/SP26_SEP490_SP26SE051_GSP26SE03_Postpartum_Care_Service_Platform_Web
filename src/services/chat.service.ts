@@ -29,6 +29,7 @@ export interface ConversationResponse {
     name?: string;
     createdAt: string;
     messages: MessageResponse[];
+    hasActiveSupport: boolean;
 }
 
 export interface ChatResponse {
@@ -84,9 +85,14 @@ export interface SupportRequestResponse {
 
 // Chat Service - baseUrl đã có /api nên chỉ cần /Chat/...
 const chatService = {
-    // Lấy danh sách conversations
+    // Lấy danh sách conversations (cho customer)
     getConversations: (): Promise<ConversationResponse[]> => {
         return apiClient.get('/Chat/conversations');
+    },
+
+    // Lấy tất cả conversations (cho admin/staff)
+    getAllConversations: (): Promise<ConversationResponse[]> => {
+        return apiClient.get('/Chat/conversations/all');
     },
 
     // Lấy chi tiết conversation với messages

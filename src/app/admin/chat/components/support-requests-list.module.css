@@ -1,0 +1,150 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+.header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e1e1e;
+    font-family: var(--font-body);
+}
+
+.list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+}
+
+.requestCard {
+    display: flex;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.requestCard:hover {
+    background-color: #f9f9f9;
+}
+
+.avatar {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.avatarCircle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    font-family: var(--font-body);
+}
+
+.statusDot {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #4caf50;
+    border: 2px solid #fff;
+}
+
+.content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.customerName {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e1e1e;
+    font-family: var(--font-body);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.time {
+    font-size: 11px;
+    color: #999;
+    font-family: var(--font-body);
+    flex-shrink: 0;
+}
+
+.reason {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+    font-family: var(--font-body);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.acceptButton {
+    margin-top: 8px;
+    padding: 8px 16px;
+    background-color: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    align-self: flex-start;
+}
+
+.acceptButton:hover {
+    background-color: #e55a2b;
+}
+
+.acceptButton:active {
+    background-color: #cc4f24;
+}
+
+.loading,
+.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #999;
+    font-size: 14px;
+    font-family: var(--font-body);
+}
+
+.empty p {
+    margin: 0;
+}

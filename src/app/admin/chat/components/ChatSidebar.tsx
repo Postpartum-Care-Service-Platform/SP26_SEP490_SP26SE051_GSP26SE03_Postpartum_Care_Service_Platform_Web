@@ -1,8 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
-import { MessageCircle, Users, Archive, Camera, Settings } from 'lucide-react';
+import { MessageCircle, Users, Archive, Camera, Settings, Bell } from 'lucide-react';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-32x32.png';
 
@@ -27,6 +26,12 @@ export function ChatSidebar({ activeView, onViewChange }: Props) {
       icon: MessageCircle,
       label: 'Chat',
       onClick: () => onViewChange('chat'),
+    },
+    {
+      id: 'support-requests',
+      icon: Bell,
+      label: 'Yêu cầu chat',
+      onClick: () => onViewChange('support-requests'),
     },
     {
       id: 'contacts',
