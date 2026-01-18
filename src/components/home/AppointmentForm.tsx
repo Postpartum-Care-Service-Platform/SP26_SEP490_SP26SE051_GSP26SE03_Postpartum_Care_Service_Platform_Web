@@ -183,7 +183,7 @@ export const AppointmentForm: React.FC = () => {
                 onChange={onChange}
                 onBlur={onBlur}
                 placeholder="Nhập họ và tên của bạn"
-                variant="booking"
+                variant="profile"
                 className={error ? styles.inputError : ''}
               />
             </div>
@@ -205,7 +205,7 @@ export const AppointmentForm: React.FC = () => {
                   placeholder="Chọn ngày"
                   readOnly
                   onClick={() => setShowDatePicker(!showDatePicker)}
-                  variant="booking"
+                  variant="profile"
                   className={error ? styles.inputError : ''}
                 />
               </div>
@@ -242,7 +242,7 @@ export const AppointmentForm: React.FC = () => {
                   onChange={onChange}
                   onBlur={onBlur}
                   placeholder="Chọn giờ (08:00 - 17:00)"
-                  variant="booking"
+                  variant="profile"
                   className={error ? styles.inputError : ''}
                   min="08:00"
                   max="17:00"

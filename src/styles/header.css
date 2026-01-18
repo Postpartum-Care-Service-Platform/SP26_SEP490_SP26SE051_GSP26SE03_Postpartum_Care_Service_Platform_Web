@@ -158,8 +158,8 @@
 }
 
 .tjn-header__avatar-img {
-  width: 55px;
-  height: 55px;
+  width: 40px;
+  height: 40px;
   aspect-ratio: 1/1;
   border-radius: 9999px;
   object-fit: cover;
@@ -169,7 +169,27 @@
 }
 
 .tjn-header__avatar-button:hover .tjn-header__avatar-img {
-  border-color: #fa8314;
+  border-color: #0e256b;
+}
+
+.tjn-header__avatar-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background-color: #fa8314;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  border: 2px solid #fa8314;
+  transition: border-color 180ms ease, background-color 180ms ease;
+}
+
+.tjn-header__avatar-button:hover .tjn-header__avatar-fallback {
+  border-color: #0e256b;
+  background-color: #0e256b;
 }
 
 .tjn-header__dropdown-content {

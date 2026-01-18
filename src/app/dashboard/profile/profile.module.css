@@ -1,23 +1,74 @@
 .page {
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 48px 24px;
+  min-height: calc(100vh - 80px);
+  background-color: #fffbf4;
 }
 
 .layout {
   display: grid;
   grid-template-columns: 360px 1fr;
-  gap: 24px;
+  gap: 48px;
+  margin-top: 32px;
 }
 
 .mainColumn {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
+  min-width: 0; /* Prevent overflow */
+}
+
+.tabs {
+  width: 100%;
+  background: transparent;
+}
+
+.tabsList {
+  margin-bottom: 32px;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+  gap: 0;
+}
+
+.tabContent {
+  margin-top: 0;
+  background: transparent;
+}
+
+@media (max-width: 1200px) {
+  .layout {
+    grid-template-columns: 320px 1fr;
+    gap: 24px;
+  }
 }
 
 @media (max-width: 1024px) {
+  .page {
+    padding: 16px;
+  }
+  
   .layout {
     grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .mainColumn {
+    order: -1; /* Tabs hiển thị trước sidebar trên mobile */
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    padding: 12px;
+  }
+  
+  .layout {
+    gap: 16px;
   }
 }
 

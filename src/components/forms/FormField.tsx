@@ -30,7 +30,7 @@ export function FormField<TFieldValues extends FieldValues>({
 
   return (
     <div className="mb-md">
-      <label htmlFor={name} className="ui-text text-text-primary block mb-xs">
+      <label htmlFor={name} className="ui-text text-text-primary block mb-xs" style={{ fontFamily: 'var(--font-body)', fontSize: '16px', fontWeight: 500, color: '#111', marginBottom: '12px', lineHeight: '1.3' }}>
         {label}
       </label>
 
@@ -41,7 +41,7 @@ export function FormField<TFieldValues extends FieldValues>({
       />
 
       {error ? (
-        <p className="ui-text mt-xs" style={{ color: 'var(--color-brand-accent)' }}>
+        <p className="ui-text mt-xs" style={{ fontFamily: 'var(--font-body)', fontSize: '14px', color: 'var(--color-brand-accent)', marginTop: '8px', lineHeight: '1.4' }}>
           {error}
         </p>
       ) : null}
