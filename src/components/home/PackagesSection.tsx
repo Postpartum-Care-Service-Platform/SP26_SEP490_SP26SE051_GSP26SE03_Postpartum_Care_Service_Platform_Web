@@ -162,69 +162,39 @@ export const PackagesSection: React.FC = () => {
                     }}
                   />
                 )}
-                {/* Hình ảnh gói dịch vụ */}
-                {pkg.imageUrl && (
-                  <div className={styles.imageWrapper}>
-                    <Image
-                      src={pkg.imageUrl}
-                      alt={pkg.name}
-                      fill
-                      className={styles.image}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                  </div>
-                )}
-
                 {/* Nội dung card */}
                 <div className={styles.cardContent}>
                   {/* Header với tên gói và badge duration */}
                   <div className={styles.cardHeader}>
-                    <h3 className={styles.packageName}>{pkg.name}</h3>
-                    {pkg.duration && (
+                    <h3 className={styles.packageName}>{pkg.packageName}</h3>
+                    {pkg.durationDays && (
                       <div className={styles.durationBadge}>
-                        <span className={styles.durationText}>{pkg.duration} ngày</span>
+                        <span className={styles.durationText}>{pkg.durationDays} ngày</span>
                       </div>
                     )}
                   </div>
 
                   {/* Mô tả gói dịch vụ */}
-                  {pkg.description && (
+                  {pkg.description && pkg.description.trim() && (
                     <div className={styles.descriptionSection}>
                       <p className={styles.packageDescription}>{pkg.description}</p>
                     </div>
                   )}
 
-                  {/* Danh sách tính năng */}
-                  {pkg.features && pkg.features.length > 0 && (
-                    <div className={styles.featuresSection}>
-                      <h4 className={styles.featuresTitle}>Tính năng bao gồm:</h4>
-                      <ul className={styles.featuresList}>
-                        {pkg.features.map((feature, index) => (
-                          <li key={index} className={styles.featureItem}>
-                            <span className={styles.featureIcon}>✓</span>
-                            <span className={styles.featureText}>{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
                   {/* Phần giá - nổi bật */}
-                  {pkg.price && (
-                    <div className={styles.priceSection}>
-                      <div className={styles.priceLabel}>Giá gói</div>
-                      <div className={styles.priceValue}>
-                        {new Intl.NumberFormat('vi-VN', {
-                          style: 'currency',
-                          currency: 'VND',
-                        }).format(pkg.price)}
-                      </div>
+                  <div className={styles.priceSection}>
+                    <div className={styles.priceLabel}>Giá gói</div>
+                    <div className={styles.priceValue}>
+                      {new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                      }).format(pkg.basePrice)}
                     </div>
-                  )}
+                  </div>
 
-                  {/* Nút xem chi tiết */}
-                  <Link href={`/packages/${pkg.id}`} className={styles.viewDetailsButton}>
-                    <span>Xem Chi Tiết</span>
+                  {/* Nút đặt gói dịch vụ */}
+                  <Link href={`/main/booking?packageId=${pkg.id}`} className={styles.viewDetailsButton}>
+                    <span>Đặt Ngay</span>
                     <span className={styles.buttonArrow}>→</span>
                   </Link>
                 </div>
