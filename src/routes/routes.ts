@@ -5,7 +5,7 @@ export const ROUTES = {
   register: '/auth/register',
   verifyEmail: '/auth/verify-email',
   resetPassword: '/auth/reset-password',
-  profile: '/profile',
+  profile: '/dashboard/profile',
   admin: '/admin',
 } as const;
 

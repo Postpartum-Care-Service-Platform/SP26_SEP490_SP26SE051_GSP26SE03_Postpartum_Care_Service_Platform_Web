@@ -1,0 +1,147 @@
+.container {
+  background: white;
+  border-radius: 0;
+  padding: 48px;
+  box-shadow: none;
+  border: none;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 400;
+  color: #111;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  color: #111;
+  line-height: 1.3;
+}
+
+.input {
+  width: 100%;
+}
+
+.helpText {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: rgba(17, 17, 17, 0.6);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoLabel {
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: rgba(17, 17, 17, 0.6);
+  line-height: 1.4;
+}
+
+.infoValue {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 500;
+  color: #111;
+  line-height: 1.3;
+}
+
+.statusActive {
+  color: #10b981;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.statusInactive {
+  color: #ef4444;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.error {
+  padding: 16px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 0;
+  color: #991b1b;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.success {
+  padding: 16px;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  border-radius: 0;
+  color: #065f46;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.loading {
+  padding: 60px;
+  text-align: center;
+  color: rgba(17, 17, 17, 0.6);
+  font-family: var(--font-body);
+  font-size: 18px;
+}
+
+.avatarSection {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.avatarImage {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fa8314;
+}

@@ -1,128 +1,154 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Briefcase, Users, UserPlus, Mail, User, Info, Clock, Phone } from 'lucide-react';
-
-import { useProfile } from '../ProfileContext';
+import { Mail, Phone, MapPin, Calendar, CreditCard } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import userService from '@/services/user.service';
+import bookingService from '@/services/booking.service';
+import transactionService from '@/services/transaction.service';
+import type { Account } from '@/types/account';
 
 import styles from './profile-sidebar-column.module.css';
 
-const stats = [
-  { label: 'Projects', value: '120', icon: Briefcase },
-  { label: 'Clients', value: '48', icon: Users },
-  { label: 'Followers', value: '24k', icon: UserPlus },
-];
-
-const skills = ['Java', 'Kotlin', 'Swift', 'Dart', 'JavaScript', 'TypeScript', 'Objective-C', 'C#', 'Python'];
-
 export function ProfileSidebarColumn() {
-  const { profile } = useProfile();
+  const { user, isAuthenticated } = useAuth();
+  const [account, setAccount] = useState<Account | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [bookingsCount, setBookingsCount] = useState(0);
+  const [transactionsCount, setTransactionsCount] = useState(0);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadAccount();
+      loadStats();
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
+
+  const loadAccount = async () => {
+    try {
+      const data = await userService.getCurrentAccount();
+      setAccount(data);
+    } catch (err: any) {
+      if (err?.status !== 401) {
+        console.error('Failed to load account:', err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadStats = async () => {
+    try {
+      const [bookings, transactions] = await Promise.all([
+        bookingService.getMyBookings().catch(() => []),
+        transactionService.getMyTransactions().catch(() => []),
+      ]);
+      setBookingsCount(bookings.length);
+      setTransactionsCount(transactions.length);
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+    }
+  };
+
+  // Lấy avatar từ account hoặc ownerProfile
+  const avatarUrl = account?.avatarUrl || account?.ownerProfile?.avatarUrl || null;
+  const displayName = account?.ownerProfile?.fullName || account?.username || user?.username || 'Chưa có thông tin';
+  const displayPhone = account?.phone || account?.ownerProfile?.phoneNumber || '';
+  const displayEmail = account?.email || '';
+  const displayAddress = account?.ownerProfile?.address || '';
+
+  if (loading) {
+    return (
+      <aside className={styles.sidebar}>
+        <div className={styles.loading}>Đang tải...</div>
+      </aside>
+    );
+  }
 
   return (
     <aside className={styles.sidebar}>
       <div className={styles.profileCard}>
-        <div className={styles.cover}>
-          <div className={styles.status}>
-            <span className={styles.statusCheck}>✓</span>
-            Active
-          </div>
-        </div>
         <div className={styles.profileMain}>
           <div className={styles.avatarWrapper}>
-            {profile?.avatarUrl ? (
-              <Image src={profile.avatarUrl} alt={profile.fullName} width={80} height={80} className={styles.avatar} />
+            {avatarUrl ? (
+              <Image 
+                src={avatarUrl} 
+                alt={displayName} 
+                width={120} 
+                height={120} 
+                className={styles.avatar}
+                unoptimized={avatarUrl.startsWith('http')}
+              />
             ) : (
-              <div className={styles.avatarFallback} />
+              <div className={styles.avatarFallback}>
+                {displayName.charAt(0).toUpperCase()}
+              </div>
             )}
           </div>
           <div className={styles.info}>
-            <div className={styles.name}>{profile?.fullName || 'Chưa có thông tin'}</div>
-            <div className={styles.role}>{profile?.phoneNumber || 'Mobile Application Developer'}</div>
+            <div className={styles.name}>{displayName}</div>
+            <div className={styles.role}>{account?.roleName || 'Khách hàng'}</div>
           </div>
         </div>
-        <div className={styles.metrics}>
-          {stats.map((item) => {
-            const Icon = item.icon;
-            return (
-              <div key={item.label} className={styles.metric}>
-                <Icon className={styles.metricIcon} size={18} />
-                <div className={styles.metricContent}>
-                  <div className={styles.metricValue}>{item.value}</div>
-                  <div className={styles.metricLabel}>{item.label}</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className={styles.actions}>
-          <button className={styles.secondaryButton}>
-            <span>+</span> Follow
-          </button>
-          <button className={styles.primaryButton}>
-            <Mail size={16} />
-            Contact Us
-          </button>
+
+        <div className={styles.stats}>
+          <div className={styles.statItem}>
+            <Calendar size={20} className={styles.statIcon} />
+            <div className={styles.statContent}>
+              <div className={styles.statValue}>{bookingsCount}</div>
+              <div className={styles.statLabel}>Đặt phòng</div>
+            </div>
+          </div>
+          <div className={styles.statItem}>
+            <CreditCard size={20} className={styles.statIcon} />
+            <div className={styles.statContent}>
+              <div className={styles.statValue}>{transactionsCount}</div>
+              <div className={styles.statLabel}>Giao dịch</div>
+            </div>
+          </div>
         </div>
       </div>
 
       <div className={styles.detailCard}>
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>
-            <User size={16} />
-            Skills
-          </div>
-          <div className={styles.tags}>
-            {skills.map((skill) => (
-              <span key={skill} className={styles.tag}>
-                {skill}
-              </span>
-            ))}
-          </div>
-        </div>
+          <div className={styles.sectionTitle}>Thông tin liên hệ</div>
+          
+          {displayEmail && (
+            <div className={styles.infoRow}>
+              <div className={styles.infoLabel}>
+                <Mail size={16} />
+                <span>Email</span>
+              </div>
+              <span className={styles.infoValue}>{displayEmail}</span>
+            </div>
+          )}
 
-        <div className={styles.section}>
-          <div className={styles.sectionTitle}>
-            <Info size={16} />
-            General Info
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.label}>Rate</span>
-            <span className={styles.value}>$60/h</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.label}>Joined</span>
-            <span className={styles.value}>12 Jan, 2022</span>
-          </div>
-        </div>
+          {displayPhone && (
+            <div className={styles.infoRow}>
+              <div className={styles.infoLabel}>
+                <Phone size={16} />
+                <span>Số điện thoại</span>
+              </div>
+              <span className={styles.infoValue}>{displayPhone}</span>
+            </div>
+          )}
 
-        <div className={styles.section}>
-          <div className={styles.sectionTitle}>
-            <Clock size={16} />
-            Availability
-          </div>
-          <div className={styles.badges}>
-            <span className={styles.badgePurple}>Remote Yes</span>
-            <span className={styles.badgeGreen}>Hours/week 30</span>
-          </div>
-        </div>
+          {displayAddress && (
+            <div className={styles.infoRow}>
+              <div className={styles.infoLabel}>
+                <MapPin size={16} />
+                <span>Địa chỉ</span>
+              </div>
+              <span className={styles.infoValue}>{displayAddress}</span>
+            </div>
+          )}
 
-        <div className={styles.section}>
-          <div className={styles.sectionTitle}>
-            <Phone size={16} />
-            Contact
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.label}>Phone</span>
-            <span className={styles.value}>{profile?.phoneNumber || '+1 345 678 9012'}</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.label}>Email</span>
-            <span className={styles.value}>charlie.stone@gamil.com</span>
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.label}>Location</span>
-            <span className={styles.value}>San Francisco, CA, USA</span>
-          </div>
+          {!displayEmail && !displayPhone && !displayAddress && (
+            <div className={styles.emptyInfo}>Chưa có thông tin liên hệ</div>
+          )}
         </div>
       </div>
     </aside>

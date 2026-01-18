@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   rightIcon?: React.ReactNode;
-  variant?: 'default' | 'auth' | 'booking';
+  variant?: 'default' | 'auth' | 'booking' | 'profile';
 }
 
 const AUTH_HEIGHT = '49.77px';
@@ -20,7 +20,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
 
   // Base classes no longer contain focus ring styles
   const baseClasses =
-    'w-full bg-white font-body text-[14px] text-text-primary placeholder:text-[rgba(30,30,30,0.45)] focus:outline-none';
+    'w-full bg-transparent font-body text-text-primary placeholder:text-[rgba(30,30,30,0.45)] focus:outline-none';
 
   let variantClasses = '';
   if (variant === 'auth') {
@@ -33,6 +33,16 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(function Inp
     variantClasses = cn(
       `h-[${BOOKING_HEIGHT}] rounded-none border border-solid border-[rgba(0,0,0,0.55)] focus:border-brand-accent`,
       'px-[14px] text-[13px]'
+    );
+  } else if (variant === 'profile') {
+    // Profile variant: chỉ có border-bottom, khi focus chuyển từ đen sang cam
+    variantClasses = cn(
+      'h-12 text-[16px] rounded-none border-0 border-b-2 border-solid border-[rgba(0,0,0,0.3)]',
+      'px-0 pb-2',
+      'focus:border-[#fa8314] transition-colors duration-200',
+      'disabled:border-[rgba(0,0,0,0.15)] disabled:cursor-not-allowed disabled:opacity-60',
+      'placeholder:text-[rgba(0,0,0,0.4)]',
+      hasRightIcon ? 'pr-10' : ''
     );
   } else {
     // Default variant now also handles its own focus border color
