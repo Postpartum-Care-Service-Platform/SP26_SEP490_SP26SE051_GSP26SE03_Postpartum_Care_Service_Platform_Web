@@ -1,0 +1,109 @@
+.container {
+  width: 341px;
+  height: 156.98px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343a40;
+  margin: 0;
+}
+
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #6c757d;
+  transition: color 0.2s;
+}
+
+.menuButton:hover {
+  color: #343a40;
+}
+
+.dropdownContent {
+  min-width: 140px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+}
+
+.dropdownItem {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: #343a40;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.2s;
+}
+
+.dropdownItem:hover {
+  background-color: #f5f5f5;
+}
+
+.body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  min-height: 0;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.trendValue {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.mainValue {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #343a40;
+  line-height: 1.2;
+}
+
+.chartContainer {
+  width: 180px;
+  height: 125px;
+  flex-shrink: 0;
+  position: relative;
+}

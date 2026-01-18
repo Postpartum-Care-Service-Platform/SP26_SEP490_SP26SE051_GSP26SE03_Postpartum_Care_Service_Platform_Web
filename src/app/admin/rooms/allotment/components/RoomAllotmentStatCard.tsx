@@ -8,7 +8,7 @@ export type RoomAllotmentStatCardProps = {
   value: string | number;
   subtitle: string;
   borderColor: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<any>;
   iconBgColor: string;
   iconColor: string;
 };

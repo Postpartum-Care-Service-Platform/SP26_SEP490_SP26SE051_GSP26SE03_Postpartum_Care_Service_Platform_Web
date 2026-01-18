@@ -19,7 +19,7 @@ import patientCard6 from '@/assets/images/patient-card-6.png';
 export type StatCardConfig = {
   image: StaticImageData;
   label: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  icon: React.ComponentType<any>;
   iconColor: string;
   backgroundColor: string;
   key: keyof {

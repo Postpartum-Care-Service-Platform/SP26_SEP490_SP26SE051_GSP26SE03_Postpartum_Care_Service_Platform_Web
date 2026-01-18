@@ -70,7 +70,7 @@ export function Pagination({
     <div className={styles.container}>
       {showResultCount && (
         <div className={styles.resultCount}>
-          Showing <strong>{startItem} - {endItem}</strong> of <strong>{totalItems}</strong> Results
+          Hiển thị <strong>{startItem} - {endItem}</strong> trên tổng <strong>{totalItems}</strong> kết quả
         </div>
       )}
 
