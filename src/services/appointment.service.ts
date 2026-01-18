@@ -1,5 +1,5 @@
 import apiClient from './apiClient';
-import type { Appointment, UpdateAppointmentRequest } from '@/types/appointment';
+import type { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/types/appointment';
 
 const appointmentService = {
   getAllAppointments: (): Promise<Appointment[]> => {
@@ -8,6 +8,10 @@ const appointmentService = {
 
   getAppointmentById: (id: number): Promise<Appointment> => {
     return apiClient.get(`/Appointment/${id}`);
+  },
+
+  createAppointment: (payload: CreateAppointmentRequest): Promise<Appointment> => {
+    return apiClient.post('/Appointment', payload);
   },
 
   updateAppointment: (id: number, payload: UpdateAppointmentRequest): Promise<Appointment> => {

@@ -32,6 +32,7 @@ body.app-shell .app-shell__inner {
 
 body.app-shell .app-shell__main {
   flex: 1;
+  background-color: #ffffff; /* Đảm bảo main có background trắng */
 }
 
 *,

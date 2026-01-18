@@ -29,6 +29,13 @@ export interface Appointment {
   staff: AppointmentStaff | null;
 }
 
+export interface CreateAppointmentRequest {
+  name: string;
+  date: string;
+  time: string;
+  appointmentTypeId: number;
+}
+
 export interface UpdateAppointmentRequest {
   date: string;
   time: string;

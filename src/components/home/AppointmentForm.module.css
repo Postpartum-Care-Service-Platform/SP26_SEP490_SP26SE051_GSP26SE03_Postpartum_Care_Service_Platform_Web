@@ -1,0 +1,218 @@
+/* Container chính cho form */
+.formContainer {
+  position: relative;
+  z-index: 1; /* Cao hơn các hành tinh (z-index: 10) */
+  /* Nền cam nhẹ, có gradient và hơi trong suốt để hòa với nền vũ trụ */
+  background: linear-gradient(
+    135deg,
+    rgba(250, 131, 20, 0.95) 0%,
+    rgba(255, 200, 150, 0.96) 40%,
+    rgba(255, 251, 244, 0.98) 100%
+  );
+  backdrop-filter: blur(12px);
+  border-radius: 24px ;  
+  /* Form rộng tối đa 900px nhưng vẫn responsive theo màn hình */
+  top: -100px;
+  max-width: 800px;
+  padding: 50px 50px;
+  width: min(100%, 900px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Label trong form đặt lịch */
+.formContainer label {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+  margin-bottom: 6px;
+}
+
+.formContainer label::after {
+  /* Giữ dấu * cùng màu accent nếu có */
+  color: var(--color-brand-accent);
+}
+
+/* Form element */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Date picker wrapper */
+.datePickerWrapper {
+  position: relative;
+}
+
+.dateInputContainer {
+  position: relative;
+}
+
+.datePickerPopover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 1000;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dayPicker {
+  --rdp-cell-size: 40px;
+  --rdp-accent-color: var(--color-brand-accent);
+  --rdp-background-color: rgba(250, 131, 20, 0.1);
+}
+
+/* Time picker wrapper */
+.timePickerWrapper {
+  position: relative;
+}
+
+.timeInputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.timeSelect {
+  width: 100%;
+  height: 40px;
+  padding: 0 40px 0 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 999px;
+  background: white;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  appearance: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.timeSelect:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+  box-shadow: 0 0 0 1px rgba(250, 131, 20, 0.35);
+}
+
+.timeSelect:hover {
+  border-color: var(--color-brand-accent);
+  background-color: rgba(255, 251, 244, 0.9);
+}
+
+.timeIcon {
+  position: absolute;
+  right: 12px;
+  width: 18px;
+  height: 18px;
+  color: rgba(30, 30, 30, 0.5);
+  pointer-events: none;
+}
+
+/* Select input cho loại tư vấn - đồng bộ với Input variant booking */
+.selectInput {
+  width: 100%;
+  height: 35.77px;
+  padding: 0 36px 0 14px;
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-radius: 0;
+  background: white;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%231e1e1e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  appearance: none;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.selectInput:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+  box-shadow: 0 0 0 1px rgba(250, 131, 20, 0.35);
+}
+
+.selectInput:hover {
+  border-color: var(--color-brand-accent);
+  background-color: rgba(255, 251, 244, 0.9);
+}
+
+/* Input error state */
+.inputError {
+  border-color: var(--color-brand-accent) !important;
+}
+
+/* Success message */
+.successMessage {
+  padding: 12px 16px;
+  background: rgba(78, 197, 173, 0.15);
+  border: 1px solid #4EC5AD;
+  border-radius: 8px;
+  color: #1e1e1e;
+  font-family: var(--font-body);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Button styling - đồng bộ với design system */
+.formContainer button[type="submit"] {
+  height: 35.77px;
+  border-radius: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  background-color: var(--color-brand-accent);
+  color: var(--color-text-inverse);
+  border: none;
+  transition: background-color 0.18s ease, opacity 0.18s ease;
+}
+
+.formContainer button[type="submit"]:hover:not(:disabled) {
+  background-color: #e67310;
+}
+
+.formContainer button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive cho tablet */
+@media (max-width: 1200px) {
+  .formContainer {
+    /* Tablet vẫn giữ form rộng, tránh bị bó hẹp ngoài ý muốn */
+    max-width: 900px;
+    width: min(100%, 900px);
+    padding: 28px 24px;
+  }
+}
+
+/* Responsive cho mobile */
+@media (max-width: 768px) {
+  .formContainer {
+    max-width: 100%;
+    padding: 24px 20px;
+    border-radius: 16px;
+  }
+
+  .formTitle {
+    font-size: 22px;
+  }
+
+  .formDescription {
+    font-size: 13px;
+  }
+
+  .datePickerPopover {
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100vw - 40px);
+    max-width: 320px;
+  }
+}

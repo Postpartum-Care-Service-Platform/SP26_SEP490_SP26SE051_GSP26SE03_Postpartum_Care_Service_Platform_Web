@@ -16,6 +16,8 @@ type Props = {
   currentUserId?: string;
   onSendMessage?: (message: string, file?: File) => void;
   onInfoClick?: () => void;
+  onResolveSupport?: () => void;
+  showResolveButton?: boolean;
 };
 
 export function ChatConversation({
@@ -23,6 +25,8 @@ export function ChatConversation({
   currentUserId = 'current-user',
   onSendMessage,
   onInfoClick,
+  onResolveSupport,
+  showResolveButton = false,
 }: Props) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -54,9 +58,21 @@ export function ChatConversation({
         isOnline={conversation.isOnline}
         onInfoClick={onInfoClick}
       />
+      {showResolveButton && (
+        <div className={styles.resolveButtonContainer}>
+          <button
+            type="button"
+            className={styles.resolveButton}
+            onClick={onResolveSupport}
+          >
+            ✓ Hoàn thành tư vấn
+          </button>
+        </div>
+      )}
       <div className={styles.messagesContainer}>
         {conversation.messages.map((message, index) => {
-          const isOwn = message.senderId === currentUserId;
+          // AI message (senderId = empty string) hoặc message của current user → hiển thị bên phải
+          const isOwn = !message.senderId || message.senderId.toLowerCase() === currentUserId?.toLowerCase();
           const previousMessage = index > 0 ? conversation.messages[index - 1] : null;
           const showDateSeparator = shouldShowDateSeparator(
             message.timestamp,
