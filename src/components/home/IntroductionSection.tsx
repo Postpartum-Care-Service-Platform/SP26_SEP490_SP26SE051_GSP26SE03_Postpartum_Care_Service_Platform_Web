@@ -14,7 +14,7 @@ import styles from './IntroductionSection.module.css';
 
 export const IntroductionSection: React.FC = () => {
   return (
-    <section className={styles.introduction}>
+    <section id="tu-van" className={styles.introduction}>
       <div className={styles.container}>
         {/* Tiêu đề phần giới thiệu */}
         <div className={styles.header}>

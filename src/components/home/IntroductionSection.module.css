@@ -1,7 +1,11 @@
 /* Container chính cho phần giới thiệu */
 .introduction {
   padding: 80px 24px;
-  background-color: #480280; /* Màu tím đậm */
+  /* Gradient từ trên xuống: tím → cam → trắng */
+  background: linear-gradient(to bottom, #480280 0%, #6b1fa0 30%, #ff6b00 50%, #ffffff 100%);
+  /* Border tròn ở dưới trái và phải */
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
 }
 
 .container {
@@ -28,11 +32,7 @@
   position: relative;
   display: inline-block;
   /* Banner màu cam */
-  background-color: #ff6b00; /* Màu cam */
-  padding: 20px 40px;
-  border-radius: 4px;
   text-align: center;
-  /* Loại bỏ hiệu ứng glow */
   text-shadow: none;
   animation: none;
 }
