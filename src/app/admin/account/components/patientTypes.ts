@@ -14,10 +14,12 @@ export type Patient = {
   role?: string;
   roleId?: number;
   // 'true' if email verified, 'false' otherwise
-  status: 'true' | 'false';
+  status: PatientStatus;
   // Account ID to fetch profiles
   accountId: string;
 };
+
+export type PatientStatus = 'Stable' | 'Under Observation' | 'Recovering' | 'Critical';
 
 export type { FamilyProfile };
 

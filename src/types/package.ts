@@ -1,25 +1,26 @@
-// Định nghĩa type cho API response từ backend
-export interface PackageResponse {
+export type Package = {
   id: number;
   packageName: string;
-  description?: string;
+  description: string;
+  durationDays: number;
+  basePrice: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreatePackageRequest = {
+  packageName: string;
+  description: string;
   durationDays: number;
   basePrice: number;
   isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
+};
 
-// Định nghĩa type cho Package dịch vụ chăm sóc mẹ sau sinh (frontend format)
-export interface Package {
-  id: string;
-  name: string;
+export type UpdatePackageRequest = {
+  packageName?: string;
   description?: string;
-  price?: number;
-  duration?: number; // Số ngày
-  imageUrl?: string;
-  features?: string[]; // Danh sách tính năng/dịch vụ bao gồm
+  durationDays?: number;
+  basePrice?: number;
   isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-}
+};

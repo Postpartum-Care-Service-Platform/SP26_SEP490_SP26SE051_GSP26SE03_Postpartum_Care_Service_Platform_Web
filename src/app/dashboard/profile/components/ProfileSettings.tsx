@@ -3,7 +3,22 @@
 import React from 'react';
 import styles from './profile-settings.module.css';
 
-const InputField = ({ label, id, type = 'text', defaultValue, gridSpan = 1 }) => (
+type InputFieldProps = {
+  label: string;
+  id: string;
+  type?: React.HTMLInputTypeAttribute;
+  defaultValue?: string;
+  gridSpan?: number;
+};
+
+type SelectFieldProps = {
+  label: string;
+  id: string;
+  children: React.ReactNode;
+  gridSpan?: number;
+};
+
+const InputField = ({ label, id, type = 'text', defaultValue, gridSpan = 1 }: InputFieldProps) => (
   <div className={styles.field} style={{ gridColumn: `span ${gridSpan}` }}>
     <label htmlFor={id} className={styles.label}>
       {label}
@@ -12,7 +27,7 @@ const InputField = ({ label, id, type = 'text', defaultValue, gridSpan = 1 }) =>
   </div>
 );
 
-const SelectField = ({ label, id, children, gridSpan = 1 }) => (
+const SelectField = ({ label, id, children, gridSpan = 1 }: SelectFieldProps) => (
   <div className={styles.field} style={{ gridColumn: `span ${gridSpan}` }}>
     <label htmlFor={id} className={styles.label}>
       {label}

@@ -1,20 +1,50 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { FoodListHeader } from './components/FoodListHeader';
-import { FoodList } from './components/FoodList';
-import foodService from '@/services/food.service';
-import type { Food } from '@/types/food';
+import { useEffect, useMemo, useState } from 'react';
+
+import { FoodListHeader, FoodStatsCards, FoodTable, FoodTableControls, NewFoodModal } from './components';
+import type { FoodStats } from './components';
 import styles from './food.module.css';
 
+import foodService from '@/services/food.service';
+import type { Food } from '@/types/food';
+import { useToast } from '@/components/ui/toast/use-toast';
+
+const PAGE_SIZE = 10;
+
+const sortFoods = (items: Food[], sort: string) => {
+  const arr = [...items];
+  switch (sort) {
+    case 'createdAt-asc':
+      return arr.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    case 'createdAt-desc':
+      return arr.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    case 'name-asc':
+      return arr.sort((a, b) => a.name.localeCompare(b.name));
+    case 'name-desc':
+      return arr.sort((a, b) => b.name.localeCompare(a.name));
+    case 'type-asc':
+      return arr.sort((a, b) => a.type.localeCompare(b.type));
+    case 'type-desc':
+      return arr.sort((a, b) => b.type.localeCompare(a.type));
+    default:
+      return arr;
+  }
+};
+
 export default function AdminFoodPage() {
+  const { toast } = useToast();
   const [foods, setFoods] = useState<Food[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchFoods();
-  }, []);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingFood, setEditingFood] = useState<Food | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [sortKey, setSortKey] = useState<string>('createdAt-desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const fetchFoods = async () => {
     try {
@@ -29,41 +59,130 @@ export default function AdminFoodPage() {
     }
   };
 
+  useEffect(() => {
+    fetchFoods();
+  }, []);
+
+  const stats: FoodStats = useMemo(() => {
+    const total = foods.length;
+    const active = foods.filter((f) => f.isActive).length;
+    const inactive = total - active;
+
+    return {
+      total,
+      active,
+      inactive,
+    };
+  }, [foods]);
+
+  const filteredFoods = useMemo(() => {
+    let filtered = [...foods];
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (f) => f.name.toLowerCase().includes(q) || f.type.toLowerCase().includes(q) || (f.description || '').toLowerCase().includes(q),
+      );
+    }
+
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((f) => (statusFilter === 'active' ? f.isActive : !f.isActive));
+    }
+
+    return sortFoods(filtered, sortKey);
+  }, [foods, searchQuery, statusFilter, sortKey]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, sortKey]);
+
+  const paginatedFoods = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    return filteredFoods.slice(start, end);
+  }, [filteredFoods, currentPage]);
+
+  const totalPages = Math.ceil(filteredFoods.length / PAGE_SIZE);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleEdit = (food: Food) => {
-    console.log('Edit food:', food);
+    setEditingFood(food);
+    setIsModalOpen(true);
   };
 
-  const handleDelete = (food: Food) => {
-    console.log('Delete food:', food);
+  const handleModalClose = (open: boolean) => {
+    setIsModalOpen(open);
+    if (!open) {
+      setEditingFood(null);
+    }
   };
 
-  if (loading) {
-    return (
-      <div className={styles.pageContainer}>
-        <FoodListHeader />
-        <div className={styles.loading}>Đang tải danh sách món ăn...</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.pageContainer}>
-        <FoodListHeader />
-        <div className={styles.error}>{error}</div>
-      </div>
-    );
-  }
+  const handleDelete = async (food: Food) => {
+    try {
+      setDeletingId(food.id);
+      await foodService.deleteFood(food.id);
+      toast({ title: 'Xóa món ăn thành công', variant: 'success' });
+      await fetchFoods();
+    } catch (err: any) {
+      toast({ title: err?.message || 'Xóa món ăn thất bại', variant: 'error' });
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className={styles.pageContainer}>
       <FoodListHeader />
-      <FoodList
-        foods={foods}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+
+      {loading ? (
+        <div className={styles.content}>
+          <p>Đang tải dữ liệu...</p>
+        </div>
+      ) : error ? (
+        <div className={styles.content}>
+          <p>{error}</p>
+        </div>
+      ) : (
+        <>
+          <FoodStatsCards stats={stats} />
+
+          <FoodTableControls
+            onSearch={(q) => setSearchQuery(q)}
+            onSortChange={(sort) => setSortKey(sort)}
+            onStatusChange={(status) => setStatusFilter(status)}
+            onNewFood={() => setIsModalOpen(true)}
+          />
+
+          <FoodTable
+            foods={paginatedFoods}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            deletingId={deletingId}
+            pagination={
+              totalPages > 0
+                ? {
+                    currentPage,
+                    totalPages,
+                    pageSize: PAGE_SIZE,
+                    totalItems: filteredFoods.length,
+                    onPageChange: handlePageChange,
+                  }
+                : undefined
+            }
+          />
+        </>
+      )}
+
+      <NewFoodModal
+        open={isModalOpen}
+        onOpenChange={handleModalClose}
+        onSuccess={fetchFoods}
+        foodToEdit={editingFood}
       />
     </div>
   );
 }
-

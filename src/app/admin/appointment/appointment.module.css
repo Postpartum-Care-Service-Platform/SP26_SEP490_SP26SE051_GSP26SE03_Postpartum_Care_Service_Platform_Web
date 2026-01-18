@@ -4,6 +4,13 @@
   gap: 16px;
 }
 
+.content {
+  padding: var(--spacing-md);
+  background-color: #fff;
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
 .contentRow {
   display: flex;
   align-items: flex-start;

@@ -11,27 +11,54 @@ import type { TimelineAppointment } from './components/AppointmentTimelineItem';
 import type { Appointment, AppointmentStatus } from './components/types';
 import appointmentService from '@/services/appointment.service';
 import type { Appointment as ApiAppointment } from '@/types/appointment';
+import { useToast } from '@/components/ui/toast/use-toast';
 import styles from './appointment.module.css';
 
 const PAGE_SIZE = 10;
 
 export default function AdminAppointmentPage() {
+  const { toast } = useToast();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<AppointmentStatus | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
 
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await appointmentService.getAllAppointments();
+      setAppointments(data.map(mapAppointment));
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Không thể tải danh sách lịch hẹn';
+      setError(errorMessage);
+      toast({ title: errorMessage, variant: 'error' });
+      console.error('Failed to load appointments', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    let mounted = true;
+    fetchAppointments();
+  }, []);
 
-    const mapStatus = (status: string): AppointmentStatus => {
-      if (status === 'Pending') return 'Pending';
-      if (status === 'Completed') return 'Completed';
-      if (status === 'Cancelled') return 'Cancelled';
-      return 'Upcoming';
-    };
+  const mapStatus = (status: string): AppointmentStatus => {
+    if (status === 'Pending') return 'Pending';
+    if (status === 'Completed') return 'Completed';
+    if (status === 'Cancelled') return 'Cancelled';
+    if (status === 'Rescheduled') return 'Rescheduled';
+    return 'Upcoming';
+  };
 
-    const formatDateTime = (isoString: string) => {
+  const formatDateTime = (isoString: string | null | undefined): string => {
+    if (!isoString) return '-';
+    try {
       const date = new Date(isoString);
+      if (isNaN(date.getTime())) {
+        return '-';
+      }
       return date.toLocaleString('vi-VN', {
         year: 'numeric',
         month: '2-digit',
@@ -40,40 +67,27 @@ export default function AdminAppointmentPage() {
         minute: '2-digit',
         hour12: false,
       });
+    } catch (error) {
+      console.error('Error formatting date:', isoString, error);
+      return '-';
+    }
+  };
+
+  const mapAppointment = (apt: ApiAppointment): Appointment => {
+    const patientName = apt.customer?.username || apt.customer?.email || 'Không xác định';
+    const doctor = apt.staff?.username || 'Chưa phân công';
+    const department = apt.appointmentType?.name || 'Không xác định';
+
+    return {
+      id: apt.id,
+      patientName,
+      patientAvatar: null,
+      doctor,
+      department,
+      dateTime: formatDateTime(apt.appointmentDate),
+      status: mapStatus(apt.status),
     };
-
-    const mapAppointment = (apt: ApiAppointment): Appointment => {
-      const patientName = apt.customer.username || apt.customer.email;
-      const doctor = apt.staff?.username || 'Chưa phân công';
-      const department = apt.appointmentType.name;
-
-      return {
-        id: apt.id,
-        patientName,
-        patientAvatar: null,
-        doctor,
-        department,
-        dateTime: formatDateTime(apt.appointmentDate),
-        status: mapStatus(apt.status),
-      };
-    };
-
-    const fetchAppointments = async () => {
-      try {
-        const data = await appointmentService.getAllAppointments();
-        if (!mounted) return;
-        setAppointments(data.map(mapAppointment));
-      } catch (error) {
-        console.error('Failed to load appointments', error);
-      }
-    };
-
-    fetchAppointments();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
+  };
   const todayTimelineAppointments: TimelineAppointment[] = useMemo(() => {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -88,16 +102,31 @@ export default function AdminAppointmentPage() {
 
     return appointments
       .filter((apt) => {
-        const date = new Date(apt.dateTime);
-        return date >= startOfDay && date < endOfDay;
+        if (!apt.dateTime || apt.dateTime === '-') return false;
+        try {
+          const date = new Date(apt.dateTime);
+          if (isNaN(date.getTime())) return false;
+          return date >= startOfDay && date < endOfDay;
+        } catch {
+          return false;
+        }
       })
       .map((apt) => {
-        const date = new Date(apt.dateTime);
-        const time = date.toLocaleTimeString('vi-VN', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        });
+        let time = '-';
+        try {
+          if (apt.dateTime && apt.dateTime !== '-') {
+            const date = new Date(apt.dateTime);
+            if (!isNaN(date.getTime())) {
+              time = date.toLocaleTimeString('vi-VN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+              });
+            }
+          }
+        } catch (error) {
+          console.error('Error parsing time:', apt.dateTime, error);
+        }
 
         return {
           id: apt.id,
@@ -145,10 +174,74 @@ export default function AdminAppointmentPage() {
     console.log('Delete appointment:', appointment);
   };
 
+  const stats = useMemo(() => {
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+
+    const todayCount = appointments.filter((apt) => {
+      if (!apt.dateTime || apt.dateTime === '-') return false;
+      try {
+        const aptDate = new Date(apt.dateTime);
+        if (isNaN(aptDate.getTime())) return false;
+        return aptDate.toISOString().split('T')[0] === todayStr;
+      } catch {
+        return false;
+      }
+    }).length;
+
+    const upcoming = appointments.filter((apt) => {
+      if (!apt.dateTime || apt.dateTime === '-') return false;
+      try {
+        const aptDate = new Date(apt.dateTime);
+        if (isNaN(aptDate.getTime())) return false;
+        return aptDate > today && apt.status !== 'Completed' && apt.status !== 'Cancelled';
+      } catch {
+        return false;
+      }
+    }).length;
+
+    const completed = appointments.filter((apt) => apt.status === 'Completed').length;
+    const cancelled = appointments.filter((apt) => apt.status === 'Cancelled').length;
+    const rescheduled = appointments.filter((apt) => apt.status === 'Rescheduled').length;
+
+    return {
+      today: todayCount,
+      upcoming,
+      completed,
+      cancelled,
+      rescheduled,
+    };
+  }, [appointments]);
+
+  if (loading) {
+    return (
+      <div className={styles.pageContainer}>
+        <AppointmentHeader />
+        <div className={styles.content}>
+          <p>Đang tải dữ liệu...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.pageContainer}>
+        <AppointmentHeader />
+        <div className={styles.content}>
+          <p>{error}</p>
+          <button onClick={fetchAppointments} style={{ marginTop: '16px', padding: '8px 16px' }}>
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.pageContainer}>
       <AppointmentHeader />
-      <AppointmentStatsCards />
+      <AppointmentStatsCards stats={stats} />
       <div className={styles.contentRow}>
         <div className={styles.tableSection}>
         <AppointmentTableControls onStatusChange={handleStatusChange} />

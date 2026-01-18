@@ -1,0 +1,75 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.loading {
+  padding: var(--spacing-md);
+  background-color: #fff;
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.chartSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.bottomSection {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.topRow {
+  display: flex;
+  gap: 15px;
+  align-items: stretch;
+}
+
+.bottomRow {
+  display: flex;
+  gap: 15px;
+  align-items: stretch;
+}
+
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 341px;
+  height: 100%;
+}
+
+.middleColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 341px;
+  height: 100%;
+}
+
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 341px;
+}
+
+.genderStatsRow {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.calendarSection {
+  width: 341px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}

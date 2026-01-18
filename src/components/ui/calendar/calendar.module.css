@@ -1,0 +1,168 @@
+.calendar {
+  padding: 0;
+}
+
+.months {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.month {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.caption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+.caption_label {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-transform: capitalize;
+}
+
+.nav {
+  display: flex;
+  column-gap: 1px;
+}
+
+.nav_button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.nav_button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.nav_button:focus-visible {
+  outline: 2px solid var(--color-brand-accent);
+  outline-offset: 2px;
+}
+
+.nav_button_previous {
+  left: 0;
+}
+
+.nav_button_next {
+  right: 0;
+}
+
+.chevron {
+  width: 16px;
+  height: 16px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.head_row {
+  display: flex;
+}
+
+.head_cell {
+  flex: 1 1 0%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-admin-text-muted);
+  text-transform: uppercase;
+}
+
+.row {
+  display: flex;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.cell {
+  position: relative;
+  width: 40px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.day {
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.day:hover:not(.day_disabled):not(.day_selected) {
+  background-color: rgba(250, 131, 20, 0.1);
+  color: var(--color-brand-accent);
+}
+
+.day_selected {
+  background-color: var(--color-brand-accent);
+  color: #fff;
+  font-weight: 500;
+}
+
+.day_selected:hover {
+  background-color: var(--color-brand-accent);
+  opacity: 0.9;
+}
+
+.day_today {
+  font-weight: 600;
+}
+
+.day_outside {
+  color: var(--color-admin-text-muted);
+  opacity: 0.5;
+}
+
+.day_disabled {
+  color: var(--color-admin-text-muted);
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.day_range_middle {
+  background-color: rgba(250, 131, 20, 0.1);
+}
+
+.day_hidden {
+  visibility: hidden;
+}
