@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import packageService from '@/services/package.service';
 import type { Package } from '@/types/package';
@@ -15,7 +16,13 @@ export const PackagesSection: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [mousePositions, setMousePositions] = useState<{ [key: number]: { x: number; y: number } }>({});
+  const [currentIndex, setCurrentIndex] = useState(0);
   const cardRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  // Số lượng gói hiển thị mỗi lần
+  const itemsPerPage = 3;
 
   useEffect(() => {
     // Fetch danh sách packages từ API
@@ -60,6 +67,26 @@ export const PackagesSection: React.FC = () => {
     setHoveredCard(null);
   };
 
+  // Tính toán số trang
+  const totalPages = Math.ceil(packages.length / itemsPerPage);
+
+  // Xử lý chuyển trang trước
+  const handlePrevious = () => {
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : totalPages - 1));
+  };
+
+  // Xử lý chuyển trang sau
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
+  };
+
+  // Lấy các gói hiển thị cho trang hiện tại
+  const getVisiblePackages = () => {
+    const start = currentIndex * itemsPerPage;
+    const end = start + itemsPerPage;
+    return packages.slice(start, end);
+  };
+
   if (loading) {
     return (
       <section className={styles.packagesSection}>
@@ -92,10 +119,31 @@ export const PackagesSection: React.FC = () => {
           </p>
         </div>
 
-        {/* Grid hiển thị các gói dịch vụ */}
+        {/* Carousel hiển thị các gói dịch vụ */}
         {packages.length > 0 ? (
-          <div className={styles.packagesGrid}>
-            {packages.map((pkg) => (
+          <div className={styles.carouselContainer}>
+            {/* Nút điều hướng trái */}
+            {packages.length > itemsPerPage && (
+              <button
+                type="button"
+                className={styles.navButton}
+                onClick={handlePrevious}
+                aria-label="Xem gói trước"
+              >
+                <ChevronLeft size={32} />
+              </button>
+            )}
+
+            {/* Container carousel */}
+            <div className={styles.carouselWrapper} ref={carouselRef}>
+              <div
+                ref={trackRef}
+                className={styles.carouselTrack}
+                style={{
+                  transform: `translateX(-${currentIndex * (100 / itemsPerPage)}%)`,
+                }}
+              >
+                {packages.map((pkg) => (
               <div
                 key={pkg.id}
                 ref={(el) => (cardRefs.current[pkg.id] = el)}
@@ -129,52 +177,88 @@ export const PackagesSection: React.FC = () => {
 
                 {/* Nội dung card */}
                 <div className={styles.cardContent}>
-                  <h3 className={styles.packageName}>{pkg.name}</h3>
-
-                  {pkg.description && (
-                    <p className={styles.packageDescription}>{pkg.description}</p>
-                  )}
-
-                  {/* Danh sách tính năng */}
-                  {pkg.features && pkg.features.length > 0 && (
-                    <ul className={styles.featuresList}>
-                      {pkg.features.map((feature, index) => (
-                        <li key={index} className={styles.featureItem}>
-                          {feature}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  {/* Thông tin giá và thời gian */}
-                  <div className={styles.packageInfo}>
-                    {pkg.price && (
-                      <div className={styles.price}>
-                        <span className={styles.priceLabel}>Giá:</span>
-                        <span className={styles.priceValue}>
-                          {new Intl.NumberFormat('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND',
-                          }).format(pkg.price)}
-                        </span>
-                      </div>
-                    )}
-
+                  {/* Header với tên gói và badge duration */}
+                  <div className={styles.cardHeader}>
+                    <h3 className={styles.packageName}>{pkg.name}</h3>
                     {pkg.duration && (
-                      <div className={styles.duration}>
-                        <span className={styles.durationLabel}>Thời gian:</span>
-                        <span className={styles.durationValue}>{pkg.duration} ngày</span>
+                      <div className={styles.durationBadge}>
+                        <span className={styles.durationText}>{pkg.duration} ngày</span>
                       </div>
                     )}
                   </div>
 
+                  {/* Mô tả gói dịch vụ */}
+                  {pkg.description && (
+                    <div className={styles.descriptionSection}>
+                      <p className={styles.packageDescription}>{pkg.description}</p>
+                    </div>
+                  )}
+
+                  {/* Danh sách tính năng */}
+                  {pkg.features && pkg.features.length > 0 && (
+                    <div className={styles.featuresSection}>
+                      <h4 className={styles.featuresTitle}>Tính năng bao gồm:</h4>
+                      <ul className={styles.featuresList}>
+                        {pkg.features.map((feature, index) => (
+                          <li key={index} className={styles.featureItem}>
+                            <span className={styles.featureIcon}>✓</span>
+                            <span className={styles.featureText}>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Phần giá - nổi bật */}
+                  {pkg.price && (
+                    <div className={styles.priceSection}>
+                      <div className={styles.priceLabel}>Giá gói</div>
+                      <div className={styles.priceValue}>
+                        {new Intl.NumberFormat('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                        }).format(pkg.price)}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Nút xem chi tiết */}
                   <Link href={`/packages/${pkg.id}`} className={styles.viewDetailsButton}>
-                    Xem Chi Tiết
+                    <span>Xem Chi Tiết</span>
+                    <span className={styles.buttonArrow}>→</span>
                   </Link>
                 </div>
               </div>
-            ))}
+                ))}
+              </div>
+            </div>
+
+            {/* Nút điều hướng phải */}
+            {packages.length > itemsPerPage && (
+              <button
+                type="button"
+                className={styles.navButton}
+                onClick={handleNext}
+                aria-label="Xem gói sau"
+              >
+                <ChevronRight size={32} />
+              </button>
+            )}
+
+            {/* Dots indicator (optional) */}
+            {packages.length > itemsPerPage && totalPages > 1 && (
+              <div className={styles.dotsIndicator}>
+                {Array.from({ length: totalPages }).map((_, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className={`${styles.dot} ${index === currentIndex ? styles.dotActive : ''}`}
+                    onClick={() => setCurrentIndex(index)}
+                    aria-label={`Chuyển đến trang ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div className={styles.emptyState}>
