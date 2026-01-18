@@ -8,7 +8,7 @@ import styles from './overview-stat-card.module.css';
 export type TrendType = 'up' | 'down' | 'check';
 
 export type OverviewStatCardProps = {
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<any>;
   iconBgColor: string;
   iconColor: string;
   trendType: TrendType;

@@ -46,7 +46,7 @@ export function mapFamilyProfileToPatient(profile: FamilyProfile, index: number)
     gender: mapGender(profile.gender),
     contact: profile.phoneNumber || 'N/A',
     address: profile.address || 'N/A',
-    status: 'false',
+    status: 'Stable',
     accountId: profile.customerId || String(profile.id),
   };
 }
@@ -67,7 +67,7 @@ export function mapAccountToPatient(account: Account, index: number): Patient {
     address: profile?.address || 'N/A',
     role: account.roleName || 'N/A',
     roleId: account.roleId,
-    status: account.isEmailVerified ? 'true' : 'false',
+    status: account.isEmailVerified ? 'Stable' : 'Under Observation',
     accountId: account.id,
   };
 }

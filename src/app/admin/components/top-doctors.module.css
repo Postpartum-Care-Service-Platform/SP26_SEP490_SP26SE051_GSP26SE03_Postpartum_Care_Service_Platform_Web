@@ -1,0 +1,133 @@
+.container {
+  width: 341px;
+  height: 474.27px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.title {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343a40;
+  margin: 0;
+}
+
+.seeAllLink {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: #343a40;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.2s;
+}
+
+.seeAllLink:hover {
+  opacity: 0.7;
+}
+
+.arrow {
+  font-size: 14px;
+}
+
+.body {
+  padding: 16px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.doctorItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.avatarContainer {
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f2f2f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.doctorInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.doctorName {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343a40;
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.specialty {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  color: #6c757d;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ratingBadge {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 8px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  color: #343a40;
+}
+
+.star {
+  color: #ffc107;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.rating {
+  font-weight: 500;
+}

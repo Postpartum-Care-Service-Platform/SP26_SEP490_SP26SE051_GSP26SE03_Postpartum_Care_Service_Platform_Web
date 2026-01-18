@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare, FileText, Utensils, ClipboardList, Package, Bell } from 'lucide-react';
+import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare, FileText, Utensils, ClipboardList, Package, Bell, Activity, ClipboardCheck } from 'lucide-react';
 
 export type AdminNavItem = {
   key: string;
@@ -100,6 +100,18 @@ export const adminNav: AdminNavSection[] = [
         label: 'Gói dịch vụ',
         href: '/admin/package',
         icon: Package,
+      },
+      {
+        key: 'activity',
+        label: 'Hoạt động',
+        href: '/admin/activity',
+        icon: Activity,
+      },
+      {
+        key: 'care-plan-detail',
+        label: 'Chi tiết kế hoạch chăm sóc',
+        href: '/admin/care-plan-detail',
+        icon: ClipboardCheck,
       },
       {
         key: 'notification',

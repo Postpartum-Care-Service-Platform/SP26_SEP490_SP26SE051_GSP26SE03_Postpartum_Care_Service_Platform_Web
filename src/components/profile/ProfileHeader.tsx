@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import React from 'react';
 
-import { useProfile } from '@/app/(dashboard)/profile/ProfileContext';
+import { useProfile } from '@/app/dashboard/profile/ProfileContext';
 
 export function ProfileHeader() {
   const { profile } = useProfile();

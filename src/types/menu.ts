@@ -1,4 +1,4 @@
-import type { Food } from './food';
+import type { Food } from '@/types/food';
 
 export interface Menu {
   id: number;

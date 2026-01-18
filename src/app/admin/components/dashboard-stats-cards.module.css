@@ -1,0 +1,300 @@
+.container {
+  display: grid;
+  grid-template-columns: 341px 160px 160px 160px 160px 1fr;
+  gap: 15px;
+}
+
+.activePatientsCard {
+  background: linear-gradient(135deg, #fff4e6 0%, #ffe8cc 100%);
+  border-radius: 4.8px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  overflow: visible;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  width: 341px;
+  height: 214px;
+  flex-shrink: 0;
+}
+
+.activePatientsContent {
+  flex: 1;
+  z-index: 1;
+}
+
+.activePatientsHeader {
+  margin-bottom: 16px;
+}
+
+.activePatientsLabel {
+  display: block;
+  font-family: "Lexend Deca", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #343A40;
+  margin-bottom: 6px;
+}
+
+.activePatientsValue {
+  font-family: "Lexend Deca", sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #343A40;
+  margin: 0;
+  line-height: 1.2;
+  margin-bottom: 43px !important;
+}
+
+.weeklyAppointments {
+  margin-bottom: 16px;
+}
+
+.weeklyAppointmentsTitle {
+  font-family: "Lexend Deca", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343A40;
+  margin: 0 0 6px 0;
+}
+
+.weeklyAppointmentsText {
+  font-family: var(--font-admin-breadcrumb);
+  font-size: 13px;
+  color: #343a40b3;
+  margin: 0;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 1rem !important;
+}
+
+.bookAppointmentButton {
+  background-color: #fa8314;
+  color: white;
+  border: none;
+  border-radius: 4.8px;
+  padding: 10px 20px;
+  font-family: "Lexend Deca", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.bookAppointmentButton:hover {
+  background-color: #e67310;
+}
+
+.logoContainer {
+  position: absolute;
+  top: -35px;
+  right: 40px;
+  width: 105px;
+  height: 105px;
+  z-index: 0;
+}
+
+.logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.statCard {
+  background: white;
+  border-radius: 4.8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: 160px;
+  height: 214px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.statCardHeader {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.iconWrapper {
+  width: 39.99px;
+  height: 39.99px;
+  border-radius: 4.8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+.trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: "Lexend Deca", sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.trendPositive {
+  color: #15803d;
+}
+
+.trendNegative {
+  color: #dc3545;
+}
+
+.trendArrowUp,
+.trendArrowDown {
+  font-size: 10px;
+}
+
+.statCardBody {
+  flex: 1;
+  margin-bottom: 12px;
+}
+
+.statValue {
+  font-family: "Lexend Deca", sans-serif;
+  font-size: 19px;
+  font-weight: 600;
+  color: #343A40;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-family: var(--font-admin-breadcrumb);
+  font-size: 13px;
+  color: rgba(52, 58, 64, 0.7);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewDetailsLink {
+  font-family: "Lexend Deca", sans-serif;
+  font-size: 12px;
+  color: #e67410;
+  text-decoration: none;
+  transition: color 0.2s;
+  margin-top: auto;
+}
+
+.viewDetailsLink:hover {
+  color: #8d6ba8;
+  text-decoration: underline;
+}
+
+.menuButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8A92A4;
+  transition: color 0.2s, background-color 0.2s;
+  border-radius: 4px;
+  z-index: 10;
+}
+
+.menuButton:hover {
+  color: #343A40;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dropdownContent {
+  background-color: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 4.8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+  min-width: 140px;
+}
+
+.dropdownItem {
+  padding: 8px 12px;
+  font-family: "Lexend Deca", sans-serif;
+  font-size: 13px;
+  color: #343A40;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: block;
+  width: 100%;
+  text-align: left;
+}
+
+.dropdownItem:hover {
+  background-color: rgba(250, 131, 20, 0.1);
+}
+
+.dropdownItemActive {
+  color: #fa8314;
+  background-color: rgba(250, 131, 20, 0.1);
+}
+
+@media (max-width: 1400px) {
+  .container {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .activePatientsCard {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1024px) {
+  .container {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .activePatientsCard {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+
+  .activePatientsCard {
+    flex-direction: column;
+  }
+
+  .logoContainer {
+    position: relative;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    margin-top: 16px;
+    align-self: center;
+  }
+}

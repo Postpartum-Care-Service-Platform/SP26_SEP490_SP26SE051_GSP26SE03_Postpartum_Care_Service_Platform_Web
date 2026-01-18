@@ -1,0 +1,161 @@
+.container {
+  width: 341px;
+  background-color: #ffffff;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.title {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343a40;
+  margin: 0;
+}
+
+.periodButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none !important;
+  outline: none;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: #343a40;
+  cursor: pointer;
+  padding: 0;
+}
+
+.periodButton:hover {
+  opacity: 0.8;
+}
+
+.chevron {
+  transition: transform 0.2s;
+}
+
+.periodButton[data-state='open'] .chevron {
+  transform: rotate(180deg);
+}
+
+.dropdownContent {
+  min-width: 120px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+}
+
+.dropdownItem {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: #343a40;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background-color 0.2s;
+}
+
+.dropdownItem:hover {
+  background-color: #f5f5f5;
+}
+
+.dropdownItemActive {
+  background-color: #f0f0f0;
+  font-weight: 500;
+}
+
+.body {
+  padding: 16px;
+  height: 278.97px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.chartContainer {
+  flex: 1 1 0;
+  min-height: 200px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+.tooltip {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tooltipLabel {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #343a40;
+  margin: 0 0 8px 0;
+}
+
+.tooltipContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tooltipItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  color: #343a40;
+}
+
+.tooltipDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding-top: 10px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendText {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  color: #343a40;
+}
