@@ -15,7 +15,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className={styles.container}>
       <AdminSidebar collapsed={collapsed} onToggleCollapsed={() => setCollapsed(!collapsed)} />
-      <div className={styles.main}>
+      <div className={`${styles.main} ${collapsed ? styles.mainCollapsed : ''}`}>
         <AdminHeader collapsed={collapsed} onToggleCollapsed={() => setCollapsed(!collapsed)} />
         <div className={styles.content}>{children}</div>
       </div>

@@ -1,0 +1,220 @@
+.container {
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.title {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343a40;
+  margin: 0;
+}
+
+.seeAllLink {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: #343a40;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: opacity 0.2s;
+}
+
+.seeAllLink:hover {
+  opacity: 0.7;
+}
+
+.arrow {
+  font-size: 14px;
+}
+
+.body {
+  padding: var(--spacing-md);
+  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background-color: rgba(242, 242, 244, 0.5);
+}
+
+.table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-family: "Funnel Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343A40;
+  border-bottom: 1px solid var(--color-border-default);
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  background-color: #fff !important;
+  border-bottom: 1px solid var(--color-border-default);
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.table td {
+  padding: var(--spacing-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.invoiceId {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.clientCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatarContainer {
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f2f2f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.clientInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.truncateCell {
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-xl) !important;
+  color: var(--color-admin-text-muted);
+  font-family: var(--font-body);
+}
+
+.clientName {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clientCompany {
+  font-size: 12px;
+  color: var(--color-admin-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  white-space: nowrap;
+}
+
+.statusPaid {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.statusPartial {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.statusOverdue {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionButton {
+  width: calc(16px + 0.5rem + 4px) !important;
+  height: calc(16px + 0.5rem + 4px) !important;
+  font-size: 0.8rem !important;
+  padding: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(164, 123, 200, 0.15) !important;
+  border-color: transparent !important;
+  border-radius: 3.6px !important;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.actionButton:hover {
+  background-color: #a379c7 !important;
+}
+
+.actionButton:hover svg {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.paginationWrapper {
+  margin-top: var(--spacing-md);
+  padding: 0 var(--spacing-md) var(--spacing-md);
+}
