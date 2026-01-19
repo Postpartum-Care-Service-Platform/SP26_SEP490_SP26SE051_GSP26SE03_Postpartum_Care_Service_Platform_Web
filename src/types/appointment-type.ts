@@ -1,17 +1,18 @@
 export interface AppointmentTypeDetail {
   id: number;
   name: string;
-  description?: string;
+  isActive: boolean;
+  createdAt: string;
 }
 
 export interface CreateAppointmentTypeRequest {
   name: string;
-  description?: string;
+  isActive?: boolean;
 }
 
 export interface UpdateAppointmentTypeRequest {
-  name: string;
-  description?: string;
+  name?: string;
+  isActive?: boolean;
 }
 
 
