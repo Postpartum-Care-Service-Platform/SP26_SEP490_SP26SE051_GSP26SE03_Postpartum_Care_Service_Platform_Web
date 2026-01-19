@@ -14,6 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
+import { CountUp } from './CountUp';
 import styles from './gender-stats-card.module.css';
 
 type GenderStatsCardProps = {
@@ -85,7 +86,7 @@ export function GenderStatsCard({
         <div className={styles.stats}>
           <div className={styles.trend}>
             <span className={styles.trendValue} style={{ color: trendColor }}>
-              {trend}
+              <CountUp value={Math.abs(parseFloat(trend.replace(/[%+-]/g, '')))} format="percentage" />%
             </span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -103,7 +104,9 @@ export function GenderStatsCard({
               </g>
             </svg>
           </div>
-          <div className={styles.mainValue}>{value}</div>
+          <div className={styles.mainValue}>
+            <CountUp value={parseFloat(value.replace('%', ''))} format="percentage" />%
+          </div>
         </div>
         <div className={styles.chartContainer}>
           <ResponsiveContainer width="100%" height="100%">

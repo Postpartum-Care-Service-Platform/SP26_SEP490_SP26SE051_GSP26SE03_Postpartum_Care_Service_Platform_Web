@@ -19,6 +19,7 @@ export function ScrollToTop() {
   const [isVisible, setIsVisible] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
   const rafIdRef = React.useRef<number | null>(null);
+  const scrollContainerRef = React.useRef<HTMLElement | Window | null>(null);
 
   React.useEffect(() => {
     const findScrollContainer = (): HTMLElement | Window => {
@@ -35,18 +36,17 @@ export function ScrollToTop() {
       return window;
     };
 
-    let scrollContainer: HTMLElement | Window = window;
-
     const handleScroll = () => {
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
       }
 
       rafIdRef.current = requestAnimationFrame(() => {
-        if (scrollContainer === window) {
-          scrollContainer = findScrollContainer();
+        if (!scrollContainerRef.current) {
+          scrollContainerRef.current = findScrollContainer();
         }
 
+        const scrollContainer = scrollContainerRef.current;
         const isWindow = scrollContainer === window;
         const scrollY = isWindow ? window.scrollY : (scrollContainer as HTMLElement).scrollTop;
         const scrollHeight = isWindow
@@ -65,7 +65,8 @@ export function ScrollToTop() {
       });
     };
 
-    scrollContainer = findScrollContainer();
+    scrollContainerRef.current = findScrollContainer();
+    const scrollContainer = scrollContainerRef.current;
 
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
@@ -79,14 +80,33 @@ export function ScrollToTop() {
   }, []);
 
   const handleClick = () => {
-    const contentElement = document.querySelector('[class*="content"]') as HTMLElement | null;
-    if (contentElement && contentElement.scrollHeight > contentElement.clientHeight) {
-      contentElement.scrollTo({
+    if (!scrollContainerRef.current) {
+      const findScrollContainer = (): HTMLElement | Window => {
+        const allElements = document.querySelectorAll('*');
+        for (let i = 0; i < allElements.length; i++) {
+          const htmlEl = allElements[i] as HTMLElement;
+          const style = window.getComputedStyle(htmlEl);
+          if (style.overflowY === 'auto' || style.overflowY === 'scroll') {
+            if (htmlEl.scrollHeight > htmlEl.clientHeight) {
+              return htmlEl;
+            }
+          }
+        }
+        return window;
+      };
+      scrollContainerRef.current = findScrollContainer();
+    }
+
+    const scrollContainer = scrollContainerRef.current;
+    const isWindow = scrollContainer === window;
+
+    if (isWindow) {
+      window.scrollTo({
         top: 0,
         behavior: 'smooth',
       });
     } else {
-      window.scrollTo({
+      (scrollContainer as HTMLElement).scrollTo({
         top: 0,
         behavior: 'smooth',
       });

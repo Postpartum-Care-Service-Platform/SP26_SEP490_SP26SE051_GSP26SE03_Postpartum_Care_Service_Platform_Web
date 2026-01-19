@@ -12,7 +12,8 @@ lerna-debug.log*
 node_modules
 .pnp
 .pnp.js
-
+package-lock.json
+*.kiro/ 
 # Build outputs
 dist
 dist-ssr

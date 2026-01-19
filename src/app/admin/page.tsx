@@ -11,6 +11,10 @@ import { TopDoctors } from './components/TopDoctors';
 import { AveragePatientVisit } from './components/AveragePatientVisit';
 import { PatientVisitByGender } from './components/PatientVisitByGender';
 import { GenderStatsCard } from './components/GenderStatsCard';
+import { TeamProductivity } from './components/TeamProductivity';
+import { InvoiceList } from './components/InvoiceList';
+import { AppointmentsList } from './components/AppointmentsList';
+import { PatientByAge } from './components/PatientByAge';
 import styles from './admin-dashboard.module.css';
 
 type DashboardStats = {
@@ -83,10 +87,14 @@ export default function AdminPage() {
           <div className={styles.middleColumn}>
             <TopDoctors />
           </div>
-          <AveragePatientVisit />
+          <div className={styles.averagePatientVisitWrapper}>
+            <AveragePatientVisit />
+          </div>
         </div>
         <div className={styles.bottomRow}>
-          <PatientVisitByGender />
+          <div className={styles.patientVisitByGenderWrapper}>
+            <PatientVisitByGender />
+          </div>
           <div className={styles.rightColumn}>
             <div className={styles.genderStatsRow}>
               <GenderStatsCard
@@ -104,7 +112,17 @@ export default function AdminPage() {
                 chartColor="#a47bc8"
               />
             </div>
+            <div className={styles.teamProductivityWrapper}>
+              <TeamProductivity />
+            </div>
           </div>
+        </div>
+        <div className={styles.invoiceRow}>
+          <InvoiceList />
+        </div>
+        <div className={styles.appointmentsRow}>
+          <AppointmentsList />
+          <PatientByAge />
         </div>
       </div>
     </div>

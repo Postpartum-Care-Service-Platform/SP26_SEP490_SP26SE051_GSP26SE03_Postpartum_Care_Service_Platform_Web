@@ -32,40 +32,79 @@
 .bottomRow {
   display: flex;
   gap: 15px;
-  align-items: stretch;
+  align-items: flex-start;
 }
 
 .leftColumn {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  width: 341px;
+  flex: 1 1 341px;
+  min-width: 341px;
   height: 100%;
+}
+
+.leftColumnBottom {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: auto;
 }
 
 .middleColumn {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  width: 341px;
+  flex: 1 1 341px;
+  min-width: 341px;
   height: 100%;
+}
+
+.averagePatientVisitWrapper {
+  flex: 2 1 698px;
+  min-width: 698px;
+}
+
+.patientVisitByGenderWrapper {
+  flex: 1 1 341px;
+  min-width: 341px;
 }
 
 .rightColumn {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 15px;
-  width: 341px;
+  align-items: flex-start;
+  flex: 3 1 auto;
+  min-width: 0;
 }
 
 .genderStatsRow {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.teamProductivityWrapper {
+  flex: 2 1 697.99px;
+  min-width: 0;
+}
+
+.invoiceRow {
+  margin-top: 15px;
+}
+
+.appointmentsRow {
+  margin-top: 15px;
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
 }
 
 .calendarSection {
-  width: 341px;
+  width: 100%;
   background-color: #ffffff;
   border-radius: 4px;
   padding: 16px;
