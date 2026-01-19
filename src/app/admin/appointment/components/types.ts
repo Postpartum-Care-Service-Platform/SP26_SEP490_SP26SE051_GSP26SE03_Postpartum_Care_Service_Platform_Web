@@ -1,4 +1,4 @@
-export type AppointmentStatus = 'Upcoming' | 'Pending' | 'Completed' | 'Cancelled';
+export type AppointmentStatus = 'Upcoming' | 'Pending' | 'Completed' | 'Cancelled' | 'Rescheduled';
 
 export type Appointment = {
   id: number;

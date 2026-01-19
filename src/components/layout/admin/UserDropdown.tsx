@@ -22,12 +22,12 @@ import { ROUTES } from '@/routes/routes';
 import styles from './user-dropdown.module.css';
 
 const menuItems = [
-  { icon: User, label: 'Profile' },
-  { icon: MessageSquare, label: 'Messages' },
-  { icon: Activity, label: 'Activities' },
-  { icon: CalendarCheck, label: 'Tasks' },
-  { icon: FileText, label: 'Notes' },
-  { icon: Bell, label: 'Notification' },
+  { icon: User, label: 'Hồ sơ', route: ROUTES.adminProfile },
+  { icon: MessageSquare, label: 'Tin nhắn' },
+  { icon: Activity, label: 'Hoạt động' },
+  { icon: CalendarCheck, label: 'Nhiệm vụ' },
+  { icon: FileText, label: 'Ghi chú' },
+  { icon: Bell, label: 'Thông báo' },
 ];
 
 export function UserDropdown() {
@@ -79,8 +79,18 @@ export function UserDropdown() {
         <div className={styles.menuGrid}>
           {menuItems.map((item) => {
             const Icon = item.icon;
+            const handleClick = () => {
+              if (item.route) {
+                router.push(item.route);
+              }
+            };
             return (
-              <button key={item.label} className={styles.menuItem} type="button">
+              <button
+                key={item.label}
+                className={styles.menuItem}
+                type="button"
+                onClick={handleClick}
+              >
                 <Icon size={20} className={styles.menuIcon} />
                 <span className={styles.menuLabel}>{item.label}</span>
               </button>
@@ -95,7 +105,7 @@ export function UserDropdown() {
             onClick={handleLogout}
             disabled={isLoggingOut}
           >
-            {isLoggingOut ? 'Đang đăng xuất...' : 'Sign In'}
+            {isLoggingOut ? 'Đang đăng xuất...' : 'Đăng xuất'}
           </button>
         </div>
       </DropdownMenuContent>

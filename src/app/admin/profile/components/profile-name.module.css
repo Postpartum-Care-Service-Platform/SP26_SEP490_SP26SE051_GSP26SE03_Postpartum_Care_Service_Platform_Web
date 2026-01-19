@@ -1,0 +1,9 @@
+.name {
+  font-family: 'Lexend Deca', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #343a40;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}

@@ -1,0 +1,172 @@
+.container {
+  display: flex;
+  gap: 0;
+  background-color: #ffffff;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.leftSection {
+  flex: 0 0 41.666667%;
+  border-right: 1px solid var(--color-border-default);
+  padding: 24px;
+}
+
+.profileCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.avatarWrapper {
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.name {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-admin-text-primary);
+  margin: 0 0 8px 0;
+}
+
+.email {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-muted);
+  margin: 0 0 20px 0;
+}
+
+.appointmentsTitle {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-admin-text-primary);
+  margin: 0 0 20px 0;
+}
+
+.appointmentsStats {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 32px;
+}
+
+.statItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statItem:first-child {
+  border-right: 1px solid var(--color-border-default);
+}
+
+.statValue {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-admin-text-primary);
+  margin: 0 0 4px 0;
+}
+
+.statLabel {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-muted);
+}
+
+.sendMessageButton {
+  width: 100%;
+  padding: 10px 24px;
+  background-color: var(--color-brand-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sendMessageButton:hover {
+  background-color: #e67310;
+}
+
+.rightSection {
+  flex: 1;
+  padding: 24px;
+}
+
+.detailsCard {
+  width: 100%;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 24px;
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detailLabel {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-muted);
+  margin: 0;
+}
+
+.detailValue {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-admin-text-primary);
+  margin: 0;
+}
+
+.detailItem:last-child .detailValue,
+.detailItem:nth-last-child(2) .detailValue {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .leftSection {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-default);
+  }
+
+  .detailsGrid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

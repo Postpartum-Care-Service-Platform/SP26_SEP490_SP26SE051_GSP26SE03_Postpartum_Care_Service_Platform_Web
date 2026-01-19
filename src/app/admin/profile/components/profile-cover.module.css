@@ -1,0 +1,50 @@
+.coverContainer {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  background-color: #e0e0e0;
+}
+
+.coverImage {
+  object-fit: cover;
+  transition: opacity 0.2s;
+}
+
+.fileInput {
+  display: none;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+  z-index: 1;
+}
+
+.overlayContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.cameraIcon {
+  color: #ffffff;
+}
+
+.overlayText {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+}

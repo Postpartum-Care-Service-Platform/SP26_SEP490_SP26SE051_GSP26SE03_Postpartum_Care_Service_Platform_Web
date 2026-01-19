@@ -112,6 +112,11 @@
   color: var(--color-status-cancelled);
 }
 
+.statusRescheduled {
+  background-color: #E8EAF6;
+  color: #7588DE;
+}
+
 .actions {
   display: flex;
   align-items: center;
