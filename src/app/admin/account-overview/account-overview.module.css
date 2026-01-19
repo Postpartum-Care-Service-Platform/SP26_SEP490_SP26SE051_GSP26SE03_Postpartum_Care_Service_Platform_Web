@@ -3,3 +3,52 @@
   flex-direction: column;
   gap: 24px;
 }
+
+.contentRow {
+  display: flex;
+  gap: 24px;
+  align-items: stretch;
+}
+
+
+.leftColumn {
+  flex: 0 0 41.666667%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.rightColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.bottomRow {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.bottomLeftColumn {
+  flex: 1;
+}
+
+.bottomRightColumn {
+  flex: 1;
+}
+
+@media (max-width: 1200px) {
+  .contentRow {
+    flex-direction: column;
+  }
+
+  .rightColumn {
+    flex: 1;
+  }
+
+  .bottomRow {
+    flex-direction: column;
+  }
+}

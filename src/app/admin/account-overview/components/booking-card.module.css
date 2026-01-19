@@ -1,0 +1,317 @@
+.card {
+  background-color: #ffffff;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  width: 100%;
+}
+
+.content {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.bookingInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-family: var(--font-admin-title);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-admin-text-primary);
+  margin: 0 0 16px 0;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: rgba(21, 128, 61, 0.1);
+  color: #15803d;
+  border-radius: var(--radius-sm);
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  width: fit-content;
+}
+
+.threeColumnGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionTitle {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-admin-text-primary);
+  margin: 0 0 8px 0;
+}
+
+.infoRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-muted);
+}
+
+.value {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-admin-text-primary);
+}
+
+.notes {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-primary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.amenitiesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.amenityItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-primary);
+}
+
+.amenityItem svg {
+  color: #15803d;
+  flex-shrink: 0;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.editButton,
+.cancelButton {
+  flex: 1;
+  padding: 10px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editButton {
+  background-color: #f6f7f9;
+  color: var(--color-admin-text-primary);
+}
+
+.editButton:hover {
+  background-color: #e0e0e0;
+}
+
+.cancelButton {
+  background-color: rgba(253, 97, 97, 0.1);
+  color: #fd6161;
+}
+
+.cancelButton:hover {
+  background-color: rgba(253, 97, 97, 0.2);
+}
+
+.roomInfo {
+  width: 340px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--color-border-default);
+  padding-left: 24px;
+}
+
+.roomHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.roomTitle {
+  font-family: var(--font-admin-title);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-admin-text-primary);
+  margin: 0;
+}
+
+.viewDetailLink {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-brand-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.viewDetailLink:hover {
+  text-decoration: underline;
+}
+
+.roomImageWrapper {
+  width: 100%;
+  margin-bottom: 16px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.roomImage {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.roomSpecs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.specItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-primary);
+}
+
+.specItem svg {
+  color: var(--color-admin-text-muted);
+  flex-shrink: 0;
+}
+
+.priceSummary {
+  margin-bottom: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.priceHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.priceTitle {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-admin-text-primary);
+  margin: 0;
+}
+
+.paidBadge {
+  padding: 4px 8px;
+  background-color: rgba(244, 208, 120, 0.15);
+  color: #F4D078;
+  border-radius: var(--radius-sm);
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.priceRowTotal {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.priceLabel,
+.totalLabel {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-muted);
+}
+
+.totalLabel {
+  font-weight: 600;
+  color: var(--color-admin-text-primary);
+}
+
+.priceValue {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-primary);
+}
+
+.totalValue {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-admin-text-primary);
+}
+
+.notesSection {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.notesTitle {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-admin-text-primary);
+  margin: 0 0 8px 0;
+}
+
+.notesText {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-primary);
+  line-height: 1.5;
+  margin: 0;
+}

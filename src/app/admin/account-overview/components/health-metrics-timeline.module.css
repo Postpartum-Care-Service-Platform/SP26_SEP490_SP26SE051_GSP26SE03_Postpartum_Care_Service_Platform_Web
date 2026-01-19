@@ -1,0 +1,81 @@
+.card {
+  background-color: #ffffff;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.cardHeader {
+  padding: 16px 16px 0 16px;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.title {
+  font-family: var(--font-admin-title);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-admin-text-primary);
+  margin: 0;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 4px 12px;
+  background-color: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-admin-text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.tabActive {
+  background-color: var(--color-brand-accent);
+  color: #ffffff;
+}
+
+.tabActive:hover {
+  background-color: #e67310;
+}
+
+.cardBody {
+  padding: 24px 16px;
+}
+
+.chartContainer {
+  width: 100%;
+  min-height: 151px;
+}
+
+@media (max-width: 768px) {
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tabs {
+    width: 100%;
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+  }
+}
