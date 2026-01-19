@@ -52,3 +52,9 @@
   font-size: 14px;
   color: rgba(30, 30, 30, 0.5);
 }
+
+.loading {
+  padding: 16px;
+  text-align: center;
+  color: #666;
+}

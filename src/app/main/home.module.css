@@ -1,3 +1,10 @@
+/* Đảm bảo main element có background trắng */
+.main {
+  background-color: #ffffff;
+  width: 100%;
+}
+
+/* Container cho các section */
 .rowHeader {
   display: flex;
   align-items: center; /* Vertically center content */
@@ -29,4 +36,3 @@
   max-width: 650px;
   margin: 0 auto; /* Center the paragraph if it's narrower than the container */
 }
-

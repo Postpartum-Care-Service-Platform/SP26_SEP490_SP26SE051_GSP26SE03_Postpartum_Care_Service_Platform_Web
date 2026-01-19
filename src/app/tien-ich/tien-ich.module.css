@@ -1,0 +1,296 @@
+/* Container chính */
+.main {
+  background-color: #ffffff;
+}
+
+.tienIchSection {
+  padding: 80px 24px;
+  background-color: #ffffff;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header với tiêu đề và mô tả */
+.header {
+  text-align: center;
+  margin-bottom: 64px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 400;
+  color: #111;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.description {
+  font-family: var(--font-body);
+  font-size: clamp(16px, 1.5vw, 20px);
+  color: #666;
+  line-height: 1.8;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Grid layout cho các tiện ích */
+.amenitiesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 32px;
+  margin-top: 48px;
+}
+
+/* Card cho mỗi tiện ích */
+.amenityCard {
+  position: relative;
+  background: white;
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.amenityCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border-color: rgba(250, 131, 20, 0.2);
+}
+
+/* Wrapper cho hình ảnh */
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fffbf4 0%, #fdf8f2 100%);
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.amenityCard:hover .image {
+  transform: scale(1.1);
+}
+
+/* Icon overlay trên ảnh */
+.iconOverlay {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  z-index: 2;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.icon {
+  font-size: 32px;
+  transition: transform 0.3s ease;
+}
+
+.amenityCard:hover .iconOverlay {
+  transform: scale(1.1);
+  background: rgba(250, 131, 20, 0.9);
+}
+
+.amenityCard:hover .icon {
+  transform: rotate(10deg);
+}
+
+/* Overlay khi hover */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(250, 131, 20, 0.9) 0%,
+    rgba(250, 131, 20, 0.7) 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+}
+
+.amenityCard:hover .overlay {
+  opacity: 1;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  transition: clip-path 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+.overlayContent {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.overlayIcon {
+  font-size: 80px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  animation: bounce 0.6s ease;
+}
+
+.overlayText {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Nội dung card */
+.cardContent {
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.amenityName {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.amenityDescription {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 80px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid rgba(250, 131, 20, 0.1);
+  border-top-color: var(--color-brand-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading p {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: #666;
+}
+
+/* Error state */
+.error {
+  text-align: center;
+  padding: 60px 24px;
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: #d32f2f;
+  background-color: rgba(211, 47, 47, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(211, 47, 47, 0.2);
+}
+
+/* Empty state */
+.emptyState {
+  text-align: center;
+  padding: 60px 24px;
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: #666;
+}
+
+/* Responsive cho tablet */
+@media (max-width: 1200px) {
+  .amenitiesGrid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+}
+
+/* Responsive cho mobile */
+@media (max-width: 768px) {
+  .tienIchSection {
+    padding: 48px 16px;
+  }
+
+  .header {
+    margin-bottom: 40px;
+  }
+
+  .amenitiesGrid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 32px;
+  }
+
+  .imageWrapper {
+    height: 200px;
+  }
+
+  .cardContent {
+    padding: 20px;
+  }
+
+  .icon {
+    font-size: 60px;
+  }
+
+  .overlayIcon {
+    font-size: 80px;
+  }
+}

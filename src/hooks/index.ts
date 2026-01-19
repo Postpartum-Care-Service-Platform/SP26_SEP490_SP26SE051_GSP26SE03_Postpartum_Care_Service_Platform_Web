@@ -1,4 +1,5 @@
 export * from './useAuth';
+export * from './useChatHub';
 export * from './useToggle';
 export * from './useDebounce';
 export * from './useMediaQuery';
