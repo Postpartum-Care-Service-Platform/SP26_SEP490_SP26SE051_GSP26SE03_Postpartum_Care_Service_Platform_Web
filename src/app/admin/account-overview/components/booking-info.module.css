@@ -1,0 +1,154 @@
+.bookingCard {
+  background-color: #ffffff;
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+}
+
+.title {
+  font-family: var(--font-admin-title);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-admin-text-primary);
+  margin: 0 0 16px 0;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: rgba(21, 128, 61, 0.1);
+  color: #15803d;
+  border-radius: var(--radius-sm);
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.infoSection {
+  margin-bottom: 20px;
+}
+
+.infoSection:last-of-type {
+  margin-bottom: 0;
+}
+
+.sectionTitle {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-admin-text-primary);
+  margin: 0 0 12px 0;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.infoRow:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-muted);
+  flex-shrink: 0;
+}
+
+.value {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-admin-text-primary);
+  text-align: right;
+}
+
+.notes {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-primary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.amenitiesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.amenityItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: var(--color-admin-text-primary);
+}
+
+.amenityItem svg {
+  color: #15803d;
+  flex-shrink: 0;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border-default);
+}
+
+.editButton,
+.cancelButton {
+  flex: 1;
+  padding: 10px 24px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editButton {
+  background-color: #f6f7f9;
+  color: var(--color-admin-text-primary);
+}
+
+.editButton:hover {
+  background-color: #e0e0e0;
+}
+
+.cancelButton {
+  background-color: rgba(253, 97, 97, 0.1);
+  color: #fd6161;
+}
+
+.cancelButton:hover {
+  background-color: rgba(253, 97, 97, 0.2);
+}
+
+@media (max-width: 768px) {
+  .infoRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .value {
+    text-align: left;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+  }
+}

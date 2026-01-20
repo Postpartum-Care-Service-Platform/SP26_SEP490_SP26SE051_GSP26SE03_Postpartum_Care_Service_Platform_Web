@@ -1,0 +1,166 @@
+.container {
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #fff8f0 0%, #f7efe5 60%, #e9dec9 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeUp 0.8s ease forwards;
+}
+
+.content {
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+}
+
+.imageWrapper {
+  margin-bottom: 32px;
+  animation: wiggle 4s ease-in-out infinite;
+}
+
+.image {
+  width: 100%;
+  height: auto;
+  max-width: 400px;
+  object-fit: contain;
+}
+
+.hennyPennyRegular {
+  font-family: 'Henny Penny', system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.errorCode {
+  font-size: 120px;
+  color: #f2994a;
+  margin: 0 0 16px 0;
+  text-shadow: 0 6px 0 #e28a3b;
+  animation: softBounce 3s ease-in-out infinite;
+  line-height: 1;
+}
+
+.subtitle {
+  font-size: 32px;
+  color: #7a4a2e;
+  margin: 0 0 16px 0;
+  line-height: 1.3;
+}
+
+.description {
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #5f6f52;
+  margin: 0 0 32px 0;
+  line-height: 1.6;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.primaryButton {
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #f2994a;
+  border: none;
+  border-radius: 999px;
+  padding: 14px 28px;
+  box-shadow: 0 8px 0 #e28a3b;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.primaryButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 0 #e28a3b;
+  background: #f6b37a;
+}
+
+.primaryButton:active {
+  transform: translateY(0);
+  box-shadow: 0 6px 0 #e28a3b;
+}
+
+.secondaryButton {
+  font-family: 'Nunito Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #7a4a2e;
+  background: #ffffff;
+  border: 2px solid #e9dec9;
+  border-radius: 999px;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background: #f7efe5;
+  border-color: #f2994a;
+  color: #f2994a;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes softBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@media (max-width: 768px) {
+  .errorCode {
+    font-size: 80px;
+  }
+
+  .subtitle {
+    font-size: 24px;
+  }
+
+  .description {
+    font-size: 14px;
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}

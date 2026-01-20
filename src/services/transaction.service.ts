@@ -7,6 +7,10 @@ import type {
 } from '@/types/transaction';
 
 const transactionService = {
+  getAllTransactions: (): Promise<Transaction[]> => {
+    return apiClient.get('/Transaction/all');
+  },
+
   getMyTransactions: (): Promise<Transaction[]> => {
     return apiClient.get('/Transaction');
   },

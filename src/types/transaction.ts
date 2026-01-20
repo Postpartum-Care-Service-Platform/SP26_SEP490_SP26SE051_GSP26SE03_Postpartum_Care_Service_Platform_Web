@@ -1,15 +1,19 @@
+export interface Customer {
+  id: string;
+  email: string;
+  username: string;
+}
+
 export interface Transaction {
   id: string;
-  customerId: string;
-  bookingId?: number;
+  bookingId: number;
   amount: number;
-  type: string; // 'deposit' | 'payment' | 'refund'
-  status: string; // 'pending' | 'completed' | 'failed' | 'cancelled'
-  paymentMethod?: string;
-  orderCode?: string;
-  description?: string;
-  createdAt: string;
-  updatedAt: string;
+  type: string;
+  paymentMethod: string;
+  transactionDate: string;
+  status: string;
+  note: string | null;
+  customer: Customer;
 }
 
 export interface DepositRequest {

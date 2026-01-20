@@ -32,6 +32,8 @@ const getStatusClass = (status: Appointment['status']) => {
       return styles.statusCompleted;
     case 'Cancelled':
       return styles.statusCancelled;
+    case 'Rescheduled':
+      return styles.statusRescheduled;
     default:
       return '';
   }
@@ -47,6 +49,8 @@ const getStatusLabel = (status: Appointment['status']) => {
       return 'Hoàn thành';
     case 'Cancelled':
       return 'Đã hủy';
+    case 'Rescheduled':
+      return 'Đã dời lịch';
     default:
       return status;
   }

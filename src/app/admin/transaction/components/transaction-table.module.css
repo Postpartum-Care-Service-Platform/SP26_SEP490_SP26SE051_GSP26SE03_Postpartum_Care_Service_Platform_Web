@@ -1,0 +1,133 @@
+.tableWrapper {
+  background-color: #fff;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-md);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background-color: rgba(242, 242, 244, 0.5);
+}
+
+.table th {
+  padding: 10px 14px;
+  text-align: left;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343a40;
+  border-bottom: 1px solid var(--color-border-default);
+  white-space: nowrap;
+}
+
+.table tbody tr {
+  background-color: #fff !important;
+  border-bottom: 1px solid var(--color-border-default);
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+.table td {
+  padding: var(--spacing-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.idCell {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.customerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.customerName {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.customerEmail {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.amount {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.noteCell {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-body);
+}
+
+.statusPaid {
+  background-color: rgba(21, 128, 61, 0.1);
+  color: #15803d;
+}
+
+.statusPending {
+  background-color: rgba(244, 208, 120, 0.15);
+  color: #f4d078;
+}
+
+.statusFailed {
+  background-color: rgba(185, 28, 28, 0.1);
+  color: #b91c1c;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+}
+
+.paginationWrapper {
+  margin-top: var(--spacing-md);
+  width: 100%;
+}
+
+.paginationWrapper :global(.container) {
+  width: 100%;
+  max-width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: 0;
+  padding: 0;
+}
+
+.paginationWrapper :global(.resultCount) {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.paginationWrapper :global(.pagination) {
+  margin: 0;
+  flex-shrink: 0;
+}

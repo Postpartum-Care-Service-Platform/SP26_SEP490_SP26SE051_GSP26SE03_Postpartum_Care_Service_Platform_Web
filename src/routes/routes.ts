@@ -7,6 +7,7 @@ export const ROUTES = {
   resetPassword: '/auth/reset-password',
   profile: '/dashboard/profile',
   admin: '/admin',
+  adminProfile: '/admin/profile',
 } as const;
 
 export const buildVerifyEmailRoute = (email: string) =>

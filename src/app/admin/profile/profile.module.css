@@ -1,0 +1,32 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cardsContainer {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.profileSection {
+  position: relative;
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 4px;
+  padding-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.profileInfo {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-top: -60px;
+  margin-left: 24px;
+  padding-bottom: 24px;
+  z-index: 2;
+  position: relative;
+}
