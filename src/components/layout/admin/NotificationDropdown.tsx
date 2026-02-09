@@ -76,7 +76,7 @@ const getNotificationIcon = (typeId: number, typeName: string | null, typesMap?:
   return FileText;
 };
 
-export function NotificationDropdown() {
+export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) {
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [notificationTypes, setNotificationTypes] = React.useState<Map<number, NotificationType>>(new Map());
   const [isLoading, setIsLoading] = React.useState(true);
@@ -162,10 +162,17 @@ export function NotificationDropdown() {
 
         {notifications.length > 3 && (
           <div className={styles.dropdownFooter}>
-            <a href="#" className={styles.viewMoreLink}>
-              <span>Xem thêm..</span>
+            <button
+              type="button"
+              className={styles.viewMoreLink}
+              onClick={() => {
+                setIsOpen(false);
+                onViewAll?.();
+              }}
+            >
+              <span>Xem tất cả</span>
               <ChevronRight size={16} />
-            </a>
+            </button>
           </div>
         )}
       </DropdownMenuContent>

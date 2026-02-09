@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare, FileText, Utensils, ClipboardList, Package, Bell, Activity, ClipboardCheck, UserCircle, CreditCard, Tags, FileCheck, CalendarCheck } from 'lucide-react';
+import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare, FileText, Utensils, Package, Bell, Activity, ClipboardCheck, UserCircle, CreditCard, CalendarCheck, CalendarDays } from 'lucide-react';
 
 export type AdminNavItem = {
   key: string;
@@ -96,28 +96,31 @@ export const adminNav: AdminNavSection[] = [
         icon: FileText,
       },
       {
+        key: 'menu-management',
+        label: 'Quản lý thực đơn',
+        icon: Utensils,
+        children: [
+      {
         key: 'food',
         label: 'Món ăn',
         href: '/admin/food',
-        icon: Utensils,
       },
       {
         key: 'menu',
         label: 'Thực đơn',
         href: '/admin/menu',
-        icon: ClipboardList,
       },
       {
         key: 'menu-type',
         label: 'Loại thực đơn',
         href: '/admin/menu-type',
-        icon: Tags,
       },
       {
         key: 'menu-record',
         label: 'Bản ghi thực đơn',
         href: '/admin/menu-record',
-        icon: FileCheck,
+          },
+        ],
       },
       {
         key: 'package',
@@ -142,6 +145,12 @@ export const adminNav: AdminNavSection[] = [
         label: 'Thông báo',
         href: '/admin/notification',
         icon: Bell,
+      },
+      {
+        key: 'work-schedule',
+        label: 'Lịch làm việc',
+        href: '/admin/work-schedule',
+        icon: CalendarDays,
       },
       {
         key: 'transaction',

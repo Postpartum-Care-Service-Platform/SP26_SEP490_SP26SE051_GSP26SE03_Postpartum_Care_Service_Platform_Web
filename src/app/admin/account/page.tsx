@@ -10,6 +10,7 @@ import {
   PatientStatsCards,
   PatientTableControls,
   PatientTable,
+  NewAccountModal,
 } from './components';
 import { mapAccountToPatient } from './components/patientUtils';
 import type { Patient } from './components/patientTypes';
