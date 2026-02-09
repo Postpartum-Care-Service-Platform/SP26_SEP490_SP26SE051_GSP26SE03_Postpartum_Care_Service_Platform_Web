@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Pencil1Icon, TrashIcon, ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
+import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
+
+import { EditIcon } from '@/components/ui/icons/EditIcon';
+import { TrashIcon } from '@/components/ui/icons/TrashIcon';
 
 import { truncateText } from '@/utils/text';
 import { useToast } from '@/components/ui/toast/use-toast';
@@ -211,7 +214,7 @@ export function PatientTable({ patients, onEdit, onDelete, pagination }: Props) 
                         onClick={() => onEdit?.(patient)}
                         aria-label={`Edit ${patient.name}`}
                       >
-                        <Pencil1Icon />
+                        <EditIcon fill="#A47BC8" size={16} />
                       </Button>
                       <Button
                         variant="outline"
@@ -220,7 +223,7 @@ export function PatientTable({ patients, onEdit, onDelete, pagination }: Props) 
                         onClick={() => onDelete?.(patient)}
                         aria-label={`Delete ${patient.name}`}
                       >
-                        <TrashIcon />
+                        <TrashIcon fill="#FD6161" size={16} />
                       </Button>
                     </div>
                   </td>

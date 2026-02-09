@@ -23,6 +23,10 @@ const authService = {
     return apiClient.post('/Auth/register', payload);
   },
 
+  createCustomer: (payload: { email: string; phone: string; username: string }): Promise<{ message?: string }> => {
+    return apiClient.post('/Auth/create-customer', payload);
+  },
+
   verifyEmail: (payload: { email: string; otp: string }): Promise<{ message?: string }> => {
     return apiClient.post('/Auth/verify-email', payload);
   },

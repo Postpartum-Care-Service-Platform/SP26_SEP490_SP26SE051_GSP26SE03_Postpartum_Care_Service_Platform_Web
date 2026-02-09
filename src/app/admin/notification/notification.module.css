@@ -2,9 +2,6 @@
   padding: var(--spacing-md);
 }
 
-.tabs {
-  margin-top: var(--spacing-md);
-}
 
 .loading,
 .error {

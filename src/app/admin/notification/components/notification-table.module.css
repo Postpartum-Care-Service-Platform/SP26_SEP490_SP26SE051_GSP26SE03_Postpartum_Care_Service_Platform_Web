@@ -1,11 +1,8 @@
-.listContainer {
+.tableWrapper {
   background-color: #fff;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   padding: var(--spacing-md);
-}
-
-.tableWrapper {
   overflow-x: auto;
 }
 
@@ -15,17 +12,18 @@
 }
 
 .table thead {
-  background-color: #f8f9fa;
+  background-color: rgba(242, 242, 244, 0.5);
 }
 
 .table th {
-  padding: var(--spacing-sm);
+  padding: 10px 14px;
   text-align: left;
-  font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-primary);
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343a40;
   border-bottom: 1px solid var(--color-border-default);
+  white-space: nowrap;
 }
 
 .table tbody tr {
@@ -45,8 +43,12 @@
   color: var(--color-text-primary);
 }
 
-.name {
+.titleCell {
   font-weight: 500;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .statusBadge {
@@ -58,14 +60,14 @@
   font-family: var(--font-body);
 }
 
-.statusActive {
-  background-color: rgba(21, 128, 61, 0.1);
-  color: #15803d;
+.statusUnread {
+  background-color: rgba(250, 131, 20, 0.12);
+  color: #fa8314;
 }
 
-.statusInactive {
-  background-color: rgba(185, 28, 28, 0.1);
-  color: #b91c1c;
+.statusRead {
+  background-color: rgba(21, 128, 61, 0.1);
+  color: #15803d;
 }
 
 .actions {
@@ -116,10 +118,6 @@
   fill: #ffffff !important;
 }
 
-.restoreButton {
-  padding: 4px 10px;
-}
-
 .emptyState {
   text-align: center;
   padding: var(--spacing-xl) !important;
@@ -127,3 +125,27 @@
   font-family: var(--font-body);
 }
 
+.paginationWrapper {
+  margin-top: var(--spacing-md);
+  width: 100%;
+}
+
+.paginationWrapper :global(.container) {
+  width: 100%;
+  max-width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin: 0;
+  padding: 0;
+}
+
+.paginationWrapper :global(.resultCount) {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.paginationWrapper :global(.pagination) {
+  margin: 0;
+  flex-shrink: 0;
+}

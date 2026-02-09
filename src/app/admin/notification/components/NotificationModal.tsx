@@ -1,20 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { TextField } from '@/components/ui/text-field';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import { Cross1Icon } from '@radix-ui/react-icons';
+
 import { useToast } from '@/components/ui/toast/use-toast';
 import notificationService from '@/services/notification.service';
-import notificationTypeService from '@/services/notification-type.service';
 import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
 import type { Notification, CreateNotificationRequest, UpdateNotificationRequest } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
@@ -28,15 +18,25 @@ type Props = {
   onSuccess?: () => void;
 };
 
+type FormErrors = {
+  title?: string;
+  content?: string;
+  notificationTypeId?: string;
+};
+
+const INITIAL_FORM = {
+  title: '',
+  content: '',
+  notificationTypeId: '',
+  status: 'Unread' as 'Unread' | 'Read',
+};
+
 export function NotificationModal({ open, onOpenChange, notification, notificationTypes, onSuccess }: Props) {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    notificationTypeId: '',
-    status: 'Unread' as 'Unread' | 'Read',
-  });
+  const [formData, setFormData] = useState(INITIAL_FORM);
+  const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditMode = !!notification;
 
   useEffect(() => {
     if (open) {
@@ -49,165 +49,173 @@ export function NotificationModal({ open, onOpenChange, notification, notificati
         });
       } else {
         setFormData({
-          title: '',
-          content: '',
+          ...INITIAL_FORM,
           notificationTypeId: notificationTypes.length > 0 ? String(notificationTypes[0].id) : '',
-          status: 'Unread',
         });
       }
+      setErrors({});
     }
   }, [open, notification, notificationTypes]);
 
-  useEffect(() => {
-    if (open) {
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      if (scrollbarWidth > 0) {
-        document.body.style.paddingRight = `${scrollbarWidth}px`;
-      }
-    } else {
-      document.body.style.paddingRight = '';
-    }
-
-    return () => {
-      document.body.style.paddingRight = '';
-    };
-  }, [open]);
-
-  const handleFieldChange = (field: string, value: string) => {
+  const handleFieldChange = <K extends keyof typeof formData>(field: K, value: (typeof formData)[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const validate = (): FormErrors => {
+    const newErrors: FormErrors = {};
+    if (!formData.title.trim()) {
+      newErrors.title = 'Tiêu đề không được để trống.';
+    }
+    if (!formData.content.trim()) {
+      newErrors.content = 'Nội dung không được để trống.';
+    }
+    if (!formData.notificationTypeId) {
+      newErrors.notificationTypeId = 'Vui lòng chọn loại thông báo.';
+    }
+    return newErrors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.title.trim()) {
-      toast({ title: 'Vui lòng nhập tiêu đề', variant: 'error' });
-      return;
-    }
-
-    if (!formData.content.trim()) {
-      toast({ title: 'Vui lòng nhập nội dung', variant: 'error' });
-      return;
-    }
-
-    if (!formData.notificationTypeId) {
-      toast({ title: 'Vui lòng chọn loại thông báo', variant: 'error' });
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
     try {
       setIsSubmitting(true);
-
-      if (notification) {
-        const updateData: UpdateNotificationRequest = {
+      if (isEditMode && notification) {
+        const payload: UpdateNotificationRequest = {
           title: formData.title.trim(),
           content: formData.content.trim(),
           notificationTypeId: Number(formData.notificationTypeId),
           status: formData.status,
         };
-        await notificationService.updateNotification(notification.id, updateData);
+        await notificationService.updateNotification(notification.id, payload);
         toast({ title: 'Cập nhật thông báo thành công', variant: 'success' });
       } else {
-        const createData: CreateNotificationRequest = {
+        const payload: CreateNotificationRequest = {
           title: formData.title.trim(),
           content: formData.content.trim(),
           notificationTypeId: Number(formData.notificationTypeId),
         };
-        await notificationService.createNotification(createData);
+        await notificationService.createNotification(payload);
         toast({ title: 'Tạo thông báo thành công', variant: 'success' });
       }
-
       onOpenChange(false);
       onSuccess?.();
     } catch (err: any) {
-      toast({ title: err?.message || 'Có lỗi xảy ra', variant: 'error' });
+      toast({ title: err?.message || (isEditMode ? 'Cập nhật thông báo thất bại' : 'Tạo thông báo thất bại'), variant: 'error' });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
-      <DialogContent className={styles.dialogContent}>
-        <DialogHeader>
-          <DialogTitle className={styles.dialogTitle}>
-            {notification ? 'Chỉnh sửa thông báo' : 'Thêm thông báo mới'}
-          </DialogTitle>
-          <DialogDescription>
-            {notification ? 'Cập nhật thông tin thông báo' : 'Điền thông tin để tạo thông báo mới'}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.formFields}>
-            <TextField
-              label="Tiêu đề"
-              variant="booking"
-              value={formData.title}
-              onChange={(e) => handleFieldChange('title', e.target.value)}
-              placeholder="Nhập tiêu đề thông báo"
-              required
-            />
+  if (!open) return null;
 
-            <div className={styles.selectField}>
-              <label className={styles.selectLabel}>Loại thông báo</label>
-              <Select value={formData.notificationTypeId} onValueChange={(value) => handleFieldChange('notificationTypeId', value)}>
-                <SelectTrigger className={styles.selectTrigger}>
-                  <SelectValue placeholder="Chọn loại thông báo" />
-                </SelectTrigger>
-                <SelectContent>
-                  {notificationTypes.map((type) => (
-                    <SelectItem key={type.id} value={String(type.id)}>
-                      {translateNotificationTypeName(type.name)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+  return (
+    <div className={styles.modalOverlay}>
+      <div className={styles.modalContent} role="dialog" aria-modal="true">
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>{isEditMode ? 'Chỉnh sửa thông báo' : 'Thêm thông báo mới'}</h2>
+          <button onClick={() => onOpenChange(false)} className={styles.closeButton} aria-label="Close">
+            <Cross1Icon />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className={styles.modalBody}>
+            <div className={styles.formGroup}>
+              <label htmlFor="notification-title">
+                Tiêu đề <span className={styles.required}>*</span>
+              </label>
+              <input
+                id="notification-title"
+                type="text"
+                value={formData.title}
+                onChange={(e) => handleFieldChange('title', e.target.value)}
+                placeholder="Nhập tiêu đề thông báo"
+                className={`${styles.formControl} ${errors.title ? styles.invalid : ''}`}
+                required
+              />
+              {errors.title && <p className={styles.errorMessage}>{errors.title}</p>}
             </div>
 
-            <div className={styles.textareaField}>
-              <label className={styles.textareaLabel}>Nội dung</label>
+            <div className={styles.formGroup}>
+              <label htmlFor="notification-type">
+                Loại thông báo <span className={styles.required}>*</span>
+              </label>
+              <select
+                id="notification-type"
+                value={formData.notificationTypeId}
+                onChange={(e) => handleFieldChange('notificationTypeId', e.target.value)}
+                className={`${styles.formControl} ${errors.notificationTypeId ? styles.invalid : ''}`}
+                required
+              >
+                <option value="" disabled>
+                  Chọn loại thông báo
+                </option>
+                {notificationTypes.map((type) => (
+                  <option key={type.id} value={String(type.id)}>
+                    {translateNotificationTypeName(type.name)}
+                  </option>
+                ))}
+              </select>
+              {errors.notificationTypeId && <p className={styles.errorMessage}>{errors.notificationTypeId}</p>}
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="notification-content">
+                Nội dung <span className={styles.required}>*</span>
+              </label>
               <textarea
-                className={styles.textarea}
+                id="notification-content"
+                className={`${styles.formControl} ${styles.textarea} ${errors.content ? styles.invalid : ''}`}
                 value={formData.content}
                 onChange={(e) => handleFieldChange('content', e.target.value)}
                 placeholder="Nhập nội dung thông báo"
                 rows={4}
                 required
               />
+              {errors.content && <p className={styles.errorMessage}>{errors.content}</p>}
             </div>
 
-            {notification && (
-              <div className={styles.selectField}>
-                <label className={styles.selectLabel}>Trạng thái</label>
-                <Select value={formData.status} onValueChange={(value) => handleFieldChange('status', value)}>
-                  <SelectTrigger className={styles.selectTrigger}>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Unread">Chưa đọc</SelectItem>
-                    <SelectItem value="Read">Đã đọc</SelectItem>
-                  </SelectContent>
-                </Select>
+            {isEditMode && (
+              <div className={styles.formGroup}>
+                <label htmlFor="notification-status">Trạng thái</label>
+                <select
+                  id="notification-status"
+                  value={formData.status}
+                  onChange={(e) => handleFieldChange('status', e.target.value as 'Unread' | 'Read')}
+                  className={styles.formControl}
+                >
+                  <option value="Unread">Chưa đọc</option>
+                  <option value="Read">Đã đọc</option>
+                </select>
               </div>
             )}
           </div>
 
-          <DialogFooter className={styles.footer}>
-            <Button
+          <div className={styles.modalFooter}>
+            <button
               type="button"
-              variant="outline"
+              className={`${styles.button} ${styles.buttonOutline}`}
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
               Hủy
-            </Button>
-            <Button type="submit" variant="primary" disabled={isSubmitting}>
-              {isSubmitting ? 'Đang xử lý...' : notification ? 'Cập nhật' : 'Thêm mới'}
-            </Button>
-          </DialogFooter>
+            </button>
+            <button type="submit" className={`${styles.button} ${styles.buttonPrimary}`} disabled={isSubmitting}>
+              {isSubmitting ? 'Đang xử lý...' : isEditMode ? 'Cập nhật' : 'Thêm mới'}
+            </button>
+          </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
 

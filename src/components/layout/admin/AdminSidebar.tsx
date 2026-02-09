@@ -20,6 +20,28 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
   const pathname = usePathname();
   const [openKeys, setOpenKeys] = React.useState<Record<string, boolean>>({ dashboard: true });
 
+  // Auto-expand groups that have active children
+  React.useEffect(() => {
+    const newOpenKeys = { ...openKeys };
+    let changed = false;
+
+    adminNav.forEach((section) => {
+      section.items.forEach((item) => {
+        if (item.children && !openKeys[item.key]) {
+          const hasActiveChild = item.children.some((child) => pathname === child.href);
+          if (hasActiveChild) {
+            newOpenKeys[item.key] = true;
+            changed = true;
+          }
+        }
+      });
+    });
+
+    if (changed) {
+      setOpenKeys(newOpenKeys);
+    }
+  }, [pathname]);
+
   const toggleGroup = (key: string) => {
     setOpenKeys((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -64,36 +86,31 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
 
                 return (
                   <div key={item.key}>
-                    {item.href ? (
-                      <Link
-                        href={item.href}
-                        className={`${styles.item} ${isActive ? styles.itemActive : ''} ${item.children && item.children.length > 0 ? styles.itemWithChildren : ''}`}
-                        title={collapsed ? item.label : undefined}
-                      >
-                        {Icon ? <Icon className={styles.itemIcon} size={18} /> : null}
-                        <span className={collapsed ? styles.collapsedHide : ''}>{item.label}</span>
-                        {item.children && item.children.length > 0 && !collapsed ? (
-                          <span className={styles.itemChevron}>
-                            {isOpen ? <Minus size={16} /> : <Plus size={16} />}
-                          </span>
-                        ) : null}
-                      </Link>
-                    ) : (
+                    {item.children && item.children.length > 0 ? (
                       <button
                         type="button"
-                        className={`${styles.item} ${isActive ? styles.itemActive : ''} ${item.children && item.children.length > 0 ? styles.itemWithChildren : ''}`}
+                        className={`${styles.item} ${isActive ? styles.itemActive : ''} ${styles.itemWithChildren}`}
                         onClick={() => toggleGroup(item.key)}
                         title={collapsed ? item.label : undefined}
                       >
                         {Icon ? <Icon className={styles.itemIcon} size={18} /> : null}
                         <span className={collapsed ? styles.collapsedHide : ''}>{item.label}</span>
-                        {item.children && item.children.length > 0 && !collapsed ? (
+                        {!collapsed ? (
                           <span className={styles.itemChevron}>
                             {isOpen ? <Minus size={16} /> : <Plus size={16} />}
                           </span>
                         ) : null}
                       </button>
-                    )}
+                    ) : item.href ? (
+                      <Link
+                        href={item.href}
+                        className={`${styles.item} ${isActive ? styles.itemActive : ''}`}
+                        title={collapsed ? item.label : undefined}
+                      >
+                        {Icon ? <Icon className={styles.itemIcon} size={18} /> : null}
+                        <span className={collapsed ? styles.collapsedHide : ''}>{item.label}</span>
+                      </Link>
+                    ) : null}
 
                     {item.children?.length && !collapsed ? (
                       <div className={`${styles.submenu} ${isOpen ? styles.submenuOpen : ''}`}>
@@ -101,9 +118,6 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
                           const childActive = pathname === child.href;
                           return (
                             <div key={child.key} className={styles.submenuItem}>
-                              <div className={styles.submenuLine}>
-                                <div className={`${styles.submenuDot} ${childActive ? styles.submenuDotActive : ''}`} />
-                              </div>
                               <Link
                                 href={child.href}
                                 className={`${styles.subitem} ${childActive ? styles.subitemActive : ''}`}
