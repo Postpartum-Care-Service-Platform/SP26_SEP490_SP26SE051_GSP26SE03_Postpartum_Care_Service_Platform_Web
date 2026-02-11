@@ -3,6 +3,8 @@
 import React from 'react';
 import Script from 'next/script';
 import MallMap from '@/components/map/MallMap';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 // Component này chứa toàn bộ các SVG Symbol dùng cho icon trong map
 // Copy từ phần <svg class="hidden"> trong index.html gốc
@@ -56,6 +58,7 @@ const MapIcons = () => (
 export default function PhongNghiPage() {
   return (
     <>
+      <Header />
       <main className="min-h-screen bg-gray-100 py-10">
         <div className="mx-auto px-4" style={{ maxWidth: '1400px' }}>
           <div className="mb-8 text-center">
@@ -70,6 +73,7 @@ export default function PhongNghiPage() {
           </div>
         </div>
       </main>
+      <Footer />
 
       {/* Tải các script hỗ trợ từ public - Chỉ giữ các script tiện ích, logic chính sẽ đưa vào component */}
       <Script src="/Interactive3DMallMap/js/modernizr-custom.js" strategy="beforeInteractive" />

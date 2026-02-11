@@ -1,6 +1,7 @@
 /**
  * Chuyển đổi logic từ Interactive3DMallMap main.js sang React-safe module
  * Khôi phục 1:1 hành vi bản gốc (bao gồm List.js)
+ * Chuẩn hóa sử dụng Room Name từ DB (101, 201...) thay vì 1.01
  */
 
 declare var List: any;
@@ -18,7 +19,7 @@ export function initMallMap() {
   const contentEl = containerEl?.querySelector('.content');
 
   if (!containerEl || !mall || !mallLevelsEl || !mallNav || !spacesListEl || !contentEl) {
-    console.warn('Không tìm thấy các phần tử cần thiết cho bản đồ (Phương án A)');
+    console.warn('Không tìm thấy các phần tử cần thiết cho bản đồ (Logic DB Key)');
     return null;
   }
 
@@ -46,9 +47,13 @@ export function initMallMap() {
   // Khởi tạo List.js (giả định list.min.js đã được load vào window)
   let spacesList: any = null;
   if (typeof List !== 'undefined') {
-    spacesList = new List('spaces-list', { 
-      valueNames: ['list__link', { data: ['level'] }, { data: ['category'] } ]
-    });
+    try {
+      spacesList = new List('spaces-list', {
+        valueNames: ['list__link', { data: ['level'] }, { data: ['category'] }]
+      });
+    } catch (e) {
+      console.warn('Lỗi khởi tạo List.js:', e);
+    }
   }
 
   const classie = {
@@ -95,6 +100,12 @@ export function initMallMap() {
     const contentItem = contentEl?.querySelector(`.content__item[data-space="${spaceref}"]`);
     if (contentItem) classie.add(contentItem, 'content__item--current');
     if (sliding && contentEl) classie.add(contentEl, 'content--open');
+
+    // Highlight shape SVG (Phòng dạng hình khối)
+    const shape = mallLevelsEl?.querySelector(`.map__space[data-space="${spaceref}"]`);
+    if (shape) classie.add(shape, 'map__space--selected');
+
+    // Pin (nếu còn dùng)
     const pin = mallLevelsEl?.querySelector(`.pin[data-space="${spaceref}"]`);
     if (pin) classie.add(pin, 'pin--active');
   }
@@ -103,16 +114,16 @@ export function initMallMap() {
     if (!spaceref) return;
     const contentItem = contentEl?.querySelector(`.content__item[data-space="${spaceref}"]`);
     if (contentItem) classie.remove(contentItem, 'content__item--current');
+
+    // Remove highlight shape
+    const shape = mallLevelsEl?.querySelector(`.map__space[data-space="${spaceref}"]`);
+    if (shape) classie.remove(shape, 'map__space--selected');
+
     const pin = mallLevelsEl?.querySelector(`.pin[data-space="${spaceref}"]`);
     if (pin) classie.remove(pin, 'pin--active');
-    
+
     const activeItem = spacesListEl?.querySelector('li.list__item--active');
     if (activeItem) classie.remove(activeItem, 'list__item--active');
-    
-    if (selectedLevel) {
-      const activeSpaceArea = mallLevels[selectedLevel - 1].querySelector('svg > .map__space--selected');
-      if (activeSpaceArea) classie.remove(activeSpaceArea, 'map__space--selected');
-    }
   }
 
   function openContentArea() {
@@ -145,13 +156,6 @@ export function initMallMap() {
 
     const listItem = spacesListEl?.querySelector(`li[data-space="${spacerefval}"]`);
     if (listItem) classie.add(listItem, 'list__item--active');
-
-    if (selectedLevel) {
-      const activeSpaceArea = mallLevels[selectedLevel - 1].querySelector('svg > .map__space--selected');
-      if (activeSpaceArea) classie.remove(activeSpaceArea, 'map__space--selected');
-      const targetSpace = mallLevels[selectedLevel - 1].querySelector(`svg > .map__space[data-space="${spaceref}"]`);
-      if (targetSpace) classie.add(targetSpace, 'map__space--selected');
-    }
   }
 
   function showLevel(level: number) {
@@ -161,7 +165,7 @@ export function initMallMap() {
     classie.add(mallLevelsEl, `levels--selected-${selectedLevel}`);
     const levelEl = mallLevels[selectedLevel - 1];
     classie.add(levelEl, 'level--current');
-    
+
     setTimeout(() => {
       classie.add(mallLevelsEl, 'levels--open');
       showPins();
@@ -170,8 +174,7 @@ export function initMallMap() {
 
     hideSurroundings();
     classie.remove(mallNav, 'mallnav--hidden');
-    
-    // Filter List.js
+
     if (spacesList) {
       spacesList.filter((item: any) => item.values().level === selectedLevel?.toString());
     }
@@ -189,8 +192,8 @@ export function initMallMap() {
     showSurroundings();
     classie.add(mallNav, 'mallnav--hidden');
     if (isOpenContentArea) closeContentArea();
-    
-    if (spacesList) spacesList.filter(); // Reset filter
+
+    if (spacesList) spacesList.filter();
   }
 
   function navigate(direction: 'Up' | 'Down') {
@@ -292,14 +295,27 @@ export function initMallMap() {
     handlers.push([sortByNameCtrl, 'click', h]);
   }
 
+  // Support click on SVG Shapes (Room blocks) and Pin points
+  const shapes = Array.from(mallLevelsEl.querySelectorAll('.map__space[data-space], .map__pin-point[data-space]'));
+  shapes.forEach(shape => {
+    const spaceId = shape.getAttribute('data-space');
+    const h = (e: Event) => {
+      e.stopPropagation();
+      if (spaceId) openContent(spaceId);
+    };
+    shape.addEventListener('click', h);
+    handlers.push([shape, 'click', h]);
+  });
+
   pins.forEach(pin => {
     const spaceId = pin.getAttribute('data-space');
     const contentItem = contentEl.querySelector(`.content__item[data-space="${spaceId}"]`);
-    
+
     const hEnter = () => { if (!isOpenContentArea) classie.add(contentItem, 'content__item--hover'); };
     const hLeave = () => { if (!isOpenContentArea) classie.remove(contentItem, 'content__item--hover'); };
     const hClick = (e: Event) => {
       e.preventDefault();
+      e.stopPropagation();
       if (spaceId) openContent(spaceId);
       classie.remove(contentItem, 'content__item--hover');
     };
