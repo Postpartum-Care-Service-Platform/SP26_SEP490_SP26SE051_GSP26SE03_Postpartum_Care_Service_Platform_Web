@@ -1,7 +1,7 @@
 .tjn-header {
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 99999;
   background: #fffbf4;
   width: 100%;
 }
