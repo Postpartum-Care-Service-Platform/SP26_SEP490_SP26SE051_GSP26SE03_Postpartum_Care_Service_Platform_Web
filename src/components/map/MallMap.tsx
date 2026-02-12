@@ -8,6 +8,7 @@ import { FloorMap } from './FloorMap';
 const MallMap = () => {
   const [mapData, setMapData] = useState<Floor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedRoomKey, setSelectedRoomKey] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,7 +26,7 @@ const MallMap = () => {
 
   useEffect(() => {
     if (!loading && mapData.length > 0) {
-      const cleanup = initMallMap();
+      const cleanup = initMallMap(setSelectedRoomKey);
       return () => {
         if (cleanup) cleanup();
       };
@@ -49,7 +50,8 @@ const MallMap = () => {
               <FloorMap 
                 key={floor.id} 
                 floorLevel={floor.level} 
-                rooms={floor.rooms} 
+                rooms={floor.rooms}
+                selectedRoomKey={selectedRoomKey}
               />
             ))}
           </div>

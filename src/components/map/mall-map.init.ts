@@ -6,7 +6,7 @@
 
 declare var List: any;
 
-export function initMallMap() {
+export function initMallMap(onSelectRoom?: (key: string | null) => void) {
   // Scope selector trong mallmap-integration để tránh conflict
   const wrapper = document.querySelector('.mallmap-integration');
   if (!wrapper) return null;
@@ -103,11 +103,19 @@ export function initMallMap() {
 
     // Highlight shape SVG (Phòng dạng hình khối)
     const shape = mallLevelsEl?.querySelector(`.map__space[data-space="${spaceref}"]`);
-    if (shape) classie.add(shape, 'map__space--selected');
+    if (shape) {
+      classie.add(shape, 'map__space--selected');
+      // Tìm và gán class vào group cha .room-group để kích hoạt transform 3D
+      const group = shape.closest('.room-group');
+      if (group) classie.add(group, 'room-group--selected');
+    }
 
     // Pin (nếu còn dùng)
     const pin = mallLevelsEl?.querySelector(`.pin[data-space="${spaceref}"]`);
     if (pin) classie.add(pin, 'pin--active');
+    
+    // Gọi callback đồng bộ React state
+    if (onSelectRoom) onSelectRoom(spaceref);
   }
 
   function hideSpace() {
@@ -117,13 +125,19 @@ export function initMallMap() {
 
     // Remove highlight shape
     const shape = mallLevelsEl?.querySelector(`.map__space[data-space="${spaceref}"]`);
-    if (shape) classie.remove(shape, 'map__space--selected');
+    if (shape) {
+      classie.remove(shape, 'map__space--selected');
+      const group = shape.closest('.room-group');
+      if (group) classie.remove(group, 'room-group--selected');
+    }
 
     const pin = mallLevelsEl?.querySelector(`.pin[data-space="${spaceref}"]`);
     if (pin) classie.remove(pin, 'pin--active');
 
     const activeItem = spacesListEl?.querySelector('li.list__item--active');
     if (activeItem) classie.remove(activeItem, 'list__item--active');
+    
+    if (onSelectRoom) onSelectRoom(null);
   }
 
   function openContentArea() {
