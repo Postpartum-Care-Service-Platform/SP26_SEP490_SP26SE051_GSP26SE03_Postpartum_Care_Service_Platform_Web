@@ -22,7 +22,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Henny+Penny&display=swap" rel="stylesheet" />
       </head>
-      <body className="app-shell">
+      <body className="app-shell" suppressHydrationWarning>
         <AuthProvider>
           <ToastProvider>
             {children}
