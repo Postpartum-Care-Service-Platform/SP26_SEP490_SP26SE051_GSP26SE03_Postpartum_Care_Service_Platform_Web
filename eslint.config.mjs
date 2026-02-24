@@ -1,4 +1,4 @@
-import nextPlugin from "eslint-plugin-next";
+import nextPlugin from "@next/eslint-plugin-next";
 import nextConfig from "eslint-config-next";
 import storybook from "eslint-plugin-storybook";
 import prettierConfig from "eslint-config-prettier";
