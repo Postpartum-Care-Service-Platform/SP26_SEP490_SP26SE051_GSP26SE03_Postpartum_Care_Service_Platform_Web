@@ -10,7 +10,6 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
 } from 'recharts';
 import {
   DropdownMenu,
@@ -46,10 +45,10 @@ const TIME_OPTIONS = [
   { value: 'yearly', label: 'Yearly' },
 ];
 
-const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
-    const admissionsData = payload.find((p) => p.dataKey === 'admissions');
-    const dischargesData = payload.find((p) => p.dataKey === 'discharges');
+    const admissionsData = payload.find((p: any) => p.dataKey === 'admissions');
+    const dischargesData = payload.find((p: any) => p.dataKey === 'discharges');
     const row = payload[0]?.payload as { day?: string; dayLabel?: string } | undefined;
     const dayLabel = row?.dayLabel || (row?.day ? dayLabelMap[row.day] : '') || '';
 

@@ -10,7 +10,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
-  ShapeProps,
 } from 'recharts';
 import {
   DropdownMenu,
@@ -45,7 +44,7 @@ const mockData: VisitData[] = [
   { month: 'Dec', actual: 1300, expected: 1300 },
 ];
 
-const CustomBarShape = (props: ShapeProps & { opacity?: number }) => {
+const CustomBarShape = (props: any) => {
   const { x, y, width, height, opacity = 0.4 } = props;
   if (typeof x === 'number' && typeof y === 'number' && typeof width === 'number' && typeof height === 'number') {
     return (

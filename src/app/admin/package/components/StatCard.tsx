@@ -6,7 +6,7 @@ import Image, { type StaticImageData } from 'next/image';
 import styles from './stat-card.module.css';
 
 type Props = {
-  image: StaticImageData;
+  image?: StaticImageData;
   value: number | string;
   label: string;
   icon?: React.ComponentType<any>;
@@ -28,16 +28,18 @@ export function StatCard({
 }: Props) {
   return (
     <div className={styles.card} style={{ backgroundColor }}>
-      <div className={styles.imageWrapper}>
-        <Image
-          src={image}
-          alt={label}
-          fill
-          className={styles.image}
-          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 16.66vw"
-          priority
-        />
-      </div>
+      {image && (
+        <div className={styles.imageWrapper}>
+          <Image
+            src={image}
+            alt={label}
+            fill
+            className={styles.image}
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 16.66vw"
+            priority
+          />
+        </div>
+      )}
       <div className={styles.content}>
         {Icon && (
           <div className={styles.iconWrapper} style={{ backgroundColor: iconColor }}>

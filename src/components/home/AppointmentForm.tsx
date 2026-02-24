@@ -284,7 +284,7 @@ export const AppointmentForm: React.FC = () => {
         )}
 
         {/* Nút submit */}
-        <Button type="submit" variant="primary" size="lg" fullWidth disabled={isSubmitting}>
+        <Button type="submit" variant="primary" size="lg" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? 'Đang gửi...' : 'Đặt Lịch Ngay'}
         </Button>
       </Form>

@@ -23,7 +23,7 @@ type GenderStatsCardProps = {
   trend: string;
   trendColor: string;
   chartColor: string;
-  data: { value: number }[];
+  data?: { value: number }[];
 };
 
 const mockData = [

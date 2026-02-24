@@ -19,7 +19,7 @@ export const useChatHub = (options: UseChatHubOptions) => {
     const [error, setError] = useState<string | null>(null);
 
     const signalRRef = useRef(getSignalRService());
-    const reconnectTimeoutRef = useRef<NodeJS.Timeout>();
+    const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     /**
      * Kết nối đến SignalR Hub

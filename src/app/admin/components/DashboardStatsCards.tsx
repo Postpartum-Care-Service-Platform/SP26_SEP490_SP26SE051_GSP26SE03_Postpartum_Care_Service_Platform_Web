@@ -30,7 +30,7 @@ type StatCard = {
   label: string;
   value: number;
   format: 'number' | 'currency' | 'percentage';
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; color?: string }>;
   iconBgColor: string;
   iconColor: string;
   trend?: {
@@ -164,7 +164,7 @@ export function DashboardStatsCards({ stats }: Props) {
             </DropdownMenu>
             <div className={styles.statCardHeader}>
               <div className={styles.iconWrapper} style={{ backgroundColor: card.iconBgColor }}>
-                <Icon className={styles.icon} style={{ color: card.iconColor }} />
+                <Icon className={styles.icon} color={card.iconColor} />
               </div>
               {card.trend && (
                 <div className={styles.trend}>

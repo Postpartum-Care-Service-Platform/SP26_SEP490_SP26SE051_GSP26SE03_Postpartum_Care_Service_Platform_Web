@@ -22,7 +22,14 @@ type Props = {
 const DEMO_ASSIGNEES: Assignee[] = [
   { id: 'unassigned', name: 'Unassigned', type: 'unassigned' },
   { id: 'automatic', name: 'Automatic', type: 'automatic' },
-  { id: 'u1', name: 'Vo Minh Tien (Assign to me)', email: 'tienvmse182865@fpt.edu.vn', initials: 'VT', color: '#DE350B', type: 'user' },
+  {
+    id: 'u1',
+    name: 'Vo Minh Tien',
+    email: 'tienvmse182865@fpt.edu.vn',
+    initials: 'VT',
+    color: '#DE350B',
+    type: 'user',
+  },
   { id: 'u2', name: 'Thep Mai Tan', initials: 'TT', color: '#FF8B00', type: 'user' },
   { id: 'u3', name: 'nguyễn văn phúc', initials: 'NP', color: '#0C66E4', type: 'user' },
 ];
@@ -31,7 +38,12 @@ function UnassignedAvatar() {
   return (
     <div className={styles.unassignedIcon} aria-hidden="true">
       <svg fill="none" viewBox="-4 -4 24 24" width="16" height="16">
-        <path fill="currentColor" fillRule="evenodd" d="M8 1.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4 4a4 4 0 1 1 8 0 4 4 0 0 1-8 0m-2 9a3.75 3.75 0 0 1 3.75-3.75h4.5A3.75 3.75 0 0 1 14 13v2h-1.5v-2a2.25 2.25 0 0 0-2.25-2.25h-4.5A2.25 2.25 0 0 0 3.5 13v2H2z" clipRule="evenodd"></path>
+        <path
+          fill="currentColor"
+          fillRule="evenodd"
+          d="M8 1.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4 4a4 4 0 1 1 8 0 4 4 0 0 1-8 0m-2 9a3.75 3.75 0 0 1 3.75-3.75h4.5A3.75 3.75 0 0 1 14 13v2h-1.5v-2a2.25 2.25 0 0 0-2.25-2.25h-4.5A2.25 2.25 0 0 0 3.5 13v2H2z"
+          clipRule="evenodd"
+        />
       </svg>
     </div>
   );
@@ -40,7 +52,7 @@ function UnassignedAvatar() {
 function UserAvatar({ initials, color }: { initials?: string; color?: string }) {
   return (
     <div className={styles.avatar} style={{ background: color || '#6554C0' }} aria-hidden="true">
-      {initials || '?' }
+      {initials || '?'}
     </div>
   );
 }
@@ -75,7 +87,7 @@ export function AssigneePicker({ value, onChange, onClose }: Props) {
 
   return (
     <div
-      className={styles.assigneePicker}
+      className={styles.popoverContent}
       role="dialog"
       aria-label="Assignee picker"
       onMouseDown={(e) => e.stopPropagation()}
@@ -91,6 +103,19 @@ export function AssigneePicker({ value, onChange, onClose }: Props) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder={value?.name || 'Unassigned'}
           />
+          {value && (
+            <button
+              type="button"
+              className={styles.clearBtn}
+              onClick={() => {
+                onChange(null);
+                onClose();
+              }}
+              aria-label="Clear assignee"
+            >
+              ×
+            </button>
+          )}
         </div>
       </div>
 
