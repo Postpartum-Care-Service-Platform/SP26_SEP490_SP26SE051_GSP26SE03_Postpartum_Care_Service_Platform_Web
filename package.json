@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "cross-env NODE_OPTIONS='--max-old-space-size=450' next build",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=4096' next build",
     "start": "next start -p $PORT",
     "lint": "eslint",
     "storybook": "storybook dev -p 6006",
@@ -74,7 +74,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.4",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-next": "^0.0.0",
+    "@next/eslint-plugin-next": "^15.2.4",
     "eslint-plugin-storybook": "^10.0.8",
     "storybook": "^10.0.8"
   }

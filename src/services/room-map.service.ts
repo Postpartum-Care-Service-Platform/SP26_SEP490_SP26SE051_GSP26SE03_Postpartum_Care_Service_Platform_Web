@@ -86,13 +86,15 @@ const buildFloorsFromRooms = (rooms: Room[]): Floor[] => {
 
 export const roomMapService = {
   getFloors: async (): Promise<Floor[]> => {
-    const dtos = await apiClient.get('/Room');
+    const response = await apiClient.get('/Room');
+    const dtos = (response as any).data || response;
     const rooms = (dtos as RoomApiDto[]).map(mapDtoToRoom);
     return buildFloorsFromRooms(rooms);
   },
 
   getRoomsByFloor: async (floorNumber: number): Promise<Room[]> => {
-    const dtos = await apiClient.get(`/Room/floor/${floorNumber}`);
+    const response = await apiClient.get(`/Room/floor/${floorNumber}`);
+    const dtos = (response as any).data || response;
     return (dtos as RoomApiDto[]).map(mapDtoToRoom);
   },
 

@@ -57,9 +57,9 @@ export function initMallMap(onSelectRoom?: (key: string | null) => void) {
   }
 
   const classie = {
-    add: (el: Element | null, cls: string) => el?.classList.add(cls),
-    remove: (el: Element | null, cls: string) => el?.classList.remove(cls),
-    has: (el: Element | null, cls: string) => el?.classList.contains(cls),
+    add: (el: Element | null | undefined, cls: string) => el?.classList.add(cls),
+    remove: (el: Element | null | undefined, cls: string) => el?.classList.remove(cls),
+    has: (el: Element | null | undefined, cls: string) => el?.classList.contains(cls),
   };
 
   function setNavigationState() {
