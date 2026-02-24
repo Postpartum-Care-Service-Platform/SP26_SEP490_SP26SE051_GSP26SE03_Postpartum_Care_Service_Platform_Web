@@ -43,8 +43,12 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: () => <ChevronLeft className={styles.chevron} />,
-        IconRight: () => <ChevronRight className={styles.chevron} />,
+        Chevron: ({ ...props }) => {
+          if (props.orientation === 'left') {
+            return <ChevronLeft className={cn(styles.chevron, props.className)} />;
+          }
+          return <ChevronRight className={cn(styles.chevron, props.className)} />;
+        },
       }}
       locale={vi}
       {...props}

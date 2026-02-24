@@ -146,7 +146,9 @@ export const PackagesSection: React.FC = () => {
                 {packages.map((pkg) => (
               <div
                 key={pkg.id}
-                ref={(el) => (cardRefs.current[pkg.id] = el)}
+                ref={(el) => {
+                  cardRefs.current[pkg.id] = el;
+                }}
                 className={styles.packageCard}
                 onMouseMove={(e) => handleMouseMove(e, pkg.id)}
                 onMouseEnter={() => handleMouseEnter(pkg.id)}

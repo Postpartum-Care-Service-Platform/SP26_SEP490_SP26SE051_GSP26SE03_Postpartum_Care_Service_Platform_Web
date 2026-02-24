@@ -147,9 +147,9 @@ export function ProfileOverview() {
               {transactions.slice(0, 5).map((transaction) => (
                 <div key={transaction.id} className={styles.item}>
                   <div className={styles.itemContent}>
-                    <div className={styles.itemTitle}>{transaction.description || transaction.type}</div>
+                    <div className={styles.itemTitle}>{transaction.note || transaction.type}</div>
                     <div className={styles.itemMeta}>
-                      <span>{formatDate(transaction.createdAt)}</span>
+                      <span>{formatDate(transaction.transactionDate)}</span>
                       <span className={styles.status}>{transaction.status}</span>
                     </div>
                   </div>

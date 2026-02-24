@@ -145,7 +145,7 @@ export function ChangePasswordTab() {
         {success && <div className={styles.success}>{success}</div>}
 
         <div className={styles.actions}>
-          <Button type="submit" disabled={loading} fullWidth>
+          <Button type="submit" disabled={loading} className="w-full">
             {loading ? 'Đang xử lý...' : 'Đổi mật khẩu'}
           </Button>
         </div>

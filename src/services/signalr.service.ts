@@ -59,7 +59,7 @@ export class SignalRService {
         }
 
         // Xây dựng full URL
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5122';
+        const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5122/api').replace('/api', '');
         const fullUrl = `${baseUrl}${hubUrl}`;
 
         this.connection = new signalR.HubConnectionBuilder()
