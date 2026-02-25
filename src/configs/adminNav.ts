@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare, FileText, Utensils, Package, Bell, Activity, ClipboardCheck, UserCircle, CreditCard, CalendarCheck, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare, FileText, Utensils, Package, Bell, Activity, ClipboardCheck, UserCircle, CreditCard, CalendarCheck, CalendarDays, LayoutTemplate } from 'lucide-react';
 
 export type AdminNavItem = {
   key: string;
@@ -100,25 +100,25 @@ export const adminNav: AdminNavSection[] = [
         label: 'Quản lý thực đơn',
         icon: Utensils,
         children: [
-      {
-        key: 'food',
-        label: 'Món ăn',
-        href: '/admin/food',
-      },
-      {
-        key: 'menu',
-        label: 'Thực đơn',
-        href: '/admin/menu',
-      },
-      {
-        key: 'menu-type',
-        label: 'Loại thực đơn',
-        href: '/admin/menu-type',
-      },
-      {
-        key: 'menu-record',
-        label: 'Bản ghi thực đơn',
-        href: '/admin/menu-record',
+          {
+            key: 'food',
+            label: 'Món ăn',
+            href: '/admin/food',
+          },
+          {
+            key: 'menu',
+            label: 'Thực đơn',
+            href: '/admin/menu',
+          },
+          {
+            key: 'menu-type',
+            label: 'Loại thực đơn',
+            href: '/admin/menu-type',
+          },
+          {
+            key: 'menu-record',
+            label: 'Bản ghi thực đơn',
+            href: '/admin/menu-record',
           },
         ],
       },
@@ -157,6 +157,23 @@ export const adminNav: AdminNavSection[] = [
         label: 'Giao dịch',
         href: '/admin/transaction',
         icon: CreditCard,
+      },
+      {
+        key: 'templates',
+        label: 'Mẫu',
+        icon: LayoutTemplate,
+        children: [
+          {
+            key: 'templates-editor',
+            label: 'Soạn thảo mẫu',
+            href: '/admin/templates',
+          },
+          {
+            key: 'placeholder-manager',
+            label: 'Quản lý placeholder',
+            href: '/admin/placeholder-manager',
+          },
+        ],
       },
     ],
   },

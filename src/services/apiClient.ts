@@ -38,7 +38,7 @@ apiClient.interceptors.response.use(
     if (error.response) {
       const status = error.response.status;
       const data = error.response.data;
-      
+
       // Xử lý lỗi 401 Unauthorized
       if (status === 401) {
         // Xóa token và redirect về login
@@ -46,19 +46,19 @@ apiClient.interceptors.response.use(
           localStorage.removeItem('token');
           localStorage.removeItem('refreshToken');
           localStorage.removeItem('user');
-          
+
           // Chỉ redirect nếu không phải đang ở trang login
           if (!window.location.pathname.includes('/auth/login')) {
             window.location.href = '/auth/login';
           }
         }
       }
-      
+
       // Chỉ log error nếu không phải 401 (để tránh spam console)
       if (status !== 401) {
         console.error('API Error:', status, data);
       }
-      
+
       const message = data?.message || data?.error || 'Có lỗi xảy ra';
 
       return Promise.reject({
