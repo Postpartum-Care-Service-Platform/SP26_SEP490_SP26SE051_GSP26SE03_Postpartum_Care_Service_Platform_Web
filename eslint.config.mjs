@@ -2,6 +2,8 @@ import nextPlugin from "@next/eslint-plugin-next";
 import nextConfig from "eslint-config-next";
 import storybook from "eslint-plugin-storybook";
 import prettierConfig from "eslint-config-prettier";
+import tsPlugin from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 
 /** @type {import('eslint').Linter.Config} */
 export default [
@@ -12,8 +14,12 @@ export default [
     ...storybook.configs["flat/recommended"],
   },
   {
+    languageOptions: {
+      parser: tsParser,
+    },
     plugins: {
       next: nextPlugin,
+      "@typescript-eslint": tsPlugin,
     },
     rules: {
       ...prettierConfig.rules,
