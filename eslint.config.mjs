@@ -5,7 +5,8 @@ import prettierConfig from "eslint-config-prettier";
 
 /** @type {import('eslint').Linter.Config} */
 export default [
-  ...nextConfig(),
+  // eslint-config-next 16 exports a flat config array, not a function
+  ...nextConfig,
   {
     files: ["**/*.stories.@(ts|tsx)"],
     ...storybook.configs["flat/recommended"],
