@@ -1,6 +1,5 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
     FileText,
     Mail,
@@ -10,86 +9,30 @@ import {
     ChevronDown,
     ChevronRight,
     FileEdit,
-    X,
-    Variable,
-} from 'lucide-react';
+} from "lucide-react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+
+import { convertPlaceholdersToChips, convertChipsToPlaceholders } from "@/components/ui/rich-text-editor/PlaceholderChip";
+import RichTextEditor from "@/components/ui/rich-text-editor/RichTextEditor";
 import contractTemplateService, {
     ContractTemplate,
     CreateContractTemplateRequest,
     UpdateContractTemplateRequest,
-} from '@/services/contract-template.service';
+} from "@/services/contract-template.service";
 import emailTemplateService, {
     EmailTemplate,
     CreateEmailTemplateRequest,
     UpdateEmailTemplateRequest,
-} from '@/services/email-template.service';
-import placeholderService, { PlaceholderItem } from '@/services/placeholder.service';
-import RichTextEditor from '@/components/ui/rich-text-editor/RichTextEditor';
-import { insertPlaceholder, convertPlaceholdersToChips, convertChipsToPlaceholders } from '@/components/ui/rich-text-editor/PlaceholderChip';
-import styles from './templates.module.css';
+} from "@/services/email-template.service";
+import placeholderService, { PlaceholderItem } from "@/services/placeholder.service";
+
+import styles from "./templates.module.css";
 
 type TemplateType = 'contract' | 'email';
 
 interface SelectedTemplate {
     type: TemplateType;
     id: number;
-}
-
-// ── Placeholder Dropdown ───────────────────────────────────────────────────────
-function PlaceholderDropdown({
-    placeholders,
-    searchText,
-    onSelect,
-    onClose,
-}: {
-    placeholders: PlaceholderItem[];
-    searchText: string;
-    onSelect: (p: PlaceholderItem) => void;
-    onClose: () => void;
-}) {
-    const filtered = useMemo(() => {
-        if (!searchText) return placeholders.slice(0, 20);
-        const q = searchText.toLowerCase();
-        return placeholders.filter(
-            (p) => p.key.toLowerCase().includes(q) || p.label.toLowerCase().includes(q)
-        ).slice(0, 20);
-    }, [placeholders, searchText]);
-
-    const grouped = useMemo(() => {
-        const groups: Record<string, PlaceholderItem[]> = {};
-        filtered.forEach((p) => {
-            const table = p.table || 'Other';
-            if (!groups[table]) groups[table] = [];
-            groups[table].push(p);
-        });
-        return groups;
-    }, [filtered]);
-
-    return (
-        <div className={styles.placeholderDropdown}>
-            <div className={styles.placeholderDropdownHeader}>
-                <span className={styles.placeholderSearchLabel}>Chọn trường dữ liệu</span>
-                <button className={styles.placeholderCloseBtn} onClick={onClose}><X size={14} /></button>
-            </div>
-            <div className={styles.placeholderDropdownList}>
-                {Object.keys(grouped).length === 0 ? (
-                    <div className={styles.placeholderEmpty}>Không tìm thấy</div>
-                ) : (
-                    Object.entries(grouped).map(([table, items]) => (
-                        <div key={table} className={styles.placeholderGroup}>
-                            <div className={styles.placeholderGroupTitle}>{table}</div>
-                            {items.map((p) => (
-                                <button key={p.key} className={styles.placeholderItem} onClick={() => onSelect(p)}>
-                                    <span className={styles.placeholderItemKey}>{p.key}</span>
-                                    <span className={styles.placeholderItemLabel}>{p.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    ))
-                )}
-            </div>
-        </div>
-    );
 }
 
 // ── New template modal ─────────────────────────────────────────────────────────
@@ -136,7 +79,7 @@ function ConfirmDeleteModal({ name, onClose, onConfirm }: { name: string; onClos
         <div className={styles.modalOverlay} onClick={onClose}>
             <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
                 <p className={styles.modalTitle}>Xóa mẫu</p>
-                <p className={styles.confirmText}>Bạn có chắc muốn xóa mẫu <strong>"{name}"</strong>?</p>
+                <p className={styles.confirmText}>Bạn có chắc muốn xóa mẫu <strong>&quot;{name}&quot;</strong>?</p>
                 <p className={styles.confirmSub}>Hành động này không thể hoàn tác.</p>
                 <div className={styles.modalActions}>
                     <button className={styles.btnCancel} onClick={onClose}>Hủy</button>
@@ -153,7 +96,7 @@ export default function AdminTemplatesPage() {
     const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
     const [placeholders, setPlaceholders] = useState<PlaceholderItem[]>([]);
     const [loadingList, setLoadingList] = useState(true);
-    const editorRef = useRef<any>(null);
+    const editorRef = useRef<unknown | null>(null);
     // Luu lai phan html/body wrapper neu content goc la full HTML document
     const htmlWrapperRef = useRef<{ before: string; after: string } | null>(null);
 
@@ -173,8 +116,6 @@ export default function AdminTemplatesPage() {
     const [newModal, setNewModal] = useState<TemplateType | null>(null);
     const [deleteModal, setDeleteModal] = useState(false);
 
-    const [showPlaceholderPicker, setShowPlaceholderPicker] = useState(false);
-
     // ── Fetch data ──
     const fetchAll = useCallback(async () => {
         setLoadingList(true);
@@ -182,10 +123,10 @@ export default function AdminTemplatesPage() {
             const [contracts, emails, placeholderData] = await Promise.all([
                 contractTemplateService.getAll().catch(() => [] as ContractTemplate[]),
                 emailTemplateService.getAll().catch(() => [] as EmailTemplate[]),
-                placeholderService.getAll().catch(() => [] as any),
+                placeholderService.getAll().catch(() => [] as PlaceholderItem[]),
             ]);
-            setContractTemplates(Array.isArray(contracts) ? contracts.filter((t: any) => t.isActive !== false) : []);
-            setEmailTemplates(Array.isArray(emails) ? emails.filter((t: any) => t.isActive !== false) : []);
+            setContractTemplates(Array.isArray(contracts) ? contracts.filter((t) => t.isActive !== false) : []);
+            setEmailTemplates(Array.isArray(emails) ? emails.filter((t) => t.isActive !== false) : []);
 
             // Filter placeholders by type
             const allPlaceholders = Array.isArray(placeholderData) ? placeholderData : [];
@@ -226,17 +167,11 @@ export default function AdminTemplatesPage() {
             }
         } catch (err) { console.error('Error loading template:', err); }
         finally { setLoadingDetail(false); }
-    }, [selected]);
+    }, [placeholders, selected]);
 
     // Handle editor content change
     const handleEditorChange = useCallback((html: string) => {
         setEditorContent(html);
-    }, []);
-
-    // Insert placeholder chip vao editor
-    const handlePlaceholderSelect = useCallback((p: PlaceholderItem) => {
-        insertPlaceholder(editorRef.current, p.key, p.label);
-        setShowPlaceholderPicker(false);
     }, []);
 
     // ── Save ──

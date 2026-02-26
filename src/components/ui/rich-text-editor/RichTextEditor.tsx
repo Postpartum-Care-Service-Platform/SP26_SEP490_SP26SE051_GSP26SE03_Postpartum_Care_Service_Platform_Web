@@ -1,24 +1,42 @@
 'use client';
 
-import { useEditor, EditorContent, Extension, Node, mergeAttributes } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table';
-import { TextStyle, Color, FontFamily } from '@tiptap/extension-text-style';
-import Highlight from '@tiptap/extension-highlight';
-import Underline from '@tiptap/extension-underline';
-import TextAlign from '@tiptap/extension-text-align';
-import Link from '@tiptap/extension-link';
-import Image from '@tiptap/extension-image';
-import { useCallback, useEffect, useState } from 'react';
+import Highlight from "@tiptap/extension-highlight";
+import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
+import { Table, TableRow, TableCell, TableHeader } from "@tiptap/extension-table";
+import TextAlign from "@tiptap/extension-text-align";
+import { TextStyle, Color, FontFamily } from "@tiptap/extension-text-style";
+import Underline from "@tiptap/extension-underline";
+import { useEditor, EditorContent, Extension, Node, mergeAttributes } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import {
-  Bold, Italic, Underline as UnderlineIcon, Strikethrough,
-  List, ListOrdered, AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  Table as TableIcon, Link as LinkIcon, Image as ImageIcon,
-  Highlighter, Palette, Undo, Redo, Columns2, Rows3, Trash2, Minus,
-} from 'lucide-react';
-import styles from './RichTextEditor.module.css';
-import { PlaceholderChip } from './PlaceholderChip';
-import { PlaceholderSuggestion } from './SuggestionExtension';
+  Bold,
+  Italic,
+  Underline as UnderlineIcon,
+  Strikethrough,
+  List,
+  ListOrdered,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Table as TableIcon,
+  Link as LinkIcon,
+  Image as ImageIcon,
+  Highlighter,
+  Palette,
+  Undo,
+  Redo,
+  Columns2,
+  Rows3,
+  Trash2,
+  Minus,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+
+import { PlaceholderChip } from "./PlaceholderChip";
+import styles from "./RichTextEditor.module.css";
+import { PlaceholderSuggestion } from "./SuggestionExtension";
 
 // Node extension cho <div> - preserve style/class
 const Div = Node.create({
@@ -51,12 +69,14 @@ const PreserveStyles = Extension.create({
           style: {
             default: null,
             parseHTML: (el: Element) => el.getAttribute('style') || null,
-            renderHTML: (attrs: Record<string, any>) => attrs.style ? { style: attrs.style } : {},
+            renderHTML: (attrs: Record<string, unknown>) =>
+              typeof attrs.style === 'string' ? { style: attrs.style } : {},
           },
           class: {
             default: null,
             parseHTML: (el: Element) => el.getAttribute('class') || null,
-            renderHTML: (attrs: Record<string, any>) => attrs.class ? { class: attrs.class } : {},
+            renderHTML: (attrs: Record<string, unknown>) =>
+              typeof attrs.class === 'string' ? { class: attrs.class } : {},
           },
         },
       },
@@ -69,7 +89,7 @@ interface RichTextEditorProps {
   onChange?: (html: string) => void;
   placeholder?: string;
   editable?: boolean;
-  editorRef?: React.MutableRefObject<any>;
+  editorRef?: React.MutableRefObject<unknown>;
   placeholders?: PlaceholderSuggestion[];
   onPlaceholderSelect?: (key: string, label: string) => void;
 }
@@ -96,6 +116,64 @@ const FONTS = [
   { value: 'Lexend Deca', label: 'Lexend Deca' },
 ];
 
+interface ToolbarButtonProps {
+  onClick: () => void;
+  active?: boolean;
+  title?: string;
+  disabled?: boolean;
+  children: React.ReactNode;
+}
+
+function Btn({ onClick, active, title, disabled, children }: ToolbarButtonProps) {
+  return (
+    <button
+      type="button"
+      className={`${styles.toolbarBtn} ${active ? styles.active : ''}`}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        onClick();
+      }}
+      title={title}
+      disabled={disabled}
+    >
+      {children}
+    </button>
+  );
+}
+
+interface ColorPickerProps {
+  colors: string[];
+  onSelect: (color: string) => void;
+  onClose: () => void;
+}
+
+function ColorPicker({ colors, onSelect, onClose }: ColorPickerProps) {
+  return (
+    <div className={styles.colorPicker}>
+      <div className={styles.colorPickerHeader}>
+        <span>Chon mau</span>
+        <button type="button" onClick={onClose}>
+          x
+        </button>
+      </div>
+      <div className={styles.colorGrid}>
+        {colors.map((color) => (
+          <button
+            key={color}
+            type="button"
+            className={styles.colorSwatch}
+            style={{ backgroundColor: color, border: color === '#FFFFFF' ? '1px solid #ddd' : 'none' }}
+            onClick={() => {
+              onSelect(color);
+              onClose();
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Extract body content tu full HTML document
 function extractBodyContent(html: string): string {
   if (!html) return '';
@@ -104,7 +182,15 @@ function extractBodyContent(html: string): string {
   return html;
 }
 
-export default function RichTextEditor({ content = '', onChange, placeholder = 'Nhap noi dung...', editable = true, editorRef, placeholders = [], onPlaceholderSelect }: RichTextEditorProps) {
+export default function RichTextEditor({
+  content = '',
+  onChange,
+  placeholder = 'Nhap noi dung...',
+  editable = true,
+  editorRef,
+  placeholders = [],
+  onPlaceholderSelect,
+}: RichTextEditorProps) {
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [showLinkInput, setShowLinkInput] = useState(false);
@@ -153,18 +239,20 @@ export default function RichTextEditor({ content = '', onChange, placeholder = '
     // setTimeout tranh flushSync conflict voi React render cycle
     const t = setTimeout(() => {
       if (!editor.isDestroyed && incoming !== editor.getHTML()) {
-        editor.commands.setContent(incoming, false);
+        editor.commands.setContent(incoming);
       }
     }, 0);
     return () => clearTimeout(t);
-  }, [content]);
+  }, [content, editor]);
 
   // Detect {{ and show suggestions
   useEffect(() => {
     if (!editor || !placeholders.length) return;
 
     const handleUpdate = () => {
-      const textBefore = editor.state.selection.$from.parent.textContent.slice(0, editor.state.selection.$from.parent.offset);
+      const { $from } = editor.state.selection;
+      const parentText = $from.parent.textContent ?? '';
+      const textBefore = parentText.slice(0, $from.parentOffset);
       const match = textBefore.match(/\{\{([a-zA-Z0-9_]*)$/);
 
       if (match) {
@@ -209,7 +297,9 @@ export default function RichTextEditor({ content = '', onChange, placeholder = '
   const selectSuggestion = (key: string, label: string) => {
     if (!editor) return;
 
-    const textBefore = editor.state.selection.$from.parent.textContent.slice(0, editor.state.selection.$from.parent.offset);
+    const { $from } = editor.state.selection;
+    const parentText = $from.parent.textContent ?? '';
+    const textBefore = parentText.slice(0, $from.parentOffset);
     const match = textBefore.match(/\{\{([a-zA-Z0-9_]*)$/);
 
     if (match) {
@@ -220,12 +310,17 @@ export default function RichTextEditor({ content = '', onChange, placeholder = '
       }).run();
     }
 
-    editor.chain().focus().insertContent({
-      type: 'placeholderChip',
-      attrs: { key, label },
-    }).run();
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: 'placeholderChip',
+        attrs: { key, label },
+      })
+      .run();
 
     setShowSuggestions(false);
+    onPlaceholderSelect?.(key, label);
   };
 
   useEffect(() => {
@@ -241,35 +336,6 @@ export default function RichTextEditor({ content = '', onChange, placeholder = '
       setShowLinkInput(false);
     }
   }, [editor, linkUrl]);
-
-  const Btn = ({ onClick, active, title, disabled, children }: any) => (
-    <button
-      type="button"
-      className={`${styles.toolbarBtn} ${active ? styles.active : ''}`}
-      onMouseDown={(e) => { e.preventDefault(); onClick(); }}
-      title={title}
-      disabled={disabled}
-    >
-      {children}
-    </button>
-  );
-
-  const ColorPicker = ({ colors, onSelect, onClose }: { colors: string[]; onSelect: (c: string) => void; onClose: () => void }) => (
-    <div className={styles.colorPicker}>
-      <div className={styles.colorPickerHeader}>
-        <span>Chon mau</span>
-        <button type="button" onClick={onClose}>x</button>
-      </div>
-      <div className={styles.colorGrid}>
-        {colors.map((color, i) => (
-          <button key={i} type="button" className={styles.colorSwatch}
-            style={{ backgroundColor: color, border: color === '#FFFFFF' ? '1px solid #ddd' : 'none' }}
-            onClick={() => { onSelect(color); onClose(); }}
-          />
-        ))}
-      </div>
-    </div>
-  );
 
   if (!editor) return null;
 
