@@ -1,7 +1,7 @@
 'use client';
 
-import { Node, mergeAttributes } from '@tiptap/core';
-import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
+import { Node, mergeAttributes, type Editor } from "@tiptap/core";
+import { ReactNodeViewRenderer, NodeViewWrapper } from "@tiptap/react";
 
 // Custom extension for placeholder chips
 export const PlaceholderChip = Node.create({
@@ -37,12 +37,14 @@ export const PlaceholderChip = Node.create({
         })];
     },
 
-    addNodeView() {
-        return ReactNodeViewRenderer(({ node, deleteNode }: any) => (
+  addNodeView() {
+    return ReactNodeViewRenderer(({ node, deleteNode }) => {
+      const attrs = node.attrs as { key: string; label?: string };
+      return (
             <NodeViewWrapper style={{ display: 'inline', lineHeight: 'normal' }}>
                 <span
                     contentEditable={false}
-                    data-placeholder-key={node.attrs.key}
+                    data-placeholder-key={attrs.key}
                     style={{
                         display: 'inline-flex',
                         alignItems: 'center',
@@ -59,7 +61,7 @@ export const PlaceholderChip = Node.create({
                         cursor: 'default',
                     }}
                 >
-                    <span>{node.attrs.label || node.attrs.key}</span>
+                    <span>{attrs.label || attrs.key}</span>
                     <button
                         type="button"
                         onMouseDown={(e) => { e.preventDefault(); deleteNode(); }}
@@ -85,11 +87,12 @@ export const PlaceholderChip = Node.create({
                     </button>
                 </span>
             </NodeViewWrapper>
-        ));
+      );
+    });
     },
 });
 
-export function insertPlaceholder(editor: any, key: string, label: string) {
+export function insertPlaceholder(editor: Editor | null | undefined, key: string, label: string) {
     if (!editor) return;
     editor.chain().focus().insertContent({
         type: 'placeholderChip',

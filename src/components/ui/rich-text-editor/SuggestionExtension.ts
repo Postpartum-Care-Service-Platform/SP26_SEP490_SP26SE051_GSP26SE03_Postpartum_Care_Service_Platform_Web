@@ -1,8 +1,7 @@
 'use client';
 
-import { Extension, Node, mergeAttributes } from '@tiptap/core';
+import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
-import { Decoration, DecorationSet } from '@tiptap/pm/view';
 
 export interface PlaceholderSuggestion {
   key: string;
@@ -10,19 +9,25 @@ export interface PlaceholderSuggestion {
   table?: string;
 }
 
-export const createSuggestionExtension = (placeholders: PlaceholderSuggestion[], onSelect: (key: string, label: string) => void) => {
+export const createSuggestionExtension = (
+  placeholders: PlaceholderSuggestion[],
+  onSelect: (key: string, label: string) => void,
+) => {
   return Extension.create({
     name: 'placeholderSuggestion',
 
     addOptions() {
       return {
-        placeholders: [],
-        onSelect: () => {},
+        placeholders,
+        onSelect,
       };
     },
 
     addProseMirrorPlugins() {
-      const { placeholders, onSelect } = this.options;
+      const { placeholders, onSelect } = this.options as {
+        placeholders: PlaceholderSuggestion[];
+        onSelect: (key: string, label: string) => void;
+      };
 
       return [
         new Plugin({
@@ -32,7 +37,8 @@ export const createSuggestionExtension = (placeholders: PlaceholderSuggestion[],
               const { state } = view;
               const { selection } = state;
               const { $from } = selection;
-              const textBefore = $from.parent.textContent.slice(0, $from.parent.offset);
+              const parentText = $from.parent.textContent ?? '';
+              const textBefore = parentText.slice(0, $from.parentOffset);
 
               // Check if user typed {{
               const match = textBefore.match(/\{\{([a-zA-Z0-9_]*)$/);
@@ -53,7 +59,10 @@ export const createSuggestionExtension = (placeholders: PlaceholderSuggestion[],
 };
 
 // Simple placeholder autocomplete using keyboard events
-export const PlaceholderAutoComplete = (placeholders: PlaceholderSuggestion[], onInsert: (key: string, label: string) => void) => {
+export const PlaceholderAutoComplete = (
+  placeholders: PlaceholderSuggestion[],
+  onInsert: (key: string, label: string) => void,
+) => {
   let currentIndex = -1;
   let isOpen = false;
   let searchText = '';
@@ -72,8 +81,8 @@ export const PlaceholderAutoComplete = (placeholders: PlaceholderSuggestion[], o
 
     addOptions() {
       return {
-        placeholders: [],
-        onInsert: () => {},
+        placeholders,
+        onInsert,
       };
     },
 

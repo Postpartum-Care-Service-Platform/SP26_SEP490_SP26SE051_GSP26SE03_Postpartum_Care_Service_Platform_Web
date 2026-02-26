@@ -12,11 +12,15 @@ export interface PlaceholderItem {
 }
 
 const placeholderService = {
-  getAll: (): Promise<any> =>
-    apiClient.get('/template-placeholders'),
+  getAll: async (): Promise<PlaceholderItem[]> => {
+    const response = await apiClient.get<PlaceholderItem[]>('/template-placeholders');
+    return response.data ?? [];
+  },
 
-  getByType: (type: 'contract' | 'email'): Promise<PlaceholderItem[]> =>
-    apiClient.get(`/template-placeholders/by-type/${type}`),
+  getByType: async (type: 'contract' | 'email'): Promise<PlaceholderItem[]> => {
+    const response = await apiClient.get<PlaceholderItem[]>(`/template-placeholders/by-type/${type}`);
+    return response.data ?? [];
+  },
 };
 
 export default placeholderService;
