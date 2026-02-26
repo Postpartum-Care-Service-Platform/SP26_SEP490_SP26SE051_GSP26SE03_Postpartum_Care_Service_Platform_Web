@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
 import * as Popover from '@radix-ui/react-popover';
-import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
+import React from 'react';
+
 import { AssigneePicker } from '../shared/AssigneePicker';
+import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
 
 import styles from './calendar-quick-create.module.css';
 

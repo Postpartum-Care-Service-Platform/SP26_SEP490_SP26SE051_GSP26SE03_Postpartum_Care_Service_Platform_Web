@@ -1,15 +1,14 @@
 'use client';
 
-import React from 'react';
 import { Bell, ChevronDown, Menu } from 'lucide-react';
+import React from 'react';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown/Dropdown';
 
-import { UserDropdown } from './UserDropdown';
-import { NotificationDropdown } from './NotificationDropdown';
-import { AdminControlPanel } from './AdminControlPanel';
-
 import styles from './admin-layout.module.css';
+import { AdminControlPanel } from './AdminControlPanel';
+import { NotificationDropdown } from './NotificationDropdown';
+import { UserDropdown } from './UserDropdown';
 
 type Props = {
   collapsed: boolean;

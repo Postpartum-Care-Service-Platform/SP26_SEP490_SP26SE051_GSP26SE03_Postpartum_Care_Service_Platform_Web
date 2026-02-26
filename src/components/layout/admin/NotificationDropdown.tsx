@@ -1,18 +1,18 @@
 'use client';
 
-import React from 'react';
-import { Bell, Clock, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { Bell, Clock, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
+import React from 'react';
 
+import { translateNotificationTypeName } from '@/app/admin/notification/utils/notificationTypeTranslations';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown/Dropdown';
-import notificationService from '@/services/notification.service';
 import notificationTypeService from '@/services/notification-type.service';
-import { translateNotificationTypeName } from '@/app/admin/notification/utils/notificationTypeTranslations';
+import notificationService from '@/services/notification.service';
 import type { Notification } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
 

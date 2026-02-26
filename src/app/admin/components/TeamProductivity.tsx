@@ -2,21 +2,23 @@
 
 import { useState } from 'react';
 import {
-  LineChart,
+  CartesianGrid,
+  Legend,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
 } from 'recharts';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
+
 import { CountUp } from './CountUp';
 import styles from './team-productivity.module.css';
 
@@ -47,7 +49,9 @@ const CustomTooltip = ({ active, payload }: any) => {
                 className={styles.tooltipDot}
                 style={{ backgroundColor: entry.color }}
               />
-              <span>{entry.name}: {entry.value}</span>
+              <span>
+                {entry.name}: {entry.value}
+              </span>
             </div>
           ))}
         </div>
@@ -129,49 +133,60 @@ export function TeamProductivity() {
           </div>
         </div>
         <div className={styles.body}>
-        <div className={styles.chartContainer}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="4 4" stroke="#f1f1f1" />
-              <XAxis
-                dataKey="month"
-                tick={{ fontSize: 12, fill: '#373d3f' }}
-                tickLine={false}
-                axisLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 11, fill: '#373d3f' }}
-                tickLine={false}
-                axisLine={false}
-                domain={[0, 60]}
-              />
-              <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3', stroke: '#b6b6b6' }} />
-              <Legend
-                iconType="circle"
-                wrapperStyle={{ paddingTop: '10px' }}
-                formatter={(value) => (
-                  <span style={{ fontSize: '12px', color: '#373d3f' }}>{value}</span>
-                )}
-              />
-              <Line
-                type="monotone"
-                dataKey="team"
-                name="Team"
-                stroke="#fd6161"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Line
-                type="monotone"
-                dataKey="productivity"
-                name="Productivity"
-                stroke="#4ec5ad"
-                strokeWidth={2}
-                dot={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+          <div className={styles.chartContainer}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={data}
+                margin={{ top: 5, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="4 4" stroke="#f1f1f1" />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 12, fill: '#373d3f' }}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: 11, fill: '#373d3f' }}
+                  tickLine={false}
+                  axisLine={false}
+                  domain={[0, 60]}
+                />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  cursor={{
+                    strokeDasharray: '3 3',
+                    stroke: '#b6b6b6',
+                  }}
+                />
+                <Legend
+                  iconType="circle"
+                  wrapperStyle={{ paddingTop: '10px' }}
+                  formatter={(value) => (
+                    <span style={{ fontSize: '12px', color: '#373d3f' }}>
+                      {value}
+                    </span>
+                  )}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="team"
+                  name="Team"
+                  stroke="#fd6161"
+                  strokeWidth={2}
+                  dot={false}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="productivity"
+                  name="Productivity"
+                  stroke="#4ec5ad"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>

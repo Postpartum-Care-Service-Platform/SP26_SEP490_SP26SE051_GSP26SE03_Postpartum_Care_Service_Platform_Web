@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { CheckIcon, ChevronDownIcon, UpdateIcon, MixerHorizontalIcon } from '@radix-ui/react-icons';
+import React from 'react';
+
 import styles from './work-schedule-detail-view.module.css';
 
 type Row = {

@@ -1,13 +1,14 @@
 'use client';
 
-import Image from 'next/image';
 import { User } from 'lucide-react';
+import Image from 'next/image';
 
-import type { ChatEntry as ChatEntryType } from './types';
-import { formatRelativeTimestamp } from './utils/formatTimestamp';
 import { truncateText } from '@/utils/text';
 
 import styles from './chat-entry.module.css';
+import { formatRelativeTimestamp } from './utils/formatTimestamp';
+
+import type { ChatEntry as ChatEntryType } from './types';
 
 type Props = {
   entry: ChatEntryType;
@@ -23,7 +24,10 @@ export function ChatEntry({ entry, isActive = false, onClick }: Props) {
   };
 
   const displayTimestamp = formatRelativeTimestamp(entry.timestamp);
-  const truncatedMessage = truncateText(entry.lastMessage, MAX_MESSAGE_PREVIEW_LENGTH);
+  const truncatedMessage = truncateText(
+    entry.lastMessage,
+    MAX_MESSAGE_PREVIEW_LENGTH
+  );
 
   return (
     <button
@@ -62,4 +66,3 @@ export function ChatEntry({ entry, isActive = false, onClick }: Props) {
     </button>
   );
 }
-

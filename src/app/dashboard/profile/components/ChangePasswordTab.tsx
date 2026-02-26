@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import authService from '@/services/auth.service';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
+import { useAuth } from '@/contexts/AuthContext';
+import authService from '@/services/auth.service';
+
 import styles from './change-password-tab.module.css';
 
 export function ChangePasswordTab() {

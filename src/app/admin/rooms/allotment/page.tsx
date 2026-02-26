@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import styles from './allotment.module.css';
+
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { useToast } from '@/components/ui/toast/use-toast';
+import roomAllotmentService from '@/services/room-allotment.service';
+import type { Room } from '@/types/room-allotment';
+
+import styles from './allotment.module.css';
 import { RoomAllotmentStats } from './components/RoomAllotmentStats';
 import { RoomAllotmentStatusLegend } from './components/RoomAllotmentStatusLegend';
 import { RoomAllotmentTable } from './components/RoomAllotmentTable';
-import roomAllotmentService from '@/services/room-allotment.service';
-import type { Room } from '@/types/room-allotment';
-import { useToast } from '@/components/ui/toast/use-toast';
 
 export default function AddRoomAllotmentPage() {
   const [rooms, setRooms] = useState<Room[]>([]);

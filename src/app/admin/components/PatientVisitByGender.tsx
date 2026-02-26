@@ -2,21 +2,22 @@
 
 import { useState } from 'react';
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
 } from 'recharts';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
+
 import styles from './patient-visit-by-gender.module.css';
 
 type GenderVisitData = {
@@ -84,7 +85,9 @@ const CustomLegend = ({ payload }: any) => {
   );
 };
 
-export function PatientVisitByGender({ data = mockData }: PatientVisitByGenderProps) {
+export function PatientVisitByGender({
+  data = mockData,
+}: PatientVisitByGenderProps) {
   const [selectedPeriod, setSelectedPeriod] = useState('weekly');
 
   return (
@@ -132,28 +135,59 @@ export function PatientVisitByGender({ data = mockData }: PatientVisitByGenderPr
       <div className={styles.body}>
         <div className={styles.chartContainer}>
           <ResponsiveContainer width="100%" height="100%" minHeight={200}>
-            <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <AreaChart
+              data={data}
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            >
               <defs>
-                <linearGradient id="femaleGradient" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient
+                  id="femaleGradient"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
                   <stop offset="0%" stopColor="#a47bc8" stopOpacity={0.3} />
                   <stop offset="90%" stopColor="#a47bc8" stopOpacity={0} />
                   <stop offset="100%" stopColor="#a47bc8" stopOpacity={0} />
                 </linearGradient>
-                <linearGradient id="maleGradient" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient
+                  id="maleGradient"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
                   <stop offset="0%" stopColor="#f5d178" stopOpacity={0.3} />
                   <stop offset="90%" stopColor="#f5d178" stopOpacity={0} />
                   <stop offset="100%" stopColor="#f5d178" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="5 5" stroke="#e0e0e0" vertical={true} horizontal={false} />
+              <CartesianGrid
+                strokeDasharray="5 5"
+                stroke="#e0e0e0"
+                vertical
+                horizontal={false}
+              />
               <XAxis
                 dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#6c757d', fontSize: 12, fontFamily: 'Funnel Sans, sans-serif' }}
+                tick={{
+                  fill: '#6c757d',
+                  fontSize: 12,
+                  fontFamily: 'Funnel Sans, sans-serif',
+                }}
               />
               <YAxis hide />
-              <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#b6b6b6', strokeWidth: 1, strokeDasharray: '3 3' }} />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{
+                  stroke: '#b6b6b6',
+                  strokeWidth: 1,
+                  strokeDasharray: '3 3',
+                }}
+              />
               <Area
                 type="monotone"
                 dataKey="female"
@@ -173,10 +207,12 @@ export function PatientVisitByGender({ data = mockData }: PatientVisitByGenderPr
             </AreaChart>
           </ResponsiveContainer>
         </div>
-        <CustomLegend payload={[
-          { value: 'Female', color: '#a47bc8' },
-          { value: 'Male', color: '#f5d178' }
-        ]} />
+        <CustomLegend
+          payload={[
+            { value: 'Female', color: '#a47bc8' },
+            { value: 'Male', color: '#f5d178' },
+          ]}
+        />
       </div>
     </div>
   );

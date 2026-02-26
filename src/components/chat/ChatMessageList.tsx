@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
+
 import type { ChatMessage } from '@/types/chat';
+
 import { ChatBubble, TypingIndicator } from './ChatBubble';
 
 type ChatMessageListProps = {

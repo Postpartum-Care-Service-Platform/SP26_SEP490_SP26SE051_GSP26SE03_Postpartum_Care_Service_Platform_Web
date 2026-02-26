@@ -1,18 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { format } from 'date-fns';
-import { CalendarIcon, Clock } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
+import { useForm } from 'react-hook-form';
 
 import { Form } from '@/components/forms/Form';
 import { FormField } from '@/components/forms/FormField';
-import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/Input';
 import appointmentService from '@/services/appointment.service';
 import type { CreateAppointmentRequest } from '@/types/appointment';
 

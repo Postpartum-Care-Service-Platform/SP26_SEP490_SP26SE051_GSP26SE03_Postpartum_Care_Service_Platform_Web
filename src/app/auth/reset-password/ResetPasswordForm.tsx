@@ -2,18 +2,18 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-180x180.png';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { AUTH_FORGOT_PASSWORD_MESSAGES, AUTH_FORGOT_PASSWORD_REGEX } from '@/messages/auth/forgot-password';
 import { RESET_PASSWORD_MESSAGES } from '@/messages/auth/reset-password';
-import authService from '@/services/auth.service';
 import { ROUTES } from '@/routes/routes';
+import authService from '@/services/auth.service';
 
 import { EmailStep } from './EmailStep';
-import OtpStep from './OtpStep';
 import { NewPasswordStep } from './NewPasswordStep';
+import OtpStep from './OtpStep';
 import styles from './reset-password.module.css';
 
 const RESEND_COOLDOWN_SEC = 30;

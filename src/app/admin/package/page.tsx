@@ -2,14 +2,17 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { PackageListHeader } from './components/PackageListHeader';
-import { NewPackageModal, PackageStatsCards, PackageTable, PackageTableControls } from './components';
-import type { PackageStats } from './components';
-import styles from './package.module.css';
-
+import { useToast } from '@/components/ui/toast/use-toast';
 import packageService from '@/services/package.service';
 import type { Package } from '@/types/package';
-import { useToast } from '@/components/ui/toast/use-toast';
+
+import { NewPackageModal, PackageStatsCards, PackageTable, PackageTableControls } from './components';
+import { PackageListHeader } from './components/PackageListHeader';
+import styles from './package.module.css';
+
+import type { PackageStats } from './components';
+
+
 
 const PAGE_SIZE = 10;
 
@@ -67,7 +70,7 @@ export default function AdminPackagePage() {
 
   useEffect(() => {
     fetchPackages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   const stats: PackageStats = useMemo(() => {

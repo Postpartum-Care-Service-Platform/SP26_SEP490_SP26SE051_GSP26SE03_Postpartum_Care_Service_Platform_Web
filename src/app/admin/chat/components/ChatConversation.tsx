@@ -2,14 +2,14 @@
 
 import { useEffect, useRef } from 'react';
 
-import type { ChatConversation, Message } from './types';
+import styles from './chat-conversation.module.css';
 import { ChatHeaderBar } from './ChatHeaderBar';
-import { MessageBubble } from './MessageBubble';
-import { DateSeparator } from './DateSeparator';
 import { ChatInput } from './ChatInput';
+import { DateSeparator } from './DateSeparator';
+import { MessageBubble } from './MessageBubble';
 import { shouldShowDateSeparator } from './utils/formatMessageTime';
 
-import styles from './chat-conversation.module.css';
+import type { ChatConversation } from './types';
 
 type Props = {
   conversation: ChatConversation | null;
@@ -72,8 +72,11 @@ export function ChatConversation({
       <div className={styles.messagesContainer}>
         {conversation.messages.map((message, index) => {
           // AI message (senderId = empty string) hoặc message của current user → hiển thị bên phải
-          const isOwn = !message.senderId || message.senderId.toLowerCase() === currentUserId?.toLowerCase();
-          const previousMessage = index > 0 ? conversation.messages[index - 1] : null;
+          const isOwn =
+            !message.senderId ||
+            message.senderId.toLowerCase() === currentUserId?.toLowerCase();
+          const previousMessage =
+            index > 0 ? conversation.messages[index - 1] : null;
           const showDateSeparator = shouldShowDateSeparator(
             message.timestamp,
             previousMessage?.timestamp || null
@@ -81,7 +84,9 @@ export function ChatConversation({
 
           return (
             <div key={message.id}>
-              {showDateSeparator && <DateSeparator timestamp={message.timestamp} />}
+              {showDateSeparator && (
+                <DateSeparator timestamp={message.timestamp} />
+              )}
               <MessageBubble message={message} isOwn={isOwn} />
             </div>
           );
@@ -92,4 +97,3 @@ export function ChatConversation({
     </div>
   );
 }
-

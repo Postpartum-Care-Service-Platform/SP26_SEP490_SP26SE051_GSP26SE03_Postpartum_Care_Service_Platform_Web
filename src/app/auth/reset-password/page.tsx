@@ -1,6 +1,5 @@
-import ResetPasswordForm from './ResetPasswordForm';
-
 import styles from './reset-password.module.css';
+import ResetPasswordForm from './ResetPasswordForm';
 
 export default function ResetPasswordPage() {
   return (

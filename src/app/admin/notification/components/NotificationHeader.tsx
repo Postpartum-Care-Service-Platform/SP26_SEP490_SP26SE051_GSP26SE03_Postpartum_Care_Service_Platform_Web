@@ -1,7 +1,8 @@
 'use client';
 
+import { ArrowUpDown, Search } from 'lucide-react';
 import { useState } from 'react';
-import { Search, ArrowUpDown } from 'lucide-react';
+
 import styles from './notification-header.module.css';
 
 type Props = {
@@ -31,7 +32,12 @@ export function NotificationHeader({ onSearchChange, onSortClick }: Props) {
             onChange={handleSearchChange}
           />
         </div>
-        <button type="button" className={styles.sortButton} onClick={onSortClick} aria-label="Sắp xếp">
+        <button
+          type="button"
+          className={styles.sortButton}
+          onClick={onSortClick}
+          aria-label="Sắp xếp"
+        >
           <ArrowUpDown size={16} />
           <span>Sắp xếp</span>
         </button>

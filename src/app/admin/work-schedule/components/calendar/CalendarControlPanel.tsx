@@ -1,14 +1,15 @@
 'use client';
 
-import React from 'react';
-import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Popover from '@radix-ui/react-popover';
+import * as Tooltip from '@radix-ui/react-tooltip';
+import React from 'react';
+
+import { AssigneePicker } from '../shared/AssigneePicker';
+import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
 
 import styles from './calendar-control-panel.module.css';
 import { CalendarStatusDropdown, type CalendarStatusType } from './CalendarStatusDropdown';
 import { CalendarViewDropdown, type CalendarViewMode } from './CalendarViewDropdown';
-import { AssigneePicker } from '../shared/AssigneePicker';
-import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
 
 function ChevronDownIcon() {
   return (

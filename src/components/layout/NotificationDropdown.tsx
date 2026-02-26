@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Bell, Clock, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { AlertCircle, Bell, CheckCircle, ChevronRight, Clock, FileText, Info, ShoppingCart, Users, XCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+
 import notificationService from '@/services/notification.service';
 import type { Notification } from '@/types/notification';
 

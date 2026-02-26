@@ -10,10 +10,11 @@ import { OtpInput } from '@/components/auth/OtpInput';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { AUTH_VERIFY_EMAIL_MESSAGES } from '@/messages/auth/verify-email';
 import { AUTH_VERIFY_EMAIL_REGEX } from '@/messages/auth/verify-email.regex';
+import { ROUTES } from '@/routes/routes';
 import authService from '@/services/auth.service';
 import { clearVerifyEmail, getVerifyEmail, setVerifyEmail } from '@/utils/emailVerificationStorage';
+
 import styles from './verify-email.module.css';
-import { ROUTES } from '@/routes/routes';
 
 type FieldErrors = {
   email?: string;

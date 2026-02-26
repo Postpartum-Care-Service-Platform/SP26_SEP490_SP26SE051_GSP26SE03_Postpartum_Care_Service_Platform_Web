@@ -1,9 +1,9 @@
-import type { Metadata } from 'next';
-
-import { AuthProvider } from '@/contexts/AuthContext';
-import { ToastProvider } from '@/components/ui/toast/ToastProvider';
 import { ConditionalSupportWidget } from '@/components/layout/ConditionalSupportWidget';
+import { ToastProvider } from '@/components/ui/toast/ToastProvider';
+import { AuthProvider } from '@/contexts/AuthContext';
+
 import '@/styles/globals.css';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Postpartum Service',

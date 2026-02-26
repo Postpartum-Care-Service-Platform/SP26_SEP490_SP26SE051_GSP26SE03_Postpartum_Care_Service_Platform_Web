@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+
 import styles from './board-view.module.css';
 
 function PlusIcon() {

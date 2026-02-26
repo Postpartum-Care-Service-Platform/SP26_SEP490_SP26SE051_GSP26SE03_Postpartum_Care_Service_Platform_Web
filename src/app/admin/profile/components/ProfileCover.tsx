@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useRef } from 'react';
 import { Camera } from 'lucide-react';
 import Image from 'next/image';
+import { useState, useRef } from 'react';
+
 import profileBg from '@/assets/images/profile-bg.png';
+
 import styles from './profile-cover.module.css';
 
 export function ProfileCover() {

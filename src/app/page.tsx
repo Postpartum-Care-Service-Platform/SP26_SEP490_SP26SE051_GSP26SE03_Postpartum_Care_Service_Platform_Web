@@ -1,12 +1,12 @@
 'use client';
 
-import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import React, { Suspense } from 'react';
 
+import { LazySection } from '@/components/home/LazySection';
+import { VideoBanner } from '@/components/home/VideoBanner';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
-import { VideoBanner } from '@/components/home/VideoBanner';
-import { LazySection } from '@/components/home/LazySection';
 
 import styles from './main/home.module.css';
 

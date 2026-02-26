@@ -2,11 +2,12 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import React from 'react';
+
 import { useToast } from '@/components/ui/toast/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import authService from '@/services/auth.service';
 import { AUTH_LOGIN_MESSAGES } from '@/messages/auth/login';
 import { ROUTES } from '@/routes/routes';
+import authService from '@/services/auth.service';
 
 export default function GoogleCallbackPage() {
   const router = useRouter();

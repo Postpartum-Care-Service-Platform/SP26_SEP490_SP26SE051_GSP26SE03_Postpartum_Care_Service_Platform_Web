@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
 import { HubConnectionState } from '@microsoft/signalr';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { getSignalRService, MessageEvent, TypingEvent, StaffJoinedEvent, SupportRequestEvent } from '@/services/signalr.service';
 
 interface UseChatHubOptions {
@@ -239,7 +240,8 @@ export const useChatHub = (options: UseChatHubOptions) => {
      */
     useEffect(() => {
         if (autoConnect && token && token.length > 20) {
-            connect();
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            void connect();
         }
 
         return () => {

@@ -1,11 +1,17 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button/Button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/Input/Input';
-import { Textarea } from '@/components/ui/textarea/Textarea';
 import {
   Select,
   SelectContent,
@@ -13,14 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select/Select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-
+import { Textarea } from '@/components/ui/textarea/Textarea';
 import packageService from '@/services/package.service';
 import type { Package } from '@/types/package';
 

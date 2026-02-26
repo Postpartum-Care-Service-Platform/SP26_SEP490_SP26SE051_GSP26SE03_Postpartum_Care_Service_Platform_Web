@@ -1,8 +1,10 @@
 'use client';
 
 import { Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
+
 import { Button } from '@/components/ui/button';
 import type { Menu } from '@/types/menu';
+
 import styles from './menu-list.module.css';
 
 type Props = {
@@ -82,4 +84,3 @@ export function MenuList({ menus, onEdit, onDelete }: Props) {
     </div>
   );
 }
-

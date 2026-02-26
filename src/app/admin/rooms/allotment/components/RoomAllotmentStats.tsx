@@ -1,9 +1,11 @@
 'use client';
 
-import { Users, Box, Heart, Calendar, AlertTriangle } from 'lucide-react';
-import { RoomAllotmentStatCard } from './RoomAllotmentStatCard';
-import styles from './room-allotment-stats.module.css';
+import { AlertTriangle, Box, Calendar, Heart, Users } from 'lucide-react';
+
 import type { Room } from '@/types/room-allotment';
+
+import styles from './room-allotment-stats.module.css';
+import { RoomAllotmentStatCard } from './RoomAllotmentStatCard';
 
 type Props = {
   rooms: Room[];

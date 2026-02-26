@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+
 import { roomMapService, Floor } from '@/services/room-map.service';
-import { initMallMap } from './mall-map.init';
+
 import { FloorMap } from './FloorMap';
+import { initMallMap } from './mall-map.init';
 
 const MallMap = () => {
   const [mapData, setMapData] = useState<Floor[]>([]);

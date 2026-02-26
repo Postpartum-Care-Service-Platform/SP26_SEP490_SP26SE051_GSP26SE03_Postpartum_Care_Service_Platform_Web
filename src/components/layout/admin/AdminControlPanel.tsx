@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import { BarChart3, CreditCard, Download, Megaphone, Settings, ShoppingCart, Users } from 'lucide-react';
+import React from 'react';
 
 import styles from './admin-layout.module.css';
 

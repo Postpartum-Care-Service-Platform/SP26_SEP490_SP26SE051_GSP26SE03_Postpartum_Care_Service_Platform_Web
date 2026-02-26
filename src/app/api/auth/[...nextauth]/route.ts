@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+
 import { ROUTES } from '@/routes/routes';
 
 // Đây là cấu hình NextAuth cơ bản. Bạn sẽ cần thay thế logic trong `authorize`

@@ -9,10 +9,8 @@ import tsParser from "@typescript-eslint/parser";
 export default [
   // eslint-config-next 16 exports a flat config array, not a function
   ...nextConfig,
-  {
-    files: ["**/*.stories.@(ts|tsx)"],
-    ...storybook.configs["flat/recommended"],
-  },
+  // Storybook flat recommended config already includes appropriate file globs
+  ...storybook.configs["flat/recommended"],
   {
     languageOptions: {
       parser: tsParser,

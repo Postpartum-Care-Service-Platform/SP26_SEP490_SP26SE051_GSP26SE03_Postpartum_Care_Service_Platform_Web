@@ -2,10 +2,10 @@
 
 import React from 'react';
 
-import type { CreateFamilyProfileRequest, FamilyProfile } from '@/types/family-profile';
-import familyProfileService from '@/services/family-profile.service';
-import { useToast } from '@/components/ui/toast/use-toast';
 import { useProfile } from '@/app/dashboard/profile/ProfileContext';
+import { useToast } from '@/components/ui/toast/use-toast';
+import familyProfileService from '@/services/family-profile.service';
+import type { CreateFamilyProfileRequest, FamilyProfile } from '@/types/family-profile';
 
 function toForm(profile: FamilyProfile): CreateFamilyProfileRequest {
   return {

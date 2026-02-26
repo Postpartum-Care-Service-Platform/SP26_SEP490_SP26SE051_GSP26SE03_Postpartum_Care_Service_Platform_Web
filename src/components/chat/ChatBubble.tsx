@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
 import Image from 'next/image';
+import React from 'react';
 
-import type { ChatMessage } from '@/types/chat';
 import { AiResponseTypes, type PackageData } from '@/services/chat.service';
-import { ChatPackagesTable } from './ChatPackagesTable';
+import type { ChatMessage } from '@/types/chat';
+
 import { ChatMarkdownRenderer } from './ChatMarkdownRenderer';
+import { ChatPackagesTable } from './ChatPackagesTable';
 
 function formatTime(iso: string) {
   try {

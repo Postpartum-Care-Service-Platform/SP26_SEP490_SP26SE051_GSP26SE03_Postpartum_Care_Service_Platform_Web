@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
+import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
-import { Pagination } from '@/components/ui/pagination';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
+import { Pagination } from '@/components/ui/pagination';
+
 import styles from './appointments-list.module.css';
 
 type Appointment = {
@@ -107,8 +109,21 @@ const mockAppointments: Appointment[] = [
   },
 ];
 
-const EyeOutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-eye-outline" fill={fill}>
+const EyeOutlineIcon = ({
+  fill = '#A47BC8',
+  size = 16,
+}: {
+  fill?: string;
+  size?: number;
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    className="eva eva-eye-outline"
+    fill={fill}
+  >
     <g data-name="Layer 2">
       <g data-name="eye">
         <rect width="24" height="24" opacity="0" />
@@ -119,8 +134,21 @@ const EyeOutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?:
   </svg>
 );
 
-const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill={fill}>
+const Edit2OutlineIcon = ({
+  fill = '#A47BC8',
+  size = 16,
+}: {
+  fill?: string;
+  size?: number;
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    className="eva eva-edit-2-outline"
+    fill={fill}
+  >
     <g data-name="Layer 2">
       <g data-name="edit-2">
         <rect width="24" height="24" opacity="0" />
@@ -131,8 +159,21 @@ const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size
   </svg>
 );
 
-const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill={fill}>
+const Trash2OutlineIcon = ({
+  fill = '#FD6161',
+  size = 16,
+}: {
+  fill?: string;
+  size?: number;
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    className="eva eva-trash-2-outline"
+    fill={fill}
+  >
     <g data-name="Layer 2">
       <g data-name="trash-2">
         <rect width="24" height="24" opacity="0" />
@@ -157,7 +198,9 @@ const getStatusClass = (status: Appointment['status']) => {
   }
 };
 
-export function AppointmentsList({ appointments = mockAppointments }: AppointmentsListProps) {
+export function AppointmentsList({
+  appointments = mockAppointments,
+}: AppointmentsListProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState('Date');
   const itemsPerPage = 10;
@@ -257,8 +300,12 @@ export function AppointmentsList({ appointments = mockAppointments }: Appointmen
                         )}
                       </div>
                       <div className={styles.personInfo}>
-                        <div className={styles.personName}>{appointment.patient.name}</div>
-                        <div className={styles.personMeta}>{appointment.patient.age} yrs</div>
+                        <div className={styles.personName}>
+                          {appointment.patient.name}
+                        </div>
+                        <div className={styles.personMeta}>
+                          {appointment.patient.age} yrs
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -280,14 +327,22 @@ export function AppointmentsList({ appointments = mockAppointments }: Appointmen
                         )}
                       </div>
                       <div className={styles.personInfo}>
-                        <div className={styles.personName}>{appointment.doctor.name}</div>
-                        <div className={styles.personMeta}>{appointment.doctor.specialty}</div>
+                        <div className={styles.personName}>
+                          {appointment.doctor.name}
+                        </div>
+                        <div className={styles.personMeta}>
+                          {appointment.doctor.specialty}
+                        </div>
                       </div>
                     </div>
                   </td>
                   <td>{appointment.department}</td>
                   <td>
-                    <span className={`${styles.statusBadge} ${getStatusClass(appointment.status)}`}>
+                    <span
+                      className={`${styles.statusBadge} ${getStatusClass(
+                        appointment.status
+                      )}`}
+                    >
                       {appointment.status}
                     </span>
                   </td>

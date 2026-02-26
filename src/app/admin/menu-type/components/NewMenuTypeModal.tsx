@@ -1,11 +1,17 @@
 'use client';
 
-import { useState, useEffect, forwardRef } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { forwardRef, useEffect, useState } from 'react';
+
 import { useToast } from '@/components/ui/toast/use-toast';
-import styles from './new-menu-type-modal.module.css';
-import type { CreateMenuTypeRequest, MenuType, UpdateMenuTypeRequest } from '@/types/menu-type';
 import menuTypeService from '@/services/menu-type.service';
+import type {
+  CreateMenuTypeRequest,
+  MenuType,
+  UpdateMenuTypeRequest,
+} from '@/types/menu-type';
+
+import styles from './new-menu-type-modal.module.css';
 
 type Props = {
   open: boolean;

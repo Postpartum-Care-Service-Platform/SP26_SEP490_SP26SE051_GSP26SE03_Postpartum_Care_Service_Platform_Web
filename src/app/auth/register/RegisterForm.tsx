@@ -13,9 +13,10 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { AUTH_REGISTER_MESSAGES } from '@/messages/auth/register';
 import { AUTH_REGISTER_REGEX } from '@/messages/auth/register.regex';
+import { buildVerifyEmailRoute, ROUTES } from '@/routes/routes';
 import authService from '@/services/auth.service';
 import { setVerifyEmail } from '@/utils/emailVerificationStorage';
-import { buildVerifyEmailRoute, ROUTES } from '@/routes/routes';
+
 import styles from './register.module.css';
 
 type FieldErrors = {

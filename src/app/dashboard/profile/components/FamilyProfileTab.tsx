@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import familyProfileService from '@/services/family-profile.service';
+import { useEffect, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
-import type { FamilyProfile, CreateFamilyProfileRequest } from '@/types/family-profile';
+import familyProfileService from '@/services/family-profile.service';
+import type { CreateFamilyProfileRequest, FamilyProfile } from '@/types/family-profile';
+
 import styles from './family-profile-tab.module.css';
 
 export function FamilyProfileTab() {

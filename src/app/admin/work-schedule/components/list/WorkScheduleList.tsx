@@ -1,19 +1,19 @@
 'use client';
 
-import React from 'react';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import * as Popover from '@radix-ui/react-popover';
 import { CheckIcon } from '@radix-ui/react-icons';
+import * as Popover from '@radix-ui/react-popover';
+import React from 'react';
+
 import { ColumnActionsDropdown } from '../ColumnActionsDropdown';
-import { ProfileHoverCard } from '../ProfileHoverCard';
-
 import { DatePicker } from '../DatePicker';
+import { ProfileHoverCard } from '../ProfileHoverCard';
 import { AssigneePicker } from '../shared/AssigneePicker';
-import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
 import { StatusDropdown, type StatusType } from '../StatusDropdown';
+import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
 
-import styles from './work-schedule-list.module.css';
 import toolbarStyles from './bulk-actions-toolbar.module.css';
+import styles from './work-schedule-list.module.css';
 
 type Row = {
   id: string;
@@ -175,33 +175,39 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
     const startWidth = colWidths[col];
     resizingRef.current = { col, startX: e.clientX, startWidth };
     setIsResizing(true);
-
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
   }
 
-  function handleMouseMove(e: MouseEvent) {
-    const r = resizingRef.current;
-    if (!r) return;
-    const delta = e.clientX - r.startX;
-    const next = r.startWidth + delta;
-    const min = MIN_COL_WIDTH[r.col];
-    const clamped = Math.max(min, next);
-    setColWidths((prev) => ({ ...prev, [r.col]: clamped }));
-  }
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const r = resizingRef.current;
+      if (!r) return;
+      const delta = e.clientX - r.startX;
+      const next = r.startWidth + delta;
+      const min = MIN_COL_WIDTH[r.col];
+      const clamped = Math.max(min, next);
+      setColWidths((prev) => ({ ...prev, [r.col]: clamped }));
+    };
 
-  function handleMouseUp() {
-    if (!resizingRef.current) return;
-    resizingRef.current = null;
-    setIsResizing(false);
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-    window.removeEventListener('mousemove', handleMouseMove);
-    window.removeEventListener('mouseup', handleMouseUp);
-  }
+    const handleMouseUp = () => {
+      if (!resizingRef.current) return;
+      resizingRef.current = null;
+      setIsResizing(false);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    if (isResizing) {
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
 
 
   React.useEffect(() => {

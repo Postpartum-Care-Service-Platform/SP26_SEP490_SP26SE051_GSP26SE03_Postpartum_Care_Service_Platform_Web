@@ -2,13 +2,20 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { MenuListHeader, MenuStatsCards, MenuTable, MenuTableControls, NewMenuModal } from './components';
-import type { MenuStats } from './components';
-import styles from './menu.module.css';
-
+import { useToast } from '@/components/ui/toast/use-toast';
 import menuService from '@/services/menu.service';
 import type { Menu } from '@/types/menu';
-import { useToast } from '@/components/ui/toast/use-toast';
+
+import {
+  MenuListHeader,
+  MenuStatsCards,
+  MenuTable,
+  MenuTableControls,
+  NewMenuModal,
+} from './components';
+import styles from './menu.module.css';
+
+import type { MenuStats } from './components';
 
 const PAGE_SIZE = 10;
 
@@ -16,9 +23,15 @@ const sortMenus = (items: Menu[], sort: string) => {
   const arr = [...items];
   switch (sort) {
     case 'createdAt-asc':
-      return arr.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      return arr.sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
     case 'createdAt-desc':
-      return arr.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      return arr.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
     case 'name-asc':
       return arr.sort((a, b) => a.menuName.localeCompare(b.menuName));
     case 'name-desc':
@@ -41,7 +54,9 @@ export default function AdminMenuPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMenu, setEditingMenu] = useState<Menu | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>(
+    'all'
+  );
   const [sortKey, setSortKey] = useState<string>('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -84,12 +99,14 @@ export default function AdminMenuPage() {
         (m) =>
           m.menuName.toLowerCase().includes(q) ||
           m.menuTypeName.toLowerCase().includes(q) ||
-          (m.description || '').toLowerCase().includes(q),
+          (m.description || '').toLowerCase().includes(q)
       );
     }
 
     if (statusFilter !== 'all') {
-      filtered = filtered.filter((m) => (statusFilter === 'active' ? m.isActive : !m.isActive));
+      filtered = filtered.filter((m) =>
+        statusFilter === 'active' ? m.isActive : !m.isActive
+      );
     }
 
     return sortMenus(filtered, sortKey);
@@ -131,7 +148,10 @@ export default function AdminMenuPage() {
       toast({ title: 'Xóa thực đơn thành công', variant: 'success' });
       await fetchMenus();
     } catch (err: any) {
-      toast({ title: err?.message || 'Xóa thực đơn thất bại', variant: 'error' });
+      toast({
+        title: err?.message || 'Xóa thực đơn thất bại',
+        variant: 'error',
+      });
     } finally {
       setDeletingId(null);
     }

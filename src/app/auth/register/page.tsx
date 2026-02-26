@@ -1,6 +1,5 @@
-import { RegisterForm } from './RegisterForm';
-
 import styles from './register.module.css';
+import { RegisterForm } from './RegisterForm';
 
 export default function RegisterPage() {
   return (

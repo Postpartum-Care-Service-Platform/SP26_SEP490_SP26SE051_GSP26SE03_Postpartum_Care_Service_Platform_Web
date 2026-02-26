@@ -2,11 +2,10 @@
 
 import React from 'react';
 
-import { SearchIcon, FilterIcon, ShareIcon, LightningIcon, ViewListIcon, ViewColumnsIcon, MoreIcon, ChevronDownSmallIcon, ExportIcon } from './WorkScheduleControlPanelIcons';
-import { SavedFiltersDropdown } from './SavedFiltersDropdown';
 import { ExportDropdown } from './ExportDropdown';
-
+import { SavedFiltersDropdown } from './SavedFiltersDropdown';
 import styles from './work-schedule-control-panel.module.css';
+import { SearchIcon, FilterIcon, ShareIcon, LightningIcon, ViewListIcon, ViewColumnsIcon, MoreIcon, ChevronDownSmallIcon, ExportIcon } from './WorkScheduleControlPanelIcons';
 
 type Props = {
   searchValue: string;

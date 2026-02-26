@@ -1,11 +1,11 @@
 'use client';
 
-import Image from 'next/image';
 import { User } from 'lucide-react';
-
-import type { ChatEntry } from './types';
+import Image from 'next/image';
 
 import styles from './recent-chats-sidebar.module.css';
+
+import type { ChatEntry } from './types';
 
 type Props = {
   chats: ChatEntry[];
@@ -57,4 +57,3 @@ export function RecentChatsSidebar({ chats, onChatSelect, onNewChat }: Props) {
     </div>
   );
 }
-

@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import userService from '@/services/user.service';
+import { useEffect, useState } from 'react';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { ROUTES } from '@/routes/routes';
+import userService from '@/services/user.service';
 import type { Account } from '@/types/account';
+
 import styles from './account-info-card.module.css';
 
 export function AccountInfoCard() {

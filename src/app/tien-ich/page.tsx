@@ -1,19 +1,17 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
+import React, { useEffect, useState } from 'react';
 
-import amenityService from '@/services/amenity-service.service';
-import type { AmenityService } from '@/types/amenity-service';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
-
-// Import ảnh từ assets
-import roomImage from '@/assets/images/gallery/room.jpg';
+import babyImage from '@/assets/images/gallery/baby.webp';
 import foodImage from '@/assets/images/gallery/food.avif';
 import momentImage from '@/assets/images/gallery/moment.avif';
 import room2Image from '@/assets/images/gallery/room-2.avif';
-import babyImage from '@/assets/images/gallery/baby.webp';
+import roomImage from '@/assets/images/gallery/room.jpg';
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+import amenityService from '@/services/amenity-service.service';
+import type { AmenityService } from '@/types/amenity-service';
 
 import styles from './tien-ich.module.css';
 

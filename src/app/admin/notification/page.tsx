@@ -1,21 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { NotificationListHeader } from './components/NotificationListHeader';
-import { NotificationTable } from './components/NotificationTable';
-import { NotificationTypeList } from './components/NotificationTypeList';
-import { NotificationTypeTableControls } from './components/NotificationTypeTableControls';
-import { NotificationModal } from './components/NotificationModal';
-import { NotificationTypeModal } from './components/NotificationTypeModal';
-import { NotificationTableControls } from './components/NotificationTableControls';
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/toast/use-toast';
-import notificationService from '@/services/notification.service';
 import notificationTypeService from '@/services/notification-type.service';
-import { translateNotificationTypeName } from './utils/notificationTypeTranslations';
+import notificationService from '@/services/notification.service';
 import type { Notification } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
+
+import { NotificationListHeader } from './components/NotificationListHeader';
+import { NotificationModal } from './components/NotificationModal';
+import { NotificationTable } from './components/NotificationTable';
+import { NotificationTableControls } from './components/NotificationTableControls';
+import { NotificationTypeList } from './components/NotificationTypeList';
+import { NotificationTypeModal } from './components/NotificationTypeModal';
+import { NotificationTypeTableControls } from './components/NotificationTypeTableControls';
 import styles from './notification.module.css';
+import { translateNotificationTypeName } from './utils/notificationTypeTranslations';
 
 export default function AdminNotificationPage() {
   const { toast } = useToast();

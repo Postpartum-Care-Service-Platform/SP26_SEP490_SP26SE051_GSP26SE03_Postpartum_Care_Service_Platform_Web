@@ -2,8 +2,9 @@
 
 import React from 'react';
 
-import type { FamilyProfile } from '@/types/family-profile';
 import familyProfileService from '@/services/family-profile.service';
+import type { FamilyProfile } from '@/types/family-profile';
+
 import { ProfileProvider } from './ProfileContext';
 
 type Props = {

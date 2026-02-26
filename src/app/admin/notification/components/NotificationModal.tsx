@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { useEffect, useState } from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import notificationService from '@/services/notification.service';
-import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
 import type { Notification, CreateNotificationRequest, UpdateNotificationRequest } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
+
+import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
+
 import styles from './notification-modal.module.css';
 
 type Props = {

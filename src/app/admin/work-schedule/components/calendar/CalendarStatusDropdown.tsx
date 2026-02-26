@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import * as Popover from '@radix-ui/react-popover';
+import React from 'react';
 
 import styles from './calendar-status-dropdown.module.css';
 

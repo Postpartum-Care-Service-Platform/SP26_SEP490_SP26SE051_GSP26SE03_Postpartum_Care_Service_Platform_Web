@@ -1,5 +1,6 @@
-import apiClient from './apiClient';
 import type { RoomType, CreateRoomTypeRequest, UpdateRoomTypeRequest } from '@/types/room-type';
+
+import apiClient from './apiClient';
 
 const roomTypeService = {
   getAdminRoomTypes: (): Promise<RoomType[]> => {

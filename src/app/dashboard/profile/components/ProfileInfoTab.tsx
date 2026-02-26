@@ -1,17 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useAuth } from '@/contexts/AuthContext';
-import userService from '@/services/user.service';
-import authService from '@/services/auth.service';
+import { useEffect, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
+import { useAuth } from '@/contexts/AuthContext';
+import userService from '@/services/user.service';
 import type { Account } from '@/types/account';
+
 import styles from './profile-info-tab.module.css';
 
 export function ProfileInfoTab() {
-  const { user } = useAuth();
   const [account, setAccount] = useState<Account | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

@@ -1,5 +1,6 @@
-import apiClient from './apiClient';
 import type { Menu, CreateMenuRequest, UpdateMenuRequest } from '@/types/menu';
+
+import apiClient from './apiClient';
 
 const menuService = {
   getAllMenus: (): Promise<Menu[]> => {

@@ -1,6 +1,5 @@
-import { BookingForm } from './BookingForm';
-
 import styles from './booking.module.css';
+import { BookingForm } from './BookingForm';
 
 export default function BookingPage() {
   return (

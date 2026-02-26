@@ -2,7 +2,9 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+
 import error404Image from '@/assets/images/404.png';
+
 import styles from './not-found.module.css';
 
 export default function NotFound() {

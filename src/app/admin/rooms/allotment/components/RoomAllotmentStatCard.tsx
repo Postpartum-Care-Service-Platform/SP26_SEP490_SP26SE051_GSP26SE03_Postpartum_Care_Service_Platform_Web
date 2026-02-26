@@ -1,7 +1,8 @@
 'use client';
 
-import type React from 'react';
 import styles from './room-allotment-stat-card.module.css';
+
+import type React from 'react';
 
 export type RoomAllotmentStatCardProps = {
   title: string;

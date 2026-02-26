@@ -3,6 +3,7 @@
 import { MagnifyingGlassIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 import { MixerHorizontalIcon } from '@radix-ui/react-icons';
 
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown';
-import { Button } from '@/components/ui/button';
 
 import styles from './transaction-table-controls.module.css';
 

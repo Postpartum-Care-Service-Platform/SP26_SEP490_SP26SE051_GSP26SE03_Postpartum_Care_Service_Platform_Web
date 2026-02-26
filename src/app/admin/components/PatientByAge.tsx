@@ -1,14 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+
 import styles from './patient-by-age.module.css';
 
 type AgeGroup = {
@@ -45,7 +39,7 @@ const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const CustomLegend = ({ payload }: any) => {
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [_selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   return (
     <div className={styles.legend}>
@@ -98,11 +92,13 @@ export function PatientByAge({ data = mockData }: PatientByAgeProps) {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <CustomLegend payload={data.map((item, index) => ({
-          value: item.name,
-          color: item.color,
-          payload: item,
-        }))} />
+        <CustomLegend
+          payload={data.map((item) => ({
+            value: item.name,
+            color: item.color,
+            payload: item,
+          }))}
+        />
       </div>
     </div>
   );

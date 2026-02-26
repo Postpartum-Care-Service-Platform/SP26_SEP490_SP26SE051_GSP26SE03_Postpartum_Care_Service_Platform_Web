@@ -1,6 +1,6 @@
-import apiClient from './apiClient';
-import type { LoginRequest, RegisterRequest, AuthResponse } from '@/types/auth';
 import type { Account } from '@/types/account';
+
+import apiClient from './apiClient';
 
 const userService = {
 

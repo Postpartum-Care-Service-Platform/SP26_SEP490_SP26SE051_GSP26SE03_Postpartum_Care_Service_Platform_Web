@@ -2,8 +2,9 @@
 
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
-import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
 import type { Notification } from '@/types/notification';
+
+import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
 
 import styles from './notification-table.module.css';
 

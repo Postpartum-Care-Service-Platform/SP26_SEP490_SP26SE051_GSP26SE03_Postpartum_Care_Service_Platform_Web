@@ -1,18 +1,20 @@
 'use client';
 
-import React from 'react';
-import { MoreVertical, Reply, X, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { MoreVertical } from 'lucide-react';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown/Dropdown';
-import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
 import type { Notification } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
+
+import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
+
 import styles from './notification-card.module.css';
 
 type Props = {
@@ -48,16 +50,24 @@ const getAvatarColor = (name: string | null | undefined): string => {
 
 const formatTime = (dateString: string) => {
   try {
-    return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: vi });
+    return formatDistanceToNow(new Date(dateString), {
+      addSuffix: true,
+      locale: vi,
+    });
   } catch {
     return '';
   }
 };
 
-export function NotificationCard({ notification, notificationTypes, onMarkAsRead, onEdit, onDelete }: Props) {
+export function NotificationCard({
+  notification,
+  notificationTypes,
+  onMarkAsRead,
+  onEdit,
+  onDelete,
+}: Props) {
   const isUnread = notification.status === 'Unread';
   const staffName = notification.staffName || 'Hệ thống';
-  const receiverName = notification.receiverName || 'Bạn';
   const avatarColor = getAvatarColor(staffName);
   const initials = getInitials(staffName);
 
@@ -67,8 +77,12 @@ export function NotificationCard({ notification, notificationTypes, onMarkAsRead
     }
   };
 
+  // Keep to preserve behavior if used later.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getNotificationText = () => {
-    const typeName = translateNotificationTypeName(notification.notificationTypeName);
+    const typeName = translateNotificationTypeName(
+      notification.notificationTypeName
+    );
     return `${staffName} ${notification.title}`;
   };
 
@@ -100,7 +114,9 @@ export function NotificationCard({ notification, notificationTypes, onMarkAsRead
             {notification.receiverName && (
               <>
                 <span className={styles.separator}>|</span>
-                <span className={styles.team}>{translateNotificationTypeName(notification.notificationTypeName)}</span>
+                <span className={styles.team}>
+                  {translateNotificationTypeName(notification.notificationTypeName)}
+                </span>
               </>
             )}
           </div>
@@ -109,7 +125,11 @@ export function NotificationCard({ notification, notificationTypes, onMarkAsRead
         <div className={styles.actions}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button type="button" className={styles.menuButton} onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                className={styles.menuButton}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <MoreVertical size={16} />
               </button>
             </DropdownMenuTrigger>
@@ -117,7 +137,10 @@ export function NotificationCard({ notification, notificationTypes, onMarkAsRead
               <DropdownMenuItem onClick={() => onEdit?.(notification)}>
                 Chỉnh sửa
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete?.(notification)} className={styles.deleteItem}>
+              <DropdownMenuItem
+                onClick={() => onDelete?.(notification)}
+                className={styles.deleteItem}
+              >
                 Xóa
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -127,4 +150,3 @@ export function NotificationCard({ notification, notificationTypes, onMarkAsRead
     </div>
   );
 }
-

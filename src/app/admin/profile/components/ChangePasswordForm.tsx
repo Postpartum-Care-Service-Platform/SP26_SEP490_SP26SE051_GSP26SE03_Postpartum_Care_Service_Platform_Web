@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
 import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons';
+import { useState } from 'react';
+
 import { PasswordStrengthChecker } from '@/components/auth/PasswordStrengthChecker';
-import authService from '@/services/auth.service';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { AUTH_CHANGE_PASSWORD_MESSAGES } from '@/messages/auth/change-password';
+import authService from '@/services/auth.service';
+
 import styles from './change-password-form.module.css';
 
 type FieldErrors = {

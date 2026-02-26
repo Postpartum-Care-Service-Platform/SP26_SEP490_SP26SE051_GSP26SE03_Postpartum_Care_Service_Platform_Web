@@ -1,17 +1,20 @@
 'use client';
+
 import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+
 import LogoSymbol from '@/assets/images/Symbol-Orange-180x180.png';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { AUTH_LOGIN_MESSAGES } from '@/messages/auth/login';
 import { AUTH_LOGIN_REGEX } from '@/messages/auth/login.regex';
-import authService from '@/services/auth.service';
-import styles from './login.module.css';
 import { ROUTES } from '@/routes/routes';
+import authService from '@/services/auth.service';
+
+import styles from './login.module.css';
 
 export function LoginForm() {
   const [emailOrUsername, setEmailOrUsername] = React.useState('');

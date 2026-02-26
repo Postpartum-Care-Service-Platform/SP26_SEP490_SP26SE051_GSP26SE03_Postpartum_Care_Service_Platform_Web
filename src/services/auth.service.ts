@@ -1,4 +1,3 @@
-import apiClient from './apiClient';
 import type {
   LoginRequest,
   RegisterRequest,
@@ -9,6 +8,8 @@ import type {
   ChangePasswordRequest,
   ResendVerificationRequest,
 } from '@/types/auth';
+
+import apiClient from './apiClient';
 
 const authService = {
   login: (credentials: LoginRequest): Promise<AuthResponse> => {

@@ -1,9 +1,11 @@
 'use client';
 
-import type React from 'react';
 import Image, { type StaticImageData } from 'next/image';
 
 import styles from './stat-card.module.css';
+
+import type React from 'react';
+
 
 type Props = {
   image: StaticImageData;

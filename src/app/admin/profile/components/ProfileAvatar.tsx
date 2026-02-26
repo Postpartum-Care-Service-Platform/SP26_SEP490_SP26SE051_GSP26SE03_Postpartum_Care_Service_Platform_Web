@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef } from 'react';
 import { Camera } from 'lucide-react';
 import Image from 'next/image';
+import { useState, useRef } from 'react';
+
 import styles from './profile-avatar.module.css';
 
 type ProfileAvatarProps = {

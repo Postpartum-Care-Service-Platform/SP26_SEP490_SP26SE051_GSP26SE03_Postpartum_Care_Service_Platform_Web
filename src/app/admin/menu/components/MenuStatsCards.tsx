@@ -1,10 +1,11 @@
 'use client';
 
-import { StatCard } from './StatCard';
+import styles from './menu-stats-cards.module.css';
 import { menuStatsConfig } from './menuStatsConfig';
+import { StatCard } from './StatCard';
+
 import type { MenuStats } from './types';
 
-import styles from './menu-stats-cards.module.css';
 
 type Props = {
   stats: MenuStats;

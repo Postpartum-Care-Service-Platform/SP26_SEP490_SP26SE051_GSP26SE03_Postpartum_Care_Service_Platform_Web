@@ -1,9 +1,11 @@
 'use client';
 
 import { StatCard } from '@/app/admin/package/components/StatCard';
-import type { MenuTypeStats } from './types';
 
 import styles from './menu-type-stats-cards.module.css';
+
+import type { MenuTypeStats } from './types';
+
 
 type Props = {
   stats: MenuTypeStats;

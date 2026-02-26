@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { useEffect, useRef, useState } from 'react';
+
 import styles from './appointment-carousel.module.css';
 
 type Appointment = {
@@ -41,7 +42,9 @@ const mockAppointments: Appointment[] = [
   },
 ];
 
-export function AppointmentCarousel({ appointments = mockAppointments }: AppointmentCarouselProps) {
+export function AppointmentCarousel({
+  appointments = mockAppointments,
+}: AppointmentCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -58,7 +61,6 @@ export function AppointmentCarousel({ appointments = mockAppointments }: Appoint
       }
     };
   }, [appointments.length]);
-
 
   if (appointments.length === 0) {
     return null;
