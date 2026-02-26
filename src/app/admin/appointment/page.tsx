@@ -1,18 +1,20 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { AppointmentHeader } from './components/AppointmentHeader';
-import { AppointmentStatsCards } from './components/AppointmentStatsCards';
-import { AppointmentTableControls } from './components/AppointmentTableControls';
-import { AppointmentTable } from './components/AppointmentTable';
-import { TodayAppointments } from './components/TodayAppointments';
-import type { TimelineAppointment } from './components/AppointmentTimelineItem';
-import type { Appointment, AppointmentStatus } from './components/types';
+import { useToast } from '@/components/ui/toast/use-toast';
 import appointmentService from '@/services/appointment.service';
 import type { Appointment as ApiAppointment } from '@/types/appointment';
-import { useToast } from '@/components/ui/toast/use-toast';
+
 import styles from './appointment.module.css';
+import { AppointmentHeader } from './components/AppointmentHeader';
+import { AppointmentStatsCards } from './components/AppointmentStatsCards';
+import { AppointmentTable } from './components/AppointmentTable';
+import { AppointmentTableControls } from './components/AppointmentTableControls';
+import { TodayAppointments } from './components/TodayAppointments';
+
+import type { TimelineAppointment } from './components/AppointmentTimelineItem';
+import type { Appointment, AppointmentStatus } from './components/types';
 
 const PAGE_SIZE = 10;
 
@@ -23,26 +25,6 @@ export default function AdminAppointmentPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<AppointmentStatus | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
-
-  const fetchAppointments = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await appointmentService.getAllAppointments();
-      setAppointments(data.map(mapAppointment));
-    } catch (err: any) {
-      const errorMessage = err?.message || 'Không thể tải danh sách lịch hẹn';
-      setError(errorMessage);
-      toast({ title: errorMessage, variant: 'error' });
-      console.error('Failed to load appointments', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
 
   const mapStatus = (status: string): AppointmentStatus => {
     if (status === 'Pending') return 'Pending';
@@ -73,7 +55,7 @@ export default function AdminAppointmentPage() {
     }
   };
 
-  const mapAppointment = (apt: ApiAppointment): Appointment => {
+  const mapAppointment = useCallback((apt: ApiAppointment): Appointment => {
     const patientName = apt.customer?.username || apt.customer?.email || 'Không xác định';
     const doctor = apt.staff?.username || 'Chưa phân công';
     const department = apt.appointmentType?.name || 'Không xác định';
@@ -87,7 +69,28 @@ export default function AdminAppointmentPage() {
       dateTime: formatDateTime(apt.appointmentDate),
       status: mapStatus(apt.status),
     };
-  };
+  }, []);
+
+  const fetchAppointments = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await appointmentService.getAllAppointments();
+      setAppointments(data.map(mapAppointment));
+    } catch (err) {
+      const errorMessage =
+        (err as { message?: string } | null | undefined)?.message || 'Không thể tải danh sách lịch hẹn';
+      setError(errorMessage);
+      toast({ title: errorMessage, variant: 'error' });
+      console.error('Failed to load appointments', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [toast, mapAppointment]);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
   const todayTimelineAppointments: TimelineAppointment[] = useMemo(() => {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -160,10 +163,6 @@ export default function AdminAppointmentPage() {
   const handleStatusChange = (status: AppointmentStatus | 'all') => {
     setStatusFilter(status);
     setCurrentPage(1);
-  };
-
-  const handleAddAppointment = () => {
-    console.log('Add appointment');
   };
 
   const handleEdit = (appointment: Appointment) => {

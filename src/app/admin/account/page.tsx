@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { Pagination } from '@/components/ui/pagination';
 import userService from '@/services/user.service';
 
 import {
@@ -10,9 +9,9 @@ import {
   PatientStatsCards,
   PatientTableControls,
   PatientTable,
-  NewAccountModal,
 } from './components';
 import { mapAccountToPatient } from './components/patientUtils';
+
 import type { Patient } from './components/patientTypes';
 import type { PatientStats } from './components/types';
 

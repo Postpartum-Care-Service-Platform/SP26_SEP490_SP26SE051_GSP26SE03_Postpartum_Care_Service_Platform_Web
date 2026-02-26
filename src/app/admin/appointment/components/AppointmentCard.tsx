@@ -1,10 +1,11 @@
 'use client';
 
-import Image, { type StaticImageData } from 'next/image';
-import type React from 'react';
 import { TrendingDown, TrendingUp } from 'lucide-react';
+import Image, { type StaticImageData } from 'next/image';
 
 import styles from './appointment-card.module.css';
+
+import type React from 'react';
 
 type Props = {
   image: StaticImageData;

@@ -1,14 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import authService from '@/services/auth.service';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
+import authService from '@/services/auth.service';
+
 import styles from './change-password-tab.module.css';
 
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const maybeMessage = (error as { message?: unknown }).message;
+    if (typeof maybeMessage === 'string') return maybeMessage;
+  }
+
+  return fallback;
+};
+
 export function ChangePasswordTab() {
-  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -73,8 +86,8 @@ export function ChangePasswordTab() {
         newPassword: '',
         confirmNewPassword: '',
       });
-    } catch (err: any) {
-      setError(err.message || 'Đổi mật khẩu thất bại. Vui lòng thử lại.');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Đổi mật khẩu thất bại. Vui lòng thử lại.'));
     } finally {
       setLoading(false);
     }

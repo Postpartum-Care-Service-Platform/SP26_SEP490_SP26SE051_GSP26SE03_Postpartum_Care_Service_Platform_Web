@@ -1,14 +1,16 @@
 'use client';
 
-import React from 'react';
 import { Search } from 'lucide-react';
+import React from 'react';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown/Dropdown';
-import { ChevronDownSmallIcon } from './WorkScheduleControlPanelIcons';
+
 import styles from './saved-filters-dropdown.module.css';
+import { ChevronDownSmallIcon } from './WorkScheduleControlPanelIcons';
 
 const DEFAULT_FILTERS = [
   { id: 'assigned-to-me', label: 'Assigned to me' },

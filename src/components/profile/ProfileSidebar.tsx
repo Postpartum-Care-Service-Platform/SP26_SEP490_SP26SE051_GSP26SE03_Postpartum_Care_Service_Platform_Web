@@ -1,14 +1,8 @@
 'use client';
 
+import { ClockIcon, FileTextIcon, GearIcon, LockClosedIcon, PersonIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  PersonIcon,
-  GearIcon,
-  LockClosedIcon,
-  ClockIcon,
-  FileTextIcon,
-} from '@radix-ui/react-icons';
 
 import { ROUTES } from '@/routes/routes';
 

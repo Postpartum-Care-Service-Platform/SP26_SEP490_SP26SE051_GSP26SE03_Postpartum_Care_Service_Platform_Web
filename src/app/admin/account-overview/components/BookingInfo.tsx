@@ -1,6 +1,7 @@
 'use client';
 
 import { CheckCircledIcon } from '@radix-ui/react-icons';
+
 import styles from './booking-info.module.css';
 
 export function BookingInfo() {

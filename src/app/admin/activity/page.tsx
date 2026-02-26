@@ -2,14 +2,15 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { ActivityListHeader } from './components/ActivityListHeader';
-import { ActivityStatsCards, ActivityTable, ActivityTableControls, NewActivityModal } from './components';
-import type { ActivityStats } from './components';
-import styles from './activity.module.css';
-
+import { useToast } from '@/components/ui/toast/use-toast';
 import activityService from '@/services/activity.service';
 import type { Activity } from '@/types/activity';
-import { useToast } from '@/components/ui/toast/use-toast';
+
+import styles from './activity.module.css';
+import { ActivityStatsCards, ActivityTable, ActivityTableControls, NewActivityModal } from './components';
+import { ActivityListHeader } from './components/ActivityListHeader';
+
+import type { ActivityStats } from './components';
 
 const PAGE_SIZE = 10;
 
@@ -49,8 +50,10 @@ export default function AdminActivityPage() {
       setError(null);
       const data = await activityService.getAllActivities();
       setActivities(data);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách hoạt động');
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error && err.message ? err.message : 'Không thể tải danh sách hoạt động';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -124,8 +127,10 @@ export default function AdminActivityPage() {
       await activityService.deleteActivity(activity.id);
       toast({ title: 'Xóa hoạt động thành công', variant: 'success' });
       await fetchActivities();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa hoạt động thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error && err.message ? err.message : 'Xóa hoạt động thất bại';
+      toast({ title: message, variant: 'error' });
     } finally {
       setDeletingId(null);
     }

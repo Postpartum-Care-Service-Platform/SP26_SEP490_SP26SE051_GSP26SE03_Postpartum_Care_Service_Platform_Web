@@ -40,6 +40,55 @@ export interface SupportRequestEvent {
     timestamp: string;
 }
 
+export interface MessagesReadEvent {
+    conversationId: number;
+    readBy: string;
+    readByName: string;
+    timestamp: string;
+}
+
+export interface SupportRequestCreatedEvent {
+    requestId: number;
+    conversationId: number;
+    message: string;
+    timestamp: string;
+}
+
+export interface SupportRequestAcceptedEvent {
+    requestId: number;
+    conversationId: number;
+    customer?: {
+        id: string;
+        name: string;
+        email: string;
+    };
+    message: string;
+    timestamp: string;
+}
+
+export interface SupportResolvedEvent {
+    requestId: number;
+    conversationId: number;
+    staffId: string;
+    staffName: string;
+    message: string;
+    timestamp: string;
+}
+
+export interface UserJoinedEvent {
+    userId: string;
+    userName: string;
+    conversationId: number;
+    timestamp: string;
+}
+
+export interface UserLeftEvent {
+    userId: string;
+    userName: string;
+    conversationId: number;
+    timestamp: string;
+}
+
 export interface ErrorEvent {
     message: string;
 }
@@ -216,7 +265,7 @@ export class SignalRService {
     /**
      * Lắng nghe messages read
      */
-    onMessagesRead(callback: (event: { conversationId: number; readBy: string; readByName: string; timestamp: string }) => void): void {
+    onMessagesRead(callback: (event: MessagesReadEvent) => void): void {
         this.connection?.on('MessagesRead', callback);
     }
 
@@ -230,7 +279,7 @@ export class SignalRService {
     /**
      * Lắng nghe support request created (Customer)
      */
-    onSupportRequestCreated(callback: (event: { requestId: number; conversationId: number; message: string; timestamp: string }) => void): void {
+    onSupportRequestCreated(callback: (event: SupportRequestCreatedEvent) => void): void {
         this.connection?.on('SupportRequestCreated', callback);
     }
 
@@ -244,28 +293,28 @@ export class SignalRService {
     /**
      * Lắng nghe support request accepted (Staff)
      */
-    onSupportRequestAccepted(callback: (event: { requestId: number; conversationId: number; customer: any; message: string; timestamp: string }) => void): void {
+    onSupportRequestAccepted(callback: (event: SupportRequestAcceptedEvent) => void): void {
         this.connection?.on('SupportRequestAccepted', callback);
     }
 
     /**
      * Lắng nghe support resolved
      */
-    onSupportResolved(callback: (event: { requestId: number; conversationId: number; staffId: string; staffName: string; message: string; timestamp: string }) => void): void {
+    onSupportResolved(callback: (event: SupportResolvedEvent) => void): void {
         this.connection?.on('SupportResolved', callback);
     }
 
     /**
      * Lắng nghe user joined
      */
-    onUserJoined(callback: (event: { userId: string; userName: string; conversationId: number; timestamp: string }) => void): void {
+    onUserJoined(callback: (event: UserJoinedEvent) => void): void {
         this.connection?.on('UserJoined', callback);
     }
 
     /**
      * Lắng nghe user left
      */
-    onUserLeft(callback: (event: { userId: string; userName: string; conversationId: number; timestamp: string }) => void): void {
+    onUserLeft(callback: (event: UserLeftEvent) => void): void {
         this.connection?.on('UserLeft', callback);
     }
 
@@ -279,7 +328,7 @@ export class SignalRService {
     /**
      * Remove event listener
      */
-    off(eventName: string, callback?: (...args: any[]) => void): void {
+    off(eventName: string, callback?: (...args: unknown[]) => void): void {
         if (callback) {
             this.connection?.off(eventName, callback);
         } else {

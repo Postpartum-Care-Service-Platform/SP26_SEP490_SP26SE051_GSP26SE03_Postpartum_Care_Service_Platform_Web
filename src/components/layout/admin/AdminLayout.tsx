@@ -4,11 +4,11 @@ import React from 'react';
 
 import { ScrollToTop } from '@/components/ui';
 
+import styles from './admin-layout.module.css';
 import { AdminHeader } from './AdminHeader';
 import { AdminSidebar } from './AdminSidebar';
 import { NotificationSidebar } from './NotificationSidebar';
 
-import styles from './admin-layout.module.css';
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = React.useState(false);

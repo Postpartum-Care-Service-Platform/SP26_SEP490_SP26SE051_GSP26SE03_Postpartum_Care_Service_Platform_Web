@@ -1,14 +1,14 @@
 'use client';
 
-import React from 'react';
 import { ChatBubbleIcon, Cross1Icon } from '@radix-ui/react-icons';
+import React from 'react';
 
-import type { ChatMessage, ChatMode, ChatSender, ChatStructuredData } from '@/types/chat';
 import { ChatBox } from '@/components/chat/ChatBox';
-import chatService, { type MessageResponse, type ConversationResponse, type AiStructuredResponse } from '@/services/chat.service';
-import { streamMessage } from '@/services/chat-stream.service';
-import { useChatHub } from '@/hooks/useChatHub';
 import { useAuth } from '@/contexts/AuthContext';
+import { useChatHub } from '@/hooks/useChatHub';
+import { streamMessage } from '@/services/chat-stream.service';
+import chatService, { type AiStructuredResponse, type ConversationResponse, type MessageResponse } from '@/services/chat.service';
+import type { ChatMessage, ChatMode, ChatSender, ChatStructuredData } from '@/types/chat';
 
 import '@/styles/support-widget.css';
 
@@ -53,13 +53,11 @@ export function SupportWidget() {
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [typingUsers, setTypingUsers] = React.useState<Set<string>>(new Set());
   const [hasStaffSupport, setHasStaffSupport] = React.useState(false);
-  const [hasRequestedSupport, setHasRequestedSupport] = React.useState(false);
 
   const {
     isConnected,
     joinConversation,
     leaveConversation,
-    sendMessage: sendSignalRMessage,
     requestSupport,
     onReceiveMessage,
     onUserTyping,
@@ -211,7 +209,6 @@ export function SupportWidget() {
         // System message đã được broadcast qua ReceiveMessage
         // Chỉ cần update state
         setHasStaffSupport(true);
-        setHasRequestedSupport(true);
       }
     });
 
@@ -246,7 +243,6 @@ export function SupportWidget() {
         // Không cần thêm system message vì đã được broadcast qua ReceiveMessage
         // Chỉ cần update state
         setHasStaffSupport(false);
-        setHasRequestedSupport(false);
       }
     });
 
@@ -435,7 +431,6 @@ export function SupportWidget() {
 
     try {
       await requestSupport(conversation.id, 'Yêu cầu hỗ trợ từ khách hàng');
-      setHasRequestedSupport(true);
     } catch (error) {
       console.error('Failed to request support:', error);
       alert('Không thể gửi yêu cầu hỗ trợ. Vui lòng thử lại.');

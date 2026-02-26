@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,14 +32,6 @@ export function StatusDropdown({ value, onChange }: Props) {
       case 'IN PROGRESS': return styles.triggerBlue;
       case 'DONE': return styles.triggerGreen;
       default: return styles.triggerGray;
-    }
-  };
-
-  const getPillClass = (val: StatusType) => {
-    switch (val) {
-      case 'IN PROGRESS': return styles.pillBlue;
-      case 'DONE': return styles.pillGreen;
-      default: return styles.pillGray;
     }
   };
 

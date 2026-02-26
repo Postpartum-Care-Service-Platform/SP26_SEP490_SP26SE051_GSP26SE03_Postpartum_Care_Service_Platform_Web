@@ -1,12 +1,12 @@
 'use client';
 
-import { Pin, MessageCircle } from 'lucide-react';
+import { MessageCircle, Pin } from 'lucide-react';
 
-import type { ChatEntry } from './types';
+import styles from './chat-list.module.css';
 import { ChatEntry as ChatEntryComponent } from './ChatEntry';
 import { ChatSearchBar } from './ChatSearchBar';
 
-import styles from './chat-list.module.css';
+import type { ChatEntry } from './types';
 
 type Props = {
   pinnedChats: ChatEntry[];
@@ -29,14 +29,32 @@ export function ChatList({
     <div className={styles.chatListContainer}>
       <ChatSearchBar onSearch={onSearch} onNewChat={onNewChat} />
       <div className={styles.chatList}>
-      {pinnedChats.length > 0 && (
+        {pinnedChats.length > 0 && (
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <Pin size={16} className={styles.sectionIcon} />
+              <span className={styles.sectionTitle}>Pinned</span>
+            </div>
+            <div className={styles.entries}>
+              {pinnedChats.slice(0, 2).map((entry) => (
+                <ChatEntryComponent
+                  key={entry.id}
+                  entry={entry}
+                  isActive={activeChatId === entry.id}
+                  onClick={onChatClick}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
-            <Pin size={16} className={styles.sectionIcon} />
-            <span className={styles.sectionTitle}>Pinned</span>
+            <MessageCircle size={16} className={styles.sectionIcon} />
+            <span className={styles.sectionTitle}>All chats</span>
           </div>
           <div className={styles.entries}>
-            {pinnedChats.slice(0, 2).map((entry) => (
+            {allChats.map((entry) => (
               <ChatEntryComponent
                 key={entry.id}
                 entry={entry}
@@ -46,26 +64,7 @@ export function ChatList({
             ))}
           </div>
         </div>
-      )}
-
-      <div className={styles.section}>
-        <div className={styles.sectionHeader}>
-          <MessageCircle size={16} className={styles.sectionIcon} />
-          <span className={styles.sectionTitle}>All chats</span>
-        </div>
-        <div className={styles.entries}>
-          {allChats.map((entry) => (
-            <ChatEntryComponent
-              key={entry.id}
-              entry={entry}
-              isActive={activeChatId === entry.id}
-              onClick={onChatClick}
-            />
-          ))}
-        </div>
-      </div>
       </div>
     </div>
   );
 }
-

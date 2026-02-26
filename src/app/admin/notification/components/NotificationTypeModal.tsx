@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { useEffect, useState } from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import notificationTypeService from '@/services/notification-type.service';
 import type { NotificationType, CreateNotificationTypeRequest, UpdateNotificationTypeRequest } from '@/types/notification-type';
+
 import styles from './notification-type-modal.module.css';
 
 type Props = {
@@ -86,8 +87,17 @@ export function NotificationTypeModal({ open, onOpenChange, type, onSuccess }: P
       }
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      const msg = err?.message || (isEditMode ? 'Cập nhật loại thông báo thất bại' : 'Tạo loại thông báo thất bại');
+    } catch (err: unknown) {
+      const fallbackMessage = isEditMode ? 'Cập nhật loại thông báo thất bại' : 'Tạo loại thông báo thất bại';
+      const msg =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' &&
+              err !== null &&
+              'message' in err &&
+              typeof (err as { message?: unknown }).message === 'string'
+            ? (err as { message: string }).message
+            : fallbackMessage;
       if (msg.toLowerCase().includes('tồn tại') || msg.toLowerCase().includes('duplicate') || msg.toLowerCase().includes('exists')) {
         setErrors({ name: 'Tên loại thông báo đã tồn tại.' });
       } else {

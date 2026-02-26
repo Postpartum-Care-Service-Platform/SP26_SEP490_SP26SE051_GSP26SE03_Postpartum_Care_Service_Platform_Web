@@ -1,11 +1,22 @@
 'use client';
 
-import React from 'react';
 import * as Popover from '@radix-ui/react-popover';
-import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
+import Image from 'next/image';
+import React from 'react';
+
 import { AssigneePicker } from '../shared/AssigneePicker';
+import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
 
 import styles from './calendar-quick-create.module.css';
+
+type Assignee = {
+  id: string;
+  name: string;
+  email?: string;
+  initials?: string;
+  color?: string;
+  type: 'unassigned' | 'automatic' | 'user';
+};
 
 interface Props {
   open: boolean;
@@ -16,7 +27,7 @@ interface Props {
 export function CalendarQuickCreate({ open, onOpenChange, children }: Props) {
   const [summary, setSummary] = React.useState('');
   const [selectedTaskType, setSelectedTaskType] = React.useState<TaskType>(TASK_TYPES[TASK_TYPES.length - 1]);
-  const [assignee, setAssignee] = React.useState<any>(null);
+  const [assignee, setAssignee] = React.useState<Assignee | null>(null);
   const [showAssigneePicker, setShowAssigneePicker] = React.useState(false);
   const [showTaskTypePicker, setShowTaskTypePicker] = React.useState(false);
 
@@ -60,7 +71,7 @@ export function CalendarQuickCreate({ open, onOpenChange, children }: Props) {
                   onClick={() => setShowTaskTypePicker(!showTaskTypePicker)}
                 >
                   {selectedTaskType.imageUrl ? (
-                    <img src={selectedTaskType.imageUrl} alt="" width={16} height={16} />
+                    <Image src={selectedTaskType.imageUrl} alt={selectedTaskType.label} width={16} height={16} />
                   ) : (
                     <span className={styles.taskTypeSvg}>{selectedTaskType.icon}</span>
                   )}

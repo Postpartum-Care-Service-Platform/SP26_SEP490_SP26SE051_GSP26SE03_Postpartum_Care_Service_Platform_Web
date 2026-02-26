@@ -1,28 +1,17 @@
 'use client';
 
 import { Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
+
 import { Button } from '@/components/ui/button';
 import type { Food } from '@/types/food';
+
 import styles from './food-list.module.css';
 
 type Props = {
   foods: Food[];
   onEdit?: (food: Food) => void;
   onDelete?: (food: Food) => void;
-};
-
-const formatDate = (dateString: string) => {
-  if (!dateString) return '-';
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  } catch {
-    return dateString;
-  }
 };
 
 export function FoodList({ foods, onEdit, onDelete }: Props) {
@@ -57,7 +46,13 @@ export function FoodList({ foods, onEdit, onDelete }: Props) {
                   <td className={styles.description}>{food.description || '-'}</td>
                   <td>
                     {food.imageUrl ? (
-                      <img src={food.imageUrl} alt={food.name} className={styles.foodImage} />
+                      <Image
+                        src={food.imageUrl}
+                        alt={food.name}
+                        className={styles.foodImage}
+                        width={64}
+                        height={64}
+                      />
                     ) : (
                       <span className={styles.noImage}>-</span>
                     )}

@@ -1,9 +1,10 @@
 'use client';
 
 import { StatCard } from '@/app/admin/package/components/StatCard';
-import type { AppointmentTypeStats } from './types';
 
 import styles from './appointment-type-stats-cards.module.css';
+
+import type { AppointmentTypeStats } from './types';
 
 type Props = {
   stats: AppointmentTypeStats;

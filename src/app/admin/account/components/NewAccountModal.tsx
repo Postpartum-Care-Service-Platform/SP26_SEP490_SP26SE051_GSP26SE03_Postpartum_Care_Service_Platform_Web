@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, forwardRef } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { forwardRef, useEffect, useState } from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import authService from '@/services/auth.service';
@@ -103,8 +103,9 @@ export function NewAccountModal({ open, onOpenChange, onSuccess }: Props) {
       toast({ title: 'Tạo tài khoản thành công', variant: 'success' });
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      const msg = err?.message || 'Tạo tài khoản thất bại';
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error && err.message ? err.message : 'Tạo tài khoản thất bại';
       toast({ title: msg, variant: 'error' });
     } finally {
       setIsSubmitting(false);

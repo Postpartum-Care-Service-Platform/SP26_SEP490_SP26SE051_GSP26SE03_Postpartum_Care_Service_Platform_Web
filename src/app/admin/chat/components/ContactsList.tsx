@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import Image from 'next/image';
-import { User } from 'lucide-react';
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { User } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 
 import userService from '@/services/user.service';
 import type { Account } from '@/types/account';
@@ -86,7 +85,9 @@ export function ContactsList() {
               </div>
             </div>
             <div className={styles.content}>
-              <div className={styles.name}>{account.username || account.email}</div>
+              <div className={styles.name}>
+                {account.username || account.email}
+              </div>
               <div className={styles.email}>{account.email}</div>
             </div>
             <div className={styles.role}>{account.roleName}</div>
@@ -96,4 +97,3 @@ export function ContactsList() {
     </div>
   );
 }
-

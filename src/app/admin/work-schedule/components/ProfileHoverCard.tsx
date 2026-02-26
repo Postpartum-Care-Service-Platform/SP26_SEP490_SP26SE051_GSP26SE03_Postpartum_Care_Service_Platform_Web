@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import * as HoverCard from '@radix-ui/react-hover-card';
+import React from 'react';
 
 import styles from './profile-hover-card.module.css';
 

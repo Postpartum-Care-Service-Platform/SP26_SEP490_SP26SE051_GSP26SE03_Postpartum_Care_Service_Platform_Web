@@ -1,4 +1,3 @@
-import type React from 'react';
 import {
   ArchiveIcon,
   CheckCircledIcon,
@@ -9,7 +8,6 @@ import {
 } from '@radix-ui/react-icons';
 import { type StaticImageData } from 'next/image';
 
-import type { PackageStats } from './types';
 
 import patientCard1 from '@/assets/images/patient-card-1.png';
 import patientCard2 from '@/assets/images/patient-card-2.png';
@@ -18,10 +16,13 @@ import patientCard4 from '@/assets/images/patient-card-4.png';
 import patientCard5 from '@/assets/images/patient-card-5.png';
 import patientCard6 from '@/assets/images/patient-card-6.png';
 
+import type { PackageStats } from './types';
+import type React from 'react';
+
 export type StatCardConfig = {
   image: StaticImageData;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType;
   iconColor: string;
   backgroundColor: string;
   key: keyof PackageStats;

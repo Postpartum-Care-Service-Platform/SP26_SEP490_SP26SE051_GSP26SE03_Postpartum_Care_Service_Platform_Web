@@ -1,5 +1,6 @@
-import apiClient from './apiClient';
 import type { Activity, CreateActivityRequest, UpdateActivityRequest } from '@/types/activity';
+
+import apiClient from './apiClient';
 
 const activityService = {
   getAllActivities: (): Promise<Activity[]> => {

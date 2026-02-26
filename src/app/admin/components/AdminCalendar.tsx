@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, isPast, addMonths, subMonths, isWithinInterval } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useMemo, useState } from 'react';
+
 import styles from './admin-calendar.module.css';
 
 type DateRange = {
@@ -86,10 +87,6 @@ export function AdminCalendar({ events = [], onDateSelect, onRangeSelect }: Admi
 
   const handleNextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
-  };
-
-  const handleToday = () => {
-    setCurrentMonth(new Date());
   };
 
   return (

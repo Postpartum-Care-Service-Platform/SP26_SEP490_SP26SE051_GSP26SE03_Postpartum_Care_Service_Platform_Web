@@ -1,14 +1,14 @@
-import apiClient from './apiClient';
 import type {
   LoginRequest,
   RegisterRequest,
-  GoogleLoginRequest,
   ForgotPasswordRequest,
   AuthResponse,
   LogoutRequest,
   ChangePasswordRequest,
   ResendVerificationRequest,
 } from '@/types/auth';
+
+import apiClient from './apiClient';
 
 const authService = {
   login: (credentials: LoginRequest): Promise<AuthResponse> => {

@@ -2,21 +2,23 @@
 
 import React from 'react';
 
-import { WorkScheduleHeader } from './components/WorkScheduleHeader';
-import { SummaryIcon, TimelineIcon, BoardIcon, CalendarIcon, ListIcon, FormsIcon } from './components/TabIcons';
-import { WorkScheduleControlPanel } from './components/WorkScheduleControlPanel';
-import { WorkScheduleList } from './components/list/WorkScheduleList';
-import { WorkScheduleDetailView } from './components/WorkScheduleDetailView';
+import { BoardControlPanel } from './components/board/BoardControlPanel';
+import { BoardView } from './components/board/BoardView';
 import { CalendarControlPanel } from './components/calendar/CalendarControlPanel';
 import { CalendarMonthView } from './components/calendar/CalendarMonthView';
 import { CalendarWeekView } from './components/calendar/CalendarWeekView';
-import { BoardControlPanel } from './components/board/BoardControlPanel';
-import { BoardView } from './components/board/BoardView';
+import { WorkScheduleList } from './components/list/WorkScheduleList';
+import { SummaryIcon, TimelineIcon, BoardIcon, CalendarIcon, ListIcon, FormsIcon } from './components/TabIcons';
+import { TASK_TYPES, type TaskType } from './components/TaskTypePicker';
 import { TimelineControlPanel } from './components/timeline/TimelineControlPanel';
 import { TimelineView } from './components/timeline/TimelineView';
-import type { CalendarViewMode } from './components/calendar/CalendarViewDropdown';
+import { WorkScheduleControlPanel } from './components/WorkScheduleControlPanel';
+import { WorkScheduleDetailView } from './components/WorkScheduleDetailView';
+import { WorkScheduleHeader } from './components/WorkScheduleHeader';
+
 import type { CalendarStatusType } from './components/calendar/CalendarStatusDropdown';
-import { TASK_TYPES, type TaskType } from './components/TaskTypePicker';
+import type { CalendarViewMode } from './components/calendar/CalendarViewDropdown';
+
 
 const tabs = [
   { key: 'summary', label: 'Tổng quan', icon: <SummaryIcon /> },

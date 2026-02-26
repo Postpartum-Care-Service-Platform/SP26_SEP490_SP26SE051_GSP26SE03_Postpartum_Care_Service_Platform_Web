@@ -1,7 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { SquareIcon, PersonIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
+
 import styles from './room-info.module.css';
 
 const BedIcon = () => (

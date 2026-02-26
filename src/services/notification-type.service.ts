@@ -1,5 +1,6 @@
-import apiClient from './apiClient';
 import type { NotificationType, CreateNotificationTypeRequest, UpdateNotificationTypeRequest } from '@/types/notification-type';
+
+import apiClient from './apiClient';
 
 const notificationTypeService = {
   getAllNotificationTypes: (): Promise<NotificationType[]> => {

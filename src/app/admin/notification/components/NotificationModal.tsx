@@ -1,13 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { useEffect, useState } from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import notificationService from '@/services/notification.service';
-import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
 import type { Notification, CreateNotificationRequest, UpdateNotificationRequest } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
+
+import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
+
 import styles from './notification-modal.module.css';
 
 type Props = {
@@ -108,8 +110,18 @@ export function NotificationModal({ open, onOpenChange, notification, notificati
       }
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      toast({ title: err?.message || (isEditMode ? 'Cập nhật thông báo thất bại' : 'Tạo thông báo thất bại'), variant: 'error' });
+    } catch (err: unknown) {
+      const fallbackMessage = isEditMode ? 'Cập nhật thông báo thất bại' : 'Tạo thông báo thất bại';
+      const message =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' &&
+              err !== null &&
+              'message' in err &&
+              typeof (err as { message?: unknown }).message === 'string'
+            ? (err as { message: string }).message
+            : fallbackMessage;
+      toast({ title: message, variant: 'error' });
     } finally {
       setIsSubmitting(false);
     }

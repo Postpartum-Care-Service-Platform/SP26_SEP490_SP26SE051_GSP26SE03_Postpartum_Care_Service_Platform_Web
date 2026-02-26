@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * A custom hook to detect if the current viewport matches a given media query.
@@ -7,16 +7,16 @@ import { useState, useEffect } from 'react';
  */
 export function useMediaQuery(query: string): boolean {
   // State to store whether the media query matches
-  const [matches, setMatches] = useState<boolean>(false);
+  const [matches, setMatches] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia(query).matches;
+  });
 
   useEffect(() => {
     // Check if window is defined (for SSR compatibility)
     if (typeof window !== 'undefined') {
       // Create a MediaQueryList object
       const mediaQuery = window.matchMedia(query);
-
-      // Set the initial value
-      setMatches(mediaQuery.matches);
 
       // Create a callback to handle changes to the media query
       const listener = (event: MediaQueryListEvent) => {

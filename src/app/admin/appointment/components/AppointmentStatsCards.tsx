@@ -1,8 +1,8 @@
 'use client';
 
+import styles from './appointment-stats-cards.module.css';
 import { AppointmentCard } from './AppointmentCard';
 import { appointmentStatsConfig } from './appointmentStatsConfig';
-import styles from './appointment-stats-cards.module.css';
 
 type AppointmentStats = {
   today: number;

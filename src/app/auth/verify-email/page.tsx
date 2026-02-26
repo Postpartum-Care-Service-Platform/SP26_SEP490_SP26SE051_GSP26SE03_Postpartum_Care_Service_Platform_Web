@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 
-import { VerifyEmailForm } from './VerifyEmailForm';
 import styles from './verify-email.module.css';
+import { VerifyEmailForm } from './VerifyEmailForm';
 
 export default function VerifyEmailPage() {
   return (

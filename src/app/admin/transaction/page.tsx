@@ -2,16 +2,31 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+import { useToast } from '@/components/ui/toast/use-toast';
+import transactionService from '@/services/transaction.service';
+import type { Transaction } from '@/types/transaction';
+
 import { TransactionHeader } from './components/TransactionHeader';
 import { TransactionTable } from './components/TransactionTable';
 import { TransactionTableControls } from './components/TransactionTableControls';
 import styles from './transaction.module.css';
 
-import transactionService from '@/services/transaction.service';
-import type { Transaction } from '@/types/transaction';
-import { useToast } from '@/components/ui/toast/use-toast';
-
 const PAGE_SIZE = 10;
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  ) {
+    return (error as { message: string }).message;
+  }
+  return fallback;
+};
 
 const sortTransactions = (items: Transaction[], sort: string) => {
   const arr = [...items];
@@ -41,24 +56,24 @@ export default function AdminTransactionPage() {
   const [sortKey, setSortKey] = useState<string>('date-desc');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const fetchTransactions = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await transactionService.getAllTransactions();
-      setTransactions(data);
-    } catch (err: any) {
-      const errorMessage = err?.message || 'Không thể tải danh sách giao dịch';
-      setError(errorMessage);
-      toast({ title: errorMessage, variant: 'error' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    const fetchTransactions = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await transactionService.getAllTransactions();
+        setTransactions(data);
+      } catch (err: unknown) {
+        const errorMessage = getErrorMessage(err, 'Không thể tải danh sách giao dịch');
+        setError(errorMessage);
+        toast({ title: errorMessage, variant: 'error' });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchTransactions();
+  }, [toast]);
 
   const filteredTransactions = useMemo(() => {
     let filtered = [...transactions];

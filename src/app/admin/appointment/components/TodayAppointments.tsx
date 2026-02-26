@@ -1,6 +1,7 @@
 'use client';
 
 import { MixerHorizontalIcon } from '@radix-ui/react-icons';
+
 import { AppointmentTimelineItem, type TimelineAppointment } from './AppointmentTimelineItem';
 import styles from './today-appointments.module.css';
 

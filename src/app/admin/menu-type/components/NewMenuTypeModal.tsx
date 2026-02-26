@@ -1,11 +1,23 @@
 'use client';
 
-import { useState, useEffect, forwardRef } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { forwardRef, useEffect, useState } from 'react';
+
 import { useToast } from '@/components/ui/toast/use-toast';
-import styles from './new-menu-type-modal.module.css';
-import type { CreateMenuTypeRequest, MenuType, UpdateMenuTypeRequest } from '@/types/menu-type';
 import menuTypeService from '@/services/menu-type.service';
+import type {
+  CreateMenuTypeRequest,
+  MenuType,
+  UpdateMenuTypeRequest,
+} from '@/types/menu-type';
+
+import styles from './new-menu-type-modal.module.css';
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
 
 type Props = {
   open: boolean;
@@ -95,10 +107,18 @@ export function NewMenuTypeModal({ open, onOpenChange, onSuccess, menuTypeToEdit
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      const errorMessage = err?.message || (isEditMode ? 'Cập nhật loại thực đơn thất bại' : 'Tạo loại thực đơn thất bại');
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(
+        error,
+        isEditMode ? 'Cập nhật loại thực đơn thất bại' : 'Tạo loại thực đơn thất bại',
+      );
 
-      if (errorMessage.includes('tồn tại') || errorMessage.includes('đã tồn tại') || errorMessage.toLowerCase().includes('exists') || errorMessage.toLowerCase().includes('duplicate')) {
+      if (
+        errorMessage.includes('tồn tại') ||
+        errorMessage.includes('đã tồn tại') ||
+        errorMessage.toLowerCase().includes('exists') ||
+        errorMessage.toLowerCase().includes('duplicate')
+      ) {
         setErrors({ name: 'Tên loại thực đơn đã tồn tại.' });
       } else {
         toast({ title: errorMessage, variant: 'error' });

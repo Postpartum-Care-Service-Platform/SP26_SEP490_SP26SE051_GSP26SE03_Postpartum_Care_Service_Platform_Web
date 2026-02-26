@@ -1,32 +1,34 @@
 'use client';
 
-import { useState } from 'react';
 import { ChevronDownIcon } from '@radix-ui/react-icons';
+import { useState } from 'react';
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
   CartesianGrid,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
+  XAxis,
+  YAxis,
 } from 'recharts';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
+
 import styles from './patient-status-chart.module.css';
 
 const dayLabelMap: Record<string, string> = {
-  'Mon': 'Thứ 2',
-  'Tue': 'Thứ 3',
-  'Wed': 'Thứ 4',
-  'Thu': 'Thứ 5',
-  'Fri': 'Thứ 6',
-  'Sat': 'Thứ 7',
-  'Sun': 'Chủ nhật',
+  Mon: 'Thứ 2',
+  Tue: 'Thứ 3',
+  Wed: 'Thứ 4',
+  Thu: 'Thứ 5',
+  Fri: 'Thứ 6',
+  Sat: 'Thứ 7',
+  Sun: 'Chủ nhật',
 };
 
 const mockData = [
@@ -45,19 +47,37 @@ const TIME_OPTIONS = [
   { value: 'yearly', label: 'Yearly' },
 ];
 
-const CustomTooltip = ({ active, payload }: any) => {
+type PatientStatusTooltipItem = {
+  dataKey?: string;
+  value?: number;
+  payload?: {
+    day?: string;
+    dayLabel?: string;
+  };
+};
+
+type PatientStatusTooltipProps = {
+  active?: boolean;
+  payload?: PatientStatusTooltipItem[];
+};
+
+const CustomTooltip = ({ active, payload }: PatientStatusTooltipProps) => {
   if (active && payload && payload.length) {
-    const admissionsData = payload.find((p: any) => p.dataKey === 'admissions');
-    const dischargesData = payload.find((p: any) => p.dataKey === 'discharges');
-    const row = payload[0]?.payload as { day?: string; dayLabel?: string } | undefined;
-    const dayLabel = row?.dayLabel || (row?.day ? dayLabelMap[row.day] : '') || '';
+    const admissionsData = payload.find((p) => p.dataKey === 'admissions');
+    const dischargesData = payload.find((p) => p.dataKey === 'discharges');
+    const row = payload[0]?.payload;
+    const dayLabel =
+      row?.dayLabel || (row?.day ? dayLabelMap[row.day] : '') || '';
 
     return (
       <div className={styles.tooltip}>
         <div className={styles.tooltipLabel}>{dayLabel}</div>
         {admissionsData && (
           <div className={styles.tooltipItem}>
-            <span className={styles.tooltipIcon} style={{ backgroundColor: '#A47BC8' }}></span>
+            <span
+              className={styles.tooltipIcon}
+              style={{ backgroundColor: '#A47BC8' }}
+            ></span>
             <span>
               Admissions: <strong>{admissionsData.value}</strong> Patients
             </span>
@@ -65,7 +85,10 @@ const CustomTooltip = ({ active, payload }: any) => {
         )}
         {dischargesData && (
           <div className={styles.tooltipItem}>
-            <span className={styles.tooltipIcon} style={{ backgroundColor: '#5288AF' }}></span>
+            <span
+              className={styles.tooltipIcon}
+              style={{ backgroundColor: '#5288AF' }}
+            ></span>
             <span>
               Discharges: <strong>{dischargesData.value}</strong> Patients
             </span>
@@ -80,7 +103,9 @@ const CustomTooltip = ({ active, payload }: any) => {
 export function PatientStatusChart() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('weekly');
 
-  const selectedLabel = TIME_OPTIONS.find((opt) => opt.value === selectedTimeframe)?.label || 'Weekly';
+  const selectedLabel =
+    TIME_OPTIONS.find((opt) => opt.value === selectedTimeframe)?.label ||
+    'Weekly';
 
   return (
     <div className={styles.card}>
@@ -97,7 +122,11 @@ export function PatientStatusChart() {
             {TIME_OPTIONS.map((option) => (
               <DropdownMenuItem
                 key={option.value}
-                className={`${styles.dropdownItem} ${selectedTimeframe === option.value ? styles.dropdownItemActive : ''}`}
+                className={`${styles.dropdownItem} ${
+                  selectedTimeframe === option.value
+                    ? styles.dropdownItemActive
+                    : ''
+                }`}
                 onClick={() => setSelectedTimeframe(option.value)}
               >
                 {option.label}
@@ -109,13 +138,20 @@ export function PatientStatusChart() {
       <div className={styles.cardBody}>
         <div className={styles.chartWrapper}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={mockData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+            <LineChart
+              data={mockData}
+              margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#e9ecef" />
               <XAxis dataKey="day" hide />
               <YAxis hide />
               <Tooltip
                 content={<CustomTooltip />}
-                cursor={{ stroke: '#6c757d', strokeWidth: 1, strokeDasharray: '3 3' }}
+                cursor={{
+                  stroke: '#6c757d',
+                  strokeWidth: 1,
+                  strokeDasharray: '3 3',
+                }}
                 labelFormatter={() => null}
               />
               <Line

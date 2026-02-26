@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
 import { addDays, format, startOfWeek, isSameDay } from 'date-fns';
-import { CalendarQuickCreate } from './CalendarQuickCreate';
+import React from 'react';
+
 import styles from './calendar-week-view.module.css';
+import { CalendarQuickCreate } from './CalendarQuickCreate';
 
 export function CalendarWeekView({ monthCursor }: { monthCursor: Date }) {
   const [openDayKey, setOpenDayKey] = React.useState<string | null>(null);

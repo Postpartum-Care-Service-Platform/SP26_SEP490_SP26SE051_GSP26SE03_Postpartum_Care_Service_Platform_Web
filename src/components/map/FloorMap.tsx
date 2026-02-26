@@ -1,7 +1,9 @@
 import React from 'react';
+
 import { Room } from '@/services/room-map.service';
-import { RoomShape } from './RoomShape';
+
 import { FLOOR_SHAPES } from './floor-shapes';
+import { RoomShape } from './RoomShape';
 
 interface FloorMapProps {
   floorLevel: number;

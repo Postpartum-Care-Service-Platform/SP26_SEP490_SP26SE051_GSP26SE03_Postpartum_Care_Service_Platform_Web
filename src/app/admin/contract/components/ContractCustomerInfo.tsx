@@ -1,7 +1,9 @@
 'use client';
 
 import { Cross1Icon } from '@radix-ui/react-icons';
+
 import type { ContractCustomer } from '@/types/contract';
+
 import styles from './contract-customer-info.module.css';
 
 type Props = {

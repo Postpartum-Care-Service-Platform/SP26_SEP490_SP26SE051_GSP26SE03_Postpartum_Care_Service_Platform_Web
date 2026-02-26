@@ -1,9 +1,10 @@
-import apiClient from './apiClient';
 import type {
   FeedbackType,
   CreateFeedbackTypeRequest,
   UpdateFeedbackTypeRequest,
 } from '@/types/feedback-type';
+
+import apiClient from './apiClient';
 
 const feedbackTypeService = {
   getAllFeedbackTypes: (): Promise<FeedbackType[]> => {

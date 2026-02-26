@@ -1,10 +1,10 @@
 'use client';
 
-import { StatCard } from './StatCard';
-import { patientStatsConfig } from './patientStatsConfig';
-import type { PatientStats } from './types';
-
 import styles from './patient-stats-cards.module.css';
+import { patientStatsConfig } from './patientStatsConfig';
+import { StatCard } from './StatCard';
+
+import type { PatientStats } from './types';
 
 type Props = {
   stats: PatientStats;

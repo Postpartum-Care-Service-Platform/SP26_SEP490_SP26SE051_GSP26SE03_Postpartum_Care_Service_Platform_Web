@@ -1,8 +1,9 @@
 'use client';
 
 import { MagnifyingGlassIcon, PlusIcon, MixerHorizontalIcon, ChevronDownIcon, Pencil1Icon, TrashIcon, CheckIcon, Cross2Icon } from '@radix-ui/react-icons';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,10 +11,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown';
-import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast/use-toast';
 import roleService from '@/services/role.service';
 import type { Role } from '@/types/role';
-import { useToast } from '@/components/ui/toast/use-toast';
 
 import styles from './patient-table-controls.module.css';
 
@@ -61,21 +61,21 @@ export function PatientTableControls({
   const nameInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchRoles();
-  }, []);
-
-  const fetchRoles = async () => {
+  const fetchRoles = useCallback(async () => {
     try {
       setLoadingRoles(true);
       const data = await roleService.getAllRoles();
       setRoles(data);
-    } catch (err: any) {
+    } catch (_err) {
       toast({ title: 'Không thể tải danh sách vai trò', variant: 'error' });
     } finally {
       setLoadingRoles(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchRoles();
+  }, [fetchRoles]);
 
   const handleRoleSelect = (roleId: number | null) => {
     setSelectedRoleId(roleId);
@@ -114,8 +114,9 @@ export function PatientTableControls({
       setEditingRoleId(null);
       setEditRoleName('');
       setEditDescription('');
-    } catch (err: any) {
-      toast({ title: err?.message || 'Cập nhật vai trò thất bại', variant: 'error' });
+    } catch (err) {
+      const message = (err as { message?: string } | null | undefined)?.message || 'Cập nhật vai trò thất bại';
+      toast({ title: message, variant: 'error' });
     } finally {
       setSavingRoleId(null);
     }
@@ -151,8 +152,9 @@ export function PatientTableControls({
       setCreatingRole(false);
       setNewRoleName('');
       setNewDescription('');
-    } catch (err: any) {
-      toast({ title: err?.message || 'Tạo vai trò thất bại', variant: 'error' });
+    } catch (err) {
+      const message = (err as { message?: string } | null | undefined)?.message || 'Tạo vai trò thất bại';
+      toast({ title: message, variant: 'error' });
     }
   };
 
@@ -167,8 +169,9 @@ export function PatientTableControls({
         onRoleChange?.(null);
       }
       toast({ title: 'Xóa vai trò thành công', variant: 'success' });
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa vai trò thất bại', variant: 'error' });
+    } catch (err) {
+      const message = (err as { message?: string } | null | undefined)?.message || 'Xóa vai trò thất bại';
+      toast({ title: message, variant: 'error' });
     } finally {
       setSavingRoleId(null);
     }

@@ -1,6 +1,18 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
 import { HubConnectionState } from '@microsoft/signalr';
-import { getSignalRService, MessageEvent, TypingEvent, StaffJoinedEvent, SupportRequestEvent } from '@/services/signalr.service';
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+import {
+    getSignalRService,
+    MessageEvent,
+    TypingEvent,
+    StaffJoinedEvent,
+    SupportRequestEvent,
+    MessagesReadEvent,
+    SupportRequestCreatedEvent,
+    SupportRequestAcceptedEvent,
+    SupportResolvedEvent,
+    ErrorEvent,
+} from '@/services/signalr.service';
 
 interface UseChatHubOptions {
     token: string | null;
@@ -12,14 +24,13 @@ interface UseChatHubOptions {
 }
 
 export const useChatHub = (options: UseChatHubOptions) => {
-    const { token, autoConnect = true, onConnected, onDisconnected, onReconnecting, onReconnected } = options;
+    const { token, autoConnect = true, onConnected, onDisconnected, onReconnecting: _onReconnecting, onReconnected: _onReconnected } = options;
 
     const [connectionState, setConnectionState] = useState<HubConnectionState | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const signalRRef = useRef(getSignalRService());
-    const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     /**
      * Kết nối đến SignalR Hub
@@ -165,7 +176,7 @@ export const useChatHub = (options: UseChatHubOptions) => {
      */
     const onReceiveMessage = useCallback((callback: (message: MessageEvent) => void) => {
         signalRRef.current.onReceiveMessage(callback);
-        return () => signalRRef.current.off('ReceiveMessage', callback);
+        return () => signalRRef.current.off('ReceiveMessage', callback as (...args: unknown[]) => void);
     }, []);
 
     /**
@@ -173,15 +184,15 @@ export const useChatHub = (options: UseChatHubOptions) => {
      */
     const onUserTyping = useCallback((callback: (event: TypingEvent) => void) => {
         signalRRef.current.onUserTyping(callback);
-        return () => signalRRef.current.off('UserTyping', callback);
+        return () => signalRRef.current.off('UserTyping', callback as (...args: unknown[]) => void);
     }, []);
 
     /**
      * Subscribe to messages read event
      */
-    const onMessagesRead = useCallback((callback: (event: any) => void) => {
+    const onMessagesRead = useCallback((callback: (event: MessagesReadEvent) => void) => {
         signalRRef.current.onMessagesRead(callback);
-        return () => signalRRef.current.off('MessagesRead', callback);
+        return () => signalRRef.current.off('MessagesRead', callback as (...args: unknown[]) => void);
     }, []);
 
     /**
@@ -189,15 +200,15 @@ export const useChatHub = (options: UseChatHubOptions) => {
      */
     const onStaffJoined = useCallback((callback: (event: StaffJoinedEvent) => void) => {
         signalRRef.current.onStaffJoined(callback);
-        return () => signalRRef.current.off('StaffJoined', callback);
+        return () => signalRRef.current.off('StaffJoined', callback as (...args: unknown[]) => void);
     }, []);
 
     /**
      * Subscribe to support request created event (Customer)
      */
-    const onSupportRequestCreated = useCallback((callback: (event: any) => void) => {
+    const onSupportRequestCreated = useCallback((callback: (event: SupportRequestCreatedEvent) => void) => {
         signalRRef.current.onSupportRequestCreated(callback);
-        return () => signalRRef.current.off('SupportRequestCreated', callback);
+        return () => signalRRef.current.off('SupportRequestCreated', callback as (...args: unknown[]) => void);
     }, []);
 
     /**
@@ -205,31 +216,31 @@ export const useChatHub = (options: UseChatHubOptions) => {
      */
     const onNewSupportRequest = useCallback((callback: (event: SupportRequestEvent) => void) => {
         signalRRef.current.onNewSupportRequest(callback);
-        return () => signalRRef.current.off('NewSupportRequest', callback);
+        return () => signalRRef.current.off('NewSupportRequest', callback as (...args: unknown[]) => void);
     }, []);
 
     /**
      * Subscribe to support request accepted event (Staff)
      */
-    const onSupportRequestAccepted = useCallback((callback: (event: any) => void) => {
+    const onSupportRequestAccepted = useCallback((callback: (event: SupportRequestAcceptedEvent) => void) => {
         signalRRef.current.onSupportRequestAccepted(callback);
-        return () => signalRRef.current.off('SupportRequestAccepted', callback);
+        return () => signalRRef.current.off('SupportRequestAccepted', callback as (...args: unknown[]) => void);
     }, []);
 
     /**
      * Subscribe to support resolved event
      */
-    const onSupportResolved = useCallback((callback: (event: any) => void) => {
+    const onSupportResolved = useCallback((callback: (event: SupportResolvedEvent) => void) => {
         signalRRef.current.onSupportResolved(callback);
-        return () => signalRRef.current.off('SupportResolved', callback);
+        return () => signalRRef.current.off('SupportResolved', callback as (...args: unknown[]) => void);
     }, []);
 
     /**
      * Subscribe to error event
      */
-    const onError = useCallback((callback: (error: { message: string }) => void) => {
+    const onError = useCallback((callback: (error: ErrorEvent) => void) => {
         signalRRef.current.onError(callback);
-        return () => signalRRef.current.off('Error', callback);
+        return () => signalRRef.current.off('Error', callback as (...args: unknown[]) => void);
     }, []);
 
     // ==================== Effects ====================
@@ -239,22 +250,18 @@ export const useChatHub = (options: UseChatHubOptions) => {
      */
     useEffect(() => {
         if (autoConnect && token && token.length > 20) {
-            connect();
+            // eslint-disable-next-line react-hooks/set-state-in-effect
+            void connect();
         }
-
-        return () => {
-            if (reconnectTimeoutRef.current) {
-                clearTimeout(reconnectTimeoutRef.current);
-            }
-        };
     }, [autoConnect, token, connect]);
 
     /**
      * Cleanup on unmount
      */
     useEffect(() => {
+        const service = signalRRef.current;
         return () => {
-            signalRRef.current.removeAllListeners();
+            service.removeAllListeners();
         };
     }, []);
 
@@ -262,10 +269,11 @@ export const useChatHub = (options: UseChatHubOptions) => {
      * Update connection state periodically
      */
     useEffect(() => {
+        const service = signalRRef.current;
         const interval = setInterval(() => {
-            const state = signalRRef.current.connectionState;
+            const state = service.connectionState;
             setConnectionState(state);
-            setIsConnected(signalRRef.current.isConnected);
+            setIsConnected(service.isConnected);
         }, 1000);
 
         return () => clearInterval(interval);

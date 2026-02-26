@@ -1,9 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect } from 'react';
+
 import error500Image from '@/assets/images/500.png';
+
 import styles from './error.module.css';
 
 export default function Error({

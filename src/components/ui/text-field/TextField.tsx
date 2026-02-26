@@ -1,9 +1,12 @@
 'use client';
 
-import * as React from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
+import * as React from 'react';
+
 import { cn } from '@/lib/utils';
+
 import { Input } from '../Input';
+
 import styles from './text-field.module.css';
 
 export interface TextFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -13,8 +16,8 @@ export interface TextFieldProps extends React.InputHTMLAttributes<HTMLInputEleme
 }
 
 const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
-  ({ className, label, error, variant = 'booking', id, ...props }, ref) => {
-    const inputId = id || React.useId();
+  ({ className, label, error, variant = 'booking', id: _id, ...props }, ref) => {
+    const inputId = React.useId();
 
     return (
       <div className={cn(styles.fieldWrapper, className)}>

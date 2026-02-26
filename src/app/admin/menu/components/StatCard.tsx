@@ -1,15 +1,13 @@
 'use client';
 
-import type React from 'react';
 import Image, { type StaticImageData } from 'next/image';
 
 import styles from './stat-card.module.css';
-
 type Props = {
   image: StaticImageData;
   value: number | string;
   label: string;
-  icon?: React.ComponentType<any>;
+  icon?: React.ComponentType<{ className?: string }>;
   iconColor?: string;
   backgroundColor?: string;
   valueColor?: string;

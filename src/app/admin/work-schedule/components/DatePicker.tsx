@@ -11,10 +11,6 @@ type Props = {
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function pad2(n: number) {
-  return n < 10 ? `0${n}` : `${n}`;
-}
-
 function formatMMDDYYYY(d: Date) {
   const mm = d.getMonth() + 1;
   const dd = d.getDate();

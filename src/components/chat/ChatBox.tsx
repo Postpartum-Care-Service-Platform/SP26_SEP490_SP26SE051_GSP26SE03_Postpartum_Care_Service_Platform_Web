@@ -3,10 +3,11 @@
 import React from 'react';
 
 import type { ChatMessage } from '@/types/chat';
+
 import '@/styles/chat.css';
+import { ChatComposer } from './ChatComposer';
 import { ChatHeader } from './ChatHeader';
 import { ChatMessageList } from './ChatMessageList';
-import { ChatComposer } from './ChatComposer';
 
 type ChatBoxProps = {
   open: boolean;

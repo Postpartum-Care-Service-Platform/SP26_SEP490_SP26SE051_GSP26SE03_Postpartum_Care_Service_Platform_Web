@@ -7,11 +7,11 @@ type FormFieldProps<TFieldValues extends FieldValues> = {
   name: Path<TFieldValues>;
   label: string;
   render: (props: {
-    value: any;
-    onChange: (...event: any[]) => void;
+    value: unknown;
+    onChange: (...event: unknown[]) => void;
     onBlur: () => void;
     name: string;
-    ref: React.Ref<any>;
+    ref: React.Ref<unknown>;
     error?: string;
   }) => React.ReactElement;
 };
@@ -26,7 +26,11 @@ export function FormField<TFieldValues extends FieldValues>({
     formState: { errors },
   } = useFormContext<TFieldValues>();
 
-  const error = (errors as any)?.[name]?.message as string | undefined;
+  const fieldError = (errors as Record<string, { message?: unknown }>)[
+    name as string
+  ];
+  const error =
+    typeof fieldError?.message === 'string' ? fieldError.message : undefined;
 
   return (
     <div className="mb-md">

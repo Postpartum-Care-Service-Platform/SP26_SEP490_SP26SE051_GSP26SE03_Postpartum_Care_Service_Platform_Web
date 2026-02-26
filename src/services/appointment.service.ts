@@ -1,5 +1,6 @@
-import apiClient from './apiClient';
 import type { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/types/appointment';
+
+import apiClient from './apiClient';
 
 const appointmentService = {
   getAllAppointments: (): Promise<Appointment[]> => {

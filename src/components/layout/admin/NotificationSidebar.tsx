@@ -1,11 +1,10 @@
 'use client';
 
-import React from 'react';
 import { X } from 'lucide-react';
-
-import { NotificationSidebarList } from './NotificationSidebarList';
+import React from 'react';
 
 import styles from './notification-sidebar.module.css';
+import { NotificationSidebarList } from './NotificationSidebarList';
 
 type Props = {
   open: boolean;

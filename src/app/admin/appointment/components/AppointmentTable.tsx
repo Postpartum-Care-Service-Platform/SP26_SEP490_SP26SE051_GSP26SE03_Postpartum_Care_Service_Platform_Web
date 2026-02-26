@@ -1,13 +1,13 @@
 'use client';
 
-import Image from 'next/image';
 import { Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
 
 import { Pagination } from '@/components/ui/pagination';
 
-import type { Appointment } from './types';
-
 import styles from './appointment-table.module.css';
+
+import type { Appointment } from './types';
 
 type Props = {
   appointments: Appointment[];

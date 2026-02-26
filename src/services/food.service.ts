@@ -1,5 +1,6 @@
-import apiClient from './apiClient';
 import type { Food, CreateFoodRequest, UpdateFoodRequest } from '@/types/food';
+
+import apiClient from './apiClient';
 
 const foodService = {
   getAllFoods: (): Promise<Food[]> => {

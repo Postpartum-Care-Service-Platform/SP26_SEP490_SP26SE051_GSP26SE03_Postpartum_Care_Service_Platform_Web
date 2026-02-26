@@ -1,5 +1,6 @@
-import apiClient from './apiClient';
 import type { Package, CreatePackageRequest, UpdatePackageRequest } from '@/types/package';
+
+import apiClient from './apiClient';
 
 const packageService = {
   getAllPackages: (): Promise<Package[]> => {

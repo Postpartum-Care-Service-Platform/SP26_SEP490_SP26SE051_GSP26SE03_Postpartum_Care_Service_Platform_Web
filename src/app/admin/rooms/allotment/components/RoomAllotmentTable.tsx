@@ -1,7 +1,9 @@
 'use client';
 
-import { Pencil1Icon, TrashIcon, GearIcon, CheckIcon } from '@radix-ui/react-icons';
+import { CheckIcon, GearIcon, Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
+
 import type { Room, RoomStatus } from '@/types/room-allotment';
+
 import styles from './room-allotment-table.module.css';
 
 type Props = {

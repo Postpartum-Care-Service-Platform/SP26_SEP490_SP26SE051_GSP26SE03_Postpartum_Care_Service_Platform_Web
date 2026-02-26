@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { Info, User } from 'lucide-react';
+import Image from 'next/image';
 
 import styles from './chat-header-bar.module.css';
 
@@ -18,7 +18,13 @@ export function ChatHeaderBar({ name, avatar, isOnline, onInfoClick }: Props) {
       <div className={styles.participantInfo}>
         <div className={styles.avatarWrapper}>
           {avatar ? (
-            <Image src={avatar} alt={name} width={40} height={40} className={styles.avatar} />
+            <Image
+              src={avatar}
+              alt={name}
+              width={40}
+              height={40}
+              className={styles.avatar}
+            />
           ) : (
             <div className={styles.avatarPlaceholder}>
               <User size={20} />
@@ -44,4 +50,3 @@ export function ChatHeaderBar({ name, avatar, isOnline, onInfoClick }: Props) {
     </div>
   );
 }
-

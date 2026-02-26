@@ -1,21 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
 
+import { Button } from '@/components/ui/button';
 import { EditIcon } from '@/components/ui/icons/EditIcon';
 import { TrashIcon } from '@/components/ui/icons/TrashIcon';
-
-import { truncateText } from '@/utils/text';
-import { useToast } from '@/components/ui/toast/use-toast';
 import { Pagination } from '@/components/ui/pagination';
-import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast/use-toast';
 import familyProfileService from '@/services/family-profile.service';
 import type { FamilyProfile } from '@/types/family-profile';
-
-import type { Patient } from './patientTypes';
+import { truncateText } from '@/utils/text';
 
 import styles from './patient-table.module.css';
+
+import type { Patient } from './patientTypes';
 
 type Props = {
   patients: Patient[];
@@ -75,7 +75,7 @@ export function PatientTable({ patients, onEdit, onDelete, pagination }: Props) 
           }
         });
         setProfilesMap(groupedProfiles);
-      } catch (err) {
+      } catch (_err) {
         toast({
           title: 'Lỗi tải danh sách profile',
           variant: 'error',
@@ -96,7 +96,7 @@ export function PatientTable({ patients, onEdit, onDelete, pagination }: Props) 
         description: id,
         variant: 'success',
       });
-    } catch (err) {
+    } catch (_err) {
       toast({
         title: 'Sao chép thất bại',
         variant: 'error',
@@ -178,10 +178,12 @@ export function PatientTable({ patients, onEdit, onDelete, pagination }: Props) 
                   <td>
                     <div className={styles.patientName}>
                       {patient.avatar ? (
-                        <img
+                        <Image
                           src={patient.avatar}
                           alt={patient.name}
                           className={styles.avatarImage}
+                          width={40}
+                          height={40}
                         />
                       ) : (
                         <div className={styles.avatar}>
@@ -243,7 +245,7 @@ export function PatientTable({ patients, onEdit, onDelete, pagination }: Props) 
                               <div key={profile.id} className={styles.profileItem}>
                                 <div className={styles.profileAvatar}>
                                   {profile.avatarUrl ? (
-                                    <img src={profile.avatarUrl} alt={profile.fullName} />
+                                    <Image src={profile.avatarUrl} alt={profile.fullName} width={32} height={32} />
                                   ) : (
                                     <span>{profile.fullName.charAt(0)}</span>
                                   )}

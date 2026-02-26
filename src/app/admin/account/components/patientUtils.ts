@@ -1,5 +1,5 @@
-import type { FamilyProfile } from '@/types/family-profile';
 import type { Account } from '@/types/account';
+import type { FamilyProfile } from '@/types/family-profile';
 
 import type { Patient } from './patientTypes';
 
@@ -34,7 +34,7 @@ export function mapGender(gender: string | null | undefined): 'Male' | 'Female' 
   return 'N/A';
 }
 
-export function mapFamilyProfileToPatient(profile: FamilyProfile, index: number): Patient {
+export function mapFamilyProfileToPatient(profile: FamilyProfile, _index: number): Patient {
   return {
     id: profile.customerId || String(profile.id),
     name: profile.fullName || 'N/A',
@@ -51,7 +51,7 @@ export function mapFamilyProfileToPatient(profile: FamilyProfile, index: number)
   };
 }
 
-export function mapAccountToPatient(account: Account, index: number): Patient {
+export function mapAccountToPatient(account: Account, _index: number): Patient {
   const profile = account.ownerProfile;
 
   return {

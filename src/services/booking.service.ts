@@ -1,5 +1,6 @@
-import apiClient from './apiClient';
 import type { Booking, CreateBookingRequest } from '@/types/booking';
+
+import apiClient from './apiClient';
 
 const bookingService = {
   getMyBookings: (): Promise<Booking[]> => {

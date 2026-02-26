@@ -1,12 +1,12 @@
 'use client';
 
-import React from 'react';
-import { Bell, Clock, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { AlertCircle, CheckCircle, ChevronRight, Clock, FileText, Info, ShoppingCart, Users, XCircle } from 'lucide-react';
+import React from 'react';
 
-import notificationService from '@/services/notification.service';
 import notificationTypeService from '@/services/notification-type.service';
+import notificationService from '@/services/notification.service';
 import type { Notification } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
 

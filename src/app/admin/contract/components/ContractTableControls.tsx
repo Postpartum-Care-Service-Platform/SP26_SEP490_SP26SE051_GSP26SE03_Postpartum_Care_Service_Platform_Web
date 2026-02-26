@@ -1,13 +1,14 @@
 'use client';
 
 import { PlusIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
-import { Button } from '@/components/ui/button';
 
 import styles from './contract-table-controls.module.css';
 

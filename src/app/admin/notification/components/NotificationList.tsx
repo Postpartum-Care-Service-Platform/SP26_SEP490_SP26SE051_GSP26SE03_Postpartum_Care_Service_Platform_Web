@@ -1,10 +1,12 @@
 'use client';
 
 import React from 'react';
-import { NotificationCard } from './NotificationCard';
+
 import type { Notification } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
+
 import styles from './notification-list.module.css';
+import { NotificationCard } from './NotificationCard';
 
 type Props = {
   notifications: Notification[];

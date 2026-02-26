@@ -1,14 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+
 import styles from './patient-by-age.module.css';
 
 type AgeGroup = {
@@ -29,7 +23,16 @@ const mockData: AgeGroup[] = [
   { name: '31 - 40 yrs', value: 19, color: '#9fa4bf' },
 ];
 
-const CustomTooltip = ({ active, payload }: any) => {
+type TooltipProps = {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    payload?: AgeGroup;
+  }>;
+};
+
+const CustomTooltip = ({ active, payload }: TooltipProps) => {
   if (active && payload && payload.length) {
     const data = payload[0];
     const color = data.payload?.color || '#8884d8';
@@ -44,12 +47,22 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-const CustomLegend = ({ payload }: any) => {
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+type LegendPayloadItem = {
+  value: string;
+  color: string;
+  payload: AgeGroup;
+};
+
+type LegendProps = {
+  payload?: LegendPayloadItem[];
+};
+
+const CustomLegend = ({ payload }: LegendProps) => {
+  const [_selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   return (
     <div className={styles.legend}>
-      {payload?.map((entry: any, index: number) => (
+      {payload?.map((entry, index) => (
         <label
           key={index}
           className={styles.legendItem}
@@ -98,11 +111,13 @@ export function PatientByAge({ data = mockData }: PatientByAgeProps) {
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <CustomLegend payload={data.map((item, index) => ({
-          value: item.name,
-          color: item.color,
-          payload: item,
-        }))} />
+        <CustomLegend
+          payload={data.map((item) => ({
+            value: item.name,
+            color: item.color,
+            payload: item,
+          }))}
+        />
       </div>
     </div>
   );

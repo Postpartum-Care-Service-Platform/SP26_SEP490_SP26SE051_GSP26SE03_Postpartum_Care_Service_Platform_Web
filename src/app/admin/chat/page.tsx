@@ -1,22 +1,29 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { useChatHub } from '@/hooks/useChatHub';
 import chatService from '@/services/chat.service';
-import type { ConversationResponse, SupportRequestResponse } from '@/services/chat.service';
-
-import { ChatHeader } from './components/ChatHeader';
-import { ChatSidebar } from './components/ChatSidebar';
-import { ChatList } from './components/ChatList';
-import { ContactsList } from './components/ContactsList';
-import { MediaView } from './components/MediaView';
-import { ChatConversation } from './components/ChatConversation';
-import { RecentChatsSidebar } from './components/RecentChatsSidebar';
-import { SupportRequestsList } from './components/SupportRequestsList';
-import type { ChatEntry, ChatConversation as ChatConversationType } from './components/types';
+import type {
+  ConversationResponse,
+  SupportRequestResponse,
+} from '@/services/chat.service';
 
 import styles from './chat.module.css';
+import { ChatConversation } from './components/ChatConversation';
+import { ChatHeader } from './components/ChatHeader';
+import { ChatList } from './components/ChatList';
+import { ChatSidebar } from './components/ChatSidebar';
+import { ContactsList } from './components/ContactsList';
+import { MediaView } from './components/MediaView';
+import { RecentChatsSidebar } from './components/RecentChatsSidebar';
+import { SupportRequestsList } from './components/SupportRequestsList';
+
+import type {
+  ChatConversation as ChatConversationType,
+  ChatEntry,
+} from './components/types';
 
 export default function AdminChatPage() {
   const { token, user } = useAuth();
@@ -26,8 +33,10 @@ export default function AdminChatPage() {
 
   // State cho conversations và messages
   const [conversations, setConversations] = useState<ConversationResponse[]>([]);
-  const [activeConversation, setActiveConversation] = useState<ChatConversationType | null>(null);
-  const [activeSupportRequestId, setActiveSupportRequestId] = useState<number | null>(null);
+  const [activeConversation, setActiveConversation] =
+    useState<ChatConversationType | null>(null);
+  const [activeSupportRequestId, setActiveSupportRequestId] =
+    useState<number | null>(null);
   const [supportRequests, setSupportRequests] = useState<SupportRequestResponse[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -78,7 +87,10 @@ export default function AdminChatPage() {
   };
 
   // Load chi tiết conversation
-  const loadConversationDetail = async (conversationId: number, checkSupportRequest = true) => {
+  const loadConversationDetail = async (
+    conversationId: number,
+    checkSupportRequest = true
+  ) => {
     try {
       setLoading(true);
       const data = await chatService.getConversation(conversationId);
@@ -142,7 +154,9 @@ export default function AdminChatPage() {
         name: conv.name || 'Conversation',
         avatar: '',
         lastMessage: lastMessage?.content || 'No messages',
-        timestamp: lastMessage ? new Date(lastMessage.createdAt).toISOString() : new Date().toISOString(),
+        timestamp: lastMessage
+          ? new Date(lastMessage.createdAt).toISOString()
+          : new Date().toISOString(),
         unreadCount: conv.messages.filter((m) => !m.isRead).length,
         isPinned: false,
         isOnline: true,
@@ -278,7 +292,9 @@ export default function AdminChatPage() {
   const handleResolveSupport = async () => {
     if (!activeSupportRequestId) return;
 
-    const confirmResolve = confirm('Bạn có chắc muốn hoàn thành tư vấn? Conversation sẽ chuyển về AI.');
+    const confirmResolve = confirm(
+      'Bạn có chắc muốn hoàn thành tư vấn? Conversation sẽ chuyển về AI.'
+    );
     if (!confirmResolve) return;
 
     try {
@@ -300,8 +316,6 @@ export default function AdminChatPage() {
       alert('Không thể hoàn thành tư vấn.');
     }
   };
-
-
 
   return (
     <div className={styles.container}>
@@ -344,7 +358,8 @@ export default function AdminChatPage() {
           {(activeView === 'archive' || activeView === 'settings') && (
             <div className={styles.chatListContainer}>
               <div className={styles.placeholder}>
-                {activeView.charAt(0).toUpperCase() + activeView.slice(1)} view coming soon
+                {activeView.charAt(0).toUpperCase() + activeView.slice(1)} view
+                coming soon
               </div>
             </div>
           )}
@@ -390,4 +405,3 @@ export default function AdminChatPage() {
     </div>
   );
 }
-

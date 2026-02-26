@@ -1,14 +1,24 @@
 'use client';
 
-import React from 'react';
-import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Popover from '@radix-ui/react-popover';
+import * as Tooltip from '@radix-ui/react-tooltip';
+import React from 'react';
+
+import { AssigneePicker } from '../shared/AssigneePicker';
+import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
 
 import styles from './calendar-control-panel.module.css';
 import { CalendarStatusDropdown, type CalendarStatusType } from './CalendarStatusDropdown';
 import { CalendarViewDropdown, type CalendarViewMode } from './CalendarViewDropdown';
-import { AssigneePicker } from '../shared/AssigneePicker';
-import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
+
+type Assignee = {
+  id: string;
+  name: string;
+  email?: string;
+  initials?: string;
+  color?: string;
+  type: 'unassigned' | 'automatic' | 'user';
+};
 
 function ChevronDownIcon() {
   return (
@@ -104,7 +114,7 @@ export function CalendarControlPanel({
   taskType,
   onTaskTypeChange,
 }: Props) {
-  const [assignee, setAssignee] = React.useState<any>(null);
+  const [assignee, setAssignee] = React.useState<Assignee | null>(null);
   const [isAssigneeOpen, setIsAssigneeIdOpen] = React.useState(false);
 
   const [isTaskTypeOpen, setIsTaskTypeOpen] = React.useState(false);

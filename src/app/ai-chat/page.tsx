@@ -1,15 +1,15 @@
 'use client';
 
+import { ChatBubbleIcon, PlusIcon } from '@radix-ui/react-icons';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import * as Tooltip from '@radix-ui/react-tooltip';
-import { PlusIcon, ChatBubbleIcon } from '@radix-ui/react-icons';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-180x180.png';
-import { ROUTES } from '@/routes/routes';
 import { useAuth } from '@/contexts/AuthContext';
+import { ROUTES } from '@/routes/routes';
 
 import styles from './AiChat.module.css';
 
@@ -26,6 +26,11 @@ type ChatThread = {
   title: string;
   pinned?: boolean;
 };
+
+function createIdGenerator() {
+  let current = 1;
+  return () => current++;
+}
 
 function SidebarIconButton({
   label,
@@ -56,9 +61,7 @@ function SidebarIconButton({
 export default function AiChatPage() {
   const router = useRouter();
   const { token } = useAuth();
-
-  // AuthContext loads from localStorage on mount; avoid redirect until hydrated
-  const [authReady, setAuthReady] = useState(false);
+  const getNextIdRef = useRef<(() => number) | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -74,15 +77,16 @@ export default function AiChatPage() {
   const hasStarted = messages.length > 0;
 
   useEffect(() => {
-    setAuthReady(true);
+    if (!getNextIdRef.current) {
+      getNextIdRef.current = createIdGenerator();
+    }
   }, []);
 
   useEffect(() => {
-    if (!authReady) return;
     if (!token) {
       router.replace(ROUTES.login);
     }
-  }, [authReady, token, router]);
+  }, [token, router]);
 
   const orderedThreads = useMemo(() => {
     const pinned = threads.filter((t) => t.pinned);
@@ -100,8 +104,10 @@ export default function AiChatPage() {
     const trimmedText = text.trim();
     if (!trimmedText) return;
 
+    const getNextId = getNextIdRef.current ?? createIdGenerator();
+
     const newUserMessage: Message = {
-      id: Date.now(),
+      id: getNextId(),
       text: trimmedText,
       sender: 'user',
     };
@@ -111,7 +117,7 @@ export default function AiChatPage() {
 
     setTimeout(() => {
       const aiResponse: Message = {
-        id: Date.now() + 1,
+        id: getNextId(),
         text: `Cảm ơn bạn đã chia sẻ. Mình nghe thấy bạn nói "${trimmedText}".`,
         sender: 'ai',
       };
@@ -124,7 +130,7 @@ export default function AiChatPage() {
     handleSend(input);
   };
 
-  if (!authReady || !token) {
+  if (!token) {
     return null;
   }
 

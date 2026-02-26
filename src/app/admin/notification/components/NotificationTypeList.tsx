@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
+
 import { Button } from '@/components/ui/button';
-import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
 import type { NotificationType } from '@/types/notification-type';
+
+import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
+
 import styles from './notification-type-list.module.css';
 
 type Props = {

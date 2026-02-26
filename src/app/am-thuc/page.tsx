@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import apiClient from '@/services/apiClient';
+
 import { MenuSection } from './_components/MenuSection';
 
 interface Food {
@@ -47,8 +49,8 @@ export default function AmThucPage() {
         const fetchMenus = async () => {
             try {
                 setLoading(true);
-                const response: any = await apiClient.get('/Menu');
-                const activeMenus = (response || []).filter((m: Menu) => m.isActive);
+                const response = await apiClient.get<Menu[]>('/Menu');
+                const activeMenus = (response.data || []).filter((m) => m.isActive);
 
                 if (cancelled) return;
                 setMenus(activeMenus);

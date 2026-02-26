@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import React from 'react';
 
-import LogoSymbol from '@/assets/images/Symbol-Orange-32x32.png';
 import LogoSymbol64 from '@/assets/images/Symbol-Orange-180x180.png';
+import LogoSymbol from '@/assets/images/Symbol-Orange-32x32.png';
 
 import styles from './logo-loader.module.css';
 

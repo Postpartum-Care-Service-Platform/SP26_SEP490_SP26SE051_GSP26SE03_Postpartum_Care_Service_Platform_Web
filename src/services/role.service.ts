@@ -1,5 +1,6 @@
-import apiClient from './apiClient';
 import type { Role, CreateRoleRequest, UpdateRoleRequest } from '@/types/role';
+
+import apiClient from './apiClient';
 
 const roleService = {
   getAllRoles: (): Promise<Role[]> => {

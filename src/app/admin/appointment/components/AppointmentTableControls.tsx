@@ -1,7 +1,7 @@
 'use client';
 
+import { ChevronDownIcon, PlusIcon } from '@radix-ui/react-icons';
 import Link from 'next/link';
-import { PlusIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
 import {
@@ -11,9 +11,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
 
-import type { AppointmentStatus } from './types';
-
 import styles from './appointment-table-controls.module.css';
+
+import type { AppointmentStatus } from './types';
 
 type Props = {
   onStatusChange?: (status: AppointmentStatus | 'all') => void;

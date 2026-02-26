@@ -1,19 +1,29 @@
 'use client';
 
-import React from 'react';
 import * as Checkbox from '@radix-ui/react-checkbox';
-import * as Popover from '@radix-ui/react-popover';
 import { CheckIcon } from '@radix-ui/react-icons';
+import * as Popover from '@radix-ui/react-popover';
+import Image from 'next/image';
+import React from 'react';
+
 import { ColumnActionsDropdown } from '../ColumnActionsDropdown';
-import { ProfileHoverCard } from '../ProfileHoverCard';
-
 import { DatePicker } from '../DatePicker';
+import { ProfileHoverCard } from '../ProfileHoverCard';
 import { AssigneePicker } from '../shared/AssigneePicker';
-import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
 import { StatusDropdown, type StatusType } from '../StatusDropdown';
+import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
 
-import styles from './work-schedule-list.module.css';
+type Assignee = {
+  id: string;
+  name: string;
+  email?: string;
+  initials?: string;
+  color?: string;
+  type: 'unassigned' | 'automatic' | 'user';
+};
+
 import toolbarStyles from './bulk-actions-toolbar.module.css';
+import styles from './work-schedule-list.module.css';
 
 type Row = {
   id: string;
@@ -133,7 +143,7 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
 }
   };
 
-  const updateRowAssignee = (rowId: string, assignee: any) => {
+  const updateRowAssignee = (rowId: string, assignee: Assignee | null) => {
     setRows(prev => prev.map(r => 
       r.id === rowId ? { ...r, assignee: assignee ? assignee.name : 'Unassigned' } : r
     ));
@@ -164,7 +174,7 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
   const [showAssigneePicker, setShowAssigneePicker] = React.useState(false);
   const [showTaskTypePicker, setShowTaskTypePicker] = React.useState(false);
   const [dueDate, setDueDate] = React.useState<Date | null>(null);
-  const [assignee, setAssignee] = React.useState<any>(null);
+  const [assignee, setAssignee] = React.useState<Assignee | null>(null);
   const [selectedTaskType, setSelectedTaskType] = React.useState<TaskType>(TASK_TYPES[TASK_TYPES.length - 1]); // Lấy phần tử cuối cùng an toàn hơn
   const footerRef = React.useRef<HTMLDivElement>(null);
 
@@ -175,33 +185,39 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
     const startWidth = colWidths[col];
     resizingRef.current = { col, startX: e.clientX, startWidth };
     setIsResizing(true);
-
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
   }
 
-  function handleMouseMove(e: MouseEvent) {
-    const r = resizingRef.current;
-    if (!r) return;
-    const delta = e.clientX - r.startX;
-    const next = r.startWidth + delta;
-    const min = MIN_COL_WIDTH[r.col];
-    const clamped = Math.max(min, next);
-    setColWidths((prev) => ({ ...prev, [r.col]: clamped }));
-  }
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const r = resizingRef.current;
+      if (!r) return;
+      const delta = e.clientX - r.startX;
+      const next = r.startWidth + delta;
+      const min = MIN_COL_WIDTH[r.col];
+      const clamped = Math.max(min, next);
+      setColWidths((prev) => ({ ...prev, [r.col]: clamped }));
+    };
 
-  function handleMouseUp() {
-    if (!resizingRef.current) return;
-    resizingRef.current = null;
-    setIsResizing(false);
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-    window.removeEventListener('mousemove', handleMouseMove);
-    window.removeEventListener('mouseup', handleMouseUp);
-  }
+    const handleMouseUp = () => {
+      if (!resizingRef.current) return;
+      resizingRef.current = null;
+      setIsResizing(false);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    if (isResizing) {
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
 
 
   React.useEffect(() => {
@@ -414,7 +430,13 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                 </td>
                 <td className={styles.td} style={{ width: colWidths.work, minWidth: MIN_COL_WIDTH.work }}>
                   <div className={styles.workCell}>
-                    <img src={r.iconUrl} alt="task icon" width={16} height={16} className={styles.workIconImg} />
+                    <Image
+                      src={r.iconUrl}
+                      alt="task icon"
+                      width={16}
+                      height={16}
+                      className={styles.workIconImg}
+                    />
                     <a href="#" className={styles.workCode}>{r.workCode}</a>
                     <span className={styles.workTitle} title={r.workTitle}>{r.workTitle}</span>
                   </div>
@@ -633,7 +655,7 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
               }}
             >
               {selectedTaskType.imageUrl ? (
-                <img
+                <Image
                   src={selectedTaskType.imageUrl}
                   alt={selectedTaskType.label}
                   width={16}

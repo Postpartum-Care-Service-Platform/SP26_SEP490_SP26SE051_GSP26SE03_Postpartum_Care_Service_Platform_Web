@@ -1,8 +1,10 @@
 'use client';
 
-import React from 'react';
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { CheckIcon, ChevronDownIcon, UpdateIcon, MixerHorizontalIcon } from '@radix-ui/react-icons';
+import Image from 'next/image';
+import React from 'react';
+
 import styles from './work-schedule-detail-view.module.css';
 
 type Row = {
@@ -106,7 +108,7 @@ export function WorkScheduleDetailView() {
               </div>
               <div className={styles.cardBottom}>
                 <div className={styles.taskMeta}>
-                  <img src={task.iconUrl} alt="" className={styles.taskIconImg} />
+                  <Image src={task.iconUrl} alt="" className={styles.taskIconImg} width={16} height={16} />
                   <span className={styles.taskKey}>{task.workCode}</span>
                 </div>
                 <div className={styles.avatar}>VT</div>
