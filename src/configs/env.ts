@@ -6,7 +6,6 @@ if (!NEXT_PUBLIC_API_URL) {
 
 // Debug nhanh trong local để biết Next đang đọc env nào (chỉ hiện ở dev).
 if (process.env.NODE_ENV !== 'production') {
-  // eslint-disable-next-line no-console
   console.log('[env] NEXT_PUBLIC_API_URL =', NEXT_PUBLIC_API_URL);
 }
 
