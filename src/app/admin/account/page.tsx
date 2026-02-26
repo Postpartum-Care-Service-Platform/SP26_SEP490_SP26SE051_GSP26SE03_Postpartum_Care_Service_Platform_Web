@@ -114,12 +114,12 @@ export default function AdminPatientsPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleEdit = (patient: Patient) => {
-    console.log('Edit patient:', patient);
+  const handleViewProfile = (patient: Patient) => {
+    console.log('View profile overview:', patient);
   };
 
-  const handleDelete = (patient: Patient) => {
-    console.log('Delete patient:', patient);
+  const handleChat = (patient: Patient) => {
+    console.log('Open chat with patient:', patient);
   };
 
   const handleNewPatient = () => {
@@ -165,8 +165,8 @@ export default function AdminPatientsPage() {
       />
       <PatientTable
         patients={paginatedPatients}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onViewProfile={handleViewProfile}
+        onChat={handleChat}
         pagination={
           totalPages > 0
             ? {

@@ -8,9 +8,15 @@
   flex-direction: column;
 }
 
+.tableScrollArea {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 
 .table {
   width: 100%;
+  min-width: 1500px;
   border-collapse: collapse;
 }
 
@@ -25,6 +31,7 @@
   font-size: 13px;
   font-weight: 600;
   color: #343A40;
+  white-space: nowrap;
 }
 
 .table th:nth-child(1),
@@ -35,37 +42,69 @@
 
 .table th:nth-child(2),
 .table td:nth-child(2) {
-  width: 120px;
-  min-width: 120px;
-  max-width: 120px;
+  width: 150px;
+  min-width: 150px;
+  max-width: 150px;
+}
+
+.table th:nth-child(3),
+.table td:nth-child(3) {
+  width: 180px;
+  min-width: 180px;
+}
+
+.table th:nth-child(4),
+.table td:nth-child(4) {
+  width: 230px;
+  min-width: 230px;
+}
+
+.table th:nth-child(5),
+.table td:nth-child(5) {
+  width: 95px;
+  min-width: 95px;
+}
+
+.table th:nth-child(6),
+.table td:nth-child(6) {
+  width: 80px;
+  min-width: 80px;
 }
 
 .table th:nth-child(7),
 .table td:nth-child(7) {
-  width: 80px;
-  min-width: 80px;
-  max-width: 80px;
+  width: 90px;
+  min-width: 90px;
 }
 
 .table th:nth-child(8),
 .table td:nth-child(8) {
-  width: 110px;
-  min-width: 110px;
-  max-width: 110px;
+  width: 120px;
+  min-width: 120px;
+}
+
+.table th:nth-child(9),
+.table td:nth-child(9) {
+  width: 140px;
+  min-width: 140px;
 }
 
 .table th:nth-child(10),
 .table td:nth-child(10) {
-  width: 90px;
-  min-width: 90px;
-  max-width: 90px;
+  width: 110px;
+  min-width: 110px;
+}
+
+.table th:nth-child(11),
+.table td:nth-child(11) {
+  width: 130px;
+  min-width: 130px;
 }
 
 .table th:nth-child(12),
 .table td:nth-child(12) {
   width: 100px;
   min-width: 100px;
-  max-width: 100px;
 }
 
 .table tbody tr {
@@ -91,7 +130,7 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  color: var(--color-text-primary);
+  color: #343A40;
   transition: transform 0.2s;
 }
 
@@ -112,7 +151,7 @@
 
 .profilesTitle {
   font-family: var(--font-admin-title);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--color-admin-text-primary);
   margin: 0 0 12px 0;
@@ -197,7 +236,8 @@
   padding: 13px 12px;
   font-family: var(--font-body);
   font-size: 14px;
-  color: var(--color-text-primary);
+  color: #343A40;
+  white-space: nowrap;
 }
 
 .truncateCell {
@@ -217,6 +257,12 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  font-weight: 600;
+}
+
+.patientNameText {
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .avatar {
@@ -253,8 +299,9 @@
 }
 
 .statusStable {
-  background-color: #d4edda;
-  color: #155724;
+  /* Đã xác thực email - tím */
+  background-color: #ede9fe;
+  color: #6d28d9;
 }
 
 .statusObservation {
@@ -268,8 +315,9 @@
 }
 
 .statusCritical {
-  background-color: #f8d7da;
-  color: #721c24;
+  /* Chưa xác thực email - cam */
+  background-color: #fef3c7;
+  color: #d97706;
 }
 
 .actions {

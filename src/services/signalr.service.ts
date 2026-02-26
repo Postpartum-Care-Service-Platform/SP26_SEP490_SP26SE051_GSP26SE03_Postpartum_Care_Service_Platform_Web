@@ -108,7 +108,10 @@ export class SignalRService {
         }
 
         // Xây dựng full URL
-        const baseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5122/api').replace('/api', '');
+        if (!process.env.NEXT_PUBLIC_API_URL) {
+            throw new Error('NEXT_PUBLIC_API_URL is not defined. Vui lòng cấu hình biến môi trường cho URL backend.');
+        }
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL.replace('/api', '');
         const fullUrl = `${baseUrl}${hubUrl}`;
 
         this.connection = new signalR.HubConnectionBuilder()
