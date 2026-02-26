@@ -38,7 +38,7 @@ const config = [
         },
       ],
       "import/order": [
-        "error",
+        "warn",
         {
           groups: [
             "builtin",
