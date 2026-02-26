@@ -22,11 +22,37 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - name: Install dependencies (clean)
-        run: npm ci
-
-      - name: Install platform-specific native deps (swc, lightningcss)
-        run: npm install
+      
+      - name: Clean install dependencies
+        env:
+          # Force npm to install optional dependencies (native binaries)
+          npm_config_optional: "true"
+        run: |
+          rm -rf node_modules
+          npm cache clean --force
+          # Không dùng npm ci vì nó lock vào exact versions trong lockfile (có thể là Windows binaries)
+          # Dùng npm install với --no-optional=false để đảm bảo optional dependencies được cài
+          npm install --no-optional=false
+          
+      - name: Force install/rebuild Linux native binaries
+        run: |
+          # Xóa platform-specific binaries cũ (nếu có Windows binaries từ lockfile)
+          rm -rf node_modules/lightningcss/node_modules/lightningcss-win32-* || true
+          # Force install Linux binary
+          npm install lightningcss-linux-x64-gnu@1.31.1 --save-optional --force || true
+          # Rebuild để đảm bảo native module được link đúng
+          npm rebuild lightningcss || true
+          # Verify installation
+          if [ -f "node_modules/lightningcss/node_modules/lightningcss-linux-x64-gnu/lightningcss.linux-x64-gnu.node" ]; then
+            echo "✅ lightningcss-linux-x64-gnu.node found"
+          elif [ -d "node_modules/lightningcss/node_modules/lightningcss-linux-x64-gnu" ]; then
+            echo "✅ lightningcss-linux-x64-gnu directory found"
+            ls -la node_modules/lightningcss/node_modules/lightningcss-linux-x64-gnu/
+          else
+            echo "⚠️  lightningcss-linux-x64-gnu not found, checking lightningcss structure..."
+            ls -la node_modules/lightningcss/ || true
+            ls -la node_modules/lightningcss/node_modules/ || true
+          fi
 
       - name: Lint
         run: npm run lint
