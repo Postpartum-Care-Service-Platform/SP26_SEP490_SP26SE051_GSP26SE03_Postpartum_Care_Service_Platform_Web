@@ -12,8 +12,6 @@ const nextConfig = {
       },
     ],
   },
-  // Tối ưu memory usage cho build trên free tier
-  swcMinify: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
