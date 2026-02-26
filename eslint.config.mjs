@@ -1,11 +1,12 @@
-import nextPlugin from "eslint-plugin-next";
+import nextPlugin from "@next/eslint-plugin-next";
 import nextConfig from "eslint-config-next";
 import storybook from "eslint-plugin-storybook";
 import prettierConfig from "eslint-config-prettier";
 
 /** @type {import('eslint').Linter.Config} */
 export default [
-  ...nextConfig(),
+  // eslint-config-next 16 exports a flat config array, not a function
+  ...nextConfig,
   {
     files: ["**/*.stories.@(ts|tsx)"],
     ...storybook.configs["flat/recommended"],

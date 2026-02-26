@@ -1,4 +1,4 @@
-:root {
+.layout {
   --cream-bg: #fffbf4;
   --warm-orange: #e88c5a;
   --text-main: #2e2a26;
@@ -6,10 +6,7 @@
   --border-light: #eadfd3;
   --ai-bubble-bg: rgba(232, 140, 90, 0.15);
   --user-bubble-bg: #ffffff;
-}
 
-/* Layout: sidebar + chat. Threads is an overlay (does not take a grid column). */
-.layout {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 88px 1fr;
