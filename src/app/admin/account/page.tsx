@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import userService from '@/services/user.service';
 
@@ -9,6 +9,7 @@ import {
   PatientStatsCards,
   PatientTableControls,
   PatientTable,
+  NewAccountModal,
 } from './components';
 import { mapAccountToPatient } from './components/patientUtils';
 
@@ -25,25 +26,26 @@ export default function AdminPatientsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [roleFilter, setRoleFilter] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isNewAccountOpen, setIsNewAccountOpen] = useState(false);
+
+  const fetchPatients = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await userService.getAllAccounts();
+      const mappedPatients = data.map((account, index) => mapAccountToPatient(account, index));
+      setPatients(mappedPatients);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch accounts');
+      console.error('Error fetching accounts:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await userService.getAllAccounts();
-        const mappedPatients = data.map((account, index) => mapAccountToPatient(account, index));
-        setPatients(mappedPatients);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch accounts');
-        console.error('Error fetching accounts:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPatients();
-  }, []);
+  }, [fetchPatients]);
 
   const stats: PatientStats = useMemo(() => {
     const total = patients.length;
@@ -123,7 +125,7 @@ export default function AdminPatientsPage() {
   };
 
   const handleNewPatient = () => {
-    console.log('New patient');
+    setIsNewAccountOpen(true);
   };
 
   const handleFilter = () => {
@@ -178,6 +180,11 @@ export default function AdminPatientsPage() {
               }
             : undefined
         }
+      />
+      <NewAccountModal
+        open={isNewAccountOpen}
+        onOpenChange={setIsNewAccountOpen}
+        onSuccess={fetchPatients}
       />
     </div>
   );
