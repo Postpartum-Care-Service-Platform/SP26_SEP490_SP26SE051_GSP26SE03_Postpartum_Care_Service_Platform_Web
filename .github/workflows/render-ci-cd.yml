@@ -12,6 +12,9 @@ jobs:
   ci:
     name: CI (lint & build)
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      NEXT_PUBLIC_API_TIMEOUT: 30000
 
     steps:
       - name: Checkout repository
