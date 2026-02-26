@@ -29,7 +29,7 @@ export function BookingForm() {
   const searchParams = useSearchParams();
   const packageIdParam = searchParams.get('packageId');
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
-  const [loadingPackage, setLoadingPackage] = useState(false);
+  const [_loadingPackage, setLoadingPackage] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   
   // Form state

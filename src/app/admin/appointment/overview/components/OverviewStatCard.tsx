@@ -1,14 +1,17 @@
 'use client';
 
-import type React from 'react';
-import { Check, Clock, X, Calendar } from 'lucide-react';
-
 import styles from './overview-stat-card.module.css';
+
+import type React from 'react';
 
 export type TrendType = 'up' | 'down' | 'check';
 
 export type OverviewStatCardProps = {
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{
+    className?: string;
+    style?: React.CSSProperties;
+    size?: number;
+  }>;
   iconBgColor: string;
   iconColor: string;
   trendType: TrendType;

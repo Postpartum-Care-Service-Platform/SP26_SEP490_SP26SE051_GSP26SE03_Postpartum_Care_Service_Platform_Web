@@ -13,6 +13,12 @@ import type { MenuType } from '@/types/menu-type';
 
 import styles from './new-menu-modal.module.css';
 
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
+
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -98,11 +104,11 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
           ]);
           setMenuTypes(menuTypesData);
           setFoods(foodsData);
-        } catch (err) {
-          toast({
-            title: 'Không thể tải danh sách loại thực đơn và món ăn',
-            variant: 'error',
-          });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Không thể tải danh sách loại thực đơn và món ăn'),
+        variant: 'error',
+      });
         } finally {
           setLoadingOptions(false);
         }
@@ -186,10 +192,11 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      const errorMessage =
-        err?.message ||
-        (isEditMode ? 'Cập nhật thực đơn thất bại' : 'Tạo thực đơn thất bại');
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(
+        error,
+        isEditMode ? 'Cập nhật thực đơn thất bại' : 'Tạo thực đơn thất bại',
+      );
 
       if (
         errorMessage.includes('tồn tại') ||

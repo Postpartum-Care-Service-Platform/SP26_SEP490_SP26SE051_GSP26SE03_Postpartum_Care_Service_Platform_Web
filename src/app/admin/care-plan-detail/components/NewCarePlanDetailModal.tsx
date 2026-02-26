@@ -1,15 +1,17 @@
 'use client';
 
-import { useState, useEffect, forwardRef } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { forwardRef, useEffect, useState } from 'react';
+
 import { useToast } from '@/components/ui/toast/use-toast';
-import styles from './new-care-plan-detail-modal.module.css';
-import type { CarePlanDetail, CreateCarePlanDetailRequest, UpdateCarePlanDetailRequest } from '@/types/care-plan-detail';
+import activityService from '@/services/activity.service';
 import carePlanDetailService from '@/services/care-plan-detail.service';
 import packageService from '@/services/package.service';
-import activityService from '@/services/activity.service';
-import type { Package } from '@/types/package';
 import type { Activity } from '@/types/activity';
+import type { CarePlanDetail, CreateCarePlanDetailRequest, UpdateCarePlanDetailRequest } from '@/types/care-plan-detail';
+import type { Package } from '@/types/package';
+
+import styles from './new-care-plan-detail-modal.module.css';
 
 type Props = {
   open: boolean;
@@ -80,7 +82,7 @@ export function NewCarePlanDetailModal({ open, onOpenChange, onSuccess, carePlan
           ]);
           setPackages(packagesData);
           setActivities(activitiesData);
-        } catch (err) {
+        } catch {
           toast({ title: 'Không thể tải danh sách gói dịch vụ và hoạt động', variant: 'error' });
         } finally {
           setLoadingOptions(false);
@@ -174,8 +176,13 @@ export function NewCarePlanDetailModal({ open, onOpenChange, onSuccess, carePlan
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      const errorMessage = err?.message || (isEditMode ? 'Cập nhật chi tiết kế hoạch chăm sóc thất bại' : 'Tạo chi tiết kế hoạch chăm sóc thất bại');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && err.message
+          ? err.message
+          : isEditMode
+            ? 'Cập nhật chi tiết kế hoạch chăm sóc thất bại'
+            : 'Tạo chi tiết kế hoạch chăm sóc thất bại';
       toast({ title: errorMessage, variant: 'error' });
     } finally {
       setIsSubmitting(false);

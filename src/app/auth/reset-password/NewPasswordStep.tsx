@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button/Button';
 import styles from './reset-password.module.css';
 
 interface NewPasswordStepProps {
-  resetToken: string;
   newPassword: string;
   setNewPassword: (password: string) => void;
   confirmPassword: string;
@@ -21,7 +20,6 @@ interface NewPasswordStepProps {
 }
 
 export function NewPasswordStep({
-  resetToken,
   newPassword,
   setNewPassword,
   confirmPassword,

@@ -45,13 +45,25 @@ const mockData: GenderVisitData[] = [
   { month: 'Dec', female: 900, male: 700 },
 ];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+type PatientVisitTooltipItem = {
+  color?: string;
+  name?: string;
+  value?: number;
+};
+
+type PatientVisitTooltipProps = {
+  active?: boolean;
+  label?: string;
+  payload?: PatientVisitTooltipItem[];
+};
+
+const CustomTooltip = ({ active, payload, label }: PatientVisitTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className={styles.tooltip}>
         <p className={styles.tooltipLabel}>{label}</p>
         <div className={styles.tooltipContent}>
-          {payload.map((item: any, index: number) => (
+          {payload.map((item, index) => (
             <div key={index} className={styles.tooltipItem}>
               <span
                 className={styles.tooltipDot}
@@ -69,10 +81,19 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const CustomLegend = ({ payload }: any) => {
+type PatientVisitLegendItem = {
+  value: string;
+  color: string;
+};
+
+type PatientVisitLegendProps = {
+  payload?: PatientVisitLegendItem[];
+};
+
+const CustomLegend = ({ payload }: PatientVisitLegendProps) => {
   return (
     <div className={styles.legend}>
-      {payload?.map((entry: any, index: number) => (
+      {payload?.map((entry, index) => (
         <div key={index} className={styles.legendItem}>
           <span
             className={styles.legendDot}

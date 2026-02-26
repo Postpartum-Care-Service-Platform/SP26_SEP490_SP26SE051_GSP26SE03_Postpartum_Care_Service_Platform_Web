@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React from 'react';
 
 import styles from './task-type-picker.module.css';
@@ -52,7 +53,7 @@ export function TaskTypePicker({ selectedId, onSelect }: Props) {
         >
           <div className={styles.iconWrapper}>
             {type.imageUrl ? (
-              <img src={type.imageUrl} alt={type.label} width={16} height={16} />
+              <Image src={type.imageUrl} alt={type.label} width={16} height={16} />
             ) : (
               type.icon
             )}

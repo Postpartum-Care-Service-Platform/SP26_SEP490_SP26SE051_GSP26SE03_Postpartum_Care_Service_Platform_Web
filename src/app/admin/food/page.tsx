@@ -2,15 +2,22 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { FoodListHeader, FoodStatsCards, FoodTable, FoodTableControls, NewFoodModal } from './components';
-import type { FoodStats } from './components';
-import styles from './food.module.css';
-
+import { useToast } from '@/components/ui/toast/use-toast';
 import foodService from '@/services/food.service';
 import type { Food } from '@/types/food';
-import { useToast } from '@/components/ui/toast/use-toast';
+
+import { FoodListHeader, FoodStatsCards, FoodTable, FoodTableControls, NewFoodModal } from './components';
+import styles from './food.module.css';
+
+import type { FoodStats } from './components';
 
 const PAGE_SIZE = 10;
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
 
 const sortFoods = (items: Food[], sort: string) => {
   const arr = [...items];
@@ -52,8 +59,8 @@ export default function AdminFoodPage() {
       setError(null);
       const data = await foodService.getAllFoods();
       setFoods(data);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách món ăn');
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, 'Không thể tải danh sách món ăn'));
     } finally {
       setLoading(false);
     }
@@ -127,8 +134,11 @@ export default function AdminFoodPage() {
       await foodService.deleteFood(food.id);
       toast({ title: 'Xóa món ăn thành công', variant: 'success' });
       await fetchFoods();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa món ăn thất bại', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Xóa món ăn thất bại'),
+        variant: 'error',
+      });
     } finally {
       setDeletingId(null);
     }

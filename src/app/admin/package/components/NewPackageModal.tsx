@@ -125,10 +125,26 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      const errorMessage = err?.message || (isEditMode ? 'Cập nhật gói thất bại' : 'Tạo gói thất bại');
+    } catch (err: unknown) {
+      const fallbackMessage = isEditMode ? 'Cập nhật gói thất bại' : 'Tạo gói thất bại';
+      const rawMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' &&
+              err !== null &&
+              'message' in err &&
+              typeof (err as { message?: unknown }).message === 'string'
+            ? (err as { message: string }).message
+            : fallbackMessage;
 
-      if (errorMessage.includes('tồn tại') || errorMessage.includes('đã tồn tại') || errorMessage.toLowerCase().includes('exists') || errorMessage.toLowerCase().includes('duplicate')) {
+      const errorMessage = rawMessage || fallbackMessage;
+
+      if (
+        errorMessage.includes('tồn tại') ||
+        errorMessage.includes('đã tồn tại') ||
+        errorMessage.toLowerCase().includes('exists') ||
+        errorMessage.toLowerCase().includes('duplicate')
+      ) {
         setErrors({ packageName: 'Tên gói dịch vụ đã tồn tại.' });
       } else {
         toast({ title: errorMessage, variant: 'error' });

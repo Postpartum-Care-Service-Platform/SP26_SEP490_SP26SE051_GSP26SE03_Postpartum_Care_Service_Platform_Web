@@ -61,8 +61,17 @@ export default function AdminPackagePage() {
       setError(null);
       const data = await packageService.getAllPackages();
       setPackages(data);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách gói dịch vụ');
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' &&
+              err !== null &&
+              'message' in err &&
+              typeof (err as { message?: unknown }).message === 'string'
+            ? (err as { message: string }).message
+            : 'Không thể tải danh sách gói dịch vụ';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -144,8 +153,17 @@ export default function AdminPackagePage() {
       await packageService.deletePackage(pkg.id);
       toast({ title: 'Xóa gói dịch vụ thành công', variant: 'success' });
       await fetchPackages();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa gói dịch vụ thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'object' &&
+              err !== null &&
+              'message' in err &&
+              typeof (err as { message?: unknown }).message === 'string'
+            ? (err as { message: string }).message
+            : 'Xóa gói dịch vụ thất bại';
+      toast({ title: message, variant: 'error' });
     } finally {
       setDeletingId(null);
     }

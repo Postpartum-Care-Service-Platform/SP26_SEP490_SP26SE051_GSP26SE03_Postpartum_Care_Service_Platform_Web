@@ -40,7 +40,7 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
     if (changed) {
       setOpenKeys(newOpenKeys);
     }
-  }, [pathname]);
+  }, [pathname, openKeys]);
 
   const toggleGroup = (key: string) => {
     setOpenKeys((prev) => ({ ...prev, [key]: !prev[key] }));

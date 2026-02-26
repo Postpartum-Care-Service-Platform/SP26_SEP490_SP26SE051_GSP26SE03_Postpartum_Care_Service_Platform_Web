@@ -22,6 +22,31 @@ function clampOtp(v: string) {
   return v.replace(/\D/g, '').slice(0, 6);
 }
 
+type ApiError = {
+  message?: string;
+  data?: {
+    error?: string;
+  };
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const maybeError = error as ApiError;
+    if (maybeError.message && typeof maybeError.message === 'string') {
+      return maybeError.message;
+    }
+    if (maybeError.data?.error && typeof maybeError.data.error === 'string') {
+      return maybeError.data.error;
+    }
+  }
+
+  return fallback;
+};
+
 export default function OtpStep({
   email,
   otp,
@@ -62,8 +87,8 @@ export default function OtpStep({
       const res = await authService.verifyResetOtp({ email, otp: clampOtp(otp) });
       setFieldError(null);
       onVerified(res.resetToken || '');
-    } catch (err: any) {
-      setFieldError(err?.message || err?.data?.error || 'OTP không hợp lệ');
+    } catch (err: unknown) {
+      setFieldError(getErrorMessage(err, 'OTP không hợp lệ'));
     }
   };
 
@@ -73,8 +98,8 @@ export default function OtpStep({
       await authService.resendOtp({ email });
       onResendSuccess();
       setFieldError(null);
-    } catch (err: any) {
-      setFieldError(err?.message || err?.data?.error || 'Gửi lại OTP thất bại');
+    } catch (err: unknown) {
+      setFieldError(getErrorMessage(err, 'Gửi lại OTP thất bại'));
     }
   };
 

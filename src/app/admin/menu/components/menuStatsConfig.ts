@@ -17,7 +17,7 @@ import type React from 'react';
 export type StatCardConfig = {
   image: StaticImageData;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   iconColor: string;
   backgroundColor: string;
   key: keyof MenuStats;

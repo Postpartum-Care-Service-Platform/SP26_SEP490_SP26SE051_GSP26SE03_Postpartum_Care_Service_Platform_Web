@@ -9,6 +9,31 @@ import { AUTH_LOGIN_MESSAGES } from '@/messages/auth/login';
 import { ROUTES } from '@/routes/routes';
 import authService from '@/services/auth.service';
 
+type ApiError = {
+  message?: string;
+  data?: {
+    error?: string;
+  };
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const maybeError = error as ApiError;
+    if (maybeError.message && typeof maybeError.message === 'string') {
+      return maybeError.message;
+    }
+    if (maybeError.data?.error && typeof maybeError.data.error === 'string') {
+      return maybeError.data.error;
+    }
+  }
+
+  return fallback;
+};
+
 export default function GoogleCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -45,9 +70,10 @@ export default function GoogleCallbackPage() {
         const redirectPath = userRole === 'admin' ? ROUTES.admin : ROUTES.main;
 
         window.location.href = redirectPath;
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Google login error:', err);
-        toast({ title: err?.message || 'Đăng nhập Google thất bại', variant: 'error' });
+        const message = getErrorMessage(err, 'Đăng nhập Google thất bại');
+        toast({ title: message, variant: 'error' });
         setTimeout(() => {
           window.location.href = ROUTES.login;
         }, 1500);

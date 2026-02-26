@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 
 import { roomMapService, Floor } from '@/services/room-map.service';
@@ -44,7 +45,13 @@ const MallMap = () => {
       <div className="main">
         <div className="mall">
           <div className="surroundings">
-            <img className="surroundings__map" src="/Interactive3DMallMap/img/surroundings.svg" alt="Surroundings" />
+            <Image
+              className="surroundings__map"
+              src="/Interactive3DMallMap/img/surroundings.svg"
+              alt="Surroundings"
+              width={800}
+              height={600}
+            />
           </div>
           
           <div className="levels">

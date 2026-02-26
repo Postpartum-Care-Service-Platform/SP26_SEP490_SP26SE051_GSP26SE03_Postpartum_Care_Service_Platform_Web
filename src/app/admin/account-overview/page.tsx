@@ -1,13 +1,13 @@
 'use client';
 
-import { AccountOverviewHeader } from './components/AccountOverviewHeader';
+import styles from './account-overview.module.css';
 import { AccountOverviewContent } from './components/AccountOverviewContent';
+import { AccountOverviewHeader } from './components/AccountOverviewHeader';
 import { BookingCard } from './components/BookingCard';
 import { HealthMetricsCards } from './components/HealthMetricsCards';
 import { HealthMetricsTimeline } from './components/HealthMetricsTimeline';
 import { MedicalHistoryTable } from './components/MedicalHistoryTable';
 import { PrescriptionsTable } from './components/PrescriptionsTable';
-import styles from './account-overview.module.css';
 
 export default function AccountOverviewPage() {
   return (

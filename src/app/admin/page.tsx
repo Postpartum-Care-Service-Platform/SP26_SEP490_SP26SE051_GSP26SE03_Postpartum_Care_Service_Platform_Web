@@ -13,7 +13,6 @@ import { DashboardStatsCards } from './components/DashboardStatsCards';
 import { GenderStatsCard } from './components/GenderStatsCard';
 import { InvoiceList } from './components/InvoiceList';
 import { PatientByAge } from './components/PatientByAge';
-import { PatientStatusChart } from './components/PatientStatusChart';
 import { PatientVisitByGender } from './components/PatientVisitByGender';
 import { TeamProductivity } from './components/TeamProductivity';
 import { TopDoctors } from './components/TopDoctors';
@@ -27,14 +26,14 @@ type DashboardStats = {
 };
 
 export default function AdminPage() {
-  const [stats, setStats] = useState<DashboardStats>({
+  const [stats] = useState<DashboardStats>({
     activePatients: 1250,
     outstandingBalance: 34250000,
     newPatients: 1250,
     appointments: 3420,
     bedOccupancy: 78,
   });
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   // TODO: Fetch real data from API
   useEffect(() => {

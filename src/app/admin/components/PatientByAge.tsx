@@ -23,7 +23,16 @@ const mockData: AgeGroup[] = [
   { name: '31 - 40 yrs', value: 19, color: '#9fa4bf' },
 ];
 
-const CustomTooltip = ({ active, payload }: any) => {
+type TooltipProps = {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    payload?: AgeGroup;
+  }>;
+};
+
+const CustomTooltip = ({ active, payload }: TooltipProps) => {
   if (active && payload && payload.length) {
     const data = payload[0];
     const color = data.payload?.color || '#8884d8';
@@ -38,12 +47,22 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
-const CustomLegend = ({ payload }: any) => {
+type LegendPayloadItem = {
+  value: string;
+  color: string;
+  payload: AgeGroup;
+};
+
+type LegendProps = {
+  payload?: LegendPayloadItem[];
+};
+
+const CustomLegend = ({ payload }: LegendProps) => {
   const [_selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   return (
     <div className={styles.legend}>
-      {payload?.map((entry: any, index: number) => (
+      {payload?.map((entry, index) => (
         <label
           key={index}
           className={styles.legendItem}

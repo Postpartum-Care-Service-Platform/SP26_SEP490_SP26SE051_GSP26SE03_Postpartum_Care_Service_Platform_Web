@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, ChevronDown, Menu } from 'lucide-react';
+import { ChevronDown, Menu } from 'lucide-react';
 import React from 'react';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown/Dropdown';

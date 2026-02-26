@@ -61,7 +61,7 @@ function SidebarIconButton({
 export default function AiChatPage() {
   const router = useRouter();
   const { token } = useAuth();
-  const getNextIdRef = useRef<() => number | null>(null);
+  const getNextIdRef = useRef<(() => number) | null>(null);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');

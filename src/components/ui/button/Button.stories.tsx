@@ -1,9 +1,7 @@
 import { Button } from "./Button";
 
-import type { Meta, StoryObj } from "@storybook/react";
-
 // Meta configuration for the Button component
-const meta: Meta<typeof Button> = {
+const meta = {
   title: "Components/UI/Button",
   component: Button,
   tags: ["autodocs"],
@@ -68,19 +66,18 @@ const meta: Meta<typeof Button> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof Button>;
 
 // Default button
 /**
  * The default button style.
  */
-export const Default: Story = {};
+export const Default = {};
 
 // Outline variant
 /**
  * Button with outline style.
  */
-export const Outline: Story = {
+export const Outline = {
   args: {
     variant: "outline",
   },
@@ -90,33 +87,33 @@ export const Outline: Story = {
 /**
  * Button with ghost style (minimal styling).
  */
-export const Ghost: Story = {
+export const Ghost = {
   args: {
     variant: "ghost",
   },
 };
 
 // Sizes
-export const Small: Story = {
+export const Small = {
   args: {
     size: "sm",
   },
 };
 
-export const Medium: Story = {
+export const Medium = {
   args: {
     size: "md",
   },
 };
 
-export const Large: Story = {
+export const Large = {
   args: {
     size: "lg",
   },
 };
 
 // States
-export const Disabled: Story = {
+export const Disabled = {
   args: {
     disabled: true,
   },
@@ -124,7 +121,7 @@ export const Disabled: Story = {
 
 
 // With custom content
-export const WithIcon: Story = {
+export const WithIcon = {
   args: {
     children: (
       <>

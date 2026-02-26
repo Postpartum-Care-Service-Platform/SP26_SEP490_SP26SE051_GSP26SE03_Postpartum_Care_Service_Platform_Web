@@ -47,13 +47,25 @@ const TIME_OPTIONS = [
   { value: 'yearly', label: 'Yearly' },
 ];
 
-const CustomTooltip = ({ active, payload }: any) => {
+type PatientStatusTooltipItem = {
+  dataKey?: string;
+  value?: number;
+  payload?: {
+    day?: string;
+    dayLabel?: string;
+  };
+};
+
+type PatientStatusTooltipProps = {
+  active?: boolean;
+  payload?: PatientStatusTooltipItem[];
+};
+
+const CustomTooltip = ({ active, payload }: PatientStatusTooltipProps) => {
   if (active && payload && payload.length) {
-    const admissionsData = payload.find((p: any) => p.dataKey === 'admissions');
-    const dischargesData = payload.find((p: any) => p.dataKey === 'discharges');
-    const row = payload[0]?.payload as
-      | { day?: string; dayLabel?: string }
-      | undefined;
+    const admissionsData = payload.find((p) => p.dataKey === 'admissions');
+    const dischargesData = payload.find((p) => p.dataKey === 'discharges');
+    const row = payload[0]?.payload;
     const dayLabel =
       row?.dayLabel || (row?.day ? dayLabelMap[row.day] : '') || '';
 

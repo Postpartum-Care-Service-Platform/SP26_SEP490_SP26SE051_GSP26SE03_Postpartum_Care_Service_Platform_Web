@@ -50,7 +50,7 @@ export default function AmThucPage() {
             try {
                 setLoading(true);
                 const response = await apiClient.get<Menu[]>('/Menu');
-                const activeMenus = (response || []).filter((m) => m.isActive);
+                const activeMenus = (response.data || []).filter((m) => m.isActive);
 
                 if (cancelled) return;
                 setMenus(activeMenus);

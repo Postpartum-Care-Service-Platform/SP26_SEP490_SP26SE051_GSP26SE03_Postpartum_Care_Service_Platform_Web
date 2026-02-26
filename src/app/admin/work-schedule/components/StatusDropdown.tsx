@@ -35,14 +35,6 @@ export function StatusDropdown({ value, onChange }: Props) {
     }
   };
 
-  const getPillClass = (val: StatusType) => {
-    switch (val) {
-      case 'IN PROGRESS': return styles.pillBlue;
-      case 'DONE': return styles.pillGreen;
-      default: return styles.pillGray;
-    }
-  };
-
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>

@@ -3,6 +3,7 @@
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { CheckIcon } from '@radix-ui/react-icons';
 import * as Popover from '@radix-ui/react-popover';
+import Image from 'next/image';
 import React from 'react';
 
 import { ColumnActionsDropdown } from '../ColumnActionsDropdown';
@@ -11,6 +12,15 @@ import { ProfileHoverCard } from '../ProfileHoverCard';
 import { AssigneePicker } from '../shared/AssigneePicker';
 import { StatusDropdown, type StatusType } from '../StatusDropdown';
 import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
+
+type Assignee = {
+  id: string;
+  name: string;
+  email?: string;
+  initials?: string;
+  color?: string;
+  type: 'unassigned' | 'automatic' | 'user';
+};
 
 import toolbarStyles from './bulk-actions-toolbar.module.css';
 import styles from './work-schedule-list.module.css';
@@ -133,7 +143,7 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
 }
   };
 
-  const updateRowAssignee = (rowId: string, assignee: any) => {
+  const updateRowAssignee = (rowId: string, assignee: Assignee | null) => {
     setRows(prev => prev.map(r => 
       r.id === rowId ? { ...r, assignee: assignee ? assignee.name : 'Unassigned' } : r
     ));
@@ -164,7 +174,7 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
   const [showAssigneePicker, setShowAssigneePicker] = React.useState(false);
   const [showTaskTypePicker, setShowTaskTypePicker] = React.useState(false);
   const [dueDate, setDueDate] = React.useState<Date | null>(null);
-  const [assignee, setAssignee] = React.useState<any>(null);
+  const [assignee, setAssignee] = React.useState<Assignee | null>(null);
   const [selectedTaskType, setSelectedTaskType] = React.useState<TaskType>(TASK_TYPES[TASK_TYPES.length - 1]); // Lấy phần tử cuối cùng an toàn hơn
   const footerRef = React.useRef<HTMLDivElement>(null);
 
@@ -420,7 +430,13 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                 </td>
                 <td className={styles.td} style={{ width: colWidths.work, minWidth: MIN_COL_WIDTH.work }}>
                   <div className={styles.workCell}>
-                    <img src={r.iconUrl} alt="task icon" width={16} height={16} className={styles.workIconImg} />
+                    <Image
+                      src={r.iconUrl}
+                      alt="task icon"
+                      width={16}
+                      height={16}
+                      className={styles.workIconImg}
+                    />
                     <a href="#" className={styles.workCode}>{r.workCode}</a>
                     <span className={styles.workTitle} title={r.workTitle}>{r.workTitle}</span>
                   </div>
@@ -639,7 +655,7 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
               }}
             >
               {selectedTaskType.imageUrl ? (
-                <img
+                <Image
                   src={selectedTaskType.imageUrl}
                   alt={selectedTaskType.label}
                   width={16}

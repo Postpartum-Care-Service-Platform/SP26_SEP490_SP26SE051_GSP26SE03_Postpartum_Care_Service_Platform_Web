@@ -25,6 +25,21 @@ type Props = {
   onSuccess?: () => void;
 };
 
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  ) {
+    return (error as { message: string }).message;
+  }
+  return fallback;
+};
+
 export function RoomTypeModal({ open, onOpenChange, room, onSuccess }: Props) {
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -119,8 +134,8 @@ export function RoomTypeModal({ open, onOpenChange, room, onSuccess }: Props) {
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Có lỗi xảy ra', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Có lỗi xảy ra'), variant: 'error' });
     } finally {
       setIsSubmitting(false);
     }

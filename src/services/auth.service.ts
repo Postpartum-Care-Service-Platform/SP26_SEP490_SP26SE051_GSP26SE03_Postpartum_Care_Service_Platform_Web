@@ -1,7 +1,6 @@
 import type {
   LoginRequest,
   RegisterRequest,
-  GoogleLoginRequest,
   ForgotPasswordRequest,
   AuthResponse,
   LogoutRequest,

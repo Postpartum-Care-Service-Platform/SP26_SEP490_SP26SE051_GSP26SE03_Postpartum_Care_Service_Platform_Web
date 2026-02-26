@@ -45,8 +45,17 @@ const mockData: VisitData[] = [
   { month: 'Dec', actual: 1300, expected: 1300 },
 ];
 
-const CustomBarShape = (props: any) => {
+type BarShapeProps = {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  opacity?: string | number;
+};
+
+const CustomBarShape = (props: BarShapeProps) => {
   const { x, y, width, height, opacity = 0.4 } = props;
+  const opacityValue = typeof opacity === 'string' ? parseFloat(opacity) : opacity ?? 0.4;
   if (
     typeof x === 'number' &&
     typeof y === 'number' &&
@@ -61,7 +70,7 @@ const CustomBarShape = (props: any) => {
           width={width}
           height={height}
           fill="url(#barGradient)"
-          opacity={opacity}
+          opacity={opacityValue}
         />
         <line
           x1={x}
@@ -77,7 +86,14 @@ const CustomBarShape = (props: any) => {
   return null;
 };
 
-const CustomCursor = (props: any) => {
+type CursorProps = {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+};
+
+const CustomCursor = (props: CursorProps) => {
   const { x, y, width, height } = props;
   if (
     typeof x === 'number' &&
@@ -101,7 +117,17 @@ const CustomCursor = (props: any) => {
   return null;
 };
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+type TooltipPayloadItem = {
+  value: number;
+};
+
+type AvgTooltipProps = {
+  active?: boolean;
+  label?: string;
+  payload?: TooltipPayloadItem[];
+};
+
+const CustomTooltip = ({ active, payload, label }: AvgTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className={styles.tooltip}>
@@ -255,12 +281,13 @@ export function AveragePatientVisit({
               <Tooltip content={<CustomTooltip />} cursor={<CustomCursor />} />
               <Bar
                 dataKey="actual"
-                onMouseEnter={(data, index) => {
+                onMouseEnter={(_, index) => {
                   if (typeof index === 'number') {
                     setHoveredIndex(index);
                   }
                 }}
                 onMouseLeave={() => setHoveredIndex(null)}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 shape={(props: any) => {
                   const index =
                     props.payload?.index ??

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/toast/use-toast';
@@ -18,6 +18,21 @@ import { NotificationTypeModal } from './components/NotificationTypeModal';
 import { NotificationTypeTableControls } from './components/NotificationTypeTableControls';
 import styles from './notification.module.css';
 import { translateNotificationTypeName } from './utils/notificationTypeTranslations';
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  ) {
+    return (error as { message: string }).message;
+  }
+  return fallback;
+};
 
 export default function AdminNotificationPage() {
   const { toast } = useToast();
@@ -39,10 +54,6 @@ export default function AdminNotificationPage() {
   const [filteredNotifications, setFilteredNotifications] = useState<Notification[]>([]);
   const [notificationTypeSearch, setNotificationTypeSearch] = useState('');
   const [notificationTypeStatus, setNotificationTypeStatus] = useState<'all' | 'active' | 'inactive'>('all');
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   useEffect(() => {
     const filtered = notifications
@@ -71,7 +82,7 @@ export default function AdminNotificationPage() {
     setCurrentPage(1);
   }, [searchQuery, notifications, statusFilter, sortKey]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -81,12 +92,16 @@ export default function AdminNotificationPage() {
       ]);
       setNotifications(notificationsData);
       setNotificationTypes(typesData);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải dữ liệu');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Không thể tải dữ liệu'));
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleMarkAsRead = async (notification: Notification) => {
     try {
@@ -96,7 +111,7 @@ export default function AdminNotificationPage() {
       setNotifications((prev) =>
         prev.map((n) => (n.id === notification.id ? { ...n, status: 'Read' as const } : n))
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to mark notification as read:', err);
     }
   };
@@ -119,8 +134,8 @@ export default function AdminNotificationPage() {
     try {
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
       toast({ title: 'Xóa thông báo thành công', variant: 'success' });
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa thông báo thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Xóa thông báo thất bại'), variant: 'error' });
     }
   };
 
@@ -140,8 +155,8 @@ export default function AdminNotificationPage() {
       setNotificationTypes((prev) => prev.map((t) => (t.id === type.id ? { ...t, isActive: false } : t)));
       toast({ title: 'Xóa loại thông báo thành công', variant: 'success' });
       fetchData();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa loại thông báo thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Xóa loại thông báo thất bại'), variant: 'error' });
     }
   };
 
@@ -150,8 +165,8 @@ export default function AdminNotificationPage() {
       await notificationTypeService.restoreNotificationType(type.id);
       toast({ title: 'Khôi phục loại thông báo thành công', variant: 'success' });
       fetchData();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Khôi phục loại thông báo thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Khôi phục loại thông báo thất bại'), variant: 'error' });
     }
   };
 

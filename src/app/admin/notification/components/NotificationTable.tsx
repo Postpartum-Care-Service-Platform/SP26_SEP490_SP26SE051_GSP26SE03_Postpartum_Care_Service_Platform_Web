@@ -61,7 +61,13 @@ const formatDate = (dateString?: string) => {
   }
 };
 
-export function NotificationTable({ notifications, onEdit, onDelete, onMarkAsRead, pagination }: Props) {
+export function NotificationTable({
+  notifications,
+  onEdit,
+  onDelete,
+  onMarkAsRead: _onMarkAsRead,
+  pagination,
+}: Props) {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>

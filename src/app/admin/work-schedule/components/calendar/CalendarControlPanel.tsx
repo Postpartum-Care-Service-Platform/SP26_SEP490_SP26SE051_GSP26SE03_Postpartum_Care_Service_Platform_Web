@@ -11,6 +11,15 @@ import styles from './calendar-control-panel.module.css';
 import { CalendarStatusDropdown, type CalendarStatusType } from './CalendarStatusDropdown';
 import { CalendarViewDropdown, type CalendarViewMode } from './CalendarViewDropdown';
 
+type Assignee = {
+  id: string;
+  name: string;
+  email?: string;
+  initials?: string;
+  color?: string;
+  type: 'unassigned' | 'automatic' | 'user';
+};
+
 function ChevronDownIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -105,7 +114,7 @@ export function CalendarControlPanel({
   taskType,
   onTaskTypeChange,
 }: Props) {
-  const [assignee, setAssignee] = React.useState<any>(null);
+  const [assignee, setAssignee] = React.useState<Assignee | null>(null);
   const [isAssigneeOpen, setIsAssigneeIdOpen] = React.useState(false);
 
   const [isTaskTypeOpen, setIsTaskTypeOpen] = React.useState(false);

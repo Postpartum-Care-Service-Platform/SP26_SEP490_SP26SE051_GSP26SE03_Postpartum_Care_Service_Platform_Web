@@ -1,6 +1,7 @@
 'use client';
 
 import { Camera, Upload } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 
 import styles from './media-view.module.css';
@@ -64,10 +65,12 @@ export function MediaView() {
         <div className={styles.imageGrid}>
           {images.map((image, index) => (
             <div key={index} className={styles.imageItem}>
-              <img
+              <Image
                 src={image}
                 alt={`Image ${index + 1}`}
                 className={styles.image}
+                width={200}
+                height={200}
               />
             </div>
           ))}

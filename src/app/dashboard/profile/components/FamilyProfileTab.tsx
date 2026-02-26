@@ -10,6 +10,19 @@ import type { CreateFamilyProfileRequest, FamilyProfile } from '@/types/family-p
 
 import styles from './family-profile-tab.module.css';
 
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const maybeMessage = (error as { message?: unknown }).message;
+    if (typeof maybeMessage === 'string') return maybeMessage;
+  }
+
+  return fallback;
+};
+
 export function FamilyProfileTab() {
   const [profiles, setProfiles] = useState<FamilyProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,12 +59,18 @@ export function FamilyProfileTab() {
       setLoading(true);
       const data = await familyProfileService.getMyFamilyProfiles();
       setProfiles(data);
-    } catch (err: any) {
-      // Không hiển thị error nếu là 401 (đã được xử lý ở apiClient)
-      if (err?.status === 401) {
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, 'Không thể tải danh sách hồ sơ gia đình');
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'status' in err &&
+        typeof (err as { status?: unknown }).status === 'number' &&
+        (err as { status: number }).status === 401
+      ) {
         setError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
       } else {
-        setError(err.message || 'Không thể tải danh sách hồ sơ gia đình');
+        setError(message);
       }
     } finally {
       setLoading(false);
@@ -103,8 +122,8 @@ export function FamilyProfileTab() {
         handleCancel();
         loadProfiles();
       }
-    } catch (err: any) {
-      setError(err.message || 'Không thể lưu hồ sơ gia đình');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Không thể lưu hồ sơ gia đình'));
     }
   };
 

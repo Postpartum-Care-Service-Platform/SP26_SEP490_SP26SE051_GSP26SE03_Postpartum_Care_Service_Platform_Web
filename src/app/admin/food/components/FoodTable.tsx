@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import type { Food } from '@/types/food';
@@ -95,7 +97,13 @@ export function FoodTable({ foods, onEdit, onDelete, deletingId, pagination }: P
                 </td>
                 <td>
                   {food.imageUrl ? (
-                    <img src={food.imageUrl} alt={food.name} className={styles.foodImage} />
+                    <Image
+                      src={food.imageUrl}
+                      alt={food.name}
+                      className={styles.foodImage}
+                      width={64}
+                      height={64}
+                    />
                   ) : (
                     <span className={styles.noImage}>-</span>
                   )}

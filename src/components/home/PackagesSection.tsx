@@ -1,7 +1,6 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import React, { useEffect, useState, useRef } from 'react';
 
@@ -78,13 +77,6 @@ export const PackagesSection: React.FC = () => {
   // Xử lý chuyển trang sau
   const handleNext = () => {
     setCurrentIndex((prev) => (prev < totalPages - 1 ? prev + 1 : 0));
-  };
-
-  // Lấy các gói hiển thị cho trang hiện tại
-  const getVisiblePackages = () => {
-    const start = currentIndex * itemsPerPage;
-    const end = start + itemsPerPage;
-    return packages.slice(start, end);
   };
 
   if (loading) {

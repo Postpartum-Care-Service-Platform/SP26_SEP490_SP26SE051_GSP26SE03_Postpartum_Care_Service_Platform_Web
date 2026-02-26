@@ -1,9 +1,19 @@
+import { Henny_Penny } from 'next/font/google';
+
 import { ConditionalSupportWidget } from '@/components/layout/ConditionalSupportWidget';
 import { ToastProvider } from '@/components/ui/toast/ToastProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
 
-import '@/styles/globals.css';
 import type { Metadata } from 'next';
+
+import '@/styles/globals.css';
+
+const hennyPenny = Henny_Penny({
+  weight: '400',
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-henny-penny',
+});
 
 export const metadata: Metadata = {
   title: 'Postpartum Service',
@@ -16,12 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Henny+Penny&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="vi" suppressHydrationWarning className={hennyPenny.variable}>
       <body className="app-shell" suppressHydrationWarning>
         <AuthProvider>
           <ToastProvider>

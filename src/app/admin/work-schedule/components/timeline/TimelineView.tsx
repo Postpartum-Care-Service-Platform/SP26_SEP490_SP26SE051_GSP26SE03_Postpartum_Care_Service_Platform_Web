@@ -1,17 +1,20 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
 
 import styles from './timeline-view.module.css';
 
 function EpicIcon() {
   return (
-    <img
+    <Image
       src="https://vominhtien0511.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10307?size=medium"
       alt="Epic"
       aria-label="Epic"
       draggable={false}
       className={styles.epicIconImg}
+      width={24}
+      height={24}
     />
   );
 }
@@ -155,7 +158,7 @@ export function TimelineView() {
           <div className={styles.leftBody}>
             <div className={styles.sectionTitle}>Sprints</div>
 
-            {EPICS.map((t, i) => (
+            {EPICS.map((t, _i) => (
               <div key={t} className={styles.row}>
                 <input className={styles.checkbox} type="checkbox" aria-label="Select" />
                 <span className={styles.epicIcon} aria-hidden="true">

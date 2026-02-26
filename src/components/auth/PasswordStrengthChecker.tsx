@@ -74,7 +74,6 @@ export function PasswordStrengthChecker({ password, isVisible }: Props) {
 
   const strength = calculateStrength(password);
   const config = getStrengthConfig(strength);
-  const passedCount = criteria.filter((c) => c.test(password)).length;
 
   return (
     <div className={styles.container}>

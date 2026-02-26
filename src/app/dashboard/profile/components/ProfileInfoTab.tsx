@@ -5,16 +5,27 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
-import { useAuth } from '@/contexts/AuthContext';
 import userService from '@/services/user.service';
 import type { Account } from '@/types/account';
 
 import styles from './profile-info-tab.module.css';
 
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const maybeMessage = (error as { message?: unknown }).message;
+    if (typeof maybeMessage === 'string') return maybeMessage;
+  }
+
+  return fallback;
+};
+
 export function ProfileInfoTab() {
   const [account, setAccount] = useState<Account | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -44,12 +55,18 @@ export function ProfileInfoTab() {
       setEmail(data.email || '');
       setPhone(data.phone || '');
       setUsername(data.username || '');
-    } catch (err: any) {
-      // Không hiển thị error nếu là 401 (đã được xử lý ở apiClient)
-      if (err?.status === 401) {
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, 'Không thể tải thông tin tài khoản');
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'status' in err &&
+        typeof (err as { status?: unknown }).status === 'number' &&
+        (err as { status: number }).status === 401
+      ) {
         setError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
       } else {
-        setError(err.message || 'Không thể tải thông tin tài khoản');
+        setError(message);
       }
     } finally {
       setLoading(false);

@@ -1,8 +1,11 @@
+import type { Contract } from '@/types/contract';
+
 type Props = {
-  contract: any;
+  contract: Contract;
   onUpdate: () => void;
 };
 
-export function ContractDetail({ contract, onUpdate }: Props) {
+export function ContractDetail({ contract: _contract, onUpdate: _onUpdate }: Props) {
+  // TODO: Implement contract detail view
   return null;
-    }
+}

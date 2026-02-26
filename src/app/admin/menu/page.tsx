@@ -17,6 +17,12 @@ import styles from './menu.module.css';
 
 import type { MenuStats } from './components';
 
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
+
 const PAGE_SIZE = 10;
 
 const sortMenus = (items: Menu[], sort: string) => {
@@ -67,8 +73,8 @@ export default function AdminMenuPage() {
       setError(null);
       const data = await menuService.getAllMenus();
       setMenus(data);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách thực đơn');
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, 'Không thể tải danh sách thực đơn'));
     } finally {
       setLoading(false);
     }
@@ -147,9 +153,9 @@ export default function AdminMenuPage() {
       await menuService.deleteMenu(menu.id);
       toast({ title: 'Xóa thực đơn thành công', variant: 'success' });
       await fetchMenus();
-    } catch (err: any) {
+    } catch (error: unknown) {
       toast({
-        title: err?.message || 'Xóa thực đơn thất bại',
+        title: getErrorMessage(error, 'Xóa thực đơn thất bại'),
         variant: 'error',
       });
     } finally {

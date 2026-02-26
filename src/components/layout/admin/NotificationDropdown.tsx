@@ -5,7 +5,6 @@ import { vi } from 'date-fns/locale';
 import { Bell, Clock, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
 import React from 'react';
 
-import { translateNotificationTypeName } from '@/app/admin/notification/utils/notificationTypeTranslations';
 import {
   DropdownMenu,
   DropdownMenuContent,

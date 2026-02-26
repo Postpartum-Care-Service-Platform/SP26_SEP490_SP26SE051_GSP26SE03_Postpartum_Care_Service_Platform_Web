@@ -24,6 +24,31 @@ type EmailErrors = { email?: string };
 
 type NewPasswordErrors = { newPassword?: string; confirmPassword?: string };
 
+type ApiError = {
+  message?: string;
+  data?: {
+    error?: string;
+  };
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const maybeError = error as ApiError;
+    if (maybeError.message && typeof maybeError.message === 'string') {
+      return maybeError.message;
+    }
+    if (maybeError.data?.error && typeof maybeError.data.error === 'string') {
+      return maybeError.data.error;
+    }
+  }
+
+  return fallback;
+};
+
 export default function ResetPasswordForm() {
   const { toast } = useToast();
   const [step, setStep] = useState<Step>('email');
@@ -73,11 +98,9 @@ export default function ResetPasswordForm() {
       toast({ title: AUTH_FORGOT_PASSWORD_MESSAGES.sendOtpSuccess, variant: 'success' });
       setStep('otp');
       setCooldown(RESEND_COOLDOWN_SEC);
-    } catch (err: any) {
-      // Backend trả { error: "..." } -> interceptor map thành err.message
-      const msg = err?.message || err?.data?.error || AUTH_FORGOT_PASSWORD_MESSAGES.sendOtpFailed;
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err, AUTH_FORGOT_PASSWORD_MESSAGES.sendOtpFailed);
 
-      // Nếu đúng case email not found -> dùng message chuẩn
       if (msg.includes('Không tìm thấy tài khoản')) {
         setEmailErrors({ email: AUTH_FORGOT_PASSWORD_MESSAGES.emailNotFound });
       } else {
@@ -118,9 +141,8 @@ export default function ResetPasswordForm() {
       setConfirmPassword('');
       setEmailErrors({});
       setNewPasswordErrors({});
-    } catch (err: any) {
-      // hiển thị dưới field (không toast)
-      const msg = err?.message || err?.data?.error || RESET_PASSWORD_MESSAGES.resetFailed;
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err, RESET_PASSWORD_MESSAGES.resetFailed);
       setNewPasswordErrors({ newPassword: msg });
     } finally {
       setIsLoading(false);
@@ -171,7 +193,6 @@ export default function ResetPasswordForm() {
 
       {step === 'new_password' && (
         <NewPasswordStep
-          resetToken={resetToken}
           newPassword={newPassword}
           setNewPassword={setNewPassword}
           confirmPassword={confirmPassword}

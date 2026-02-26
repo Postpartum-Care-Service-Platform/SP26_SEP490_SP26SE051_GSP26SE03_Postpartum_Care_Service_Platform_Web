@@ -1,12 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { useToast } from '@/components/ui/toast/use-toast';
-import styles from './feedback.module.css';
 import feedbackService from '@/services/feedback.service';
 import type { Feedback } from '@/types/feedback';
+
+import styles from './feedback.module.css';
 import { FeedbackCard } from './FeedbackCard';
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
 
 export default function AdminFeedbackPage() {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
@@ -21,8 +29,8 @@ export default function AdminFeedbackPage() {
         setError(null);
         const data = await feedbackService.getAllFeedbacks();
         setFeedbacks(data);
-      } catch (err: any) {
-        setError(err?.message || 'Không thể tải danh sách phản hồi');
+      } catch (error: unknown) {
+        setError(getErrorMessage(error, 'Không thể tải danh sách phản hồi'));
       } finally {
         setLoading(false);
       }
@@ -60,8 +68,11 @@ export default function AdminFeedbackPage() {
       });
       setFeedbacks((prev) => prev.map((f) => (f.id === feedback.id ? updated : f)));
       toast({ title: 'Cập nhật phản hồi thành công', variant: 'success' });
-    } catch (err: any) {
-      toast({ title: err?.message || 'Cập nhật phản hồi thất bại', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Cập nhật phản hồi thất bại'),
+        variant: 'error',
+      });
     }
   };
 
@@ -70,8 +81,11 @@ export default function AdminFeedbackPage() {
       await feedbackService.deleteFeedback(feedback.id);
       setFeedbacks((prev) => prev.filter((f) => f.id !== feedback.id));
       toast({ title: 'Xóa phản hồi thành công', variant: 'success' });
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa phản hồi thất bại', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Xóa phản hồi thất bại'),
+        variant: 'error',
+      });
     }
   };
 

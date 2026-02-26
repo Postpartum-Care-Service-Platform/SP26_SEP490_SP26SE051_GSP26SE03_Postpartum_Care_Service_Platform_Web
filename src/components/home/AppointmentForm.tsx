@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { Form } from '@/components/forms/Form';
 import { FormField } from '@/components/forms/FormField';
@@ -71,20 +72,6 @@ const appointmentSchema = z
   });
 
 type AppointmentFormData = z.infer<typeof appointmentSchema>;
-
-// Tạo danh sách giờ hành chính (8h - 16h)
-const generateTimeSlots = (): string[] => {
-  const slots: string[] = [];
-  for (let hour = 8; hour <= 16; hour++) {
-    slots.push(`${hour.toString().padStart(2, '0')}:00`);
-    if (hour < 16) {
-      slots.push(`${hour.toString().padStart(2, '0')}:30`);
-    }
-  }
-  return slots;
-};
-
-const TIME_SLOTS = generateTimeSlots();
 
 // Loại tư vấn (có thể lấy từ API sau)
 const APPOINTMENT_TYPES = [
@@ -177,7 +164,7 @@ export const AppointmentForm: React.FC = () => {
             <div>
               <Input
                 name={name}
-                value={value}
+                value={value as string}
                 onChange={onChange}
                 onBlur={onBlur}
                 placeholder="Nhập họ và tên của bạn"
@@ -197,7 +184,7 @@ export const AppointmentForm: React.FC = () => {
               <div className={styles.dateInputContainer}>
                 <Input
                   name={name}
-                  value={value || (selectedDate ? format(selectedDate, 'dd/MM/yyyy') : '')}
+                  value={(value as string) || (selectedDate ? format(selectedDate, 'dd/MM/yyyy') : '')}
                   onChange={onChange}
                   onBlur={onBlur}
                   placeholder="Chọn ngày"
@@ -236,7 +223,7 @@ export const AppointmentForm: React.FC = () => {
                 <Input
                   name={name}
                   type="time"
-                  value={value}
+                  value={value as string}
                   onChange={onChange}
                   onBlur={onBlur}
                   placeholder="Chọn giờ (08:00 - 17:00)"
@@ -259,7 +246,7 @@ export const AppointmentForm: React.FC = () => {
             <div>
               <select
                 name={name}
-                value={value}
+                value={value as number}
                 onChange={(e) => onChange(Number(e.target.value))}
                 onBlur={onBlur}
                 className={`${styles.selectInput} ${error ? styles.inputError : ''}`}

@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect, forwardRef } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { forwardRef, useEffect, useState } from 'react';
+
 import { useToast } from '@/components/ui/toast/use-toast';
-import styles from './new-activity-modal.module.css';
-import type { Activity, CreateActivityRequest, UpdateActivityRequest } from '@/types/activity';
 import activityService from '@/services/activity.service';
+import type { Activity, CreateActivityRequest, UpdateActivityRequest } from '@/types/activity';
+
+import styles from './new-activity-modal.module.css';
 
 type Props = {
   open: boolean;
@@ -107,10 +109,23 @@ export function NewActivityModal({ open, onOpenChange, onSuccess, activityToEdit
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      const errorMessage = err?.message || (isEditMode ? 'Cập nhật hoạt động thất bại' : 'Tạo hoạt động thất bại');
+    } catch (err: unknown) {
+      let errorMessage: string;
 
-      if (errorMessage.includes('tồn tại') || errorMessage.includes('đã tồn tại') || errorMessage.toLowerCase().includes('exists') || errorMessage.toLowerCase().includes('duplicate')) {
+      if (err instanceof Error && err.message) {
+        errorMessage = err.message;
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      } else {
+        errorMessage = isEditMode ? 'Cập nhật hoạt động thất bại' : 'Tạo hoạt động thất bại';
+      }
+
+      if (
+        errorMessage.includes('tồn tại') ||
+        errorMessage.includes('đã tồn tại') ||
+        errorMessage.toLowerCase().includes('exists') ||
+        errorMessage.toLowerCase().includes('duplicate')
+      ) {
         setErrors({ name: 'Tên hoạt động đã tồn tại.' });
       } else {
         toast({ title: errorMessage, variant: 'error' });

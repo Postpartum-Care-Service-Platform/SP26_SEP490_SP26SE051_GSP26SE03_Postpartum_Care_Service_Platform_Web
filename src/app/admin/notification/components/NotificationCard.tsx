@@ -1,5 +1,7 @@
 'use client';
 
+/* eslint-disable import/order */
+
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { MoreVertical } from 'lucide-react';
@@ -10,16 +12,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown/Dropdown';
+import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
+import styles from './notification-card.module.css';
+
 import type { Notification } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
 
-import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
-
-import styles from './notification-card.module.css';
-
 type Props = {
   notification: Notification;
-  notificationTypes: Map<number, NotificationType>;
+  notificationTypes?: Map<number, NotificationType>;
   onMarkAsRead?: (notification: Notification) => void;
   onEdit?: (notification: Notification) => void;
   onDelete?: (notification: Notification) => void;
@@ -59,13 +60,7 @@ const formatTime = (dateString: string) => {
   }
 };
 
-export function NotificationCard({
-  notification,
-  notificationTypes,
-  onMarkAsRead,
-  onEdit,
-  onDelete,
-}: Props) {
+export function NotificationCard({ notification, onMarkAsRead, onEdit, onDelete }: Props) {
   const isUnread = notification.status === 'Unread';
   const staffName = notification.staffName || 'Hệ thống';
   const avatarColor = getAvatarColor(staffName);
@@ -75,15 +70,6 @@ export function NotificationCard({
     if (isUnread) {
       onMarkAsRead?.(notification);
     }
-  };
-
-  // Keep to preserve behavior if used later.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const getNotificationText = () => {
-    const typeName = translateNotificationTypeName(
-      notification.notificationTypeName
-    );
-    return `${staffName} ${notification.title}`;
   };
 
   return (

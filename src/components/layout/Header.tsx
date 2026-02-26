@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import React from 'react';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-180x180.png';
@@ -28,10 +29,10 @@ export function Header() {
       <div className="tjn-header__container">
         <div className="tjn-header__inner">
           {/* Logo */}
-          <a className="tjn-header__brand" href="/" aria-label="The Joyful Nest">
+          <Link className="tjn-header__brand" href="/" aria-label="The Joyful Nest">
             <Image className="tjn-header__logo" src={LogoSymbol} alt="The Joyful Nest" priority />
             <span className="tjn-header__brandText">The Joyful Nest</span>
-          </a>
+          </Link>
 
           {/* Menu */}
           <nav className="tjn-header__nav" aria-label="Primary">

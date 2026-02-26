@@ -12,8 +12,11 @@ import styles from './menu-record.module.css';
 
 import type { MenuRecordStats } from './components';
 
-
-
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
 const PAGE_SIZE = 10;
 
 const sortMenuRecords = (items: MenuRecord[], sort: string) => {
@@ -56,8 +59,8 @@ export default function AdminMenuRecordPage() {
       setError(null);
       const data = await menuRecordService.getAllMenuRecords();
       setMenuRecords(data);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách bản ghi thực đơn');
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, 'Không thể tải danh sách bản ghi thực đơn'));
     } finally {
       setLoading(false);
     }
@@ -129,8 +132,11 @@ export default function AdminMenuRecordPage() {
       await menuRecordService.deleteMenuRecord(menuRecord.id);
       toast({ title: 'Xóa bản ghi thực đơn thành công', variant: 'success' });
       await fetchMenuRecords();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa bản ghi thực đơn thất bại', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Xóa bản ghi thực đơn thất bại'),
+        variant: 'error',
+      });
     } finally {
       setDeletingId(null);
     }

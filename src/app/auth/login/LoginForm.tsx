@@ -16,6 +16,34 @@ import authService from '@/services/auth.service';
 
 import styles from './login.module.css';
 
+type ApiError = {
+  status?: number;
+  message?: string;
+  data?: {
+    error?: string;
+  };
+};
+
+const getApiErrorDetails = (error: unknown): ApiError => {
+  if (error instanceof Error) {
+    return { message: error.message };
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const maybeError = error as Partial<ApiError>;
+    return {
+      status: typeof maybeError.status === 'number' ? maybeError.status : undefined,
+      message: typeof maybeError.message === 'string' ? maybeError.message : undefined,
+      data:
+        maybeError.data && typeof maybeError.data === 'object'
+          ? (maybeError.data as { error?: string })
+          : undefined,
+    };
+  }
+
+  return {};
+};
+
 export function LoginForm() {
   const [emailOrUsername, setEmailOrUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -86,19 +114,23 @@ export function LoginForm() {
 
     try {
       const authResponse = await authService.login({ emailOrUsername, password });
-      if (!authResponse?.accessToken || !authResponse?.user) throw { status: 0, message: 'Có lỗi xảy ra' };
+      if (!authResponse?.accessToken || !authResponse?.user) {
+        throw new Error('Có lỗi xảy ra');
+      }
 
       login(authResponse);
       toast({ title: AUTH_LOGIN_MESSAGES.loginSuccess, variant: 'success' });
       router.push(authResponse.user.role?.toLowerCase() === 'admin' ? ROUTES.admin : ROUTES.main);
-    } catch (err: any) {
-      if (err?.status === 401) {
+    } catch (err: unknown) {
+      const { status, message, data } = getApiErrorDetails(err);
+      if (status === 401) {
         setFieldErrors({
           emailOrUsername: AUTH_LOGIN_MESSAGES.invalidCredentials,
           password: AUTH_LOGIN_MESSAGES.invalidCredentials,
         });
       } else {
-        setFieldErrors({ emailOrUsername: err?.message || 'Có lỗi xảy ra' });
+        const friendlyMessage = message || data?.error || 'Có lỗi xảy ra';
+        setFieldErrors({ emailOrUsername: friendlyMessage });
       }
       console.error('Đăng nhập thất bại:', err);
     } finally {

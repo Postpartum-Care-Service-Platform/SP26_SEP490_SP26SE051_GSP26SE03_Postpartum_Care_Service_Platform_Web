@@ -17,6 +17,12 @@ import styles from './menu-type.module.css';
 
 import type { MenuTypeStats } from './components';
 
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
+
 const PAGE_SIZE = 10;
 
 const sortMenuTypes = (items: MenuType[], sort: string) => {
@@ -61,8 +67,8 @@ export default function AdminMenuTypePage() {
       setError(null);
       const data = await menuTypeService.getAllMenuTypes();
       setMenuTypes(data);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách loại thực đơn');
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, 'Không thể tải danh sách loại thực đơn'));
     } finally {
       setLoading(false);
     }
@@ -136,9 +142,9 @@ export default function AdminMenuTypePage() {
       await menuTypeService.deleteMenuType(menuType.id);
       toast({ title: 'Xóa loại thực đơn thành công', variant: 'success' });
       await fetchMenuTypes();
-    } catch (err: any) {
+    } catch (error: unknown) {
       toast({
-        title: err?.message || 'Xóa loại thực đơn thất bại',
+        title: getErrorMessage(error, 'Xóa loại thực đơn thất bại'),
         variant: 'error',
       });
     } finally {

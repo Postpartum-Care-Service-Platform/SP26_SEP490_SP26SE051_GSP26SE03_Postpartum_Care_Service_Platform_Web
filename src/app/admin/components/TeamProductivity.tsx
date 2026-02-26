@@ -22,7 +22,13 @@ import {
 import { CountUp } from './CountUp';
 import styles from './team-productivity.module.css';
 
-const data = [
+type TeamProductivityPoint = {
+  month: string;
+  team: number;
+  productivity: number;
+};
+
+const data: TeamProductivityPoint[] = [
   { month: 'Jan', team: 12, productivity: 52 },
   { month: 'Feb', team: 12, productivity: 52 },
   { month: 'Mar', team: 25, productivity: 30 },
@@ -37,13 +43,25 @@ const data = [
   { month: 'Dec', team: 22, productivity: 35 },
 ];
 
-const CustomTooltip = ({ active, payload }: any) => {
+type TeamProductivityTooltipItem = {
+  color?: string;
+  name?: string;
+  value?: number;
+  payload?: TeamProductivityPoint;
+};
+
+type TeamProductivityTooltipProps = {
+  active?: boolean;
+  payload?: TeamProductivityTooltipItem[];
+};
+
+const CustomTooltip = ({ active, payload }: TeamProductivityTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className={styles.tooltip}>
-        <p className={styles.tooltipLabel}>{payload[0].payload.month}</p>
+        <p className={styles.tooltipLabel}>{payload[0].payload?.month}</p>
         <div className={styles.tooltipContent}>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index) => (
             <div key={index} className={styles.tooltipItem}>
               <span
                 className={styles.tooltipDot}

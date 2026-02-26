@@ -12,6 +12,19 @@ import type { Account } from '@/types/account';
 
 import styles from './profile-sidebar-column.module.css';
 
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const maybeMessage = (error as { message?: unknown }).message;
+    if (typeof maybeMessage === 'string') return maybeMessage;
+  }
+
+  return fallback;
+};
+
 export function ProfileSidebarColumn() {
   const { user, isAuthenticated } = useAuth();
   const [account, setAccount] = useState<Account | null>(null);
@@ -32,9 +45,17 @@ export function ProfileSidebarColumn() {
     try {
       const data = await userService.getCurrentAccount();
       setAccount(data);
-    } catch (err: any) {
-      if (err?.status !== 401) {
-        console.error('Failed to load account:', err);
+    } catch (err: unknown) {
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'status' in err &&
+        typeof (err as { status?: unknown }).status === 'number' &&
+        (err as { status: number }).status === 401
+      ) {
+        // 401 đã được xử lý ở apiClient; không log thêm.
+      } else {
+        console.error('Failed to load account:', getErrorMessage(err, 'Failed to load account'));
       }
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
 'use client';
 
-import { Cross1Icon, EnterFullScreenIcon, ExitFullScreenIcon, MinusIcon, SizeIcon } from '@radix-ui/react-icons';
+import { Cross1Icon, EnterFullScreenIcon, ExitFullScreenIcon, MinusIcon } from '@radix-ui/react-icons';
 import React from 'react';
 
 type ChatHeaderProps = {

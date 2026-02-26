@@ -53,13 +53,11 @@ export function SupportWidget() {
   const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [typingUsers, setTypingUsers] = React.useState<Set<string>>(new Set());
   const [hasStaffSupport, setHasStaffSupport] = React.useState(false);
-  const [hasRequestedSupport, setHasRequestedSupport] = React.useState(false);
 
   const {
     isConnected,
     joinConversation,
     leaveConversation,
-    sendMessage: sendSignalRMessage,
     requestSupport,
     onReceiveMessage,
     onUserTyping,
@@ -211,7 +209,6 @@ export function SupportWidget() {
         // System message đã được broadcast qua ReceiveMessage
         // Chỉ cần update state
         setHasStaffSupport(true);
-        setHasRequestedSupport(true);
       }
     });
 
@@ -246,7 +243,6 @@ export function SupportWidget() {
         // Không cần thêm system message vì đã được broadcast qua ReceiveMessage
         // Chỉ cần update state
         setHasStaffSupport(false);
-        setHasRequestedSupport(false);
       }
     });
 
@@ -435,7 +431,6 @@ export function SupportWidget() {
 
     try {
       await requestSupport(conversation.id, 'Yêu cầu hỗ trợ từ khách hàng');
-      setHasRequestedSupport(true);
     } catch (error) {
       console.error('Failed to request support:', error);
       alert('Không thể gửi yêu cầu hỗ trợ. Vui lòng thử lại.');

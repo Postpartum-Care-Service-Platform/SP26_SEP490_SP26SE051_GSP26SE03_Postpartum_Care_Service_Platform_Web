@@ -2,7 +2,7 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { AlertCircle, Bell, CheckCircle, ChevronRight, Clock, FileText, Info, ShoppingCart, Users, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, ChevronRight, Clock, FileText, Info, ShoppingCart, Users, XCircle } from 'lucide-react';
 import React from 'react';
 
 import notificationTypeService from '@/services/notification-type.service';

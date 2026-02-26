@@ -12,8 +12,8 @@ import {
 } from '@/components/ui/dropdown';
 
 import { CountUp } from './CountUp';
-import { PatientStatusChart } from './PatientStatusChart';
 import styles from './dashboard-stats-cards.module.css';
+import { PatientStatusChart } from './PatientStatusChart';
 
 type DashboardStats = {
   activePatients: number;
