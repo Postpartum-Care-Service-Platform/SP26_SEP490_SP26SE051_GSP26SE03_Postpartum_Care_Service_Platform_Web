@@ -22,8 +22,11 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - name: Install dependencies
+      - name: Install dependencies (clean)
         run: npm ci
+
+      - name: Install platform-specific native deps (swc, lightningcss)
+        run: npm install
 
       - name: Lint
         run: npm run lint
