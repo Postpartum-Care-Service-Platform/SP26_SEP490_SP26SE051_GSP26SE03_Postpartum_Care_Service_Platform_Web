@@ -3,6 +3,7 @@
 import { Cross1Icon } from '@radix-ui/react-icons';
 import { forwardRef, useEffect, useState } from 'react';
 
+import { Spinner } from '@/components/ui/spinner';
 import { useToast } from '@/components/ui/toast/use-toast';
 import authService from '@/services/auth.service';
 
@@ -25,6 +26,44 @@ type FormErrors = {
   phone?: string;
   username?: string;
 };
+
+type ApiClientError = {
+  status?: number;
+  message?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data?: any;
+};
+
+function getApiErrorMessage(err: unknown, fallback: string) {
+  if (err && typeof err === 'object' && 'message' in err && typeof (err as ApiClientError).message === 'string') {
+    return (err as ApiClientError).message as string;
+  }
+
+  if (err instanceof Error && err.message) return err.message;
+
+  return fallback;
+}
+
+function mapMessageToFieldErrors(message: string): FormErrors {
+  const m = message.toLowerCase();
+  const next: FormErrors = {};
+
+  if (m.includes('email')) next.email = message;
+  if (m.includes('số điện thoại') || m.includes('so dien thoai') || m.includes('phone')) {
+    next.phone = message;
+  }
+
+  if (m.includes('username') || m.includes('tên đăng nhập') || m.includes('ten dang nhap')) {
+    // Chuẩn hoá thông báo sang tiếng Việt cho username
+    if (m.includes('đã tồn tại') || m.includes('da ton tai')) {
+      next.username = 'Tên đăng nhập đã tồn tại';
+    } else {
+      next.username = message.replace(/username/gi, 'Tên đăng nhập');
+    }
+  }
+
+  return next;
+}
 
 const INITIAL_FORM_DATA: CreateCustomerRequest = {
   email: '',
@@ -104,9 +143,12 @@ export function NewAccountModal({ open, onOpenChange, onSuccess }: Props) {
       onOpenChange(false);
       onSuccess?.();
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error && err.message ? err.message : 'Tạo tài khoản thất bại';
-      toast({ title: msg, variant: 'error' });
+      const msg = getApiErrorMessage(err, 'Tạo tài khoản thất bại');
+      const fieldErrors = mapMessageToFieldErrors(msg);
+
+      if (Object.keys(fieldErrors).length > 0) {
+        setErrors(fieldErrors);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -185,7 +227,7 @@ export function NewAccountModal({ open, onOpenChange, onSuccess }: Props) {
               Hủy
             </button>
             <button type="submit" className={`${styles.button} ${styles.buttonPrimary}`} disabled={isSubmitting}>
-              {isSubmitting ? 'Đang xử lý...' : 'Thêm mới'}
+              {isSubmitting ? <Spinner size="sm" /> : 'Thêm mới'}
             </button>
           </div>
         </form>

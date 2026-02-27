@@ -18,6 +18,13 @@ const familyProfileService = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
+
+  updateFamilyProfile: (id: number, payload: CreateFamilyProfileRequest): Promise<FamilyProfile> => {
+    const formData = buildFamilyProfileFormData(payload);
+    return apiClient.put(`/FamilyProfile/Update/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
 
 export default familyProfileService;

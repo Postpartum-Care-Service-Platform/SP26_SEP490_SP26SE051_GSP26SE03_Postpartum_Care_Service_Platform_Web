@@ -13,6 +13,9 @@ export type Patient = {
   address: string;
   role?: string;
   roleId?: number;
+  isActive?: boolean;
+  isEmailVerified?: boolean;
+  createdAt?: string;
   // 'true' if email verified, 'false' otherwise
   status: PatientStatus;
   // Account ID to fetch profiles

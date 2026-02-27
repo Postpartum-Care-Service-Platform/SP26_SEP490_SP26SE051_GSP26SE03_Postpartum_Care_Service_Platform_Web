@@ -37,15 +37,16 @@ export function mapGender(gender: string | null | undefined): 'Male' | 'Female' 
 export function mapFamilyProfileToPatient(profile: FamilyProfile, _index: number): Patient {
   return {
     id: profile.customerId || String(profile.id),
-    name: profile.fullName || 'N/A',
+    name: profile.fullName || 'Chưa cập nhật',
     avatar: profile.avatarUrl || undefined,
-    username: 'N/A',
-    email: 'N/A',
+    username: 'Chưa cập nhật',
+    email: 'Chưa cập nhật',
     dateOfBirth: profile.dateOfBirth || null,
     age: calculateAge(profile.dateOfBirth),
     gender: mapGender(profile.gender),
-    contact: profile.phoneNumber || 'N/A',
-    address: profile.address || 'N/A',
+    contact: profile.phoneNumber || 'Chưa cập nhật',
+    address: profile.address || 'Chưa cập nhật',
+    isActive: true,
     status: 'Stable',
     accountId: profile.customerId || String(profile.id),
   };
@@ -56,18 +57,21 @@ export function mapAccountToPatient(account: Account, _index: number): Patient {
 
   return {
     id: account.id,
-    name: profile?.fullName || account.username || account.email || 'N/A',
+    name: profile?.fullName || account.username || account.email || 'Chưa cập nhật',
     avatar: profile?.avatarUrl || account.avatarUrl || undefined,
     username: account.username,
     email: account.email,
     dateOfBirth: profile?.dateOfBirth || null,
     age: calculateAge(profile?.dateOfBirth),
     gender: mapGender(profile?.gender || null),
-    contact: profile?.phoneNumber || account.phone || 'N/A',
-    address: profile?.address || 'N/A',
-    role: account.roleName || 'N/A',
+    contact: profile?.phoneNumber || account.phone || 'Chưa cập nhật',
+    address: profile?.address || 'Chưa cập nhật',
+    role: account.roleName || 'Chưa cập nhật',
     roleId: account.roleId,
+    isActive: account.isActive,
+    isEmailVerified: account.isEmailVerified,
     status: account.isEmailVerified ? 'Stable' : 'Under Observation',
+    createdAt: account.createdAt,
     accountId: account.id,
   };
 }
