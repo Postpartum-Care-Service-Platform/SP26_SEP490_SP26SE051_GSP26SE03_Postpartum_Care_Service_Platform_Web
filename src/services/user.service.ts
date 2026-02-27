@@ -26,16 +26,13 @@ const userService = {
     return apiClient.get('/Account/GetCurrentAccount');
   },
 
-  setAccountInactive: (id: string): Promise<Account> => {
-    return apiClient.put(`/Account/SetAccountInactive/${id}`);
-  },
-
-  setAccountActive: (id: string): Promise<Account> => {
-    return apiClient.put(`/Account/SetAccountActive/${id}`);
+  // Toggle trạng thái active/inactive của tài khoản
+  toggleAccountStatus: (id: string): Promise<Account> => {
+    return apiClient.patch(`/Account/SetAccountStatus/${id}`);
   },
 
   setRole: (id: string, roleId: number): Promise<Account> => {
-    return apiClient.put(`/Account/SetRole/${id}/role/${roleId}`);
+    return apiClient.patch(`/Account/SetRole/${id}/role/${roleId}`);
   },
 };
 

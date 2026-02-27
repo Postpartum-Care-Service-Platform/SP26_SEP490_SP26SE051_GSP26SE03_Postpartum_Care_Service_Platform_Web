@@ -46,7 +46,6 @@ export function FamilyProfileTab() {
 
   const loadProfiles = async () => {
     try {
-      // Kiểm tra token trước khi gọi API
       if (typeof window !== 'undefined') {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -55,7 +54,7 @@ export function FamilyProfileTab() {
           return;
         }
       }
-      
+
       setLoading(true);
       const data = await familyProfileService.getMyFamilyProfiles();
       setProfiles(data);
@@ -114,14 +113,15 @@ export function FamilyProfileTab() {
 
     try {
       if (editingProfile) {
-        // Update logic - cần implement update service
-        alert('Chức năng cập nhật đang được phát triển');
+        await familyProfileService.updateFamilyProfile(editingProfile.id, formData);
+        setSuccess('Cập nhật hồ sơ gia đình thành công!');
       } else {
         await familyProfileService.createFamilyProfile(formData);
         setSuccess('Tạo hồ sơ gia đình thành công!');
-        handleCancel();
-        loadProfiles();
       }
+
+      handleCancel();
+      await loadProfiles();
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Không thể lưu hồ sơ gia đình'));
     }
@@ -147,17 +147,13 @@ export function FamilyProfileTab() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h3 className={styles.title}>Hồ sơ gia đình</h3>
-        {!showForm && (
-          <Button onClick={() => setShowForm(true)}>Thêm hồ sơ mới</Button>
-        )}
+        {!showForm && <Button onClick={() => setShowForm(true)}>Thêm hồ sơ mới</Button>}
       </div>
 
       {showForm && (
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formSection}>
-            <h4 className={styles.formTitle}>
-              {editingProfile ? 'Cập nhật hồ sơ' : 'Thêm hồ sơ mới'}
-            </h4>
+            <h4 className={styles.formTitle}>{editingProfile ? 'Cập nhật hồ sơ' : 'Thêm hồ sơ mới'}</h4>
 
             <div className={styles.field}>
               <label htmlFor="fullName" className={styles.label}>
@@ -284,9 +280,7 @@ export function FamilyProfileTab() {
                     className={styles.avatar}
                   />
                 ) : (
-                  <div className={styles.avatarPlaceholder}>
-                    {profile.fullName.charAt(0).toUpperCase()}
-                  </div>
+                  <div className={styles.avatarPlaceholder}>{profile.fullName.charAt(0).toUpperCase()}</div>
                 )}
                 <div className={styles.profileInfo}>
                   <h4 className={styles.profileName}>{profile.fullName}</h4>
