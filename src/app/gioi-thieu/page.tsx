@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Target, Eye, CheckCircle2, Shield, Award, Heart, Sparkles } from 'lucide-react';
@@ -38,6 +38,16 @@ const staggerContainer = {
 };
 
 export default function GioiThieuPage() {
+  // Generate random values once using useMemo to avoid calling Math.random() during render
+  const particleData = useMemo(() => {
+    return Array.from({ length: 30 }, () => ({
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      delay: Math.random() * 15,
+      duration: 10 + Math.random() * 10,
+    }));
+  }, []);
+
   return (
     <div className="app-shell__inner">
       <Header />
@@ -61,24 +71,18 @@ export default function GioiThieuPage() {
             
             {/* Floating Particles */}
             <div className={styles.particles}>
-              {[...Array(30)].map((_, i) => {
-                const randomX = Math.random() * 100;
-                const randomY = Math.random() * 100;
-                const randomDelay = Math.random() * 15;
-                const randomDuration = 10 + Math.random() * 10;
-                return (
-                  <div
-                    key={i}
-                    className={styles.particle}
-                    style={{
-                      '--delay': `${randomDelay}s`,
-                      '--duration': `${randomDuration}s`,
-                      '--x': `${randomX}%`,
-                      '--y': `${randomY}%`,
-                    } as React.CSSProperties}
-                  />
-                );
-              })}
+              {particleData.map((particle, i) => (
+                <div
+                  key={i}
+                  className={styles.particle}
+                  style={{
+                    '--delay': `${particle.delay}s`,
+                    '--duration': `${particle.duration}s`,
+                    '--x': `${particle.x}%`,
+                    '--y': `${particle.y}%`,
+                  } as React.CSSProperties}
+                />
+              ))}
             </div>
           </div>
 
