@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
 import {
   Activity,
   Bell,
@@ -10,6 +8,8 @@ import {
   MessageSquare,
   User,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React from 'react';
 
 import {
   DropdownMenu,

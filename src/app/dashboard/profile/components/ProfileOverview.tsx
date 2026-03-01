@@ -1,14 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Calendar, CreditCard, Bell, Package } from 'lucide-react';
+import { Bell, Calendar, CreditCard, Package } from 'lucide-react';
+import { useEffect, useState } from 'react';
+
 import bookingService from '@/services/booking.service';
-import transactionService from '@/services/transaction.service';
 import notificationService from '@/services/notification.service';
+import transactionService from '@/services/transaction.service';
 import type { Booking } from '@/types/booking';
-import type { Transaction } from '@/types/transaction';
 import type { Notification } from '@/types/notification';
+import type { Transaction } from '@/types/transaction';
+
 import styles from './profile-overview.module.css';
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const maybeMessage = (error as { message?: unknown }).message;
+    if (typeof maybeMessage === 'string') return maybeMessage;
+  }
+
+  return fallback;
+};
 
 export function ProfileOverview() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -42,10 +57,18 @@ export function ProfileOverview() {
       setBookings(bookingsData);
       setTransactions(transactionsData);
       setNotifications(notificationsData.slice(0, 5)); // Chỉ hiển thị 5 thông báo gần nhất
-    } catch (err: any) {
-      // Không hiển thị error nếu là 401 (đã được xử lý ở apiClient)
-      if (err?.status !== 401) {
-        setError(err.message || 'Không thể tải dữ liệu');
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, 'Không thể tải dữ liệu');
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'status' in err &&
+        typeof (err as { status?: unknown }).status === 'number' &&
+        (err as { status: number }).status === 401
+      ) {
+        // 401 đã được xử lý ở apiClient; không cần setError thêm.
+      } else {
+        setError(message);
       }
     } finally {
       setLoading(false);
@@ -147,9 +170,9 @@ export function ProfileOverview() {
               {transactions.slice(0, 5).map((transaction) => (
                 <div key={transaction.id} className={styles.item}>
                   <div className={styles.itemContent}>
-                    <div className={styles.itemTitle}>{transaction.description || transaction.type}</div>
+                    <div className={styles.itemTitle}>{transaction.note || transaction.type}</div>
                     <div className={styles.itemMeta}>
-                      <span>{formatDate(transaction.createdAt)}</span>
+                      <span>{formatDate(transaction.transactionDate)}</span>
                       <span className={styles.status}>{transaction.status}</span>
                     </div>
                   </div>

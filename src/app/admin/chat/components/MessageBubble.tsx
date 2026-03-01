@@ -1,13 +1,12 @@
 'use client';
 
+import { Check, CheckCheck, User } from 'lucide-react';
 import Image from 'next/image';
-import { Check, CheckCheck } from 'lucide-react';
-import { User } from 'lucide-react';
-
-import type { Message } from './types';
-import { formatMessageTime } from './utils/formatMessageTime';
 
 import styles from './message-bubble.module.css';
+import { formatMessageTime } from './utils/formatMessageTime';
+
+import type { Message } from './types';
 
 type Props = {
   message: Message;
@@ -18,7 +17,9 @@ export function MessageBubble({ message, isOwn }: Props) {
   const displayTime = formatMessageTime(message.timestamp);
 
   return (
-    <div className={`${styles.messageWrapper} ${isOwn ? styles.messageWrapperOwn : ''}`}>
+    <div
+      className={`${styles.messageWrapper} ${isOwn ? styles.messageWrapperOwn : ''}`}
+    >
       {!isOwn && (
         <div className={styles.avatarWrapper}>
           {message.senderAvatar ? (
@@ -36,7 +37,9 @@ export function MessageBubble({ message, isOwn }: Props) {
           )}
         </div>
       )}
-      <div className={`${styles.bubble} ${isOwn ? styles.bubbleOwn : styles.bubbleOther}`}>
+      <div
+        className={`${styles.bubble} ${isOwn ? styles.bubbleOwn : styles.bubbleOther}`}
+      >
         <p className={styles.content}>{message.content}</p>
         <div className={styles.footer}>
           <span className={styles.timestamp}>{displayTime}</span>
@@ -54,4 +57,3 @@ export function MessageBubble({ message, isOwn }: Props) {
     </div>
   );
 }
-

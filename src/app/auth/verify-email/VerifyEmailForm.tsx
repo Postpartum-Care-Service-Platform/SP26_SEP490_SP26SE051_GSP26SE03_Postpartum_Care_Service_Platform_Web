@@ -10,10 +10,11 @@ import { OtpInput } from '@/components/auth/OtpInput';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { AUTH_VERIFY_EMAIL_MESSAGES } from '@/messages/auth/verify-email';
 import { AUTH_VERIFY_EMAIL_REGEX } from '@/messages/auth/verify-email.regex';
+import { ROUTES } from '@/routes/routes';
 import authService from '@/services/auth.service';
 import { clearVerifyEmail, getVerifyEmail, setVerifyEmail } from '@/utils/emailVerificationStorage';
+
 import styles from './verify-email.module.css';
-import { ROUTES } from '@/routes/routes';
 
 type FieldErrors = {
   email?: string;
@@ -21,6 +22,31 @@ type FieldErrors = {
 };
 
 const RESEND_COOLDOWN_SECONDS = 60;
+
+type ApiError = {
+  message?: string;
+  data?: {
+    error?: string;
+  };
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const maybeError = error as ApiError;
+    if (maybeError.message && typeof maybeError.message === 'string') {
+      return maybeError.message;
+    }
+    if (maybeError.data?.error && typeof maybeError.data.error === 'string') {
+      return maybeError.data.error;
+    }
+  }
+
+  return fallback;
+};
 
 export function VerifyEmailForm() {
   const router = useRouter();
@@ -89,8 +115,8 @@ export function VerifyEmailForm() {
       clearVerifyEmail();
       toast({ title: AUTH_VERIFY_EMAIL_MESSAGES.verifySuccess, variant: 'success' });
       router.push(ROUTES.login);
-    } catch (err: any) {
-      const message = err?.message || err?.data?.error || AUTH_VERIFY_EMAIL_MESSAGES.verifyFailed;
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, AUTH_VERIFY_EMAIL_MESSAGES.verifyFailed);
       toast({ title: message, variant: 'error' });
     } finally {
       setIsLoading(false);
@@ -119,8 +145,8 @@ export function VerifyEmailForm() {
       setIsEmailLocked(true);
       toast({ title: 'Đã gửi lại mã OTP', variant: 'success' });
       setCooldown(RESEND_COOLDOWN_SECONDS);
-    } catch (err: any) {
-      const message = err?.message || err?.data?.error || 'Gửi lại OTP thất bại';
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, 'Gửi lại OTP thất bại');
       toast({ title: message, variant: 'error' });
     } finally {
       setIsLoading(false);

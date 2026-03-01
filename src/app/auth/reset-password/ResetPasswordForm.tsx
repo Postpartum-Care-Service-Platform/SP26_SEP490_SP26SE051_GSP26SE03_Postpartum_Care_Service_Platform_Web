@@ -2,18 +2,18 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-180x180.png';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { AUTH_FORGOT_PASSWORD_MESSAGES, AUTH_FORGOT_PASSWORD_REGEX } from '@/messages/auth/forgot-password';
 import { RESET_PASSWORD_MESSAGES } from '@/messages/auth/reset-password';
-import authService from '@/services/auth.service';
 import { ROUTES } from '@/routes/routes';
+import authService from '@/services/auth.service';
 
 import { EmailStep } from './EmailStep';
-import OtpStep from './OtpStep';
 import { NewPasswordStep } from './NewPasswordStep';
+import OtpStep from './OtpStep';
 import styles from './reset-password.module.css';
 
 const RESEND_COOLDOWN_SEC = 30;
@@ -23,6 +23,31 @@ type Step = 'email' | 'otp' | 'new_password';
 type EmailErrors = { email?: string };
 
 type NewPasswordErrors = { newPassword?: string; confirmPassword?: string };
+
+type ApiError = {
+  message?: string;
+  data?: {
+    error?: string;
+  };
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const maybeError = error as ApiError;
+    if (maybeError.message && typeof maybeError.message === 'string') {
+      return maybeError.message;
+    }
+    if (maybeError.data?.error && typeof maybeError.data.error === 'string') {
+      return maybeError.data.error;
+    }
+  }
+
+  return fallback;
+};
 
 export default function ResetPasswordForm() {
   const { toast } = useToast();
@@ -73,11 +98,9 @@ export default function ResetPasswordForm() {
       toast({ title: AUTH_FORGOT_PASSWORD_MESSAGES.sendOtpSuccess, variant: 'success' });
       setStep('otp');
       setCooldown(RESEND_COOLDOWN_SEC);
-    } catch (err: any) {
-      // Backend trả { error: "..." } -> interceptor map thành err.message
-      const msg = err?.message || err?.data?.error || AUTH_FORGOT_PASSWORD_MESSAGES.sendOtpFailed;
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err, AUTH_FORGOT_PASSWORD_MESSAGES.sendOtpFailed);
 
-      // Nếu đúng case email not found -> dùng message chuẩn
       if (msg.includes('Không tìm thấy tài khoản')) {
         setEmailErrors({ email: AUTH_FORGOT_PASSWORD_MESSAGES.emailNotFound });
       } else {
@@ -118,9 +141,8 @@ export default function ResetPasswordForm() {
       setConfirmPassword('');
       setEmailErrors({});
       setNewPasswordErrors({});
-    } catch (err: any) {
-      // hiển thị dưới field (không toast)
-      const msg = err?.message || err?.data?.error || RESET_PASSWORD_MESSAGES.resetFailed;
+    } catch (err: unknown) {
+      const msg = getErrorMessage(err, RESET_PASSWORD_MESSAGES.resetFailed);
       setNewPasswordErrors({ newPassword: msg });
     } finally {
       setIsLoading(false);
@@ -171,7 +193,6 @@ export default function ResetPasswordForm() {
 
       {step === 'new_password' && (
         <NewPasswordStep
-          resetToken={resetToken}
           newPassword={newPassword}
           setNewPassword={setNewPassword}
           confirmPassword={confirmPassword}

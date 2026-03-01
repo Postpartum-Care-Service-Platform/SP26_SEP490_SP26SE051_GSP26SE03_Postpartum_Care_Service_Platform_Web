@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare, FileText, Utensils, ClipboardList, Package, Bell, Activity, ClipboardCheck, UserCircle, CreditCard, Tags, FileCheck, CalendarCheck } from 'lucide-react';
+import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare, FileText, Utensils, Package, Bell, Activity, ClipboardCheck, UserCircle, CreditCard, CalendarCheck, CalendarDays, LayoutTemplate } from 'lucide-react';
 
 export type AdminNavItem = {
   key: string;
@@ -96,28 +96,31 @@ export const adminNav: AdminNavSection[] = [
         icon: FileText,
       },
       {
-        key: 'food',
-        label: 'Món ăn',
-        href: '/admin/food',
+        key: 'menu-management',
+        label: 'Quản lý thực đơn',
         icon: Utensils,
-      },
-      {
-        key: 'menu',
-        label: 'Thực đơn',
-        href: '/admin/menu',
-        icon: ClipboardList,
-      },
-      {
-        key: 'menu-type',
-        label: 'Loại thực đơn',
-        href: '/admin/menu-type',
-        icon: Tags,
-      },
-      {
-        key: 'menu-record',
-        label: 'Bản ghi thực đơn',
-        href: '/admin/menu-record',
-        icon: FileCheck,
+        children: [
+          {
+            key: 'food',
+            label: 'Món ăn',
+            href: '/admin/food',
+          },
+          {
+            key: 'menu',
+            label: 'Thực đơn',
+            href: '/admin/menu',
+          },
+          {
+            key: 'menu-type',
+            label: 'Loại thực đơn',
+            href: '/admin/menu-type',
+          },
+          {
+            key: 'menu-record',
+            label: 'Bản ghi thực đơn',
+            href: '/admin/menu-record',
+          },
+        ],
       },
       {
         key: 'package',
@@ -144,10 +147,33 @@ export const adminNav: AdminNavSection[] = [
         icon: Bell,
       },
       {
+        key: 'work-schedule',
+        label: 'Lịch làm việc',
+        href: '/admin/work-schedule',
+        icon: CalendarDays,
+      },
+      {
         key: 'transaction',
         label: 'Giao dịch',
         href: '/admin/transaction',
         icon: CreditCard,
+      },
+      {
+        key: 'templates',
+        label: 'Mẫu',
+        icon: LayoutTemplate,
+        children: [
+          {
+            key: 'templates-editor',
+            label: 'Soạn thảo mẫu',
+            href: '/admin/templates',
+          },
+          {
+            key: 'placeholder-manager',
+            label: 'Quản lý placeholder',
+            href: '/admin/placeholder-manager',
+          },
+        ],
       },
     ],
   },

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef } from 'react';
 import { Paperclip, Send } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 import styles from './chat-input.module.css';
 
@@ -61,10 +61,13 @@ export function ChatInput({ onSend }: Props) {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
       />
-      <button type="submit" className={styles.sendButton} aria-label="Send message">
+      <button
+        type="submit"
+        className={styles.sendButton}
+        aria-label="Send message"
+      >
         <Send size={20} className={styles.icon} />
       </button>
     </form>
   );
 }
-

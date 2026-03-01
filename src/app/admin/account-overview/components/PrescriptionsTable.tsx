@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
+
 import styles from './prescriptions-table.module.css';
 
 const EyeOutlineIcon = ({ fill = '#15803d', size = 16 }: { fill?: string; size?: number }) => (

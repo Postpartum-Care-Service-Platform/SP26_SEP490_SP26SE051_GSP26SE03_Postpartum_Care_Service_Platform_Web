@@ -1,0 +1,59 @@
+name: CI & Deploy to Render
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ci:
+    name: CI (lint & build)
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      NEXT_PUBLIC_API_TIMEOUT: 30000
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Clean install dependencies (work around npm optional deps bug)
+        run: |
+          # Làm đúng theo khuyến nghị trong log Next.js:
+          # "Please try `npm i` again after removing both package-lock.json and node_modules directory."
+          rm -rf node_modules package-lock.json
+          npm cache clean --force
+          npm install
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    name: Deploy to Render
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Render deploy hook
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL is not set"; exit 1;
+          fi
+          echo "Triggering Render deploy..."
+          curl -X POST "$RENDER_DEPLOY_HOOK_URL"
+

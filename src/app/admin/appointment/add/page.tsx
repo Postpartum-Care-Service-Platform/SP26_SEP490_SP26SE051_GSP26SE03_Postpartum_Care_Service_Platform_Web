@@ -2,9 +2,8 @@
 
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
-import { AddAppointmentForm } from '../components/AddAppointmentForm';
-
 import styles from '../add-appointment.module.css';
+import { AddAppointmentForm } from '../components/AddAppointmentForm';
 
 const breadcrumbItems = [
   { label: 'Hospital', href: '/admin' },

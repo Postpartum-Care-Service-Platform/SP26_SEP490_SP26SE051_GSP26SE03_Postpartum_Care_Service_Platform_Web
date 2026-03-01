@@ -1,8 +1,8 @@
 'use client';
 
+import styles from './date-separator.module.css';
 import { formatMessageDate } from './utils/formatMessageTime';
 
-import styles from './date-separator.module.css';
 
 type Props = {
   timestamp: string;
@@ -19,4 +19,3 @@ export function DateSeparator({ timestamp }: Props) {
     </div>
   );
 }
-

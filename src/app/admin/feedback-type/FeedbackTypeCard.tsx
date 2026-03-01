@@ -1,6 +1,7 @@
 'use client';
 
 import type { FeedbackType } from '@/types/feedback-type';
+
 import styles from './feedback-type-card.module.css';
 
 type Props = {

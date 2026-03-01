@@ -4,7 +4,14 @@
  * Chuẩn hóa sử dụng Room Name từ DB (101, 201...) thay vì 1.01
  */
 
-declare var List: any;
+interface SpacesList {
+  filter(
+    fn?: (item: { values: () => { level?: string; category?: string; 'list__link'?: string } }) => boolean,
+  ): void;
+  sort(field: string): void;
+}
+
+declare const List: new (elementId: string, options: unknown) => SpacesList;
 
 export function initMallMap(onSelectRoom?: (key: string | null) => void) {
   // Scope selector trong mallmap-integration để tránh conflict
@@ -45,7 +52,7 @@ export function initMallMap(onSelectRoom?: (key: string | null) => void) {
   const spacesEl = spacesListEl.querySelector('ul.list');
 
   // Khởi tạo List.js (giả định list.min.js đã được load vào window)
-  let spacesList: any = null;
+  let spacesList: SpacesList | null = null;
   if (typeof List !== 'undefined') {
     try {
       spacesList = new List('spaces-list', {
@@ -57,9 +64,9 @@ export function initMallMap(onSelectRoom?: (key: string | null) => void) {
   }
 
   const classie = {
-    add: (el: Element | null, cls: string) => el?.classList.add(cls),
-    remove: (el: Element | null, cls: string) => el?.classList.remove(cls),
-    has: (el: Element | null, cls: string) => el?.classList.contains(cls),
+    add: (el: Element | null | undefined, cls: string) => el?.classList.add(cls),
+    remove: (el: Element | null | undefined, cls: string) => el?.classList.remove(cls),
+    has: (el: Element | null | undefined, cls: string) => el?.classList.contains(cls),
   };
 
   function setNavigationState() {
@@ -190,7 +197,7 @@ export function initMallMap(onSelectRoom?: (key: string | null) => void) {
     classie.remove(mallNav, 'mallnav--hidden');
 
     if (spacesList) {
-      spacesList.filter((item: any) => item.values().level === selectedLevel?.toString());
+      spacesList.filter((item) => item.values().level === selectedLevel?.toString());
     }
   }
 
@@ -241,7 +248,7 @@ export function initMallMap(onSelectRoom?: (key: string | null) => void) {
 
     removePins(currentEl);
     if (spacesList) {
-      spacesList.filter((item: any) => item.values().level === selectedLevel?.toString());
+      spacesList.filter((item) => item.values().level === selectedLevel?.toString());
     }
   }
 
@@ -257,7 +264,7 @@ export function initMallMap(onSelectRoom?: (key: string | null) => void) {
   }
 
   // --- Gán Event Listeners ---
-  const handlers: Array<[Element | null, string, (e: any) => void]> = [];
+  const handlers: Array<[Element | null, string, (e: Event) => void]> = [];
 
   mallLevels.forEach((level, pos) => {
     const h = () => showLevel(pos + 1);

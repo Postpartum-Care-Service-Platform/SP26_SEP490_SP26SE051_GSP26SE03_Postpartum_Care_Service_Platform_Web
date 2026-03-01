@@ -1,12 +1,13 @@
 'use client';
 
-import { ProfileHeader } from './components/ProfileHeader';
-import { ProfileCover } from './components/ProfileCover';
-import { ProfileAvatar } from './components/ProfileAvatar';
-import { ProfileName } from './components/ProfileName';
-import { AccountInfoCard } from './components/AccountInfoCard';
-import { SettingsCard } from './components/SettingsCard';
 import { useAuth } from '@/contexts/AuthContext';
+
+import { AccountInfoCard } from './components/AccountInfoCard';
+import { ProfileAvatar } from './components/ProfileAvatar';
+import { ProfileCover } from './components/ProfileCover';
+import { ProfileHeader } from './components/ProfileHeader';
+import { ProfileName } from './components/ProfileName';
+import { SettingsCard } from './components/SettingsCard';
 import styles from './profile.module.css';
 
 export default function AdminProfilePage() {

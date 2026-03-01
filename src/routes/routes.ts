@@ -1,6 +1,7 @@
 export const ROUTES = {
   home: '/',
   main: '/main',
+  aiChat: '/ai-chat',
   login: '/auth/login',
   register: '/auth/register',
   verifyEmail: '/auth/verify-email',

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { MagnifyingGlassIcon, PlusIcon } from '@radix-ui/react-icons';
+import { useState } from 'react';
 
 import styles from './chat-search-bar.module.css';
 
@@ -42,4 +42,3 @@ export function ChatSearchBar({ onSearch, onNewChat }: Props) {
     </div>
   );
 }
-

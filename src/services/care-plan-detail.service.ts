@@ -1,5 +1,6 @@
-import apiClient from './apiClient';
 import type { CarePlanDetail, CreateCarePlanDetailRequest, UpdateCarePlanDetailRequest } from '@/types/care-plan-detail';
+
+import apiClient from './apiClient';
 
 const carePlanDetailService = {
   getAllCarePlanDetails: (): Promise<CarePlanDetail[]> => {

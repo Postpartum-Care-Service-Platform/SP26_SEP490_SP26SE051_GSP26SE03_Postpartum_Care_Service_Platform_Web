@@ -1,10 +1,11 @@
 'use client';
 
-import { StatCard } from './StatCard';
+import styles from './package-stats-cards.module.css';
 import { packageStatsConfig } from './packageStatsConfig';
+import { StatCard } from './StatCard';
+
 import type { PackageStats } from './types';
 
-import styles from './package-stats-cards.module.css';
 
 type Props = {
   stats: PackageStats;

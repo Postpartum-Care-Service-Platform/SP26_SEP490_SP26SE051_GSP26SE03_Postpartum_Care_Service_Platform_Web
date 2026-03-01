@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
+
 import styles from './medical-history-table.module.css';
 
 const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
@@ -102,10 +103,6 @@ export function MedicalHistoryTable() {
 
   const handlePageChange = (page: number) => {
     console.log('Page changed:', page);
-  };
-
-  const handleView = (id: number) => {
-    console.log('View:', id);
   };
 
   const handleEdit = (id: number) => {

@@ -10,12 +10,12 @@ import LogoSymbol from '@/assets/images/Symbol-Orange-180x180.png';
 import { PasswordStrengthChecker } from '@/components/auth/PasswordStrengthChecker';
 import { LogoLoader } from '@/components/ui/logo-loader';
 import { useToast } from '@/components/ui/toast/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
 import { AUTH_REGISTER_MESSAGES } from '@/messages/auth/register';
 import { AUTH_REGISTER_REGEX } from '@/messages/auth/register.regex';
+import { buildVerifyEmailRoute, ROUTES } from '@/routes/routes';
 import authService from '@/services/auth.service';
 import { setVerifyEmail } from '@/utils/emailVerificationStorage';
-import { buildVerifyEmailRoute, ROUTES } from '@/routes/routes';
+
 import styles from './register.module.css';
 
 type FieldErrors = {
@@ -24,6 +24,31 @@ type FieldErrors = {
   phone?: string;
   password?: string;
   confirmPassword?: string;
+};
+
+type ApiError = {
+  message?: string;
+  data?: {
+    error?: string;
+  };
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null) {
+    const maybeError = error as ApiError;
+    if (maybeError.message && typeof maybeError.message === 'string') {
+      return maybeError.message;
+    }
+    if (maybeError.data?.error && typeof maybeError.data.error === 'string') {
+      return maybeError.data.error;
+    }
+  }
+
+  return fallback;
 };
 
 export function RegisterForm() {
@@ -83,7 +108,7 @@ export function RegisterForm() {
     setFieldErrors({});
 
     try {
-      const authResponse = await authService.register({
+      await authService.register({
         username: username.trim(),
         email: email.trim(),
         phone: phone.trim(),
@@ -95,8 +120,8 @@ export function RegisterForm() {
       setVerifyEmail(emailTrimmed);
       toast({ title: AUTH_REGISTER_MESSAGES.registerSuccess, variant: 'success' });
       router.push(buildVerifyEmailRoute(emailTrimmed));
-    } catch (err: any) {
-      const message = err?.message || err?.data?.error || AUTH_REGISTER_MESSAGES.registerFailed;
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, AUTH_REGISTER_MESSAGES.registerFailed);
 
       const { mapRegisterErrorToField } = await import('@/utils/authErrorMapper');
       const field = mapRegisterErrorToField(message);

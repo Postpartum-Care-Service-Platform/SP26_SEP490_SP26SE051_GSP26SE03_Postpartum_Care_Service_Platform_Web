@@ -2,16 +2,28 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { AppointmentTypeListHeader } from './components/AppointmentTypeListHeader';
-import { NewAppointmentTypeModal, AppointmentTypeStatsCards, AppointmentTypeTable, AppointmentTypeTableControls } from './components';
-import type { AppointmentTypeStats } from './components';
-import styles from './appointment-type.module.css';
-
+import { useToast } from '@/components/ui/toast/use-toast';
 import appointmentTypeService from '@/services/appointment-type.service';
 import type { AppointmentTypeDetail } from '@/types/appointment-type';
-import { useToast } from '@/components/ui/toast/use-toast';
+
+import styles from './appointment-type.module.css';
+import {
+  AppointmentTypeListHeader,
+  AppointmentTypeStatsCards,
+  AppointmentTypeTable,
+  AppointmentTypeTableControls,
+  NewAppointmentTypeModal,
+} from './components';
+
+import type { AppointmentTypeStats } from './components';
 
 const PAGE_SIZE = 10;
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
 
 const sortAppointmentTypes = (items: AppointmentTypeDetail[], sort: string) => {
   const arr = [...items];
@@ -49,8 +61,8 @@ export default function AdminAppointmentTypePage() {
       setError(null);
       const data = await appointmentTypeService.getAllAppointmentTypes();
       setAppointmentTypes(data);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách loại lịch hẹn');
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, 'Không thể tải danh sách loại lịch hẹn'));
     } finally {
       setLoading(false);
     }
@@ -122,8 +134,11 @@ export default function AdminAppointmentTypePage() {
       await appointmentTypeService.deleteAppointmentType(appointmentType.id);
       toast({ title: 'Xóa loại lịch hẹn thành công', variant: 'success' });
       await fetchAppointmentTypes();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa loại lịch hẹn thất bại', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Xóa loại lịch hẹn thất bại'),
+        variant: 'error',
+      });
     } finally {
       setDeletingId(null);
     }

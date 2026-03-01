@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import { PaperPlaneIcon, PlusIcon } from '@radix-ui/react-icons';
+import React from 'react';
 
 type ChatComposerProps = {
   onSend: (text: string) => void | Promise<void>;

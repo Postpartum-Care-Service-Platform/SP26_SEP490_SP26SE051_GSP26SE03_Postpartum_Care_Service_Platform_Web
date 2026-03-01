@@ -1,18 +1,17 @@
 'use client';
 
-import React from 'react';
-import { Bell, Clock, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { Bell, Clock, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
+import React from 'react';
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown/Dropdown';
-import notificationService from '@/services/notification.service';
 import notificationTypeService from '@/services/notification-type.service';
-import { translateNotificationTypeName } from '@/app/admin/notification/utils/notificationTypeTranslations';
+import notificationService from '@/services/notification.service';
 import type { Notification } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
 
@@ -76,7 +75,7 @@ const getNotificationIcon = (typeId: number, typeName: string | null, typesMap?:
   return FileText;
 };
 
-export function NotificationDropdown() {
+export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) {
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [notificationTypes, setNotificationTypes] = React.useState<Map<number, NotificationType>>(new Map());
   const [isLoading, setIsLoading] = React.useState(true);
@@ -162,10 +161,17 @@ export function NotificationDropdown() {
 
         {notifications.length > 3 && (
           <div className={styles.dropdownFooter}>
-            <a href="#" className={styles.viewMoreLink}>
-              <span>Xem thêm..</span>
+            <button
+              type="button"
+              className={styles.viewMoreLink}
+              onClick={() => {
+                setIsOpen(false);
+                onViewAll?.();
+              }}
+            >
+              <span>Xem tất cả</span>
               <ChevronRight size={16} />
-            </a>
+            </button>
           </div>
         )}
       </DropdownMenuContent>

@@ -1,10 +1,10 @@
 'use client';
 
-import { StatCard } from './StatCard';
-import { activityStatsConfig } from './activityStatsConfig';
-import type { ActivityStats } from './types';
-
 import styles from './activity-stats-cards.module.css';
+import { activityStatsConfig } from './activityStatsConfig';
+import { StatCard } from './StatCard';
+
+import type { ActivityStats } from './types';
 
 type Props = {
   stats: ActivityStats;

@@ -1,36 +1,33 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
-import { ProfileHeader } from './components/ProfileHeader';
-import { ProfileSidebarColumn } from './components/ProfileSidebarColumn';
-import { ProfileInfoTab } from './components/ProfileInfoTab';
+
 import { ChangePasswordTab } from './components/ChangePasswordTab';
 import { FamilyProfileTab } from './components/FamilyProfileTab';
+import { ProfileHeader } from './components/ProfileHeader';
+import { ProfileInfoTab } from './components/ProfileInfoTab';
 import { ProfileOverview } from './components/ProfileOverview';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { ProfileSidebarColumn } from './components/ProfileSidebarColumn';
 import styles from './profile.module.css';
 
 export default function ProfilePage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
-  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
   useEffect(() => {
-    // Kiểm tra authentication
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (!token || !isAuthenticated) {
-        router.push('/auth/login');
-        return;
-      }
-      setCheckingAuth(false);
+    if (!token || !isAuthenticated) {
+      router.push('/auth/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, token]);
 
-  if (checkingAuth) {
+  if (!token || !isAuthenticated) {
     return (
       <div className={styles.page}>
         <div style={{ padding: '40px', textAlign: 'center' }}>Đang kiểm tra đăng nhập...</div>

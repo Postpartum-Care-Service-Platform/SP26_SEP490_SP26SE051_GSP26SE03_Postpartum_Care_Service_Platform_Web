@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+
 import styles from './account-overview-content.module.css';
 
 export function AccountOverviewContent() {

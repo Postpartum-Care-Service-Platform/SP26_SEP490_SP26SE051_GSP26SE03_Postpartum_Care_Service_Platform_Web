@@ -1,10 +1,12 @@
 'use client';
 
-import * as React from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { DayPicker, type DayPickerProps } from 'react-day-picker';
 import { vi } from 'date-fns/locale';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import * as React from 'react';
+import { DayPicker, type DayPickerProps } from 'react-day-picker';
+
 import { cn } from '@/lib/utils';
+
 import styles from './calendar.module.css';
 
 export type CalendarProps = DayPickerProps;
@@ -43,8 +45,12 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: () => <ChevronLeft className={styles.chevron} />,
-        IconRight: () => <ChevronRight className={styles.chevron} />,
+        Chevron: ({ ...props }) => {
+          if (props.orientation === 'left') {
+            return <ChevronLeft className={cn(styles.chevron, props.className)} />;
+          }
+          return <ChevronRight className={cn(styles.chevron, props.className)} />;
+        },
       }}
       locale={vi}
       {...props}

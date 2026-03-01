@@ -199,7 +199,7 @@
   flex-direction: column;
   margin-left: var(--spacing-md);
   margin-top: 4px;
-  padding-left: var(--spacing-sm);
+  padding-left: 0;
   position: relative;
   max-height: 0;
   overflow: hidden;
@@ -222,32 +222,6 @@
   align-items: center;
   gap: var(--spacing-xs);
   position: relative;
-}
-
-.submenuLine {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  width: 20px;
-  flex-shrink: 0;
-  z-index: 1;
-}
-
-.submenuDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: transparent;
-  border: 2px solid var(--color-border-default);
-  flex-shrink: 0;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-  z-index: 1;
-}
-
-.submenuDotActive {
-  background-color: var(--color-brand-accent);
-  border-color: var(--color-brand-accent);
 }
 
 .subitem {
@@ -430,3 +404,283 @@
   overflow-y: auto;
 }
 
+.controlDropdownContent {
+  /* Mở rộng khung tổng thể để hạn chế item bị xuống dòng, vẫn responsive */
+  width: min(1280px, calc(100vw - 80px));
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+
+  transform-origin: top left;
+  animation: controlPanelIn 160ms ease-out;
+}
+
+.controlPanel {
+  background-color: #fff;
+  border: 1px solid var(--color-border-default);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.controlPanelInner {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+
+@keyframes controlPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.controlGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 18px;
+  padding: 18px var(--spacing-md);
+}
+
+.controlCol {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.controlColTitle {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(30, 30, 30, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.controlItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 12px;
+  border: none;
+  border-radius: 4.8px;
+  text-decoration: none;
+  color: inherit;
+  background-color: #fff;
+  transition: background-color 0.15s ease;
+}
+
+.controlItem:hover {
+  background-color: rgba(250, 131, 20, 0.06);
+}
+
+.controlIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 4.8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: 1px solid var(--color-border-default);
+  color: var(--color-text-primary);
+  flex-shrink: 0;
+}
+
+.controlItem:hover .controlIcon {
+  border-color: rgba(250, 131, 20, 0.35);
+}
+
+.controlText {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.controlTitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: #343A40;
+}
+
+.controlDesc {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: rgba(52, 58, 64, 0.65);
+  line-height: 1.35;
+}
+
+@media (max-width: 1100px) {
+  .controlGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ========== Settings sidebar (offcanvas bên phải, full page) ========== */
+
+.settingsSidebarOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.25);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 2000;
+}
+
+.settingsSidebar {
+  width: min(420px, 100%);
+  max-width: 100%;
+  background-color: #fff;
+  box-shadow: -16px 0 40px rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+.settingsSidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border-default);
+}
+
+.settingsSidebarTitle {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.settingsSidebarSubtitle {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: rgba(52, 58, 64, 0.7);
+  margin-top: 2px;
+}
+
+.settingsSidebarCloseBtn {
+  border: 1px solid var(--color-border-default);
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #9ca3af;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.settingsSidebarCloseBtn:hover {
+  color: #ef4444;
+}
+
+.settingsSidebarBody {
+  padding: 12px 20px 16px;
+  overflow-y: auto;
+}
+
+.settingsSidebarEmpty {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: rgba(52, 58, 64, 0.7);
+}
+
+.settingsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.settingsItem {
+  border-radius: 8px;
+  border: 1px solid var(--color-border-default);
+  padding: 10px 12px;
+}
+
+.settingsItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.settingsKey {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.settingsDataType {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: rgba(55, 65, 81, 0.7);
+}
+
+.settingsDescription {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: rgba(55, 65, 81, 0.85);
+  margin-bottom: 6px;
+}
+
+.settingsControlRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settingsInput {
+  flex: 1;
+  min-width: 0;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-default);
+  padding: 6px 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+.settingsInput:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+}
+
+.settingsSaveBtn {
+  border-radius: 6px;
+  border: none;
+  padding: 6px 10px;
+  background-color: var(--color-brand-accent);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.settingsSaveBtn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.settingsSaveBtn:not(:disabled):hover {
+  background-color: #e67310;
+}
+
+@media (max-width: 640px) {
+  .controlGrid {
+    grid-template-columns: 1fr;
+  }
+}

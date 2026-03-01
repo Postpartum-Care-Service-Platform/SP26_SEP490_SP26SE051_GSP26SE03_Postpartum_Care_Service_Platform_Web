@@ -1,14 +1,15 @@
 'use client';
 
-import type React from 'react';
 import styles from './room-allotment-stat-card.module.css';
+
+import type React from 'react';
 
 export type RoomAllotmentStatCardProps = {
   title: string;
   value: string | number;
   subtitle: string;
   borderColor: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   iconBgColor: string;
   iconColor: string;
 };
@@ -30,7 +31,7 @@ export function RoomAllotmentStatCard({
         <div className={styles.topRow}>
           <div className={styles.title}>{title}</div>
           <div className={styles.iconWrapper} style={{ backgroundColor: iconBgColor }}>
-            <Icon className={styles.icon} style={{ color: iconColor }} size={20} />
+            <Icon className={styles.icon} style={{ color: iconColor }} />
           </div>
         </div>
         <div className={styles.value}>{typeof value === 'number' ? value.toLocaleString() : value}</div>

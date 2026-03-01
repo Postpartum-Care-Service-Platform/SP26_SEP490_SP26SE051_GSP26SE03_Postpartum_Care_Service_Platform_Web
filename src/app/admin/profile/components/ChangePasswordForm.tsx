@@ -1,17 +1,45 @@
 'use client';
 
-import { useState } from 'react';
 import { EyeOpenIcon, EyeClosedIcon } from '@radix-ui/react-icons';
+import { useState } from 'react';
+
 import { PasswordStrengthChecker } from '@/components/auth/PasswordStrengthChecker';
-import authService from '@/services/auth.service';
 import { useToast } from '@/components/ui/toast/use-toast';
 import { AUTH_CHANGE_PASSWORD_MESSAGES } from '@/messages/auth/change-password';
+import authService from '@/services/auth.service';
+
 import styles from './change-password-form.module.css';
 
 type FieldErrors = {
   currentPassword?: string;
   newPassword?: string;
   confirmPassword?: string;
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  ) {
+    return (error as { message: string }).message;
+  }
+  if (typeof error === 'object' && error !== null && 'data' in error) {
+    const data = (error as { data?: unknown }).data;
+    if (
+      typeof data === 'object' &&
+      data !== null &&
+      'error' in data &&
+      typeof (data as { error?: unknown }).error === 'string'
+    ) {
+      return (data as { error: string }).error;
+    }
+  }
+  return fallback;
 };
 
 export function ChangePasswordForm() {
@@ -92,8 +120,8 @@ export function ChangePasswordForm() {
         newPassword: '',
         confirmPassword: '',
       });
-    } catch (err: any) {
-      const message = err?.message || err?.data?.error || AUTH_CHANGE_PASSWORD_MESSAGES.changePasswordFailed;
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, AUTH_CHANGE_PASSWORD_MESSAGES.changePasswordFailed);
 
       if (message.includes('current password') || message.includes('mật khẩu hiện tại')) {
         setFieldErrors((prev) => ({

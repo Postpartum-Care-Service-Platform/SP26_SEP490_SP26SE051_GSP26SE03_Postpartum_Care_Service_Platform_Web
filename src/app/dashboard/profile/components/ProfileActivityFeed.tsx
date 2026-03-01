@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
 import { MessageSquare, GitCommit, Users, Upload, Award, UserPlus, Paperclip } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
 
-import { ProfileSettings } from './ProfileSettings';
 import styles from './profile-activity-feed.module.css';
+import { ProfileSettings } from './ProfileSettings';
 
 const activityTabs = ['Activity', 'Teams', 'Projects', 'Settings'];
 

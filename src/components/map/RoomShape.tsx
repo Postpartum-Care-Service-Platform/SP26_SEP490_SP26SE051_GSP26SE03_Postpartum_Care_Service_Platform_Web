@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Room } from '@/services/room-map.service';
 
 interface RoomShapeProps {

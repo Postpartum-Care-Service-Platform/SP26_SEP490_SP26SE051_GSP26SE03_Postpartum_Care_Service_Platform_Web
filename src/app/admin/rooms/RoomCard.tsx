@@ -1,14 +1,16 @@
 'use client';
 
 import Image from 'next/image';
-import styles from './room-card.module.css';
-import type { RoomType } from '@/types/room-type';
+
 import room1 from '@/assets/images/Room/room-1.png';
 import room2 from '@/assets/images/Room/room-2.avif';
 import room3 from '@/assets/images/Room/room-3.jpg';
 import room4 from '@/assets/images/Room/room-4.jpg';
 import room5 from '@/assets/images/Room/room-5.jpg';
 import room6 from '@/assets/images/Room/room-6.png';
+import type { RoomType } from '@/types/room-type';
+
+import styles from './room-card.module.css';
 
 const ROOM_IMAGES = [room1, room2, room3, room4, room5, room6];
 

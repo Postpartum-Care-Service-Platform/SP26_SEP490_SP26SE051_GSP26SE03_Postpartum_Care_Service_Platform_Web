@@ -1,10 +1,10 @@
 'use client';
 
-import { StatCard } from './StatCard';
-import { foodStatsConfig } from './foodStatsConfig';
-import type { FoodStats } from './types';
-
 import styles from './food-stats-cards.module.css';
+import { foodStatsConfig } from './foodStatsConfig';
+import { StatCard } from './StatCard';
+
+import type { FoodStats } from './types';
 
 type Props = {
   stats: FoodStats;

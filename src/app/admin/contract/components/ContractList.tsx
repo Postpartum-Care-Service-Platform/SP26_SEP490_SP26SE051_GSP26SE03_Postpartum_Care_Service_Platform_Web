@@ -1,8 +1,10 @@
 'use client';
 
 import { Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
+
 import { Button } from '@/components/ui/button';
 import type { Contract } from '@/types/contract';
+
 import styles from './contract-list.module.css';
 
 type Props = {

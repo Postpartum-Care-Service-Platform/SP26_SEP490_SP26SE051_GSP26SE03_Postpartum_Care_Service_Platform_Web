@@ -1,7 +1,8 @@
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useCallback } from 'react';
-import type { LoginRequest } from '@/types/auth';
+
 import { ROUTES } from '@/routes/routes';
+import type { LoginRequest } from '@/types/auth';
 
 export const useAuth = () => {
   const { data: session, status } = useSession();

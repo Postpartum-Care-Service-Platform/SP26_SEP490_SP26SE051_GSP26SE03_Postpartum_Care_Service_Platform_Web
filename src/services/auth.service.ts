@@ -1,14 +1,14 @@
-import apiClient from './apiClient';
 import type {
   LoginRequest,
   RegisterRequest,
-  GoogleLoginRequest,
   ForgotPasswordRequest,
   AuthResponse,
   LogoutRequest,
   ChangePasswordRequest,
   ResendVerificationRequest,
 } from '@/types/auth';
+
+import apiClient from './apiClient';
 
 const authService = {
   login: (credentials: LoginRequest): Promise<AuthResponse> => {
@@ -21,6 +21,10 @@ const authService = {
 
   register: (payload: RegisterRequest): Promise<{ message?: string }> => {
     return apiClient.post('/Auth/register', payload);
+  },
+
+  createCustomer: (payload: { email: string; phone: string; username: string }): Promise<{ message?: string }> => {
+    return apiClient.post('/Auth/create-customer', payload);
   },
 
   verifyEmail: (payload: { email: string; otp: string }): Promise<{ message?: string }> => {

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
 import { Camera, Upload } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
 
 import styles from './media-view.module.css';
 
@@ -36,14 +37,23 @@ export function MediaView() {
         </div>
         <h4 className={styles.sectionTitle}>Camera Active</h4>
         <p className={styles.instructions}>
-          Live camera feed is displayed above. Click the button below to capture an image.
+          Live camera feed is displayed above. Click the button below to capture
+          an image.
         </p>
         <div className={styles.actionButtons}>
-          <button type="button" className={styles.captureButton} onClick={handleCapture}>
+          <button
+            type="button"
+            className={styles.captureButton}
+            onClick={handleCapture}
+          >
             <Camera size={18} className={styles.buttonIcon} />
             Capture
           </button>
-          <button type="button" className={styles.uploadButton} onClick={handleUpload}>
+          <button
+            type="button"
+            className={styles.uploadButton}
+            onClick={handleUpload}
+          >
             <Upload size={18} className={styles.buttonIcon} />
             Upload
           </button>
@@ -55,7 +65,13 @@ export function MediaView() {
         <div className={styles.imageGrid}>
           {images.map((image, index) => (
             <div key={index} className={styles.imageItem}>
-              <img src={image} alt={`Image ${index + 1}`} className={styles.image} />
+              <Image
+                src={image}
+                alt={`Image ${index + 1}`}
+                className={styles.image}
+                width={200}
+                height={200}
+              />
             </div>
           ))}
         </div>
@@ -63,4 +79,3 @@ export function MediaView() {
     </div>
   );
 }
-

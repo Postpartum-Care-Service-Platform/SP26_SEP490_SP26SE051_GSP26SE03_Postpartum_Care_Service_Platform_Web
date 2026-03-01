@@ -1,12 +1,20 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { useToast } from '@/components/ui/toast/use-toast';
-import styles from './feedback-types.module.css';
 import feedbackTypeService from '@/services/feedback-type.service';
 import type { FeedbackType } from '@/types/feedback-type';
+
+import styles from './feedback-types.module.css';
 import { FeedbackTypeCard } from './FeedbackTypeCard';
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
 
 export default function AdminFeedbackTypesPage() {
   const [items, setItems] = useState<FeedbackType[]>([]);
@@ -21,8 +29,8 @@ export default function AdminFeedbackTypesPage() {
         setError(null);
         const data = await feedbackTypeService.getAllFeedbackTypes();
         setItems(data);
-      } catch (err: any) {
-        setError(err?.message || 'Không thể tải danh sách loại phản hồi');
+      } catch (error: unknown) {
+        setError(getErrorMessage(error, 'Không thể tải danh sách loại phản hồi'));
       } finally {
         setLoading(false);
       }
@@ -46,8 +54,11 @@ export default function AdminFeedbackTypesPage() {
       });
       setItems((prev) => [created, ...prev]);
       toast({ title: 'Thêm loại phản hồi thành công', variant: 'success' });
-    } catch (err: any) {
-      toast({ title: err?.message || 'Thêm loại phản hồi thất bại', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Thêm loại phản hồi thất bại'),
+        variant: 'error',
+      });
     }
   };
 
@@ -66,8 +77,11 @@ export default function AdminFeedbackTypesPage() {
       });
       setItems((prev) => prev.map((i) => (i.id === item.id ? updated : i)));
       toast({ title: 'Cập nhật loại phản hồi thành công', variant: 'success' });
-    } catch (err: any) {
-      toast({ title: err?.message || 'Cập nhật loại phản hồi thất bại', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Cập nhật loại phản hồi thất bại'),
+        variant: 'error',
+      });
     }
   };
 
@@ -76,8 +90,11 @@ export default function AdminFeedbackTypesPage() {
       await feedbackTypeService.deleteFeedbackType(item.id);
       setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, isDeleted: true } : i)));
       toast({ title: 'Ẩn loại phản hồi thành công', variant: 'success' });
-    } catch (err: any) {
-      toast({ title: err?.message || 'Ẩn loại phản hồi thất bại', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Ẩn loại phản hồi thất bại'),
+        variant: 'error',
+      });
     }
   };
 
@@ -86,8 +103,11 @@ export default function AdminFeedbackTypesPage() {
       const restored = await feedbackTypeService.restoreFeedbackType(item.id);
       setItems((prev) => prev.map((i) => (i.id === item.id ? restored : i)));
       toast({ title: 'Khôi phục loại phản hồi thành công', variant: 'success' });
-    } catch (err: any) {
-      toast({ title: err?.message || 'Khôi phục loại phản hồi thất bại', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Khôi phục loại phản hồi thất bại'),
+        variant: 'error',
+      });
     }
   };
 

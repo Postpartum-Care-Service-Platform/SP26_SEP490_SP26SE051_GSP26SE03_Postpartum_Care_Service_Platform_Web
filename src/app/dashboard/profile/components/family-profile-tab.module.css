@@ -99,9 +99,27 @@
 }
 
 .profilesList {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: flex;
   gap: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.profilesList::-webkit-scrollbar {
+  height: 8px;
+}
+
+.profilesList::-webkit-scrollbar-thumb {
+  background: rgba(250, 131, 20, 0.45);
+  border-radius: 999px;
+}
+
+.profilesList::-webkit-scrollbar-track {
+  background: rgba(17, 17, 17, 0.08);
+  border-radius: 999px;
 }
 
 .profileCard {
@@ -114,6 +132,10 @@
   gap: 24px;
   position: relative;
   transition: all 0.3s ease;
+  min-width: 320px;
+  max-width: 360px;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
 }
 
 .profileCard::before {

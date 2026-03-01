@@ -1,17 +1,12 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Pagination } from '@/components/ui/pagination';
 import userService from '@/services/user.service';
 
-import {
-  PatientListHeader,
-  PatientStatsCards,
-  PatientTableControls,
-  PatientTable,
-} from './components';
+import { PatientListHeader, PatientStatsCards, PatientTableControls, PatientTable, NewAccountModal } from './components';
 import { mapAccountToPatient } from './components/patientUtils';
+
 import type { Patient } from './components/patientTypes';
 import type { PatientStats } from './components/types';
 
@@ -24,26 +19,28 @@ export default function AdminPatientsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [roleFilter, setRoleFilter] = useState<number | null>(null);
+  const [sortKey, setSortKey] = useState<string>('date-newest');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isNewAccountOpen, setIsNewAccountOpen] = useState(false);
+
+  const fetchPatients = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await userService.getAllAccounts();
+      const mappedPatients = data.map((account, index) => mapAccountToPatient(account, index));
+      setPatients(mappedPatients);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch accounts');
+      console.error('Error fetching accounts:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await userService.getAllAccounts();
-        const mappedPatients = data.map((account, index) => mapAccountToPatient(account, index));
-        setPatients(mappedPatients);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch accounts');
-        console.error('Error fetching accounts:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPatients();
-  }, []);
+  }, [fetchPatients]);
 
   const stats: PatientStats = useMemo(() => {
     const total = patients.length;
@@ -75,16 +72,43 @@ export default function AdminPatientsPage() {
       );
     }
 
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter((patient) => patient.status === statusFilter);
+    if (statusFilter === 'true') {
+      filtered = filtered.filter((patient) => patient.isEmailVerified === true);
+    } else if (statusFilter === 'false') {
+      filtered = filtered.filter((patient) => patient.isEmailVerified === false);
     }
 
     if (roleFilter !== null) {
       filtered = filtered.filter((patient) => patient.roleId === roleFilter);
     }
 
-    return filtered;
-  }, [patients, searchQuery, statusFilter, roleFilter]);
+    // Sắp xếp
+    const sorted = [...filtered];
+    switch (sortKey) {
+      case 'date-newest':
+        sorted.sort(
+          (a, b) =>
+            new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+        );
+        break;
+      case 'date-oldest':
+        sorted.sort(
+          (a, b) =>
+            new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+        );
+        break;
+      case 'name-asc':
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name-desc':
+        sorted.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      default:
+        break;
+    }
+
+    return sorted;
+  }, [patients, searchQuery, statusFilter, roleFilter, sortKey]);
 
   const paginatedPatients = useMemo(() => {
     const start = (currentPage - 1) * PAGE_SIZE;
@@ -100,6 +124,7 @@ export default function AdminPatientsPage() {
   };
 
   const handleStatusChange = (status: string) => {
+    // status: 'all' | 'true' | 'false'
     setStatusFilter(status);
     setCurrentPage(1);
   };
@@ -114,20 +139,21 @@ export default function AdminPatientsPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleEdit = (patient: Patient) => {
-    console.log('Edit patient:', patient);
+  const handleViewProfile = (patient: Patient) => {
+    console.log('View profile overview:', patient);
   };
 
-  const handleDelete = (patient: Patient) => {
-    console.log('Delete patient:', patient);
+  const handleChat = (patient: Patient) => {
+    console.log('Open chat with patient:', patient);
   };
 
   const handleNewPatient = () => {
-    console.log('New patient');
+    setIsNewAccountOpen(true);
   };
 
-  const handleFilter = () => {
-    console.log('Filter');
+  const handleSortChange = (sort: string) => {
+    setSortKey(sort);
+    setCurrentPage(1);
   };
 
   if (loading) {
@@ -158,15 +184,16 @@ export default function AdminPatientsPage() {
       <PatientStatsCards stats={stats} />
       <PatientTableControls
         onSearch={handleSearch}
-        onFilter={handleFilter}
+        onSortChange={handleSortChange}
         onStatusChange={handleStatusChange}
         onRoleChange={handleRoleChange}
         onNewPatient={handleNewPatient}
       />
       <PatientTable
         patients={paginatedPatients}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onViewProfile={handleViewProfile}
+        onChat={handleChat}
+        onRoleUpdated={fetchPatients}
         pagination={
           totalPages > 0
             ? {
@@ -178,6 +205,11 @@ export default function AdminPatientsPage() {
               }
             : undefined
         }
+      />
+      <NewAccountModal
+        open={isNewAccountOpen}
+        onOpenChange={setIsNewAccountOpen}
+        onSuccess={fetchPatients}
       />
     </div>
   );

@@ -1,21 +1,21 @@
-import type React from 'react';
 import {
   ArchiveIcon,
   CheckCircledIcon,
   CrossCircledIcon,
 } from '@radix-ui/react-icons';
-import { type StaticImageData } from 'next/image';
-
-import type { FoodStats } from './types';
 
 import patientCard1 from '@/assets/images/patient-card-1.png';
 import patientCard2 from '@/assets/images/patient-card-2.png';
 import patientCard3 from '@/assets/images/patient-card-3.png';
 
+import type { FoodStats } from './types';
+import type { StaticImageData } from 'next/image';
+import type React from 'react';
+
 export type StatCardConfig = {
   image: StaticImageData;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   iconColor: string;
   backgroundColor: string;
   key: keyof FoodStats;

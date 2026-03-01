@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -9,7 +11,6 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -18,7 +19,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/components/ui/toast/use-toast';
+
 import styles from './add-contract-modal.module.css';
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
 
 type Props = {
   open: boolean;
@@ -80,8 +88,11 @@ export function AddContractModal({ open, onOpenChange, onSuccess }: Props) {
         status: 'Draft',
         fileUrl: '',
       });
-    } catch (err: any) {
-      toast({ title: err?.message || 'Tạo hợp đồng thất bại', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Tạo hợp đồng thất bại'),
+        variant: 'error',
+      });
     } finally {
       setIsSubmitting(false);
     }

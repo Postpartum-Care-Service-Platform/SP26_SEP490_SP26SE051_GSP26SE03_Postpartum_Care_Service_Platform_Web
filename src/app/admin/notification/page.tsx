@@ -1,26 +1,43 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { NotificationListHeader } from './components/NotificationListHeader';
-import { NotificationHeader } from './components/NotificationHeader';
-import { NotificationList } from './components/NotificationList';
-import { NotificationTypeList } from './components/NotificationTypeList';
-import { NotificationTypeTableControls } from './components/NotificationTypeTableControls';
-import { NotificationModal } from './components/NotificationModal';
-import { NotificationTypeModal } from './components/NotificationTypeModal';
+import { useState, useEffect, useCallback } from 'react';
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/components/ui/toast/use-toast';
-import notificationService from '@/services/notification.service';
 import notificationTypeService from '@/services/notification-type.service';
+import notificationService from '@/services/notification.service';
 import type { Notification } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
+
+import { NotificationListHeader } from './components/NotificationListHeader';
+import { NotificationModal } from './components/NotificationModal';
+import { NotificationTable } from './components/NotificationTable';
+import { NotificationTableControls } from './components/NotificationTableControls';
+import { NotificationTypeList } from './components/NotificationTypeList';
+import { NotificationTypeModal } from './components/NotificationTypeModal';
+import { NotificationTypeTableControls } from './components/NotificationTypeTableControls';
 import styles from './notification.module.css';
+import { translateNotificationTypeName } from './utils/notificationTypeTranslations';
+
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  ) {
+    return (error as { message: string }).message;
+  }
+  return fallback;
+};
 
 export default function AdminNotificationPage() {
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [notificationTypes, setNotificationTypes] = useState<NotificationType[]>([]);
-  const [notificationTypesMap, setNotificationTypesMap] = useState<Map<number, NotificationType>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,28 +47,42 @@ export default function AdminNotificationPage() {
   const [isNotificationTypeModalOpen, setIsNotificationTypeModalOpen] = useState(false);
   const [selectedNotificationType, setSelectedNotificationType] = useState<NotificationType | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [sortKey, setSortKey] = useState<'createdAt-desc' | 'createdAt-asc'>('createdAt-desc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 10;
   const [filteredNotifications, setFilteredNotifications] = useState<Notification[]>([]);
+  const [notificationTypeSearch, setNotificationTypeSearch] = useState('');
+  const [notificationTypeStatus, setNotificationTypeStatus] = useState<'all' | 'active' | 'inactive'>('all');
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const filtered = notifications
+      .filter((n) => {
+        const q = searchQuery.trim().toLowerCase();
+        if (!q) return true;
+        return (
+          n.title.toLowerCase().includes(q) ||
+          n.content.toLowerCase().includes(q) ||
+          (n.staffName && n.staffName.toLowerCase().includes(q)) ||
+          (n.receiverName && n.receiverName.toLowerCase().includes(q))
+        );
+      })
+      .filter((n) => {
+        if (statusFilter === 'all') return true;
+        if (statusFilter === 'unread') return n.status === 'Unread';
+        return n.status === 'Read';
+      })
+      .sort((a, b) => {
+        const aTime = new Date(a.createdAt).getTime();
+        const bTime = new Date(b.createdAt).getTime();
+        return sortKey === 'createdAt-desc' ? bTime - aTime : aTime - bTime;
+      });
 
-  useEffect(() => {
-    if (searchQuery.trim()) {
-      const filtered = notifications.filter(
-        (n) =>
-          n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          n.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (n.staffName && n.staffName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (n.receiverName && n.receiverName.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-      setFilteredNotifications(filtered);
-    } else {
-      setFilteredNotifications(notifications);
-    }
-  }, [searchQuery, notifications]);
+    setFilteredNotifications(filtered);
+    setCurrentPage(1);
+  }, [searchQuery, notifications, statusFilter, sortKey]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -61,14 +92,16 @@ export default function AdminNotificationPage() {
       ]);
       setNotifications(notificationsData);
       setNotificationTypes(typesData);
-      const typesMap = new Map(typesData.map((type) => [type.id, type]));
-      setNotificationTypesMap(typesMap);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải dữ liệu');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Không thể tải dữ liệu'));
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleMarkAsRead = async (notification: Notification) => {
     try {
@@ -78,7 +111,7 @@ export default function AdminNotificationPage() {
       setNotifications((prev) =>
         prev.map((n) => (n.id === notification.id ? { ...n, status: 'Read' as const } : n))
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to mark notification as read:', err);
     }
   };
@@ -101,8 +134,8 @@ export default function AdminNotificationPage() {
     try {
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
       toast({ title: 'Xóa thông báo thành công', variant: 'success' });
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa thông báo thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Xóa thông báo thất bại'), variant: 'error' });
     }
   };
 
@@ -122,8 +155,8 @@ export default function AdminNotificationPage() {
       setNotificationTypes((prev) => prev.map((t) => (t.id === type.id ? { ...t, isActive: false } : t)));
       toast({ title: 'Xóa loại thông báo thành công', variant: 'success' });
       fetchData();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa loại thông báo thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Xóa loại thông báo thất bại'), variant: 'error' });
     }
   };
 
@@ -132,28 +165,31 @@ export default function AdminNotificationPage() {
       await notificationTypeService.restoreNotificationType(type.id);
       toast({ title: 'Khôi phục loại thông báo thành công', variant: 'success' });
       fetchData();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Khôi phục loại thông báo thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Khôi phục loại thông báo thất bại'), variant: 'error' });
     }
   };
 
-  if (loading) {
-    return (
-      <div className={styles.pageContainer}>
-        <NotificationListHeader />
-        <div className={styles.loading}>Đang tải dữ liệu...</div>
-      </div>
-    );
-  }
+  const filteredNotificationTypes = notificationTypes.filter((type) => {
+    const matchesSearch = notificationTypeSearch
+      ? translateNotificationTypeName(type.name).toLowerCase().includes(notificationTypeSearch.toLowerCase())
+      : true;
+    const matchesStatus =
+      notificationTypeStatus === 'all'
+        ? true
+        : notificationTypeStatus === 'active'
+          ? type.isActive
+          : !type.isActive;
+    return matchesSearch && matchesStatus;
+  });
 
-  if (error) {
-    return (
-      <div className={styles.pageContainer}>
-        <NotificationListHeader />
-        <div className={styles.error}>{error}</div>
-      </div>
-    );
-  }
+  const paginatedNotifications = (() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    return filteredNotifications.slice(start, end);
+  })();
+
+  const totalPages = Math.ceil(filteredNotifications.length / PAGE_SIZE);
 
   return (
     <div className={styles.pageContainer}>
@@ -164,27 +200,44 @@ export default function AdminNotificationPage() {
           <TabsTrigger value="types">Loại thông báo</TabsTrigger>
         </TabsList>
         <TabsContent value="notifications">
-          <NotificationHeader
-            onSearchChange={setSearchQuery}
-            onSortClick={() => {
-              const sorted = [...filteredNotifications].sort((a, b) =>
-                new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-              );
-              setFilteredNotifications(sorted);
-            }}
+          <NotificationTableControls
+            onCreateClick={handleCreateNotification}
+            onSearch={setSearchQuery}
+            onStatusChange={(status) => setStatusFilter(status)}
+            onSortChange={(sort) => setSortKey(sort)}
           />
-          <NotificationList
-            notifications={filteredNotifications.length > 0 ? filteredNotifications : notifications}
-            notificationTypes={notificationTypesMap}
-            onMarkAsRead={handleMarkAsRead}
-            onEdit={handleEditNotification}
-            onDelete={handleDeleteNotification}
-          />
+          {loading ? (
+            <div className={styles.loading}>Đang tải dữ liệu...</div>
+          ) : error ? (
+            <div className={styles.error}>{error}</div>
+          ) : (
+            <NotificationTable
+              notifications={paginatedNotifications}
+              onEdit={handleEditNotification}
+              onDelete={handleDeleteNotification}
+              onMarkAsRead={handleMarkAsRead}
+              pagination={
+                totalPages > 0
+                  ? {
+                      currentPage,
+                      totalPages,
+                      pageSize: PAGE_SIZE,
+                      totalItems: filteredNotifications.length,
+                      onPageChange: (page) => setCurrentPage(page),
+                    }
+                  : undefined
+              }
+            />
+          )}
         </TabsContent>
         <TabsContent value="types">
-          <NotificationTypeTableControls onCreateClick={handleCreateNotificationType} />
+          <NotificationTypeTableControls
+            onCreateClick={handleCreateNotificationType}
+            onSearch={(q) => setNotificationTypeSearch(q)}
+            onStatusChange={(s) => setNotificationTypeStatus(s)}
+          />
           <NotificationTypeList
-            notificationTypes={notificationTypes}
+            notificationTypes={filteredNotificationTypes}
             onEdit={handleEditNotificationType}
             onDelete={handleDeleteNotificationType}
             onRestore={handleRestoreNotificationType}

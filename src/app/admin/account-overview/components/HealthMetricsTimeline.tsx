@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+
 import styles from './health-metrics-timeline.module.css';
 
 type MetricTab = 'heartRate' | 'bloodPressure' | 'oxygenLevels' | 'overallStatus';

@@ -1,15 +1,23 @@
 'use client';
 
-import { useState, useEffect, forwardRef } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { forwardRef, useEffect, useState } from 'react';
+
 import { useToast } from '@/components/ui/toast/use-toast';
-import styles from './new-menu-modal.module.css';
-import type { Menu, CreateMenuRequest, UpdateMenuRequest } from '@/types/menu';
-import menuService from '@/services/menu.service';
-import menuTypeService from '@/services/menu-type.service';
 import foodService from '@/services/food.service';
-import type { MenuType } from '@/types/menu-type';
+import menuTypeService from '@/services/menu-type.service';
+import menuService from '@/services/menu.service';
 import type { Food } from '@/types/food';
+import type { Menu, CreateMenuRequest, UpdateMenuRequest } from '@/types/menu';
+import type { MenuType } from '@/types/menu-type';
+
+import styles from './new-menu-modal.module.css';
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
 
 type Props = {
   open: boolean;
@@ -32,25 +40,47 @@ type FormErrors = {
   description?: string;
 };
 
-const CustomInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  ({ className, ...props }, ref) => {
-    return <input {...props} ref={ref} className={`${styles.formControl} ${className || ''}`} />;
-  }
-);
+const CustomInput = forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement>
+>(({ className, ...props }, ref) => {
+  return (
+    <input
+      {...props}
+      ref={ref}
+      className={`${styles.formControl} ${className || ''}`}
+    />
+  );
+});
 CustomInput.displayName = 'CustomInput';
 
-const CustomTextarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  ({ className, ...props }, ref) => {
-    return <textarea {...props} ref={ref} className={`${styles.formControl} ${className || ''}`} data-type="textarea" />;
-  }
-);
+const CustomTextarea = forwardRef<
+  HTMLTextAreaElement,
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>
+>(({ className, ...props }, ref) => {
+  return (
+    <textarea
+      {...props}
+      ref={ref}
+      className={`${styles.formControl} ${className || ''}`}
+      data-type="textarea"
+    />
+  );
+});
 CustomTextarea.displayName = 'CustomTextarea';
 
-const CustomSelect = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HTMLSelectElement>>(
-  ({ className, ...props }, ref) => {
-    return <select {...props} ref={ref} className={`${styles.formControl} ${className || ''}`} />;
-  }
-);
+const CustomSelect = forwardRef<
+  HTMLSelectElement,
+  React.SelectHTMLAttributes<HTMLSelectElement>
+>(({ className, ...props }, ref) => {
+  return (
+    <select
+      {...props}
+      ref={ref}
+      className={`${styles.formControl} ${className || ''}`}
+    />
+  );
+});
 CustomSelect.displayName = 'CustomSelect';
 
 export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Props) {
@@ -74,8 +104,11 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
           ]);
           setMenuTypes(menuTypesData);
           setFoods(foodsData);
-        } catch (err) {
-          toast({ title: 'Không thể tải danh sách loại thực đơn và món ăn', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Không thể tải danh sách loại thực đơn và món ăn'),
+        variant: 'error',
+      });
         } finally {
           setLoadingOptions(false);
         }
@@ -97,7 +130,10 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
     }
   }, [open, menuToEdit, toast]);
 
-  const handleFieldChange = <K extends keyof CreateMenuRequest>(field: K, value: CreateMenuRequest[K]) => {
+  const handleFieldChange = <K extends keyof CreateMenuRequest>(
+    field: K,
+    value: CreateMenuRequest[K]
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -156,10 +192,18 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      const errorMessage = err?.message || (isEditMode ? 'Cập nhật thực đơn thất bại' : 'Tạo thực đơn thất bại');
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(
+        error,
+        isEditMode ? 'Cập nhật thực đơn thất bại' : 'Tạo thực đơn thất bại',
+      );
 
-      if (errorMessage.includes('tồn tại') || errorMessage.includes('đã tồn tại') || errorMessage.toLowerCase().includes('exists') || errorMessage.toLowerCase().includes('duplicate')) {
+      if (
+        errorMessage.includes('tồn tại') ||
+        errorMessage.includes('đã tồn tại') ||
+        errorMessage.toLowerCase().includes('exists') ||
+        errorMessage.toLowerCase().includes('duplicate')
+      ) {
         setErrors({ menuName: 'Tên thực đơn đã tồn tại.' });
       } else {
         toast({ title: errorMessage, variant: 'error' });
@@ -177,8 +221,14 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent} role="dialog" aria-modal="true">
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>{isEditMode ? 'Chỉnh sửa thực đơn' : 'Thêm thực đơn mới'}</h2>
-          <button onClick={() => onOpenChange(false)} className={styles.closeButton} aria-label="Close">
+          <h2 className={styles.modalTitle}>
+            {isEditMode ? 'Chỉnh sửa thực đơn' : 'Thêm thực đơn mới'}
+          </h2>
+          <button
+            onClick={() => onOpenChange(false)}
+            className={styles.closeButton}
+            aria-label="Close"
+          >
             <Cross1Icon />
           </button>
         </div>
@@ -192,7 +242,12 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
                 <CustomSelect
                   id="menuTypeId"
                   value={formData.menuTypeId}
-                  onChange={(e) => handleFieldChange('menuTypeId', parseInt(e.target.value, 10) || 0)}
+                  onChange={(e) =>
+                    handleFieldChange(
+                      'menuTypeId',
+                      parseInt(e.target.value, 10) || 0
+                    )
+                  }
                   className={errors.menuTypeId ? styles.invalid : ''}
                   required
                   disabled={loadingOptions}
@@ -204,7 +259,9 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
                     </option>
                   ))}
                 </CustomSelect>
-                {errors.menuTypeId && <p className={styles.errorMessage}>{errors.menuTypeId}</p>}
+                {errors.menuTypeId && (
+                  <p className={styles.errorMessage}>{errors.menuTypeId}</p>
+                )}
               </div>
 
               <div className={styles.formGroup}>
@@ -215,11 +272,15 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
                   id="menuName"
                   placeholder="Ví dụ: Thực đơn sáng, Thực đơn trưa"
                   value={formData.menuName}
-                  onChange={(e) => handleFieldChange('menuName', e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange('menuName', e.target.value)
+                  }
                   className={errors.menuName ? styles.invalid : ''}
                   required
                 />
-                {errors.menuName && <p className={styles.errorMessage}>{errors.menuName}</p>}
+                {errors.menuName && (
+                  <p className={styles.errorMessage}>{errors.menuName}</p>
+                )}
               </div>
             </div>
 
@@ -229,21 +290,28 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
                 id="description"
                 placeholder="Mô tả về thực đơn..."
                 value={formData.description}
-                onChange={(e) => handleFieldChange('description', e.target.value)}
+                onChange={(e) =>
+                  handleFieldChange('description', e.target.value)
+                }
                 className={errors.description ? styles.invalid : ''}
                 rows={4}
               />
-              {errors.description && <p className={styles.errorMessage}>{errors.description}</p>}
+              {errors.description && (
+                <p className={styles.errorMessage}>{errors.description}</p>
+              )}
             </div>
 
             <div className={styles.formGroup}>
               <label>Món ăn</label>
               <div className={styles.foodList}>
                 {loadingOptions ? (
-                  <p className={styles.loadingText}>Đang tải danh sách món ăn...</p>
+                  <p className={styles.loadingText}>
+                    Đang tải danh sách món ăn...
+                  </p>
                 ) : (
                   foods.map((food) => {
-                    const isSelected = formData.foodIds?.includes(food.id) || false;
+                    const isSelected =
+                      formData.foodIds?.includes(food.id) || false;
                     return (
                       <label key={food.id} className={styles.foodItem}>
                         <input
@@ -261,11 +329,24 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
             </div>
           </div>
           <div className={styles.modalFooter}>
-            <button type="button" className={`${styles.button} ${styles.buttonOutline}`} onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <button
+              type="button"
+              className={`${styles.button} ${styles.buttonOutline}`}
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Hủy
             </button>
-            <button type="submit" className={`${styles.button} ${styles.buttonPrimary}`} disabled={isSubmitting || loadingOptions}>
-              {isSubmitting ? 'Đang xử lý...' : isEditMode ? 'Cập nhật' : 'Thêm mới'}
+            <button
+              type="submit"
+              className={`${styles.button} ${styles.buttonPrimary}`}
+              disabled={isSubmitting || loadingOptions}
+            >
+              {isSubmitting
+                ? 'Đang xử lý...'
+                : isEditMode
+                  ? 'Cập nhật'
+                  : 'Thêm mới'}
             </button>
           </div>
         </form>

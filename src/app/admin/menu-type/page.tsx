@@ -2,14 +2,26 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { MenuTypeListHeader } from './components/MenuTypeListHeader';
-import { NewMenuTypeModal, MenuTypeStatsCards, MenuTypeTable, MenuTypeTableControls } from './components';
-import type { MenuTypeStats } from './components';
-import styles from './menu-type.module.css';
-
+import { useToast } from '@/components/ui/toast/use-toast';
 import menuTypeService from '@/services/menu-type.service';
 import type { MenuType } from '@/types/menu-type';
-import { useToast } from '@/components/ui/toast/use-toast';
+
+import {
+  MenuTypeStatsCards,
+  MenuTypeTable,
+  MenuTypeTableControls,
+  NewMenuTypeModal,
+} from './components';
+import { MenuTypeListHeader } from './components/MenuTypeListHeader';
+import styles from './menu-type.module.css';
+
+import type { MenuTypeStats } from './components';
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
 
 const PAGE_SIZE = 10;
 
@@ -17,9 +29,13 @@ const sortMenuTypes = (items: MenuType[], sort: string) => {
   const arr = [...items];
   switch (sort) {
     case 'createdAt-asc':
-      return arr.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      return arr.sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
     case 'createdAt-desc':
-      return arr.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      return arr.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
     case 'name-asc':
       return arr.sort((a, b) => a.name.localeCompare(b.name));
     case 'name-desc':
@@ -38,7 +54,9 @@ export default function AdminMenuTypePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMenuType, setEditingMenuType] = useState<MenuType | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>(
+    'all'
+  );
   const [sortKey, setSortKey] = useState<string>('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -49,8 +67,8 @@ export default function AdminMenuTypePage() {
       setError(null);
       const data = await menuTypeService.getAllMenuTypes();
       setMenuTypes(data);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách loại thực đơn');
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, 'Không thể tải danh sách loại thực đơn'));
     } finally {
       setLoading(false);
     }
@@ -81,7 +99,9 @@ export default function AdminMenuTypePage() {
     }
 
     if (statusFilter !== 'all') {
-      filtered = filtered.filter((m) => (statusFilter === 'active' ? m.isActive : !m.isActive));
+      filtered = filtered.filter((m) =>
+        statusFilter === 'active' ? m.isActive : !m.isActive
+      );
     }
 
     return sortMenuTypes(filtered, sortKey);
@@ -122,8 +142,11 @@ export default function AdminMenuTypePage() {
       await menuTypeService.deleteMenuType(menuType.id);
       toast({ title: 'Xóa loại thực đơn thành công', variant: 'success' });
       await fetchMenuTypes();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa loại thực đơn thất bại', variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(error, 'Xóa loại thực đơn thất bại'),
+        variant: 'error',
+      });
     } finally {
       setDeletingId(null);
     }

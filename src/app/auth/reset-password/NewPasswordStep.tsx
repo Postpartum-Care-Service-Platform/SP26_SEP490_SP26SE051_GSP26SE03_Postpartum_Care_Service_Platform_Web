@@ -5,13 +5,10 @@ import React, { useState } from 'react';
 
 import { PasswordStrengthChecker } from '@/components/auth/PasswordStrengthChecker';
 import { Button } from '@/components/ui/button/Button';
-import authService from '@/services/auth.service';
-import { RESET_PASSWORD_MESSAGES } from '@/messages/auth/reset-password';
 
 import styles from './reset-password.module.css';
 
 interface NewPasswordStepProps {
-  resetToken: string;
   newPassword: string;
   setNewPassword: (password: string) => void;
   confirmPassword: string;
@@ -23,7 +20,6 @@ interface NewPasswordStepProps {
 }
 
 export function NewPasswordStep({
-  resetToken,
   newPassword,
   setNewPassword,
   confirmPassword,

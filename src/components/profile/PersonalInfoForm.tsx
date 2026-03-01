@@ -2,10 +2,10 @@
 
 import React from 'react';
 
-import type { CreateFamilyProfileRequest, FamilyProfile } from '@/types/family-profile';
-import familyProfileService from '@/services/family-profile.service';
-import { useToast } from '@/components/ui/toast/use-toast';
 import { useProfile } from '@/app/dashboard/profile/ProfileContext';
+import { useToast } from '@/components/ui/toast/use-toast';
+import familyProfileService from '@/services/family-profile.service';
+import type { CreateFamilyProfileRequest, FamilyProfile } from '@/types/family-profile';
 
 function toForm(profile: FamilyProfile): CreateFamilyProfileRequest {
   return {
@@ -52,8 +52,22 @@ export function PersonalInfoForm() {
       const updatedProfile = await familyProfileService.createFamilyProfile(form);
       setProfile(updatedProfile);
       toast({ title: 'Cập nhật thông tin thành công', variant: 'success' });
-    } catch (err: any) {
-      toast({ title: err?.message || 'Cập nhật thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      const getErrorMessage = (error: unknown, fallback: string): string => {
+        if (error instanceof Error) {
+          return error.message || fallback;
+        }
+        if (
+          typeof error === 'object' &&
+          error !== null &&
+          'message' in error &&
+          typeof (error as { message?: unknown }).message === 'string'
+        ) {
+          return (error as { message: string }).message;
+        }
+        return fallback;
+      };
+      toast({ title: getErrorMessage(err, 'Cập nhật thất bại'), variant: 'error' });
     } finally {
       setIsLoading(false);
     }

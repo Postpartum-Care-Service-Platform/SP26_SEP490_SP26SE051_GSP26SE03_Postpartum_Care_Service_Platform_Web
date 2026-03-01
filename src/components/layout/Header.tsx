@@ -1,12 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import React from 'react';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-180x180.png';
-import { UserNav } from './UserNav';
+import { useAuth } from '@/contexts/AuthContext';
 import { ROUTES } from '@/routes/routes';
 
+import { UserNav } from './UserNav';
 import '@/styles/header.css';
 
 const MENU_ITEMS = [
@@ -20,23 +22,17 @@ const MENU_ITEMS = [
 ];
 
 export function Header() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    // This check runs only on the client side
-    const token = localStorage.getItem('token'); // Use your actual token key
-    setIsLoggedIn(!!token);
-  }, []);
+  const { isAuthenticated } = useAuth();
 
   return (
     <header className="tjn-header" aria-label="Site header">
       <div className="tjn-header__container">
         <div className="tjn-header__inner">
           {/* Logo */}
-          <a className="tjn-header__brand" href="/" aria-label="The Joyful Nest">
+          <Link className="tjn-header__brand" href="/" aria-label="The Joyful Nest">
             <Image className="tjn-header__logo" src={LogoSymbol} alt="The Joyful Nest" priority />
             <span className="tjn-header__brandText">The Joyful Nest</span>
-          </a>
+          </Link>
 
           {/* Menu */}
           <nav className="tjn-header__nav" aria-label="Primary">
@@ -51,7 +47,7 @@ export function Header() {
 
           {/* Actions */}
           <div className="tjn-header__actions" aria-label="Header actions">
-            {isLoggedIn ? (
+            {isAuthenticated ? (
               <UserNav />
             ) : (
               <>

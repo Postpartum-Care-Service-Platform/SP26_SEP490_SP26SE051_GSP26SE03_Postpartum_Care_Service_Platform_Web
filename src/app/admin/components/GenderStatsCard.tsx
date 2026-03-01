@@ -1,19 +1,21 @@
 'use client';
 
 import {
-  AreaChart,
   Area,
-  XAxis,
-  YAxis,
+  AreaChart,
   CartesianGrid,
   ResponsiveContainer,
+  XAxis,
+  YAxis,
 } from 'recharts';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
+
 import { CountUp } from './CountUp';
 import styles from './gender-stats-card.module.css';
 
@@ -23,7 +25,7 @@ type GenderStatsCardProps = {
   trend: string;
   trendColor: string;
   chartColor: string;
-  data: { value: number }[];
+  data?: { value: number }[];
 };
 
 const mockData = [
@@ -77,8 +79,12 @@ export function GenderStatsCard({
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem}>Last 7 Days</DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem}>Last 30 Days</DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem}>
+              Last 7 Days
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem}>
+              Last 30 Days
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -86,7 +92,11 @@ export function GenderStatsCard({
         <div className={styles.stats}>
           <div className={styles.trend}>
             <span className={styles.trendValue} style={{ color: trendColor }}>
-              <CountUp value={Math.abs(parseFloat(trend.replace(/[%+-]/g, '')))} format="percentage" />%
+              <CountUp
+                value={Math.abs(parseFloat(trend.replace(/[%+-]/g, '')))}
+                format="percentage"
+              />
+              %
             </span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -105,12 +115,19 @@ export function GenderStatsCard({
             </svg>
           </div>
           <div className={styles.mainValue}>
-            <CountUp value={parseFloat(value.replace('%', ''))} format="percentage" />%
+            <CountUp
+              value={parseFloat(value.replace('%', ''))}
+              format="percentage"
+            />
+            %
           </div>
         </div>
         <div className={styles.chartContainer}>
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+            <AreaChart
+              data={data}
+              margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={chartColor} stopOpacity={0.3} />
@@ -118,7 +135,12 @@ export function GenderStatsCard({
                   <stop offset="100%" stopColor={chartColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="5 5" stroke="#e0e0e0" vertical={true} horizontal={false} />
+              <CartesianGrid
+                strokeDasharray="5 5"
+                stroke="#e0e0e0"
+                vertical={true}
+                horizontal={false}
+              />
               <XAxis hide />
               <YAxis hide />
               <Area

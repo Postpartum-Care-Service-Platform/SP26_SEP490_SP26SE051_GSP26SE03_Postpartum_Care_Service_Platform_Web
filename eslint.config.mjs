@@ -1,18 +1,26 @@
-import nextPlugin from "eslint-plugin-next";
+import nextPlugin from "@next/eslint-plugin-next";
+import tsPlugin from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser";
 import nextConfig from "eslint-config-next";
-import storybook from "eslint-plugin-storybook";
 import prettierConfig from "eslint-config-prettier";
+import storybook from "eslint-plugin-storybook";
 
 /** @type {import('eslint').Linter.Config} */
-export default [
-  ...nextConfig(),
+const config = [
   {
-    files: ["**/*.stories.@(ts|tsx)"],
-    ...storybook.configs["flat/recommended"],
+    ignores: ["public/**"],
   },
+  // eslint-config-next 16 exports a flat config array, not a function
+  ...nextConfig,
+  // Storybook flat recommended config already includes appropriate file globs
+  ...storybook.configs["flat/recommended"],
   {
+    languageOptions: {
+      parser: tsParser,
+    },
     plugins: {
       next: nextPlugin,
+      "@typescript-eslint": tsPlugin,
     },
     rules: {
       ...prettierConfig.rules,
@@ -30,7 +38,7 @@ export default [
         },
       ],
       "import/order": [
-        "error",
+        "warn",
         {
           groups: [
             "builtin",
@@ -60,3 +68,5 @@ export default [
   },
   prettierConfig,
 ];
+
+export default config;

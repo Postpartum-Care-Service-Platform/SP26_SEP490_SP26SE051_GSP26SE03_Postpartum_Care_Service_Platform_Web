@@ -1,17 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { AlertCircle, Activity, Calendar, Users } from 'lucide-react';
 import Image from 'next/image';
-import { AlertCircle, Users, Calendar, Activity } from 'lucide-react';
+import { useState } from 'react';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
-import { PatientStatusChart } from './PatientStatusChart';
+
 import { CountUp } from './CountUp';
 import styles from './dashboard-stats-cards.module.css';
+import { PatientStatusChart } from './PatientStatusChart';
 
 type DashboardStats = {
   activePatients: number;
@@ -30,7 +32,7 @@ type StatCard = {
   label: string;
   value: number;
   format: 'number' | 'currency' | 'percentage';
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; color?: string }>;
   iconBgColor: string;
   iconColor: string;
   trend?: {
@@ -40,6 +42,14 @@ type StatCard = {
 };
 
 export function DashboardStatsCards({ stats }: Props) {
+  // State để track selectedPeriod cho từng card
+  const [selectedPeriods, setSelectedPeriods] = useState<Record<string, string>>({
+    outstandingBalance: '7',
+    newPatients: '7',
+    appointments: '7',
+    bedOccupancy: '7',
+  });
+
   const cards: StatCard[] = [
     {
       key: 'outstandingBalance',
@@ -95,6 +105,10 @@ export function DashboardStatsCards({ stats }: Props) {
     },
   ];
 
+  const handlePeriodChange = (cardKey: string, period: string) => {
+    setSelectedPeriods((prev) => ({ ...prev, [cardKey]: period }));
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.activePatientsCard}>
@@ -106,12 +120,18 @@ export function DashboardStatsCards({ stats }: Props) {
             </h5>
           </div>
           <div className={styles.weeklyAppointments}>
-            <h6 className={styles.weeklyAppointmentsTitle}>Weekly Appointments</h6>
+            <h6 className={styles.weeklyAppointmentsTitle}>
+              Weekly Appointments
+            </h6>
             <p className={styles.weeklyAppointmentsText}>
-              You have <CountUp value={stats.appointments} format="number" /> total appointments scheduled this week.
+              You have{' '}
+              <CountUp value={stats.appointments} format="number" /> total
+              appointments scheduled this week.
             </p>
           </div>
-          <button className={styles.bookAppointmentButton}>Book Appointment</button>
+          <button className={styles.bookAppointmentButton}>
+            Book Appointment
+          </button>
         </div>
         <div className={styles.logoContainer}>
           <Image
@@ -127,7 +147,7 @@ export function DashboardStatsCards({ stats }: Props) {
 
       {cards.map((card) => {
         const Icon = card.icon;
-        const [selectedPeriod, setSelectedPeriod] = useState('7');
+        const selectedPeriod = selectedPeriods[card.key];
 
         return (
           <div key={card.key} className={styles.statCard}>
@@ -147,31 +167,53 @@ export function DashboardStatsCards({ stats }: Props) {
                   </svg>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className={styles.dropdownContent} align="end">
+              <DropdownMenuContent
+                className={styles.dropdownContent}
+                align="end"
+              >
                 <DropdownMenuItem
-                  className={`${styles.dropdownItem} ${selectedPeriod === '7' ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setSelectedPeriod('7')}
+                  className={`${styles.dropdownItem} ${
+                    selectedPeriod === '7' ? styles.dropdownItemActive : ''
+                  }`}
+                  onClick={() => handlePeriodChange(card.key, '7')}
                 >
                   Last 7 Days
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className={`${styles.dropdownItem} ${selectedPeriod === '30' ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setSelectedPeriod('30')}
+                  className={`${styles.dropdownItem} ${
+                    selectedPeriod === '30' ? styles.dropdownItemActive : ''
+                  }`}
+                  onClick={() => handlePeriodChange(card.key, '30')}
                 >
                   Last 30 Days
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <div className={styles.statCardHeader}>
-              <div className={styles.iconWrapper} style={{ backgroundColor: card.iconBgColor }}>
-                <Icon className={styles.icon} style={{ color: card.iconColor }} />
+              <div
+                className={styles.iconWrapper}
+                style={{ backgroundColor: card.iconBgColor }}
+              >
+                <Icon className={styles.icon} color={card.iconColor} />
               </div>
               {card.trend && (
                 <div className={styles.trend}>
-                  <span className={card.trend.isPositive ? styles.trendPositive : styles.trendNegative}>
+                  <span
+                    className={
+                      card.trend.isPositive
+                        ? styles.trendPositive
+                        : styles.trendNegative
+                    }
+                  >
                     {card.trend.value}
                   </span>
-                  <span className={card.trend.isPositive ? styles.trendArrowUp : styles.trendArrowDown}>
+                  <span
+                    className={
+                      card.trend.isPositive
+                        ? styles.trendArrowUp
+                        : styles.trendArrowDown
+                    }
+                  >
                     {card.trend.isPositive ? '↑' : '↓'}
                   </span>
                 </div>
