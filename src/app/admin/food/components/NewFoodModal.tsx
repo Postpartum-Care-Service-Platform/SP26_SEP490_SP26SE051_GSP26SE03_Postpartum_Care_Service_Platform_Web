@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect, forwardRef } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { forwardRef, useEffect, useState } from 'react';
+
 import { useToast } from '@/components/ui/toast/use-toast';
-import styles from './new-food-modal.module.css';
-import type { Food, CreateFoodRequest, UpdateFoodRequest } from '@/types/food';
 import foodService from '@/services/food.service';
+import type { CreateFoodRequest, Food, UpdateFoodRequest } from '@/types/food';
+
+import styles from './new-food-modal.module.css';
 
 type Props = {
   open: boolean;
@@ -27,6 +29,12 @@ type FormErrors = {
   type?: string;
   description?: string;
   imageUrl?: string;
+};
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
 };
 
 const CustomInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
@@ -118,10 +126,18 @@ export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Prop
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      const errorMessage = err?.message || (isEditMode ? 'Cập nhật món ăn thất bại' : 'Tạo món ăn thất bại');
+    } catch (error: unknown) {
+      const errorMessage = getErrorMessage(
+        error,
+        isEditMode ? 'Cập nhật món ăn thất bại' : 'Tạo món ăn thất bại',
+      );
 
-      if (errorMessage.includes('tồn tại') || errorMessage.includes('đã tồn tại') || errorMessage.toLowerCase().includes('exists') || errorMessage.toLowerCase().includes('duplicate')) {
+      if (
+        errorMessage.includes('tồn tại') ||
+        errorMessage.includes('đã tồn tại') ||
+        errorMessage.toLowerCase().includes('exists') ||
+        errorMessage.toLowerCase().includes('duplicate')
+      ) {
         setErrors({ name: 'Tên món ăn đã tồn tại.' });
       } else {
         toast({ title: errorMessage, variant: 'error' });

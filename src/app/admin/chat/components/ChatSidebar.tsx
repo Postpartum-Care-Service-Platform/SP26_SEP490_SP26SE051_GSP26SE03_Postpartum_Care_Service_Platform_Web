@@ -1,7 +1,14 @@
 'use client';
 
+import {
+  Archive,
+  Bell,
+  Camera,
+  MessageCircle,
+  Settings,
+  Users,
+} from 'lucide-react';
 import Image from 'next/image';
-import { MessageCircle, Users, Archive, Camera, Settings, Bell } from 'lucide-react';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-32x32.png';
 
@@ -104,4 +111,3 @@ export function ChatSidebar({ activeView, onViewChange }: Props) {
     </aside>
   );
 }
-

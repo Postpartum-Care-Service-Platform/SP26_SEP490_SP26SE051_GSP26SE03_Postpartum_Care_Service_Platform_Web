@@ -1,8 +1,8 @@
 'use client';
 
-import { CheckCircledIcon } from '@radix-ui/react-icons';
+import { CheckCircledIcon, PersonIcon, SquareIcon } from '@radix-ui/react-icons';
 import Image from 'next/image';
-import { SquareIcon, PersonIcon } from '@radix-ui/react-icons';
+
 import styles from './booking-card.module.css';
 
 const BedIcon = () => (

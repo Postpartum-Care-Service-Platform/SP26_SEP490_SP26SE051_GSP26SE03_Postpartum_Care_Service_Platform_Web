@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import Image from 'next/image';
+import React from 'react';
 
 import earthImage from '@/assets/images/home/home-earth.avif';
 import jupiterImage from '@/assets/images/home/home-jupiter-2.avif';
@@ -9,7 +9,6 @@ import rocketImage from '@/assets/images/home/home-rocket.avif';
 import saturnImage from '@/assets/images/home/home-saturn.avif';
 
 import { AppointmentForm } from './AppointmentForm';
-
 import styles from './IntroductionSection.module.css';
 
 export const IntroductionSection: React.FC = () => {

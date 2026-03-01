@@ -1,14 +1,22 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { ContractListHeader } from './components/ContractListHeader';
-import { ContractTableControls } from './components/ContractTableControls';
-import { ContractList } from './components/ContractList';
-import { ContractCustomerInfo } from './components/ContractCustomerInfo';
-import { AddContractModal } from './components/AddContractModal';
+
 import contractService from '@/services/contract.service';
 import type { Contract } from '@/types/contract';
+
+import { AddContractModal } from './components/AddContractModal';
+import { ContractCustomerInfo } from './components/ContractCustomerInfo';
+import { ContractList } from './components/ContractList';
+import { ContractListHeader } from './components/ContractListHeader';
+import { ContractTableControls } from './components/ContractTableControls';
 import styles from './contract.module.css';
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
 
 export default function AdminContractPage() {
   const [contracts, setContracts] = useState<Contract[]>([]);
@@ -28,8 +36,8 @@ export default function AdminContractPage() {
       setError(null);
       const data = await contractService.getAllContracts();
       setContracts(data);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách hợp đồng');
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, 'Không thể tải danh sách hợp đồng'));
     } finally {
       setLoading(false);
     }

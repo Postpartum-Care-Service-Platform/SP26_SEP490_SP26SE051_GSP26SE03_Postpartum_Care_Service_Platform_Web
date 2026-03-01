@@ -1,8 +1,8 @@
 'use client';
 
+import styles from './overview-stats-cards.module.css';
 import { OverviewStatCard } from './OverviewStatCard';
 import { overviewStatsConfig } from './overviewStatsConfig';
-import styles from './overview-stats-cards.module.css';
 
 export function OverviewStatsCards() {
   return (

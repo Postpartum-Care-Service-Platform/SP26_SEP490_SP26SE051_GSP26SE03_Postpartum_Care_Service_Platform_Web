@@ -1,8 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react';
-import type { User, AuthResponse } from '@/types/auth';
+import React, { ReactNode, createContext, useContext, useMemo, useState } from 'react';
+
 import authService from '@/services/auth.service';
+import type { AuthResponse, User } from '@/types/auth';
 
 const TOKEN_KEY = 'token';
 const REFRESH_TOKEN_KEY = 'refreshToken';
@@ -20,23 +21,33 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
-
-  useEffect(() => {
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window === 'undefined') return null;
     try {
-      const storedToken = localStorage.getItem(TOKEN_KEY);
-      const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
       const storedUser = localStorage.getItem(USER_KEY);
-
-      if (storedToken) setToken(storedToken);
-      if (storedRefreshToken) setRefreshToken(storedRefreshToken);
-      if (storedUser) setUser(JSON.parse(storedUser) as User);
+      return storedUser ? (JSON.parse(storedUser) as User) : null;
     } catch {
-      // ignore
+      return null;
     }
-  }, []);
+  });
+
+  const [token, setToken] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return localStorage.getItem(TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  });
+
+  const [refreshToken, setRefreshToken] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      return localStorage.getItem(REFRESH_TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  });
 
   const login = (authResponse: AuthResponse) => {
     setUser(authResponse.user);

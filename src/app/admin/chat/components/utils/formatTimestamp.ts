@@ -3,7 +3,6 @@ export function formatRelativeTimestamp(timestamp: string): string {
   const messageDate = new Date(timestamp);
   const diffInMs = now.getTime() - messageDate.getTime();
   const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
   const isToday = now.toDateString() === messageDate.toDateString();

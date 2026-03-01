@@ -1,20 +1,37 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import styles from './allotment.module.css';
+
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { useToast } from '@/components/ui/toast/use-toast';
+import roomAllotmentService from '@/services/room-allotment.service';
+import type { Room } from '@/types/room-allotment';
+
+import styles from './allotment.module.css';
 import { RoomAllotmentStats } from './components/RoomAllotmentStats';
 import { RoomAllotmentStatusLegend } from './components/RoomAllotmentStatusLegend';
 import { RoomAllotmentTable } from './components/RoomAllotmentTable';
-import roomAllotmentService from '@/services/room-allotment.service';
-import type { Room } from '@/types/room-allotment';
-import { useToast } from '@/components/ui/toast/use-toast';
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  ) {
+    return (error as { message: string }).message;
+  }
+  return fallback;
+};
 
 export default function AddRoomAllotmentPage() {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [savingId, setSavingId] = useState<number | null>(null);
+  const [, setSavingId] = useState<number | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -28,8 +45,8 @@ export default function AddRoomAllotmentPage() {
       const data = await roomAllotmentService.getAllRooms();
 
       setRooms(Array.isArray(data) ? data : []);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách phân bổ phòng');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Không thể tải danh sách phân bổ phòng'));
     } finally {
       setLoading(false);
     }
@@ -76,8 +93,8 @@ export default function AddRoomAllotmentPage() {
 
       toast({ title: 'Cập nhật phòng thành công', variant: 'success' });
       await fetchRooms();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Cập nhật phòng thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Cập nhật phòng thất bại'), variant: 'error' });
     } finally {
       setSavingId(null);
     }
@@ -89,8 +106,8 @@ export default function AddRoomAllotmentPage() {
       await roomAllotmentService.deleteRoom(room.id);
       toast({ title: 'Xóa phòng thành công', variant: 'success' });
       await fetchRooms();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa phòng thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Xóa phòng thất bại'), variant: 'error' });
     } finally {
       setSavingId(null);
     }
@@ -102,8 +119,8 @@ export default function AddRoomAllotmentPage() {
       await roomAllotmentService.maintainRoom(room.id);
       toast({ title: 'Đưa phòng vào chế độ bảo trì thành công', variant: 'success' });
       await fetchRooms();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Đưa phòng vào chế độ bảo trì thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Đưa phòng vào chế độ bảo trì thất bại'), variant: 'error' });
     } finally {
       setSavingId(null);
     }
@@ -115,8 +132,8 @@ export default function AddRoomAllotmentPage() {
       await roomAllotmentService.activateRoom(room.id);
       toast({ title: 'Kích hoạt phòng thành công', variant: 'success' });
       await fetchRooms();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Kích hoạt phòng thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Kích hoạt phòng thất bại'), variant: 'error' });
     } finally {
       setSavingId(null);
     }

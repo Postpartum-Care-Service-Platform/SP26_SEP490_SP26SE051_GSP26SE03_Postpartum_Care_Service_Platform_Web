@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+
 import styles from './top-doctors.module.css';
 
 type Doctor = {

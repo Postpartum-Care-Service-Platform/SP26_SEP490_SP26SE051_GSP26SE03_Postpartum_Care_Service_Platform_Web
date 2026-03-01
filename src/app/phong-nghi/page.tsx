@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
 import Script from 'next/script';
-import MallMap from '@/components/map/MallMap';
-import { Header } from '@/components/layout/Header';
+import React from 'react';
+
 import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+import MallMap from '@/components/map/MallMap';
 
 // Component này chứa toàn bộ các SVG Symbol dùng cho icon trong map
 // Copy từ phần <svg class="hidden"> trong index.html gốc

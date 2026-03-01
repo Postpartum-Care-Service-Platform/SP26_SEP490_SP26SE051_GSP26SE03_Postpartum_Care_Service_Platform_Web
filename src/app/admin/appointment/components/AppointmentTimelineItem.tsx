@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import styles from './appointment-timeline-item.module.css';
 
 export type TimelineAppointment = {
@@ -62,7 +64,13 @@ export function AppointmentTimelineItem({ appointment }: Props) {
       <div className={styles.line}>
         <div className={styles.avatarWrapper}>
           {appointment.patientAvatar ? (
-            <img src={appointment.patientAvatar} alt={appointment.patientName} className={styles.avatar} />
+            <Image
+              src={appointment.patientAvatar}
+              alt={appointment.patientName}
+              className={styles.avatar}
+              width={32}
+              height={32}
+            />
           ) : (
             <div className={styles.avatarFallback}>{appointment.patientName.charAt(0)}</div>
           )}

@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import Image from 'next/image';
+import React from 'react';
 
 import babyImage from '@/assets/images/gallery/baby.webp';
 import foodImage from '@/assets/images/gallery/food.avif';

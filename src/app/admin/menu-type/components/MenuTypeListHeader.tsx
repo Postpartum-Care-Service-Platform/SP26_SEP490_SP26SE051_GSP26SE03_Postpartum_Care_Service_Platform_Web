@@ -1,6 +1,7 @@
 'use client';
 
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+
 import styles from './menu-type-list-header.module.css';
 
 export function MenuTypeListHeader() {

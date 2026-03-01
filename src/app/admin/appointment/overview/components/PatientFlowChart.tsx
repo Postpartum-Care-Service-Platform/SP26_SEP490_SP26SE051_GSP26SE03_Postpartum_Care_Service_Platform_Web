@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+
 import { mockPatientFlowData } from './mockPatientFlowData';
 import styles from './patient-flow-chart.module.css';
 

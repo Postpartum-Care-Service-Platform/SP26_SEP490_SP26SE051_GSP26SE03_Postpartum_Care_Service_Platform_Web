@@ -1,17 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { ExitIcon, PersonIcon } from '@radix-ui/react-icons';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { useEffect, useState } from 'react';
+
 import { useAuth } from '@/contexts/AuthContext';
+import { ROUTES } from '@/routes/routes';
 import userService from '@/services/user.service';
-import { NotificationDropdown } from './NotificationDropdown';
 import type { Account } from '@/types/account';
 
-import { ROUTES } from '@/routes/routes';
+import { NotificationDropdown } from './NotificationDropdown';
 
 export function UserNav() {
   const router = useRouter();

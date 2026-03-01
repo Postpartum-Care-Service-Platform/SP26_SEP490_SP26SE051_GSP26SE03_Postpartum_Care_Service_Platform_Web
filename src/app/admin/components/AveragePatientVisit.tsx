@@ -2,22 +2,22 @@
 
 import { useState } from 'react';
 import {
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  ShapeProps,
 } from 'recharts';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
+
 import styles from './average-patient-visit.module.css';
 
 type VisitData = {
@@ -45,22 +45,62 @@ const mockData: VisitData[] = [
   { month: 'Dec', actual: 1300, expected: 1300 },
 ];
 
-const CustomBarShape = (props: ShapeProps & { opacity?: number }) => {
+type BarShapeProps = {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  opacity?: string | number;
+};
+
+const CustomBarShape = (props: BarShapeProps) => {
   const { x, y, width, height, opacity = 0.4 } = props;
-  if (typeof x === 'number' && typeof y === 'number' && typeof width === 'number' && typeof height === 'number') {
+  const opacityValue = typeof opacity === 'string' ? parseFloat(opacity) : opacity ?? 0.4;
+  if (
+    typeof x === 'number' &&
+    typeof y === 'number' &&
+    typeof width === 'number' &&
+    typeof height === 'number'
+  ) {
     return (
       <g>
-        <rect x={x} y={y} width={width} height={height} fill="url(#barGradient)" opacity={opacity} />
-        <line x1={x} y1={y} x2={x + width} y2={y} stroke="#fa8314" strokeWidth={2} />
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          fill="url(#barGradient)"
+          opacity={opacityValue}
+        />
+        <line
+          x1={x}
+          y1={y}
+          x2={x + width}
+          y2={y}
+          stroke="#fa8314"
+          strokeWidth={2}
+        />
       </g>
     );
   }
   return null;
 };
 
-const CustomCursor = (props: any) => {
+type CursorProps = {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+};
+
+const CustomCursor = (props: CursorProps) => {
   const { x, y, width, height } = props;
-  if (typeof x === 'number' && typeof y === 'number' && typeof width === 'number' && typeof height === 'number') {
+  if (
+    typeof x === 'number' &&
+    typeof y === 'number' &&
+    typeof width === 'number' &&
+    typeof height === 'number'
+  ) {
     const centerX = x + width / 2;
     return (
       <line
@@ -77,18 +117,34 @@ const CustomCursor = (props: any) => {
   return null;
 };
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+type TooltipPayloadItem = {
+  value: number;
+};
+
+type AvgTooltipProps = {
+  active?: boolean;
+  label?: string;
+  payload?: TooltipPayloadItem[];
+};
+
+const CustomTooltip = ({ active, payload, label }: AvgTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className={styles.tooltip}>
         <p className={styles.tooltipLabel}>{label}</p>
         <div className={styles.tooltipContent}>
           <div className={styles.tooltipItem}>
-            <span className={styles.tooltipDot} style={{ backgroundColor: '#fa8314' }} />
+            <span
+              className={styles.tooltipDot}
+              style={{ backgroundColor: '#fa8314' }}
+            />
             <span>Actual: {payload[0].value}</span>
           </div>
           <div className={styles.tooltipItem}>
-            <span className={styles.tooltipLine} style={{ borderColor: '#fa8314' }} />
+            <span
+              className={styles.tooltipLine}
+              style={{ borderColor: '#fa8314' }}
+            />
             <span>Expected: {payload[0].value}</span>
           </div>
         </div>
@@ -98,13 +154,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export function AveragePatientVisit({ data = mockData }: AveragePatientVisitProps) {
+export function AveragePatientVisit({
+  data = mockData,
+}: AveragePatientVisitProps) {
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const expectedVisits = 1450;
   const actualVisits = 1380;
-  const peakMonth = data.reduce((max, item) => (item.actual > max.actual ? item : max), data[0]);
+  const peakMonth = data.reduce(
+    (max, item) => (item.actual > max.actual ? item : max),
+    data[0]
+  );
   const peakValue = peakMonth.actual;
   const peakMonthName = peakMonth.month;
 
@@ -136,13 +197,17 @@ export function AveragePatientVisit({ data = mockData }: AveragePatientVisitProp
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
             <DropdownMenuItem
-              className={`${styles.dropdownItem} ${selectedPeriod === 'monthly' ? styles.dropdownItemActive : ''}`}
+              className={`${styles.dropdownItem} ${
+                selectedPeriod === 'monthly' ? styles.dropdownItemActive : ''
+              }`}
               onClick={() => setSelectedPeriod('monthly')}
             >
               Monthly
             </DropdownMenuItem>
             <DropdownMenuItem
-              className={`${styles.dropdownItem} ${selectedPeriod === 'weekly' ? styles.dropdownItemActive : ''}`}
+              className={`${styles.dropdownItem} ${
+                selectedPeriod === 'weekly' ? styles.dropdownItemActive : ''
+              }`}
               onClick={() => setSelectedPeriod('weekly')}
             >
               Weekly
@@ -154,13 +219,15 @@ export function AveragePatientVisit({ data = mockData }: AveragePatientVisitProp
         <div className={styles.metrics}>
           <div className={styles.metricItem}>
             <div className={styles.metricValue}>
-              {expectedVisits.toLocaleString('vi-VN')} <span className={styles.metricLabel}>/ Column</span>
+              {expectedVisits.toLocaleString('vi-VN')}{' '}
+              <span className={styles.metricLabel}>/ Column</span>
             </div>
             <p className={styles.metricDescription}>Expected Visits</p>
           </div>
           <div className={styles.metricItem}>
             <div className={styles.metricValue}>
-              {actualVisits.toLocaleString('vi-VN')} <span className={styles.metricLabel}>/ Stroke</span>
+              {actualVisits.toLocaleString('vi-VN')}{' '}
+              <span className={styles.metricLabel}>/ Stroke</span>
             </div>
             <p className={styles.metricDescription}>Actual Visits</p>
           </div>
@@ -173,41 +240,58 @@ export function AveragePatientVisit({ data = mockData }: AveragePatientVisitProp
         </div>
         <div className={styles.chartContainer}>
           <ResponsiveContainer width="100%" height="100%" minHeight={300}>
-            <BarChart data={data} margin={{ top: 20, right: 0, left: 0, bottom: 5 }} barCategoryGap={-0.4}>
+            <BarChart
+              data={data}
+              margin={{ top: 20, right: 0, left: 0, bottom: 5 }}
+              barCategoryGap={-0.4}
+            >
               <defs>
                 <linearGradient id="barGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stopColor="#ffd4a3" stopOpacity={0.4} />
                   <stop offset="100%" stopColor="#ffefdb" stopOpacity={0.4} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" horizontal={true} vertical={false} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#e0e0e0"
+                horizontal={true}
+                vertical={false}
+              />
               <XAxis
                 dataKey="month"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#6c757d', fontSize: 12, fontFamily: 'Funnel Sans, sans-serif' }}
+                tick={{
+                  fill: '#6c757d',
+                  fontSize: 12,
+                  fontFamily: 'Funnel Sans, sans-serif',
+                }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#6c757d', fontSize: 12, fontFamily: 'Funnel Sans, sans-serif' }}
+                tick={{
+                  fill: '#6c757d',
+                  fontSize: 12,
+                  fontFamily: 'Funnel Sans, sans-serif',
+                }}
                 domain={[0, 2000]}
                 ticks={[0, 500, 1000, 1500, 2000]}
               />
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={<CustomCursor />}
-              />
+              <Tooltip content={<CustomTooltip />} cursor={<CustomCursor />} />
               <Bar
                 dataKey="actual"
-                onMouseEnter={(data, index) => {
+                onMouseEnter={(_, index) => {
                   if (typeof index === 'number') {
                     setHoveredIndex(index);
                   }
                 }}
                 onMouseLeave={() => setHoveredIndex(null)}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 shape={(props: any) => {
-                  const index = props.payload?.index ?? data.findIndex((d) => d.month === props.payload?.month);
+                  const index =
+                    props.payload?.index ??
+                    data.findIndex((d) => d.month === props.payload?.month);
                   const opacity = hoveredIndex === index ? 1 : 0.4;
                   return <CustomBarShape {...props} opacity={opacity} />;
                 }}

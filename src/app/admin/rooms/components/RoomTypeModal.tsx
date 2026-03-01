@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -10,10 +12,10 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { TextField } from '@/components/ui/text-field';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast/use-toast';
 import roomTypeService from '@/services/room-type.service';
 import type { RoomType, CreateRoomTypeRequest, UpdateRoomTypeRequest } from '@/types/room-type';
+
 import styles from './room-type-modal.module.css';
 
 type Props = {
@@ -21,6 +23,21 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   room?: RoomType | null;
   onSuccess?: () => void;
+};
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string'
+  ) {
+    return (error as { message: string }).message;
+  }
+  return fallback;
 };
 
 export function RoomTypeModal({ open, onOpenChange, room, onSuccess }: Props) {
@@ -117,8 +134,8 @@ export function RoomTypeModal({ open, onOpenChange, room, onSuccess }: Props) {
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Có lỗi xảy ra', variant: 'error' });
+    } catch (err: unknown) {
+      toast({ title: getErrorMessage(err, 'Có lỗi xảy ra'), variant: 'error' });
     } finally {
       setIsSubmitting(false);
     }

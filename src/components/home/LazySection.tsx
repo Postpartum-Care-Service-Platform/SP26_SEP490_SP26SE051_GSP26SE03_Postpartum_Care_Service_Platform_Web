@@ -26,6 +26,8 @@ export const LazySection: React.FC<LazySectionProps> = ({
   const sectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const target = sectionRef.current;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -35,8 +37,8 @@ export const LazySection: React.FC<LazySectionProps> = ({
             // Đánh dấu đã load để không unload lại
             setHasLoaded(true);
             // Disconnect observer sau khi đã load
-            if (sectionRef.current) {
-              observer.unobserve(sectionRef.current);
+            if (target) {
+              observer.unobserve(target);
             }
           }
         });
@@ -48,14 +50,14 @@ export const LazySection: React.FC<LazySectionProps> = ({
     );
 
     // Bắt đầu observe element
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
+    if (target) {
+      observer.observe(target);
     }
 
     // Cleanup observer khi component unmount
     return () => {
-      if (sectionRef.current) {
-        observer.unobserve(sectionRef.current);
+      if (target) {
+        observer.unobserve(target);
       }
       observer.disconnect();
     };

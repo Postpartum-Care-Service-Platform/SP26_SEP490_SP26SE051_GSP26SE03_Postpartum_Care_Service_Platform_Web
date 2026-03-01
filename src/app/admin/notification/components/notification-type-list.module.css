@@ -74,10 +74,50 @@
   gap: 8px;
 }
 
-.editButton,
-.deleteButton,
+.editButton {
+  width: calc(16px + 0.5rem + 4px) !important;
+  height: calc(16px + 0.5rem + 4px) !important;
+  font-size: 0.8rem !important;
+  padding: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(164, 123, 200, 0.15) !important;
+  border-color: transparent !important;
+  border-radius: 3.6px !important;
+}
+
+.editButton:hover {
+  background-color: #a379c7 !important;
+}
+
+.editButton:hover svg {
+  fill: #ffffff !important;
+}
+
+.deleteButton {
+  width: calc(16px + 0.5rem + 4px) !important;
+  height: calc(16px + 0.5rem + 4px) !important;
+  font-size: 0.8rem !important;
+  padding: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(253, 97, 97, 0.15) !important;
+  border-color: transparent !important;
+  border-radius: 3.6px !important;
+}
+
+.deleteButton:hover {
+  background-color: #fc6060 !important;
+}
+
+.deleteButton:hover svg {
+  fill: #ffffff !important;
+}
+
 .restoreButton {
-  padding: 4px 8px;
+  padding: 4px 10px;
 }
 
 .emptyState {

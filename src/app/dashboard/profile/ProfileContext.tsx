@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+
 import type { FamilyProfile } from '@/types/family-profile';
 
 type ProfileContextValue = {

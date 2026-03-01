@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
+import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
+
 import styles from './invoice-list.module.css';
 
 type Invoice = {
@@ -127,8 +129,21 @@ const mockInvoices: Invoice[] = [
   },
 ];
 
-const EyeOutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-eye-outline" fill={fill}>
+const EyeOutlineIcon = ({
+  fill = '#A47BC8',
+  size = 16,
+}: {
+  fill?: string;
+  size?: number;
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    className="eva eva-eye-outline"
+    fill={fill}
+  >
     <g data-name="Layer 2">
       <g data-name="eye">
         <rect width="24" height="24" opacity="0" />
@@ -139,8 +154,21 @@ const EyeOutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?:
   </svg>
 );
 
-const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill={fill}>
+const Edit2OutlineIcon = ({
+  fill = '#A47BC8',
+  size = 16,
+}: {
+  fill?: string;
+  size?: number;
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    className="eva eva-edit-2-outline"
+    fill={fill}
+  >
     <g data-name="Layer 2">
       <g data-name="edit-2">
         <rect width="24" height="24" opacity="0" />
@@ -215,63 +243,71 @@ export function InvoiceList({ invoices = mockInvoices }: InvoiceListProps) {
               </tr>
             ) : (
               currentInvoices.map((invoice) => (
-              <tr key={invoice.id}>
-                <td className={styles.invoiceId}>#{invoice.id}</td>
-                <td>
-                  <div className={styles.clientCell}>
-                    <div className={styles.avatarContainer}>
-                      {invoice.client.avatar ? (
-                        <Image
-                          src={invoice.client.avatar}
-                          alt={invoice.client.name}
-                          width={32}
-                          height={32}
-                          className={styles.avatar}
-                        />
-                      ) : (
-                        <div className={styles.avatarPlaceholder}>
-                          <span>{invoice.client.name.charAt(0)}</span>
+                <tr key={invoice.id}>
+                  <td className={styles.invoiceId}>#{invoice.id}</td>
+                  <td>
+                    <div className={styles.clientCell}>
+                      <div className={styles.avatarContainer}>
+                        {invoice.client.avatar ? (
+                          <Image
+                            src={invoice.client.avatar}
+                            alt={invoice.client.name}
+                            width={32}
+                            height={32}
+                            className={styles.avatar}
+                          />
+                        ) : (
+                          <div className={styles.avatarPlaceholder}>
+                            <span>{invoice.client.name.charAt(0)}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className={styles.clientInfo}>
+                        <div className={styles.clientName}>
+                          {invoice.client.name}
                         </div>
-                      )}
+                        <div className={styles.clientCompany}>
+                          {invoice.client.company}
+                        </div>
+                      </div>
                     </div>
-                    <div className={styles.clientInfo}>
-                      <div className={styles.clientName}>{invoice.client.name}</div>
-                      <div className={styles.clientCompany}>{invoice.client.company}</div>
+                  </td>
+                  <td>{invoice.date}</td>
+                  <td>{invoice.dueDate}</td>
+                  <td>{formatCurrency(invoice.total)}</td>
+                  <td>{formatCurrency(invoice.paid)}</td>
+                  <td>{formatCurrency(invoice.balance)}</td>
+                  <td>{invoice.paymentMethod}</td>
+                  <td>
+                    <span
+                      className={`${styles.statusBadge} ${getStatusClass(
+                        invoice.status
+                      )}`}
+                    >
+                      {invoice.status}
+                    </span>
+                  </td>
+                  <td>
+                    <div className={styles.actions}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.actionButton} btn-icon btn-sm`}
+                        aria-label={`View invoice ${invoice.id}`}
+                      >
+                        <EyeOutlineIcon fill="#A47BC8" size={16} />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.actionButton} btn-icon btn-sm`}
+                        aria-label={`Edit invoice ${invoice.id}`}
+                      >
+                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                      </Button>
                     </div>
-                  </div>
-                </td>
-                <td>{invoice.date}</td>
-                <td>{invoice.dueDate}</td>
-                <td>{formatCurrency(invoice.total)}</td>
-                <td>{formatCurrency(invoice.paid)}</td>
-                <td>{formatCurrency(invoice.balance)}</td>
-                <td>{invoice.paymentMethod}</td>
-                <td>
-                  <span className={`${styles.statusBadge} ${getStatusClass(invoice.status)}`}>
-                    {invoice.status}
-                  </span>
-                </td>
-                <td>
-                  <div className={styles.actions}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.actionButton} btn-icon btn-sm`}
-                      aria-label={`View invoice ${invoice.id}`}
-                    >
-                      <EyeOutlineIcon fill="#A47BC8" size={16} />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.actionButton} btn-icon btn-sm`}
-                      aria-label={`Edit invoice ${invoice.id}`}
-                    >
-                      <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
+                  </td>
+                </tr>
               ))
             )}
           </tbody>

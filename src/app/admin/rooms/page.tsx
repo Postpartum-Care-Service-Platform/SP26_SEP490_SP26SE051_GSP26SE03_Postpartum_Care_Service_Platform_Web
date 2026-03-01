@@ -1,18 +1,26 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import styles from './rooms.module.css';
+
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import roomTypeService from '@/services/room-type.service';
 import type { RoomType } from '@/types/room-type';
-import { RoomCard } from './RoomCard';
+
 import { RoomTypeModal } from './components/RoomTypeModal';
+import { RoomCard } from './RoomCard';
+import styles from './rooms.module.css';
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
 
 export default function AdminRoomsPage() {
   const [rooms, setRooms] = useState<RoomType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [savingId, setSavingId] = useState<number | null>(null);
+  const [, setSavingId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<RoomType | null>(null);
 
@@ -23,8 +31,8 @@ export default function AdminRoomsPage() {
         setError(null);
         const data = await roomTypeService.getAdminRoomTypes();
         setRooms(data);
-      } catch (err: any) {
-        setError(err?.message || 'Không thể tải danh sách phòng');
+      } catch (error: unknown) {
+        setError(getErrorMessage(error, 'Không thể tải danh sách phòng'));
       } finally {
         setLoading(false);
       }
@@ -47,8 +55,8 @@ export default function AdminRoomsPage() {
     try {
       const data = await roomTypeService.getAdminRoomTypes();
       setRooms(data);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách phòng');
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, 'Không thể tải danh sách phòng'));
     }
   };
 

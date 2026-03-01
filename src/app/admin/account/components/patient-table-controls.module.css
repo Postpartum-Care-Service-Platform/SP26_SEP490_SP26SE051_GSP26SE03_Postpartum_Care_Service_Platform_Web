@@ -124,6 +124,14 @@
   min-width: 200px;
 }
 
+.sectionLabel {
+  padding: 6px 8px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
 .dropdownItem {
   padding: 8px 12px;
   font-family: var(--font-body);

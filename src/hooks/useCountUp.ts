@@ -20,6 +20,7 @@ export function useCountUp(
     endRef.current = end;
 
     if (!startOnMount) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCount(end);
       return;
     }

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
 import { useAuth } from '@/contexts/AuthContext';
 import { useChatHub } from '@/hooks/useChatHub';
 import { MessageEvent } from '@/services/signalr.service';

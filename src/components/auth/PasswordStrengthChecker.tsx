@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import { Check, X } from 'lucide-react';
+import React from 'react';
 
 import styles from './password-strength-checker.module.css';
 
@@ -32,9 +32,9 @@ const criteria: PasswordCriteria[] = [
 ];
 
 function calculateStrength(password: string): PasswordStrength {
-  const passedCount = criteria.filter((c) => c.test(password)).length;
-  if (passedCount <= 2) return 'weak';
-  if (passedCount === 3) return 'medium';
+  const count = criteria.filter((c) => c.test(password)).length;
+  if (count <= 2) return 'weak';
+  if (count === 3) return 'medium';
   return 'strong';
 }
 
@@ -74,7 +74,6 @@ export function PasswordStrengthChecker({ password, isVisible }: Props) {
 
   const strength = calculateStrength(password);
   const config = getStrengthConfig(strength);
-  const passedCount = criteria.filter((c) => c.test(password)).length;
 
   return (
     <div className={styles.container}>

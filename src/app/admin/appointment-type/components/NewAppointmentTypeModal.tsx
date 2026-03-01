@@ -1,11 +1,17 @@
 'use client';
 
-import { useState, useEffect, forwardRef } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { forwardRef, useEffect, useState } from 'react';
+
 import { useToast } from '@/components/ui/toast/use-toast';
-import styles from './new-appointment-type-modal.module.css';
-import type { CreateAppointmentTypeRequest, AppointmentTypeDetail, UpdateAppointmentTypeRequest } from '@/types/appointment-type';
 import appointmentTypeService from '@/services/appointment-type.service';
+import type {
+  AppointmentTypeDetail,
+  CreateAppointmentTypeRequest,
+  UpdateAppointmentTypeRequest,
+} from '@/types/appointment-type';
+
+import styles from './new-appointment-type-modal.module.css';
 
 type Props = {
   open: boolean;
@@ -95,8 +101,13 @@ export function NewAppointmentTypeModal({ open, onOpenChange, onSuccess, appoint
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      const errorMessage = err?.message || (isEditMode ? 'Cập nhật loại lịch hẹn thất bại' : 'Tạo loại lịch hẹn thất bại');
+    } catch (err: unknown) {
+      const errorMessage =
+        err instanceof Error && err.message
+          ? err.message
+          : isEditMode
+            ? 'Cập nhật loại lịch hẹn thất bại'
+            : 'Tạo loại lịch hẹn thất bại';
 
       if (errorMessage.includes('tồn tại') || errorMessage.includes('đã tồn tại') || errorMessage.toLowerCase().includes('exists') || errorMessage.toLowerCase().includes('duplicate')) {
         setErrors({ name: 'Tên loại lịch hẹn đã tồn tại.' });

@@ -1,0 +1,269 @@
+.wrap {
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+  background: #fff;
+  overflow: hidden;
+  position: relative;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  min-height: 640px;
+}
+
+.left {
+  border-right: 1px solid #dfe1e6;
+}
+
+.leftHeader {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: #f4f5f7;
+  border-bottom: 1px solid #dfe1e6;
+  font-weight: 600;
+  color: #172b4d;
+}
+
+.leftBody {
+  padding: 8px 0;
+}
+
+.sectionTitle {
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #626f86;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 28px 16px 1fr;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 12px;
+}
+
+.row:nth-child(even) {
+  background: rgba(9, 30, 66, 0.04);
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+}
+
+.epicIcon {
+  color: #a855f7;
+  display: flex;
+}
+
+.epicIconImg {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  display: block;
+}
+
+.epicText {
+  color: #172b4d;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.createRow {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  color: #172b4d;
+  cursor: pointer;
+}
+
+.createRow:hover {
+  background: rgba(9, 30, 66, 0.04);
+}
+
+.right {
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.monthHeader {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 200px;
+  height: 40px;
+  background: #f7f8f9;
+  border-bottom: 1px solid #dfe1e6;
+  border-top: 1px solid #dfe1e6;
+}
+
+.monthCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b6e76;
+  border-right: 1px solid #dfe1e6;
+  box-sizing: border-box;
+}
+
+.monthCell:last-child {
+  border-right: none;
+}
+
+.monthCellCurrent {
+  background: rgba(12, 102, 228, 0.10);
+}
+
+.canvas {
+  position: relative;
+  width: fit-content;
+  min-width: 100%;
+  height: calc(640px - 40px);
+  background: repeating-linear-gradient(
+    to right,
+    transparent,
+    transparent 199px,
+    rgba(9, 30, 66, 0.14) 200px
+  );
+  overflow: visible;
+}
+
+.rowTrack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 44px;
+}
+
+.rowTrack:nth-child(even) {
+  background: rgba(9, 30, 66, 0.04);
+}
+
+.bar {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 22px;
+  background: #c77dff;
+  border-radius: 4px;
+  cursor: grab;
+  user-select: none;
+}
+
+.barActive {
+  cursor: grabbing;
+}
+
+.barHandle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 18px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.1);
+  cursor: ew-resize;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.bar:hover .barHandle {
+  opacity: 1;
+}
+
+.barHandleLeft {
+  left: 2px;
+}
+
+.barHandleRight {
+  right: 2px;
+}
+
+.badge {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #172b4d;
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 3px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 20;
+}
+
+.bar:hover .badge,
+.barActive .badge {
+  opacity: 1;
+}
+
+.badgeLeft {
+  right: calc(100% + 8px);
+}
+
+.badgeRight {
+  left: calc(100% + 8px);
+}
+
+.todayLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #0c66e4;
+  left: 600px;
+  z-index: 5;
+}
+
+.bottomSwitcher {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #dfe1e6;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  z-index: 50;
+}
+
+.switchBtn {
+  height: 36px;
+  padding: 0 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #172b4d;
+  font-size: 14px;
+}
+
+.switchBtn:hover {
+  background: #f4f5f7;
+}
+
+.switchBtnActive {
+  background: rgba(12, 102, 228, 0.12);
+  color: #0c66e4;
+}
+
+.divider {
+  width: 1px;
+  height: 18px;
+  background: #dfe1e6;
+}

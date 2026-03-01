@@ -1,10 +1,12 @@
 'use client';
 
 import Image from 'next/image';
+
 import bloodPressureIcon from '@/assets/images/accountOverview/blood-pressure.png';
 import heartRateIcon from '@/assets/images/accountOverview/heart-attack.png';
-import temperatureIcon from '@/assets/images/accountOverview/temperature.png';
 import oxygenIcon from '@/assets/images/accountOverview/red-blood-cells.png';
+import temperatureIcon from '@/assets/images/accountOverview/temperature.png';
+
 import styles from './health-metrics-cards.module.css';
 
 export function HealthMetricsCards() {

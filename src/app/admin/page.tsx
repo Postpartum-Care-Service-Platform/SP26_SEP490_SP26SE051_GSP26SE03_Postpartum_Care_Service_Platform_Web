@@ -1,21 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DashboardHeader } from './components/DashboardHeader';
-import { DashboardStatsCards } from './components/DashboardStatsCards';
-import { PatientStatusChart } from './components/PatientStatusChart';
-import { CalendarHeader } from './components/CalendarHeader';
+
+import styles from './admin-dashboard.module.css';
 import { AdminCalendar } from './components/AdminCalendar';
 import { AppointmentCarousel } from './components/AppointmentCarousel';
-import { TopDoctors } from './components/TopDoctors';
-import { AveragePatientVisit } from './components/AveragePatientVisit';
-import { PatientVisitByGender } from './components/PatientVisitByGender';
-import { GenderStatsCard } from './components/GenderStatsCard';
-import { TeamProductivity } from './components/TeamProductivity';
-import { InvoiceList } from './components/InvoiceList';
 import { AppointmentsList } from './components/AppointmentsList';
+import { AveragePatientVisit } from './components/AveragePatientVisit';
+import { CalendarHeader } from './components/CalendarHeader';
+import { DashboardHeader } from './components/DashboardHeader';
+import { DashboardStatsCards } from './components/DashboardStatsCards';
+import { GenderStatsCard } from './components/GenderStatsCard';
+import { InvoiceList } from './components/InvoiceList';
 import { PatientByAge } from './components/PatientByAge';
-import styles from './admin-dashboard.module.css';
+import { PatientVisitByGender } from './components/PatientVisitByGender';
+import { TeamProductivity } from './components/TeamProductivity';
+import { TopDoctors } from './components/TopDoctors';
 
 type DashboardStats = {
   activePatients: number;
@@ -26,14 +26,14 @@ type DashboardStats = {
 };
 
 export default function AdminPage() {
-  const [stats, setStats] = useState<DashboardStats>({
+  const [stats] = useState<DashboardStats>({
     activePatients: 1250,
     outstandingBalance: 34250000,
     newPatients: 1250,
     appointments: 3420,
     bedOccupancy: 78,
   });
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   // TODO: Fetch real data from API
   useEffect(() => {

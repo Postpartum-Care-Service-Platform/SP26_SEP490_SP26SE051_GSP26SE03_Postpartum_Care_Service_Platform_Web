@@ -1,5 +1,6 @@
-import apiClient from './apiClient';
 import type { AmenityService } from '@/types/amenity-service';
+
+import apiClient from './apiClient';
 
 const amenityService = {
   // Lấy tất cả các tiện ích

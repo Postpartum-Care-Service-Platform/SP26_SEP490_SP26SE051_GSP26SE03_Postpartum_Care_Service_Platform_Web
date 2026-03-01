@@ -1,11 +1,20 @@
 'use client';
 
-import { useState, useEffect, forwardRef } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { useState, useEffect, forwardRef } from 'react';
+
 import { useToast } from '@/components/ui/toast/use-toast';
-import styles from './new-menu-record-modal.module.css';
-import type { CreateMenuRecordRequest, MenuRecord, UpdateMenuRecordRequest } from '@/types/menu-record';
 import menuRecordService from '@/services/menu-record.service';
+import type { CreateMenuRecordRequest, MenuRecord, UpdateMenuRecordRequest } from '@/types/menu-record';
+
+import styles from './new-menu-record-modal.module.css';
+
+const getErrorMessage = (error: unknown, fallbackMessage: string) => {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'string' && error.trim()) return error;
+  return fallbackMessage;
+};
+
 
 type Props = {
   open: boolean;
@@ -123,9 +132,14 @@ export function NewMenuRecordModal({ open, onOpenChange, onSuccess, menuRecordTo
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (err: any) {
-      const errorMessage = err?.message || (isEditMode ? 'Cập nhật bản ghi thực đơn thất bại' : 'Tạo bản ghi thực đơn thất bại');
-      toast({ title: errorMessage, variant: 'error' });
+    } catch (error: unknown) {
+      toast({
+        title: getErrorMessage(
+          error,
+          isEditMode ? 'Cập nhật bản ghi thực đơn thất bại' : 'Tạo bản ghi thực đơn thất bại',
+        ),
+        variant: 'error',
+      });
     } finally {
       setIsSubmitting(false);
     }

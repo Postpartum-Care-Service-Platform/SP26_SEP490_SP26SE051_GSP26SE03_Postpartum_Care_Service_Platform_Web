@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
+
 import styles from './calendar-header.module.css';
 
 type DateOption = 'today' | 'tomorrow' | 'yesterday';
@@ -20,7 +22,8 @@ export function CalendarHeader() {
     { value: 'yesterday', label: 'Yesterday' },
   ];
 
-  const selectedLabel = options.find((opt) => opt.value === selectedOption)?.label || 'Today';
+  const selectedLabel =
+    options.find((opt) => opt.value === selectedOption)?.label || 'Today';
 
   return (
     <div className={styles.header}>
@@ -51,7 +54,9 @@ export function CalendarHeader() {
           {options.map((option) => (
             <DropdownMenuItem
               key={option.value}
-              className={`${styles.dropdownItem} ${selectedOption === option.value ? styles.dropdownItemActive : ''}`}
+              className={`${styles.dropdownItem} ${
+                selectedOption === option.value ? styles.dropdownItemActive : ''
+              }`}
               onClick={() => setSelectedOption(option.value)}
             >
               {option.label}

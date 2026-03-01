@@ -2,14 +2,20 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { CarePlanDetailListHeader } from './components/CarePlanDetailListHeader';
-import { CarePlanDetailStatsCards, CarePlanDetailTable, CarePlanDetailTableControls, NewCarePlanDetailModal } from './components';
-import type { CarePlanDetailStats } from './components';
-import styles from './care-plan-detail.module.css';
-
+import { useToast } from '@/components/ui/toast/use-toast';
 import carePlanDetailService from '@/services/care-plan-detail.service';
 import type { CarePlanDetail } from '@/types/care-plan-detail';
-import { useToast } from '@/components/ui/toast/use-toast';
+
+import styles from './care-plan-detail.module.css';
+import {
+  CarePlanDetailListHeader,
+  CarePlanDetailStatsCards,
+  CarePlanDetailTable,
+  CarePlanDetailTableControls,
+  NewCarePlanDetailModal,
+} from './components';
+
+import type { CarePlanDetailStats } from './components';
 
 const PAGE_SIZE = 10;
 
@@ -42,7 +48,6 @@ export default function AdminCarePlanDetailPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCarePlanDetail, setEditingCarePlanDetail] = useState<CarePlanDetail | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [sortKey, setSortKey] = useState<string>('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [deletingId, setDeletingId] = useState<number | null>(null);
@@ -53,8 +58,12 @@ export default function AdminCarePlanDetailPage() {
       setError(null);
       const data = await carePlanDetailService.getAllCarePlanDetails();
       setCarePlanDetails(data);
-    } catch (err: any) {
-      setError(err?.message || 'Không thể tải danh sách chi tiết kế hoạch chăm sóc');
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : 'Không thể tải danh sách chi tiết kế hoạch chăm sóc';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -127,8 +136,12 @@ export default function AdminCarePlanDetailPage() {
       await carePlanDetailService.deleteCarePlanDetail(carePlanDetail.id);
       toast({ title: 'Xóa chi tiết kế hoạch chăm sóc thành công', variant: 'success' });
       await fetchCarePlanDetails();
-    } catch (err: any) {
-      toast({ title: err?.message || 'Xóa chi tiết kế hoạch chăm sóc thất bại', variant: 'error' });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : 'Xóa chi tiết kế hoạch chăm sóc thất bại';
+      toast({ title: message, variant: 'error' });
     } finally {
       setDeletingId(null);
     }

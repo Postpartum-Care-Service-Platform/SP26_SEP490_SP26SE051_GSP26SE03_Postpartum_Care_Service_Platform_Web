@@ -1,12 +1,27 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import familyProfileService from '@/services/family-profile.service';
+import { useEffect, useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/Input';
-import type { FamilyProfile, CreateFamilyProfileRequest } from '@/types/family-profile';
+import familyProfileService from '@/services/family-profile.service';
+import type { CreateFamilyProfileRequest, FamilyProfile } from '@/types/family-profile';
+
 import styles from './family-profile-tab.module.css';
+
+const getErrorMessage = (error: unknown, fallback: string): string => {
+  if (error instanceof Error) {
+    return error.message || fallback;
+  }
+
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const maybeMessage = (error as { message?: unknown }).message;
+    if (typeof maybeMessage === 'string') return maybeMessage;
+  }
+
+  return fallback;
+};
 
 export function FamilyProfileTab() {
   const [profiles, setProfiles] = useState<FamilyProfile[]>([]);
@@ -31,7 +46,6 @@ export function FamilyProfileTab() {
 
   const loadProfiles = async () => {
     try {
-      // Kiểm tra token trước khi gọi API
       if (typeof window !== 'undefined') {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -40,16 +54,22 @@ export function FamilyProfileTab() {
           return;
         }
       }
-      
+
       setLoading(true);
       const data = await familyProfileService.getMyFamilyProfiles();
       setProfiles(data);
-    } catch (err: any) {
-      // Không hiển thị error nếu là 401 (đã được xử lý ở apiClient)
-      if (err?.status === 401) {
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, 'Không thể tải danh sách hồ sơ gia đình');
+      if (
+        typeof err === 'object' &&
+        err !== null &&
+        'status' in err &&
+        typeof (err as { status?: unknown }).status === 'number' &&
+        (err as { status: number }).status === 401
+      ) {
         setError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
       } else {
-        setError(err.message || 'Không thể tải danh sách hồ sơ gia đình');
+        setError(message);
       }
     } finally {
       setLoading(false);
@@ -93,16 +113,17 @@ export function FamilyProfileTab() {
 
     try {
       if (editingProfile) {
-        // Update logic - cần implement update service
-        alert('Chức năng cập nhật đang được phát triển');
+        await familyProfileService.updateFamilyProfile(editingProfile.id, formData);
+        setSuccess('Cập nhật hồ sơ gia đình thành công!');
       } else {
         await familyProfileService.createFamilyProfile(formData);
         setSuccess('Tạo hồ sơ gia đình thành công!');
-        handleCancel();
-        loadProfiles();
       }
-    } catch (err: any) {
-      setError(err.message || 'Không thể lưu hồ sơ gia đình');
+
+      handleCancel();
+      await loadProfiles();
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Không thể lưu hồ sơ gia đình'));
     }
   };
 
@@ -126,17 +147,13 @@ export function FamilyProfileTab() {
     <div className={styles.container}>
       <div className={styles.header}>
         <h3 className={styles.title}>Hồ sơ gia đình</h3>
-        {!showForm && (
-          <Button onClick={() => setShowForm(true)}>Thêm hồ sơ mới</Button>
-        )}
+        {!showForm && <Button onClick={() => setShowForm(true)}>Thêm hồ sơ mới</Button>}
       </div>
 
       {showForm && (
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formSection}>
-            <h4 className={styles.formTitle}>
-              {editingProfile ? 'Cập nhật hồ sơ' : 'Thêm hồ sơ mới'}
-            </h4>
+            <h4 className={styles.formTitle}>{editingProfile ? 'Cập nhật hồ sơ' : 'Thêm hồ sơ mới'}</h4>
 
             <div className={styles.field}>
               <label htmlFor="fullName" className={styles.label}>
@@ -263,9 +280,7 @@ export function FamilyProfileTab() {
                     className={styles.avatar}
                   />
                 ) : (
-                  <div className={styles.avatarPlaceholder}>
-                    {profile.fullName.charAt(0).toUpperCase()}
-                  </div>
+                  <div className={styles.avatarPlaceholder}>{profile.fullName.charAt(0).toUpperCase()}</div>
                 )}
                 <div className={styles.profileInfo}>
                   <h4 className={styles.profileName}>{profile.fullName}</h4>

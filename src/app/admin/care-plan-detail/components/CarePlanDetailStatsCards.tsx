@@ -1,10 +1,10 @@
 'use client';
 
-import { StatCard } from './StatCard';
-import { carePlanDetailStatsConfig } from './carePlanDetailStatsConfig';
-import type { CarePlanDetailStats } from './types';
-
 import styles from './care-plan-detail-stats-cards.module.css';
+import { carePlanDetailStatsConfig } from './carePlanDetailStatsConfig';
+import { StatCard } from './StatCard';
+
+import type { CarePlanDetailStats } from './types';
 
 type Props = {
   stats: CarePlanDetailStats;

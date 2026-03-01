@@ -177,6 +177,10 @@
   color: var(--color-brand-accent);
   text-decoration: none;
   transition: color 0.2s ease;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 
 .viewMoreLink:hover {
