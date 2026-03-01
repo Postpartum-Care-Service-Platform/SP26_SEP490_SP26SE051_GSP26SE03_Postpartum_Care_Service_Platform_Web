@@ -2,6 +2,7 @@ export interface Food {
   id: number;
   name: string;
   type: string;
+  foodType?: string; // API có thể trả về foodType thay vì type
   description: string;
   imageUrl: string | null;
   isActive: boolean;
