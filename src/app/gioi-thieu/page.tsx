@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Target, Eye, CheckCircle2, Shield, Award, Heart, Sparkles } from 'lucide-react';
@@ -38,14 +38,24 @@ const staggerContainer = {
 };
 
 export default function GioiThieuPage() {
-  // Generate random values once using useMemo to avoid calling Math.random() during render
-  const particleData = useMemo(() => {
-    return Array.from({ length: 30 }, () => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      delay: Math.random() * 15,
-      duration: 10 + Math.random() * 10,
-    }));
+  // Generate random values using useState and useEffect to avoid calling Math.random() during render
+  const [particleData, setParticleData] = useState<Array<{
+    x: number;
+    y: number;
+    delay: number;
+    duration: number;
+  }>>([]);
+
+  useEffect(() => {
+    // Generate random values after component mounts
+    setParticleData(
+      Array.from({ length: 30 }, () => ({
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        delay: Math.random() * 15,
+        duration: 10 + Math.random() * 10,
+      }))
+    );
   }, []);
 
   return (
@@ -71,18 +81,19 @@ export default function GioiThieuPage() {
             
             {/* Floating Particles */}
             <div className={styles.particles}>
-              {particleData.map((particle, i) => (
-                <div
-                  key={i}
-                  className={styles.particle}
-                  style={{
-                    '--delay': `${particle.delay}s`,
-                    '--duration': `${particle.duration}s`,
-                    '--x': `${particle.x}%`,
-                    '--y': `${particle.y}%`,
-                  } as React.CSSProperties}
-                />
-              ))}
+              {particleData.length > 0 &&
+                particleData.map((particle, i) => (
+                  <div
+                    key={i}
+                    className={styles.particle}
+                    style={{
+                      '--delay': `${particle.delay}s`,
+                      '--duration': `${particle.duration}s`,
+                      '--x': `${particle.x}%`,
+                      '--y': `${particle.y}%`,
+                    } as React.CSSProperties}
+                  />
+                ))}
             </div>
           </div>
 
