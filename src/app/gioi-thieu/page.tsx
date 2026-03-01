@@ -1,18 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { Target, Eye, CheckCircle2, Shield, Award, Heart, Sparkles } from 'lucide-react';
 
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
-
-// Import images
-import roomImage from '@/assets/images/gallery/room.jpg';
+import babyImage from '@/assets/images/gallery/baby.webp';
 import foodImage from '@/assets/images/gallery/food.avif';
 import momentImage from '@/assets/images/gallery/moment.avif';
-import babyImage from '@/assets/images/gallery/baby.webp';
+import roomImage from '@/assets/images/gallery/room.jpg';
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
 
 import styles from './gioi-thieu.module.css';
 
@@ -37,26 +35,19 @@ const staggerContainer = {
   },
 };
 
-export default function GioiThieuPage() {
-  // Generate random values using useState and useEffect to avoid calling Math.random() during render
-  const [particleData, setParticleData] = useState<Array<{
-    x: number;
-    y: number;
-    delay: number;
-    duration: number;
-  }>>([]);
+// Generate random particle data function (called once during initialization)
+function generateParticleData() {
+  return Array.from({ length: 30 }, () => ({
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    delay: Math.random() * 15,
+    duration: 10 + Math.random() * 10,
+  }));
+}
 
-  useEffect(() => {
-    // Generate random values after component mounts
-    setParticleData(
-      Array.from({ length: 30 }, () => ({
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        delay: Math.random() * 15,
-        duration: 10 + Math.random() * 10,
-      }))
-    );
-  }, []);
+export default function GioiThieuPage() {
+  // Use lazy initialization to generate random values only once
+  const [particleData] = useState(() => generateParticleData());
 
   return (
     <div className="app-shell__inner">
@@ -81,19 +72,18 @@ export default function GioiThieuPage() {
             
             {/* Floating Particles */}
             <div className={styles.particles}>
-              {particleData.length > 0 &&
-                particleData.map((particle, i) => (
-                  <div
-                    key={i}
-                    className={styles.particle}
-                    style={{
-                      '--delay': `${particle.delay}s`,
-                      '--duration': `${particle.duration}s`,
-                      '--x': `${particle.x}%`,
-                      '--y': `${particle.y}%`,
-                    } as React.CSSProperties}
-                  />
-                ))}
+              {particleData.map((particle, i) => (
+                <div
+                  key={i}
+                  className={styles.particle}
+                  style={{
+                    '--delay': `${particle.delay}s`,
+                    '--duration': `${particle.duration}s`,
+                    '--x': `${particle.x}%`,
+                    '--y': `${particle.y}%`,
+                  } as React.CSSProperties}
+                />
+              ))}
             </div>
           </div>
 
