@@ -12,7 +12,7 @@ export function AccountOverviewContent() {
           <div className={styles.avatarWrapper}>
             <div className={styles.avatar}>
               <Image
-                src="/placeholder-avatar.png"
+                src="/download.png"
                 alt="Avatar"
                 width={120}
                 height={120}

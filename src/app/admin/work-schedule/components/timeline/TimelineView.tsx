@@ -1,21 +1,16 @@
 'use client';
 
-import Image from 'next/image';
 import React from 'react';
+
+import Epic16Icon from '../list/artifacts/glyph/epic/16';
 
 import styles from './timeline-view.module.css';
 
 function EpicIcon() {
   return (
-    <Image
-      src="https://vominhtien0511.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10307?size=medium"
-      alt="Epic"
-      aria-label="Epic"
-      draggable={false}
-      className={styles.epicIconImg}
-      width={24}
-      height={24}
-    />
+    <span className={styles.epicIconImg} aria-label="Epic">
+      <Epic16Icon width={16} height={16} />
+    </span>
   );
 }
 

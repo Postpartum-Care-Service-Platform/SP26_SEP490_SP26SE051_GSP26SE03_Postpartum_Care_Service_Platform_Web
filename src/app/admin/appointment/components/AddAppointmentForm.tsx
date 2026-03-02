@@ -3,51 +3,60 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
+import appointmentService from '@/services/appointment.service';
+import type { CreateCustomerAppointmentRequest } from '@/types/appointment';
+
 import styles from '../add-appointment.module.css';
 
 type FormValues = {
-  fullName: string;
-  appointmentId: string;
-  age: string;
-  gender: string;
-  phoneNumber: string;
-  email: string;
-  address: string;
+  customerId: string;
+  name: string;
   date: string;
-  doctor: string;
-  department: string;
-  treatment: string;
-  avatar: File | null;
+  time: string;
+  appointmentTypeId: number;
 };
 
 export function AddAppointmentForm() {
   const [values, setValues] = useState<FormValues>({
-    fullName: '',
-    appointmentId: '',
-    age: '0',
-    gender: 'Male',
-    phoneNumber: '',
-    email: '',
-    address: '',
+    customerId: '',
+    name: '',
     date: '',
-    doctor: 'Dr. Rajesh Kumar',
-    department: 'Cardiology',
-    treatment: '',
-    avatar: null,
+    time: '',
+    appointmentTypeId: 1,
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (field: keyof FormValues) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setValues((prev) => ({ ...prev, [field]: event.target.value }));
-  };
+  const handleChange =
+    (field: keyof FormValues) =>
+    (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const value = field === 'appointmentTypeId' ? Number(event.target.value) : event.target.value;
+      setValues((prev) => ({ ...prev, [field]: value as never }));
+    };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    setValues((prev) => ({ ...prev, avatar: file }));
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log('Add appointment submit:', values);
+    setIsSubmitting(true);
+
+    try {
+      const payload: CreateCustomerAppointmentRequest = {
+        customerId: values.customerId,
+        name: values.name,
+        date: values.date,
+        time: values.time,
+        appointmentTypeId: values.appointmentTypeId,
+      };
+
+      await appointmentService.createAppointmentForCustomer(payload);
+      setValues({
+        customerId: '',
+        name: '',
+        date: '',
+        time: '',
+        appointmentTypeId: 1,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -56,155 +65,77 @@ export function AddAppointmentForm() {
         <p className={styles.sectionTitle}>Add Appointment</p>
         <div className={styles.gridTwo}>
           <div className={styles.field}>
-            <label className={styles.label} htmlFor="fullName">
-              Full Name
+            <label className={styles.label} htmlFor="customerId">
+              Customer ID
             </label>
             <input
-              id="fullName"
+              id="customerId"
               className={styles.input}
-              placeholder="Enter Full Name"
-              value={values.fullName}
-              onChange={handleChange('fullName')}
+              placeholder="Nhập customerId"
+              value={values.customerId}
+              onChange={handleChange('customerId')}
             />
           </div>
           <div className={styles.field}>
-            <label className={styles.label} htmlFor="appointmentId">
-              Appointment ID
+            <label className={styles.label} htmlFor="name">
+              Appointment Name
             </label>
             <input
-              id="appointmentId"
+              id="name"
               className={styles.input}
-              value={values.appointmentId}
-              onChange={handleChange('appointmentId')}
+              placeholder="Nhập tên lịch hẹn"
+              value={values.name}
+              onChange={handleChange('name')}
             />
           </div>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="age">
-              Age
-            </label>
-            <input id="age" className={styles.input} type="number" value={values.age} onChange={handleChange('age')} />
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="gender">
-              Gender
-            </label>
-            <select id="gender" className={styles.select} value={values.gender} onChange={handleChange('gender')}>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="phoneNumber">
-              Phone Number
-            </label>
-            <input
-              id="phoneNumber"
-              className={styles.input}
-              placeholder="Enter Phone Number"
-              value={values.phoneNumber}
-              onChange={handleChange('phoneNumber')}
-            />
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="email">
-              Email Address
-            </label>
-            <input
-              id="email"
-              className={styles.input}
-              placeholder="Enter Email Address"
-              value={values.email}
-              onChange={handleChange('email')}
-            />
-          </div>
-          <div className={`${styles.field} ${styles.fieldFull}`}>
-            <label className={styles.label} htmlFor="address">
-              Address
-            </label>
-            <textarea
-              id="address"
-              className={styles.textarea}
-              placeholder="Enter Your Address"
-              value={values.address}
-              onChange={handleChange('address')}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className={styles.sectionCard}>
-        <p className={styles.sectionTitle}>Appointment Details</p>
-        <div className={styles.gridTwo}>
           <div className={styles.field}>
             <label className={styles.label} htmlFor="date">
-              Date Of Appointment
+              Date
             </label>
             <input
               id="date"
-              className={styles.input}
               type="date"
-              placeholder="Select date"
+              className={styles.input}
               value={values.date}
               onChange={handleChange('date')}
             />
           </div>
           <div className={styles.field}>
-            <label className={styles.label} htmlFor="doctor">
-              Consulting Doctor
+            <label className={styles.label} htmlFor="time">
+              Time
             </label>
-            <select id="doctor" className={styles.select} value={values.doctor} onChange={handleChange('doctor')}>
-              <option value="Dr. Rajesh Kumar">Dr. Rajesh Kumar</option>
-            </select>
-          </div>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="department">
-              Department
-            </label>
-            <select id="department" className={styles.select} value={values.department} onChange={handleChange('department')}>
-              <option value="Cardiology">Cardiology</option>
-              <option value="Neurology">Neurology</option>
-            </select>
-          </div>
-          <div className={`${styles.field} ${styles.fieldFull}`}>
-            <label className={styles.label} htmlFor="treatment">
-              Treatment
-            </label>
-            <textarea
-              id="treatment"
-              className={styles.textarea}
-              placeholder="Describe your symptoms or reason for appointment"
-              value={values.treatment}
-              onChange={handleChange('treatment')}
+            <input
+              id="time"
+              type="time"
+              className={styles.input}
+              value={values.time}
+              onChange={handleChange('time')}
             />
           </div>
           <div className={styles.field}>
-            <label className={styles.label} htmlFor="avatar">
-              Avatar
+            <label className={styles.label} htmlFor="appointmentTypeId">
+              Appointment Type
             </label>
-            <div className={styles.fileInputWrapper}>
-              <input
-                id="avatar"
-                type="file"
-                className={styles.fileInput}
-                accept="image/*"
-                onChange={handleFileChange}
-              />
-              <label htmlFor="avatar" className={styles.fileInputLabel}>
-                Choose Files
-              </label>
-              <span className={styles.fileInputText}>{values.avatar ? values.avatar.name : 'No file chosen'}</span>
-            </div>
+            <select
+              id="appointmentTypeId"
+              className={styles.select}
+              value={values.appointmentTypeId}
+              onChange={handleChange('appointmentTypeId')}
+            >
+              <option value={1}>Type 1</option>
+              <option value={2}>Type 2</option>
+            </select>
           </div>
         </div>
-        <div className={styles.actions}>
-          <Link href="/admin/appointment" className={styles.secondaryButton}>
-            Cancel
-          </Link>
-          <button type="submit" className={styles.primaryButton}>
-            Save Appointment
-          </button>
-        </div>
+      </div>
+
+      <div className={styles.actions}>
+        <Link href="/admin/appointment" className={styles.secondaryButton}>
+          Cancel
+        </Link>
+        <button type="submit" className={styles.primaryButton} disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save Appointment'}
+        </button>
       </div>
     </form>
   );

@@ -160,11 +160,11 @@ export function LoginForm() {
       <div className={styles.divider}>hoặc</div>
       <form className={styles.form} onSubmit={handleSubmit}>
         <label className={styles.label}>
-          Email hoặc Username
+          Email hoặc tên đăng nhập
           <input
             className={`${styles.input} ${fieldErrors.emailOrUsername ? styles.inputError : ''}`}
             type="text"
-            placeholder="Email hoặc username"
+            placeholder="Nhập email hoặc tên đăng nhập"
             autoComplete="username"
             value={emailOrUsername}
             onChange={(e) => {

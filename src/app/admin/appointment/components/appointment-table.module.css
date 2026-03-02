@@ -3,7 +3,7 @@
   border-radius: var(--radius-md);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
-  padding: 16px;
+  padding: 16px 16px 12px;
   display: flex;
   flex-direction: column;
 }
@@ -123,43 +123,57 @@
   gap: 8px;
 }
 
-.editButton,
-.deleteButton {
-  display: flex;
+.editButton {
+  width: calc(16px + 0.5rem + 4px) !important;
+  height: calc(16px + 0.5rem + 4px) !important;
+  font-size: 0.8rem !important;
+  padding: 0.5rem;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.editButton {
-  background-color: var(--color-action-edit-bg);
-  color: var(--color-action-edit);
+  background-color: rgba(164, 123, 200, 0.15) !important;
+  border-color: transparent !important;
+  border-radius: 3.6px !important;
 }
 
 .editButton:hover {
-  background-color: var(--color-action-edit);
-  color: #fff;
+  background-color: #a379c7 !important;
+}
+
+.editButton:hover svg {
+  fill: #ffffff !important;
 }
 
 .deleteButton {
-  background-color: var(--color-action-delete-bg);
-  color: var(--color-action-delete);
+  width: calc(16px + 0.5rem + 4px) !important;
+  height: calc(16px + 0.5rem + 4px) !important;
+  font-size: 0.8rem !important;
+  padding: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(253, 97, 97, 0.15) !important;
+  border-color: transparent !important;
+  border-radius: 3.6px !important;
 }
 
 .deleteButton:hover {
-  background-color: var(--color-action-delete);
-  color: #fff;
+  background-color: #fc6060 !important;
 }
 
-.editButton svg,
-.deleteButton svg {
-  width: 16px;
-  height: 16px;
+.deleteButton:hover svg {
+  fill: #ffffff !important;
+}
+
+.quickCreateWrapper {
+  align-self: stretch;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.quickCreateWrapper > div {
+  max-width: 1000px;
+  width: 100%;
 }
 
 @media (max-width: 1024px) {

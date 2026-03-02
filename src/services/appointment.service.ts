@@ -1,4 +1,9 @@
-import type { Appointment, CreateAppointmentRequest, UpdateAppointmentRequest } from '@/types/appointment';
+import type {
+  Appointment,
+  CreateAppointmentRequest,
+  CreateCustomerAppointmentRequest,
+  UpdateAppointmentRequest,
+} from '@/types/appointment';
 
 import apiClient from './apiClient';
 
@@ -13,6 +18,10 @@ const appointmentService = {
 
   createAppointment: (payload: CreateAppointmentRequest): Promise<Appointment> => {
     return apiClient.post('/Appointment', payload);
+  },
+
+  createAppointmentForCustomer: (payload: CreateCustomerAppointmentRequest): Promise<Appointment> => {
+    return apiClient.post('/Appointment/create-for-customer', payload);
   },
 
   updateAppointment: (id: number, payload: UpdateAppointmentRequest): Promise<Appointment> => {

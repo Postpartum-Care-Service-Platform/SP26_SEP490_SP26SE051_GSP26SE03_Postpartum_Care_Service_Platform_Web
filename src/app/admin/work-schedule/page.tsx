@@ -8,13 +8,15 @@ import { CalendarControlPanel } from './components/calendar/CalendarControlPanel
 import { CalendarMonthView } from './components/calendar/CalendarMonthView';
 import { CalendarWeekView } from './components/calendar/CalendarWeekView';
 import { WorkScheduleList } from './components/list/WorkScheduleList';
-import { SummaryIcon, TimelineIcon, BoardIcon, CalendarIcon, ListIcon, FormsIcon } from './components/TabIcons';
+import { SummaryIcon, TimelineIcon, BoardIcon, CalendarIcon, ListIcon } from './components/TabIcons';
 import { TASK_TYPES, type TaskType } from './components/TaskTypePicker';
 import { TimelineControlPanel } from './components/timeline/TimelineControlPanel';
 import { TimelineView } from './components/timeline/TimelineView';
 import { WorkScheduleControlPanel } from './components/WorkScheduleControlPanel';
 import { WorkScheduleDetailView } from './components/WorkScheduleDetailView';
 import { WorkScheduleHeader } from './components/WorkScheduleHeader';
+import { WorkScheduleOverview } from './components/WorkScheduleOverview';
+import { WorkScheduleStatusOverview } from './components/WorkScheduleStatusOverview';
 
 import type { CalendarStatusType } from './components/calendar/CalendarStatusDropdown';
 import type { CalendarViewMode } from './components/calendar/CalendarViewDropdown';
@@ -26,11 +28,10 @@ const tabs = [
   { key: 'board', label: 'Bảng', icon: <BoardIcon /> },
   { key: 'calendar', label: 'Lịch', icon: <CalendarIcon /> },
   { key: 'list', label: 'Danh sách', icon: <ListIcon /> },
-  { key: 'forms', label: 'Biểu mẫu', icon: <FormsIcon /> },
 ];
 
 export default function WorkSchedulePage() {
-  const [activeTab, setActiveTab] = React.useState(tabs[4].key); // Default to 'list'
+  const [activeTab, setActiveTab] = React.useState(tabs[0].key); // Default to 'summary'
   const [searchQuery, setSearchQuery] = React.useState('');
   const [viewMode, setViewMode] = React.useState<'list' | 'table'>('table');
   const [assigneeOnly, setAssigneeOnly] = React.useState(false);
@@ -59,6 +60,13 @@ export default function WorkSchedulePage() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
+
+      {activeTab === 'summary' && (
+        <>
+          <WorkScheduleOverview />
+          <WorkScheduleStatusOverview />
+        </>
+      )}
 
       {activeTab === 'list' && (
         <>

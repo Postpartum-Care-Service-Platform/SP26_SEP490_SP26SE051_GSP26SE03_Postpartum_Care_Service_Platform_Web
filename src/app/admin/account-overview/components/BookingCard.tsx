@@ -140,7 +140,7 @@ export function BookingCard() {
 
           <div className={styles.roomImageWrapper}>
             <Image
-              src="/placeholder-room.jpg"
+              src="/download.png"
               alt="Room"
               width={400}
               height={250}

@@ -2,7 +2,6 @@
 
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { CheckIcon, ChevronDownIcon, UpdateIcon, MixerHorizontalIcon } from '@radix-ui/react-icons';
-import Image from 'next/image';
 import React from 'react';
 
 import styles from './work-schedule-detail-view.module.css';
@@ -26,7 +25,7 @@ type Row = {
 const demoRows: Row[] = [
   {
     id: '1',
-    iconUrl: 'https://vominhtien0511.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10306?size=small',
+    iconUrl: '',
     workCode: 'ACSCM-26',
     workTitle: 'Handle Login Error Messages & Account Lock',
     assignee: 'Vo Minh Tien',
@@ -40,7 +39,7 @@ const demoRows: Row[] = [
   },
   {
     id: '2',
-    iconUrl: 'https://vominhtien0511.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10306?size=small',
+    iconUrl: '',
     workCode: 'ACSCM-16',
     workTitle: 'Epic 6: Nutrition & Health Tracking',
     assignee: 'Vo Minh Tien',
@@ -108,7 +107,6 @@ export function WorkScheduleDetailView() {
               </div>
               <div className={styles.cardBottom}>
                 <div className={styles.taskMeta}>
-                  <Image src={task.iconUrl} alt="" className={styles.taskIconImg} width={16} height={16} />
                   <span className={styles.taskKey}>{task.workCode}</span>
                 </div>
                 <div className={styles.avatar}>VT</div>
