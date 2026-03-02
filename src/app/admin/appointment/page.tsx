@@ -27,6 +27,7 @@ export default function AdminAppointmentPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const mapStatus = (status: string): AppointmentStatus => {
+    // Map từ status tiếng Anh trong API sang enum nội bộ
     if (status === 'Pending') return 'Pending';
     if (status === 'Completed') return 'Completed';
     if (status === 'Cancelled') return 'Cancelled';
@@ -243,7 +244,7 @@ export default function AdminAppointmentPage() {
       <AppointmentStatsCards stats={stats} />
       <div className={styles.contentRow}>
         <div className={styles.tableSection}>
-        <AppointmentTableControls onStatusChange={handleStatusChange} />
+          <AppointmentTableControls onStatusChange={handleStatusChange} />
           <AppointmentTable
             appointments={paginatedAppointments}
             onEdit={handleEdit}

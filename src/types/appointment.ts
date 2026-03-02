@@ -36,6 +36,10 @@ export interface CreateAppointmentRequest {
   appointmentTypeId: number;
 }
 
+export interface CreateCustomerAppointmentRequest extends CreateAppointmentRequest {
+  customerId: string;
+}
+
 export interface UpdateAppointmentRequest {
   date: string;
   time: string;

@@ -3,7 +3,7 @@
 import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
 import { Eye, MessageCircle, Pencil, Trash2 } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,9 +17,9 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import familyProfileService from '@/services/family-profile.service';
 import roleService from '@/services/role.service';
 import userService from '@/services/user.service';
+import { truncateText } from '@/utils/text';
 import type { FamilyProfile } from '@/types/family-profile';
 import type { Role } from '@/types/role';
-import { truncateText } from '@/utils/text';
 
 import { EditFamilyProfileModal } from './EditFamilyProfileModal';
 import styles from './patient-table.module.css';

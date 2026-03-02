@@ -103,7 +103,6 @@ export class SignalRService {
      */
     async connect(token: string, hubUrl: string = '/hubs/chat'): Promise<void> {
         if (this.connection?.state === signalR.HubConnectionState.Connected) {
-            console.log('SignalR already connected');
             return;
         }
 

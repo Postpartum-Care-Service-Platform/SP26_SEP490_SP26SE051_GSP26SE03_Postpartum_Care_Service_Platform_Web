@@ -71,6 +71,8 @@ tmp/
 api-worker-windows.exe
 .vscode
 docs/
+Documents/
+diagrams/
 
 # Playwright test results
 test-results/

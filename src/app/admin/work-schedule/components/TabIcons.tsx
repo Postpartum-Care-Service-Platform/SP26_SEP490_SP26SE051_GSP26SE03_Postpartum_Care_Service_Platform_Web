@@ -76,16 +76,3 @@ export function ListIcon({ className }: Props) {
   );
 }
 
-// Forms Icon
-export function FormsIcon({ className }: Props) {
-  return (
-    <svg fill="none" viewBox="-4 -4 24 24" role="presentation" className={className}>
-      <path
-        fill="currentColor"
-        fillRule="evenodd"
-        d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2zm2-.5a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5V2a.5.5 0 0 0-.5-.5H4zM5 4a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1zm0 4a1 1 0 0 1 1-1h4a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1z"
-        clipRule="evenodd"
-      />
-    </svg>
-  );
-}

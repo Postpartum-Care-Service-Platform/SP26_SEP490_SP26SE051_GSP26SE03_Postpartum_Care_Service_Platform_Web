@@ -12,6 +12,10 @@
   color: #172b4d;
 }
 
+.withTime {
+  width: 520px;
+}
+
 .title {
   font-size: 14px;
   font-weight: 600;
@@ -94,6 +98,73 @@
   gap: 2px;
 }
 
+.dateTimeLayout {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.calendarSection {
+  flex: 1;
+}
+
+.timeColumn {
+  width: 120px;
+  max-height: 300px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #ebecf0;
+  padding-left: 12px;
+  margin-left: 4px;
+}
+
+.timeHeader {
+  font-size: 16px;
+  font-weight: 600;
+  color: #44546f;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.timeList {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: none;
+}
+
+.timeList::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.timeOption {
+  width: 100%;
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-size: 14px;
+  color: #172b4d;
+  border-radius: 4px;
+  cursor: pointer;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.timeOption:hover {
+  background: #f4f5f7;
+}
+
+.timeOptionSelected {
+  background: #FFF3EB;
+  color: #FA8314;
+  font-weight: 600;
+}
+
 .dayLabel {
   font-size: 12px;
   font-weight: 600;
@@ -118,8 +189,8 @@
 }
 
 .dayCell.selected {
-  background: #e9f2ff;
-  color: #0c66e4;
+  background: #FFF3EB;
+  color: #FA8314;
   font-weight: 600;
 }
 
@@ -131,11 +202,11 @@
   transform: translateX(-50%);
   width: 20px;
   height: 2px;
-  background: #0c66e4;
+  background: #FA8314;
 }
 
 .dayCell.today:not(.selected) {
-  color: #0c66e4;
+  color: #FA8314;
   font-weight: 600;
 }
 

@@ -66,7 +66,7 @@ export function AppointmentCard({
                 {trend.isPositive ? '+' : ''}
                 {trend.value}
               </span>
-              <span className={styles.trendLabel}>This month</span>
+              <span className={styles.trendLabel}>Tháng này</span>
             </div>
           )}
         </div>

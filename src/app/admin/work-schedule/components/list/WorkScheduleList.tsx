@@ -12,6 +12,9 @@ import { ProfileHoverCard } from '../ProfileHoverCard';
 import { AssigneePicker } from '../shared/AssigneePicker';
 import { StatusDropdown, type StatusType } from '../StatusDropdown';
 import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
+import Epic16Icon from './artifacts/glyph/epic/16';
+import toolbarStyles from './bulk-actions-toolbar.module.css';
+import styles from './work-schedule-list.module.css';
 
 type Assignee = {
   id: string;
@@ -21,9 +24,6 @@ type Assignee = {
   color?: string;
   type: 'unassigned' | 'automatic' | 'user';
 };
-
-import toolbarStyles from './bulk-actions-toolbar.module.css';
-import styles from './work-schedule-list.module.css';
 
 type Row = {
   id: string;
@@ -78,7 +78,7 @@ const MIN_COL_WIDTH: Record<ColumnId, number> = (Object.keys(DEFAULT_COL_WIDTH) 
 const demoRows: Row[] = [
   {
     id: '1',
-    iconUrl: 'https://vominhtien0511.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10306?size=small',
+    iconUrl: '',
     workCode: 'ACSCM-26',
     workTitle: 'Handle Login Error Messages & Account ...',
     assignee: 'Vo Minh Tien',
@@ -92,7 +92,7 @@ const demoRows: Row[] = [
   },
   {
     id: '2',
-    iconUrl: 'https://vominhtien0511.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10306?size=small',
+    iconUrl: '',
     workCode: 'ACSCM-16',
     workTitle: 'Epic 6: Nutrition & Health Tracking',
     assignee: 'Vo Minh Tien',
@@ -430,13 +430,9 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                 </td>
                 <td className={styles.td} style={{ width: colWidths.work, minWidth: MIN_COL_WIDTH.work }}>
                   <div className={styles.workCell}>
-                    <Image
-                      src={r.iconUrl}
-                      alt="task icon"
-                      width={16}
-                      height={16}
-                      className={styles.workIconImg}
-                    />
+                    <span className={styles.workIconImg}>
+                      <Epic16Icon />
+                    </span>
                     <a href="#" className={styles.workCode}>{r.workCode}</a>
                     <span className={styles.workTitle} title={r.workTitle}>{r.workTitle}</span>
                   </div>

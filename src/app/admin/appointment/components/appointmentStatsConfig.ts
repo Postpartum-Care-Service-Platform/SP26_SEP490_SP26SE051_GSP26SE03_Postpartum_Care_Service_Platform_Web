@@ -22,7 +22,7 @@ export const appointmentStatsConfig: Array<{
 }> = [
   {
     key: 'today',
-    label: 'Today Appointment',
+    label: 'Lịch hẹn hôm nay',
     value: 3075,
     icon: CalendarDays,
     backgroundColor: '#fff',
@@ -38,7 +38,7 @@ export const appointmentStatsConfig: Array<{
   },
   {
     key: 'upcoming',
-    label: 'Upcoming',
+    label: 'Sắp diễn ra',
     value: 1240,
     icon: Clock3,
     backgroundColor: '#fff',
@@ -54,7 +54,7 @@ export const appointmentStatsConfig: Array<{
   },
   {
     key: 'completed',
-    label: 'Completed',
+    label: 'Hoàn thành',
     value: 980,
     icon: CheckCircle2,
     backgroundColor: '#fff',
@@ -70,7 +70,7 @@ export const appointmentStatsConfig: Array<{
   },
   {
     key: 'cancelled',
-    label: 'Cancelled',
+    label: 'Đã hủy',
     value: 120,
     icon: XCircle,
     backgroundColor: '#fff',
@@ -86,7 +86,7 @@ export const appointmentStatsConfig: Array<{
   },
   {
     key: 'rescheduled',
-    label: 'Rescheduled',
+    label: 'Đã dời lịch',
     value: 210,
     icon: RefreshCcw,
     backgroundColor: '#fff',

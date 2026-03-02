@@ -1,6 +1,11 @@
 import Image from 'next/image';
 import React from 'react';
 
+import Epic16Icon from '../list/artifacts/glyph/epic/16';
+import Story16Icon from '../list/artifacts/glyph/story/16';
+import TaskBe16Icon from '../list/artifacts/glyph/task-be/16';
+import TaskFe16Icon from '../list/artifacts/glyph/task-fe/16';
+
 import styles from './task-type-picker.module.css';
 
 export type TaskType = {
@@ -14,26 +19,26 @@ export const TASK_TYPES: TaskType[] = [
   {
     id: 'task-be',
     label: 'Task BE',
-    icon: null,
-    imageUrl: 'https://vominhtien0511.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10307?size=small',
+    icon: <TaskBe16Icon />,
+    imageUrl: undefined,
   },
   {
     id: 'story',
     label: 'Story',
-    icon: null,
-    imageUrl: 'https://vominhtien0511.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10315?size=small',
+    icon: <Story16Icon />,
+    imageUrl: undefined,
   },
   {
     id: 'epic',
     label: 'Epic',
-    icon: null,
-    imageUrl: 'https://vominhtien0511.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10318?size=small',
+    icon: <Epic16Icon />,
+    imageUrl: undefined,
   },
   {
     id: 'task-fe',
     label: 'Task FE',
-    icon: null,
-    imageUrl: 'https://vominhtien0511.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10306?size=small',
+    icon: <TaskFe16Icon />,
+    imageUrl: undefined,
   },
 ];
 
