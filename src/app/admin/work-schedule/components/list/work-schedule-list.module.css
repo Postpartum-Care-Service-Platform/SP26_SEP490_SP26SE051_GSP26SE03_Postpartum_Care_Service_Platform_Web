@@ -314,6 +314,7 @@
   border-radius: 0;
   cursor: pointer;
   color: #42526E;
+  position: relative;
 }
 
 .typeDropdown:hover {
@@ -376,6 +377,40 @@
   cursor: pointer;
 }
 
+.customerDisplay {
+  min-width: 140px;
+  max-width: 200px;
+  gap: 8px;
+}
+
+.customerName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.customerAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.customerDisplay .avatar {
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+}
+
+.customerDisplay .avatarImage {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .nameFieldWrapper {
   flex: 1;
   position: relative;
@@ -411,6 +446,14 @@
   color: #6b778c;
 }
 
+.avatarImage {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 .submitBtnGroup {
   display: flex;
   align-items: center;
@@ -433,11 +476,35 @@
   cursor: not-allowed;
 }
 
+.submitBtn:not(:disabled) {
+  background: #FA8314;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.submitBtn:not(:disabled):hover {
+  filter: brightness(0.98);
+}
+
+.submitBtn:not(:disabled):active {
+  filter: brightness(0.95);
+}
+
 .enterIconWrapper {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: currentColor;
+}
+
+.submitError {
+  margin-left: 8px;
+  font-size: 12px;
+  color: #de350b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
 }
 
 

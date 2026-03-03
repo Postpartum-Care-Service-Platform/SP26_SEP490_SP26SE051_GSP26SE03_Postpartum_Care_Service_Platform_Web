@@ -10,7 +10,6 @@ export function ContractListHeader() {
       <h4 className={styles.title}>Hợp đồng</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Hợp đồng' },
         ]}
         homeHref="/admin"

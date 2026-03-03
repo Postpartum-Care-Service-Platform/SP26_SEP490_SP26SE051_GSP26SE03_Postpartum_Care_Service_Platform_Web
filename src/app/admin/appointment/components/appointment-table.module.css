@@ -53,6 +53,13 @@
   color: var(--color-text-primary);
 }
 
+.appointmentName {
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .patientName {
   display: flex;
   align-items: center;
@@ -168,11 +175,10 @@
 .quickCreateWrapper {
   align-self: stretch;
   display: flex;
-  justify-content: flex-end;
+  justify-content: stretch;
 }
 
 .quickCreateWrapper > div {
-  max-width: 1000px;
   width: 100%;
 }
 

@@ -1,8 +1,13 @@
 import type { Booking, CreateBookingRequest } from '@/types/booking';
+import type { AdminBooking } from '@/types/admin-booking';
 
 import apiClient from './apiClient';
 
 const bookingService = {
+  getAllBookings: (): Promise<AdminBooking[]> => {
+    return apiClient.get('/Booking/all');
+  },
+
   getMyBookings: (): Promise<Booking[]> => {
     return apiClient.get('/Booking');
   },

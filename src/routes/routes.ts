@@ -9,6 +9,12 @@ export const ROUTES = {
   profile: '/dashboard/profile',
   admin: '/admin',
   adminProfile: '/admin/profile',
+  adminChat: '/admin/chat',
+  adminAppointment: '/admin/appointment',
+  adminActivity: '/admin/activity',
+  adminWorkSchedule: '/admin/work-schedule',
+  adminContract: '/admin/contract',
+  adminTransaction: '/admin/transaction',
 } as const;
 
 export const buildVerifyEmailRoute = (email: string) =>

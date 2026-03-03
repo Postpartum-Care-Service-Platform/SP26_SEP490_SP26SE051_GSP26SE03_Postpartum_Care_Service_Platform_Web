@@ -109,8 +109,7 @@ export default function AdminRoomsPage() {
         <h4 className={styles.title}>Tất cả phòng</h4>
         <Breadcrumbs
           items={[
-            { label: 'Trang quản trị', href: '/admin' },
-            { label: 'All Rooms' },
+            { label: 'Tất cả phòng' },
           ]}
           homeHref="/admin"
         />

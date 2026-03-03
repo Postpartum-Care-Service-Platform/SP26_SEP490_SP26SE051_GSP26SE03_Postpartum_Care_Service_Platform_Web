@@ -44,9 +44,9 @@ export function NotificationModal({ open, onOpenChange, notification, notificati
     if (open) {
       if (notification) {
         setFormData({
-          title: notification.title,
-          content: notification.content,
-          notificationTypeId: String(notification.notificationTypeId),
+          title: notification.title || '',
+          content: notification.content || '',
+          notificationTypeId: notification.notificationTypeId ? String(notification.notificationTypeId) : '',
           status: notification.status,
         });
       } else {

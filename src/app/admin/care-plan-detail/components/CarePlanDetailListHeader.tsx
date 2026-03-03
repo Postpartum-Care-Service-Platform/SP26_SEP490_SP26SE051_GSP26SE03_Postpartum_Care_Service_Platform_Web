@@ -10,7 +10,6 @@ export function CarePlanDetailListHeader() {
       <h4 className={styles.title}>Danh sách chi tiết kế hoạch chăm sóc</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Chi tiết kế hoạch chăm sóc' },
         ]}
         homeHref="/admin"

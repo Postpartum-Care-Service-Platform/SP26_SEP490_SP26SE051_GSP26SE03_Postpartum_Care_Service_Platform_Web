@@ -2,7 +2,9 @@
 
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
+import { useToast } from '@/components/ui/toast/use-toast';
 import type { Notification } from '@/types/notification';
+import { truncateText } from '@/utils/text';
 
 import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
 
@@ -68,75 +70,121 @@ export function NotificationTable({
   onMarkAsRead: _onMarkAsRead,
   pagination,
 }: Props) {
+  const { toast } = useToast();
+
+  const handleCopyId = async (id: string) => {
+    try {
+      await navigator.clipboard.writeText(id);
+      toast({
+        title: 'Đã sao chép ID',
+        description: id,
+        variant: 'success',
+      });
+    } catch (_err) {
+      toast({
+        title: 'Sao chép thất bại',
+        variant: 'error',
+      });
+    }
+  };
+
   return (
-    <div className={styles.tableWrapper}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Tiêu đề</th>
-            <th>Loại</th>
-            <th>Người gửi</th>
-            <th>Người nhận</th>
-            <th>Trạng thái</th>
-            <th>Ngày tạo</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {notifications.length === 0 ? (
+    <div className={styles.container}>
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
             <tr>
-              <td colSpan={8} className={styles.emptyState}>
-                Chưa có thông báo nào
-              </td>
+              <th>ID</th>
+              <th>ID loại</th>
+              <th>ID vé tiện ích</th>
+              <th>ID người gửi</th>
+              <th>ID người nhận</th>
+              <th>Tiêu đề</th>
+              <th>Nội dung</th>
+              <th>Loại thông báo</th>
+              <th>Người gửi</th>
+              <th>Người nhận</th>
+              <th>Trạng thái</th>
+              <th>Ngày tạo</th>
+              <th>Ngày cập nhật</th>
+              <th>Thao tác</th>
             </tr>
-          ) : (
-            notifications.map((notification) => (
-              <tr key={notification.id} className={styles.tableRow}>
-                <td>{notification.id}</td>
-                <td className={styles.titleCell} title={notification.title}>
-                  {notification.title}
-                </td>
-                <td>{translateNotificationTypeName(notification.notificationTypeName || '')}</td>
-                <td>{notification.staffName || 'Hệ thống'}</td>
-                <td>{notification.receiverName || '-'}</td>
-                <td>
-                  <span
-                    className={`${styles.statusBadge} ${
-                      notification.status === 'Unread' ? styles.statusUnread : styles.statusRead
-                    }`}
-                  >
-                    {notification.status === 'Unread' ? 'Chưa đọc' : 'Đã đọc'}
-                  </span>
-                </td>
-                <td>{formatDate(notification.createdAt)}</td>
-                <td>
-                  <div className={styles.actions}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.editButton} btn-icon btn-sm`}
-                      onClick={() => onEdit?.(notification)}
-                      aria-label={`Chỉnh sửa ${notification.title}`}
-                    >
-                      <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.deleteButton} btn-icon btn-sm`}
-                      onClick={() => onDelete?.(notification)}
-                      aria-label={`Xóa ${notification.title}`}
-                    >
-                      <Trash2OutlineIcon fill="#FD6161" size={16} />
-                    </Button>
-                  </div>
+          </thead>
+          <tbody>
+            {notifications.length === 0 ? (
+              <tr>
+                <td colSpan={14} className={styles.emptyState}>
+                  Chưa có thông báo nào
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              notifications.map((notification) => (
+                <tr key={notification.id} className={styles.tableRow}>
+                  <td>{notification.id}</td>
+                  <td>{notification.notificationTypeId || '-'}</td>
+                  <td>{notification.amenityTicketId || '-'}</td>
+                  <td>{notification.staffId || '-'}</td>
+                  <td
+                    title={notification.receiverId || ''}
+                    className={notification.receiverId ? `${styles.truncateCell} ${styles.copyableId}` : undefined}
+                    onClick={
+                      notification.receiverId
+                        ? () => {
+                            handleCopyId(notification.receiverId as string);
+                          }
+                        : undefined
+                    }
+                  >
+                    {notification.receiverId ? truncateText(notification.receiverId, 20) : '-'}
+                  </td>
+                  <td className={styles.titleCell} title={notification.title || ''}>
+                    {notification.title || '-'}
+                  </td>
+                  <td className={styles.contentCell} title={notification.content || ''}>
+                    {notification.content || '-'}
+                  </td>
+                  <td>{translateNotificationTypeName(notification.notificationTypeName || '')}</td>
+                  <td>{notification.staffName || 'Hệ thống'}</td>
+                  <td>{notification.receiverName || '-'}</td>
+                  <td>
+                    <span
+                      className={`${styles.statusBadge} ${
+                        notification.status === 'Unread' ? styles.statusUnread : styles.statusRead
+                      }`}
+                    >
+                      {notification.status === 'Unread' ? 'Chưa đọc' : 'Đã đọc'}
+                    </span>
+                  </td>
+                  <td>{formatDate(notification.createdAt)}</td>
+                  <td>{formatDate(notification.updatedAt)}</td>
+                  <td>
+                    <div className={styles.actions}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.editButton} btn-icon btn-sm`}
+                        onClick={() => onEdit?.(notification)}
+                        aria-label={`Chỉnh sửa ${notification.title || notification.id}`}
+                      >
+                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.deleteButton} btn-icon btn-sm`}
+                        onClick={() => onDelete?.(notification)}
+                        aria-label={`Xóa ${notification.title || notification.id}`}
+                      >
+                        <Trash2OutlineIcon fill="#FD6161" size={16} />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {pagination && pagination.totalPages > 0 && (
         <div className={styles.paginationWrapper}>

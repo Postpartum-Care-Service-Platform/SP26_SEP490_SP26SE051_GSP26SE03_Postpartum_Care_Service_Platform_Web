@@ -45,12 +45,20 @@ export const TASK_TYPES: TaskType[] = [
 type Props = {
   selectedId: string;
   onSelect: (type: TaskType) => void;
+  types?: TaskType[];
+  /** Vị trí popup so với trigger (mặc định mở lên trên như thanh tạo nhanh) */
+  side?: 'top' | 'bottom';
 };
 
-export function TaskTypePicker({ selectedId, onSelect }: Props) {
+export function TaskTypePicker({ selectedId, onSelect, types, side = 'top' }: Props) {
+  const displayTypes = types ?? TASK_TYPES;
   return (
-    <div className={styles.picker} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
-      {TASK_TYPES.map((type) => (
+    <div
+      className={`${styles.picker} ${side === 'bottom' ? styles.bottom : ''}`}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {displayTypes.map((type) => (
         <div
           key={type.id}
           className={`${styles.item} ${selectedId === type.id ? styles.selected : ''}`}

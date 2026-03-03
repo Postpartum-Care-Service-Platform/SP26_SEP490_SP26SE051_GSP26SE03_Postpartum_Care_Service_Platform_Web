@@ -10,7 +10,6 @@ export function MenuListHeader() {
       <h4 className={styles.title}>Danh sách thực đơn</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Thực đơn' },
         ]}
         homeHref="/admin"

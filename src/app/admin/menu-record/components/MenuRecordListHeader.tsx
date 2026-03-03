@@ -10,7 +10,6 @@ export function MenuRecordListHeader() {
       <h4 className={styles.title}>Danh sách bản ghi thực đơn</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Bản ghi thực đơn' },
         ]}
         homeHref="/admin"

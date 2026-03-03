@@ -5,6 +5,9 @@ import { Eye, MessageCircle, Pencil, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
+import type { FamilyProfile } from '@/types/family-profile';
+import type { Role } from '@/types/role';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -18,8 +21,6 @@ import familyProfileService from '@/services/family-profile.service';
 import roleService from '@/services/role.service';
 import userService from '@/services/user.service';
 import { truncateText } from '@/utils/text';
-import type { FamilyProfile } from '@/types/family-profile';
-import type { Role } from '@/types/role';
 
 import { EditFamilyProfileModal } from './EditFamilyProfileModal';
 import styles from './patient-table.module.css';
@@ -300,7 +301,9 @@ export function PatientTable({ patients, onViewProfile, onChat, onRoleUpdated, p
           <tbody>
             {patients.map((patient) => {
               const isExpanded = expandedRows.has(patient.id);
-              const profiles = profilesMap[patient.accountId] || [];
+              const allProfiles = profilesMap[patient.accountId] || [];
+              // Chỉ hiển thị các profile bổ sung (không phải chủ tài khoản đã hiển thị ở hàng account)
+              const profiles = allProfiles.filter((profile) => !profile.isOwner);
 
               return (
                 <>
@@ -444,11 +447,13 @@ export function PatientTable({ patients, onViewProfile, onChat, onRoleUpdated, p
                     <tr className={styles.expandedRow}>
                       <td colSpan={13}>
                         <div className={styles.profilesContainer}>
-                          <h4 className={styles.profilesTitle}>Danh sách người giám hộ ({profiles.length})</h4>
+                          <h4 className={styles.profilesTitle}>
+                            Danh sách người giám hộ bổ sung ({profiles.length})
+                          </h4>
                           {isLoadingAllProfiles ? (
                             <div className={styles.loading}>Đang tải...</div>
                           ) : profiles.length === 0 ? (
-                            <div className={styles.noProfiles}>Không có profile nào</div>
+                            <div className={styles.noProfiles}>Chưa có người giám hộ bổ sung nào</div>
                           ) : (
                             <div className={styles.profilesTableScrollArea}>
                               <table className={styles.profilesTable}>

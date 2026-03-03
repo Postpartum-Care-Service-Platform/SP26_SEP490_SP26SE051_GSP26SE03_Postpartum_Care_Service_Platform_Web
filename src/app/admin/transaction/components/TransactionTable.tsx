@@ -1,5 +1,8 @@
 'use client';
 
+import { Eye } from 'lucide-react';
+
+import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import type { Transaction } from '@/types/transaction';
 
@@ -28,12 +31,22 @@ const formatCurrency = (amount: number) => {
 };
 
 const getStatusBadgeClass = (status: string) => {
-  switch (status) {
-    case 'Paid':
+  const normalized = status.trim().toLowerCase();
+  switch (normalized) {
+    case 'paid':
+    case 'success':
+    case 'succeeded':
+    case 'completed':
       return styles.statusPaid;
-    case 'Pending':
+    case 'pending':
+    case 'processing':
+    case 'in_progress':
       return styles.statusPending;
-    case 'Failed':
+    case 'failed':
+    case 'canceled':
+    case 'cancelled':
+    case 'refunded':
+    case 'expired':
       return styles.statusFailed;
     default:
       return '';
@@ -41,15 +54,28 @@ const getStatusBadgeClass = (status: string) => {
 };
 
 const getStatusLabel = (status: string) => {
-  switch (status) {
-    case 'Paid':
+  const normalized = status.trim().toLowerCase();
+  switch (normalized) {
+    case 'paid':
+    case 'success':
+    case 'succeeded':
+    case 'completed':
       return 'Đã thanh toán';
-    case 'Pending':
-      return 'Đang chờ';
-    case 'Failed':
+    case 'pending':
+    case 'processing':
+    case 'in_progress':
+      return 'Đang xử lý';
+    case 'failed':
       return 'Thất bại';
+    case 'canceled':
+    case 'cancelled':
+      return 'Đã hủy';
+    case 'refunded':
+      return 'Đã hoàn tiền';
+    case 'expired':
+      return 'Đã hết hạn';
     default:
-      return status;
+      return 'Không xác định';
   }
 };
 
@@ -68,6 +94,7 @@ const getTypeLabel = (type: string) => {
 
 type Props = {
   transactions: Transaction[];
+  onView?: (transaction: Transaction) => void;
   pagination?: {
     currentPage: number;
     totalPages: number;
@@ -77,27 +104,28 @@ type Props = {
   };
 };
 
-export function TransactionTable({ transactions, pagination }: Props) {
+export function TransactionTable({ transactions, onView, pagination }: Props) {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
         <thead>
           <tr>
             <th>ID Giao dịch</th>
-            <th>Booking ID</th>
+            <th>ID đặt phòng</th>
             <th>Khách hàng</th>
             <th>Số tiền</th>
             <th>Loại</th>
+            <th>Ghi chú</th>
             <th>Phương thức</th>
             <th>Ngày giao dịch</th>
             <th>Trạng thái</th>
-            <th>Ghi chú</th>
+            <th>Thao tác</th>
           </tr>
         </thead>
         <tbody>
           {transactions.length === 0 ? (
             <tr>
-              <td colSpan={9} className={styles.emptyState}>
+              <td colSpan={10} className={styles.emptyState}>
                 Chưa có giao dịch nào
               </td>
             </tr>
@@ -114,6 +142,7 @@ export function TransactionTable({ transactions, pagination }: Props) {
                 </td>
                 <td className={styles.amount}>{formatCurrency(transaction.amount)}</td>
                 <td>{getTypeLabel(transaction.type)}</td>
+                <td className={styles.noteCell}>{transaction.note || '-'}</td>
                 <td>{transaction.paymentMethod}</td>
                 <td>{formatDate(transaction.transactionDate)}</td>
                 <td>
@@ -121,7 +150,19 @@ export function TransactionTable({ transactions, pagination }: Props) {
                     {getStatusLabel(transaction.status)}
                   </span>
                 </td>
-                <td className={styles.noteCell}>{transaction.note || '-'}</td>
+                <td>
+                  <div className={styles.actions}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={`${styles.viewButton} btn-icon btn-sm`}
+                      onClick={() => onView?.(transaction)}
+                      aria-label={`Xem chi tiết giao dịch ${transaction.id}`}
+                    >
+                      <Eye size={16} />
+                    </Button>
+                  </div>
+                </td>
               </tr>
             ))
           )}

@@ -4,7 +4,7 @@ import apiClient from './apiClient';
 
 const packageService = {
   getAllPackages: (): Promise<Package[]> => {
-    return apiClient.get('/Packages');
+    return apiClient.get('/Packages/center');
   },
 
   getPackageById: (id: number): Promise<Package> => {

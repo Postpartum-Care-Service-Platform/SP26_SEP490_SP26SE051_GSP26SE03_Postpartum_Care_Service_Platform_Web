@@ -88,7 +88,7 @@ export function NotificationCard({ notification, onMarkAsRead, onEdit, onDelete 
         <div className={styles.content}>
           <div className={styles.mainText}>
             <span className={styles.staffName}>{staffName}</span>
-            <span className={styles.actionText}> {notification.title}</span>
+            {notification.title && <span className={styles.actionText}> {notification.title}</span>}
           </div>
 
           {notification.content && (

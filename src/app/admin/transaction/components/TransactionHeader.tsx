@@ -10,7 +10,6 @@ export function TransactionHeader() {
       <h4 className={styles.title}>Danh sách giao dịch</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Giao dịch' },
         ]}
         homeHref="/admin"

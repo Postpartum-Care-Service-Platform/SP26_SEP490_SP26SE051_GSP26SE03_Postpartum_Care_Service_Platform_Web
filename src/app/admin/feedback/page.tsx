@@ -95,7 +95,6 @@ export default function AdminFeedbackPage() {
         <h4 className={styles.title}>Quản lý phản hồi</h4>
         <Breadcrumbs
           items={[
-            { label: 'Trang quản trị', href: '/admin' },
             { label: 'Phản hồi' },
           ]}
           homeHref="/admin"

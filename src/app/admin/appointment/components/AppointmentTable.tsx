@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 
+
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 
@@ -89,6 +90,7 @@ export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pa
         <thead>
           <tr>
             <th>Mã lịch hẹn</th>
+            <th>Tên lịch hẹn</th>
             <th>Khách hàng</th>
             <th>Nhân viên phụ trách</th>
             <th>Loại lịch hẹn</th>
@@ -101,6 +103,7 @@ export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pa
           {appointments.map((appointment) => (
             <tr key={appointment.id}>
               <td className={styles.appointmentId}>{appointment.id}</td>
+              <td className={styles.appointmentName}>{appointment.name || '-'}</td>
               <td>
                 <div className={styles.patientName}>
                   {appointment.patientAvatar ? (

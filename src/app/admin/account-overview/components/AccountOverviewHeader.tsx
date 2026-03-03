@@ -10,7 +10,6 @@ export function AccountOverviewHeader() {
       <h4 className={styles.title}>Tổng quan tài khoản</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Tổng quan tài khoản' },
         ]}
         homeHref="/admin"

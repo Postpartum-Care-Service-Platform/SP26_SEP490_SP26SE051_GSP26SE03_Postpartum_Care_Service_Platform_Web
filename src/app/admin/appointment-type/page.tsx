@@ -7,17 +7,9 @@ import appointmentTypeService from '@/services/appointment-type.service';
 import type { AppointmentTypeDetail } from '@/types/appointment-type';
 
 import styles from './appointment-type.module.css';
-import {
-  AppointmentTypeListHeader,
-  AppointmentTypeStatsCards,
-  AppointmentTypeTable,
-  AppointmentTypeTableControls,
-  NewAppointmentTypeModal,
-} from './components';
-
-import type { AppointmentTypeStats } from './components';
-
-const PAGE_SIZE = 10;
+import { NewAppointmentTypeModal } from './components';
+import { AppointmentTypeListControlPanel } from './components/AppointmentTypeListControlPanel';
+import { AppointmentTypeListTable } from './components/AppointmentTypeListTable';
 
 const getErrorMessage = (error: unknown, fallbackMessage: string) => {
   if (error instanceof Error && error.message) return error.message;
@@ -50,10 +42,8 @@ export default function AdminAppointmentTypePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAppointmentType, setEditingAppointmentType] = useState<AppointmentTypeDetail | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const [sortKey, setSortKey] = useState<string>('createdAt-desc');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [statusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [sortKey] = useState<string>('createdAt-desc');
 
   const fetchAppointmentTypes = async () => {
     try {
@@ -72,18 +62,6 @@ export default function AdminAppointmentTypePage() {
     fetchAppointmentTypes();
   }, []);
 
-  const stats: AppointmentTypeStats = useMemo(() => {
-    const total = appointmentTypes.length;
-    const active = appointmentTypes.filter((a) => a.isActive).length;
-    const inactive = total - active;
-
-    return {
-      total,
-      active,
-      inactive,
-    };
-  }, [appointmentTypes]);
-
   const filteredAppointmentTypes = useMemo(() => {
     let filtered = [...appointmentTypes];
 
@@ -99,28 +77,6 @@ export default function AdminAppointmentTypePage() {
     return sortAppointmentTypes(filtered, sortKey);
   }, [appointmentTypes, searchQuery, statusFilter, sortKey]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter, sortKey]);
-
-  const paginatedAppointmentTypes = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
-    return filteredAppointmentTypes.slice(start, end);
-  }, [filteredAppointmentTypes, currentPage]);
-
-  const totalPages = Math.ceil(filteredAppointmentTypes.length / PAGE_SIZE);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleEdit = (appointmentType: AppointmentTypeDetail) => {
-    setEditingAppointmentType(appointmentType);
-    setIsModalOpen(true);
-  };
-
   const handleModalClose = (open: boolean) => {
     setIsModalOpen(open);
     if (!open) {
@@ -128,26 +84,8 @@ export default function AdminAppointmentTypePage() {
     }
   };
 
-  const handleDelete = async (appointmentType: AppointmentTypeDetail) => {
-    try {
-      setDeletingId(appointmentType.id);
-      await appointmentTypeService.deleteAppointmentType(appointmentType.id);
-      toast({ title: 'Xóa loại lịch hẹn thành công', variant: 'success' });
-      await fetchAppointmentTypes();
-    } catch (error: unknown) {
-      toast({
-        title: getErrorMessage(error, 'Xóa loại lịch hẹn thất bại'),
-        variant: 'error',
-      });
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
   return (
     <div className={styles.pageContainer}>
-      <AppointmentTypeListHeader />
-
       {loading ? (
         <div className={styles.content}>
           <p>Đang tải dữ liệu...</p>
@@ -158,31 +96,14 @@ export default function AdminAppointmentTypePage() {
         </div>
       ) : (
         <>
-          <AppointmentTypeStatsCards stats={stats} />
-
-          <AppointmentTypeTableControls
-            onSearch={(q) => setSearchQuery(q)}
-            onSortChange={(sort) => setSortKey(sort)}
-            onStatusChange={(status) => setStatusFilter(status)}
-            onNewAppointmentType={() => setIsModalOpen(true)}
+          <AppointmentTypeListControlPanel
+            searchValue={searchQuery}
+            onSearchChange={(q) => setSearchQuery(q)}
           />
 
-          <AppointmentTypeTable
-            appointmentTypes={paginatedAppointmentTypes}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            deletingId={deletingId}
-            pagination={
-              totalPages > 0
-                ? {
-                    currentPage,
-                    totalPages,
-                    pageSize: PAGE_SIZE,
-                    totalItems: filteredAppointmentTypes.length,
-                    onPageChange: handlePageChange,
-                  }
-                : undefined
-            }
+          <AppointmentTypeListTable
+            items={filteredAppointmentTypes}
+            onRefresh={fetchAppointmentTypes}
           />
         </>
       )}

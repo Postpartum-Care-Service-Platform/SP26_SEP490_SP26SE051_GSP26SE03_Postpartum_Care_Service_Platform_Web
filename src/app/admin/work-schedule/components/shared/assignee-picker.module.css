@@ -27,7 +27,7 @@
 .searchInputWrapper {
   display: flex;
   align-items: center;
-  border: 2px solid #0C66E4;
+  border: 2px solid #FA8314;
   border-radius: 3px;
   padding: 4px 8px;
   gap: 8px;
@@ -63,6 +63,12 @@
 .userList {
   max-height: 300px;
   overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.userList::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .userItem {
@@ -92,6 +98,14 @@
   font-size: 11px;
   font-weight: 600;
   color: #fff;
+  flex-shrink: 0;
+}
+
+.avatarImage {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
   flex-shrink: 0;
 }
 

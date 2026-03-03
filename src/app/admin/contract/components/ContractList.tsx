@@ -1,11 +1,48 @@
 'use client';
 
-import { Pencil1Icon, TrashIcon } from '@radix-ui/react-icons';
-
 import { Button } from '@/components/ui/button';
 import type { Contract } from '@/types/contract';
 
 import styles from './contract-list.module.css';
+
+const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    className="eva eva-edit-2-outline"
+    fill={fill}
+  >
+    <g data-name="Layer 2">
+      <g data-name="edit-2">
+        <rect width="24" height="24" opacity="0" />
+        <path d="M19 20H5a1 1 0 0 0 0 2h14a1 1 0 0 0 0-2z" />
+        <path d="M5 18h.09l4.17-.38a2 2 0 0 0 1.21-.57l9-9a1.92 1.92 0 0 0-.07-2.71L16.66 2.6A2 2 0 0 0 14 2.53l-9 9a2 2 0 0 0-.57 1.21L4 16.91a1 1 0 0 0 .29.8A1 1 0 0 0 5 18zM15.27 4L18 6.73l-2 1.95L13.32 6zm-8.9 8.91L12 7.32l2.7 2.7-5.6 5.6-3 .28z" />
+      </g>
+    </g>
+  </svg>
+);
+
+const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; size?: number }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    className="eva eva-trash-2-outline"
+    fill={fill}
+  >
+    <g data-name="Layer 2">
+      <g data-name="trash-2">
+        <rect width="24" height="24" opacity="0" />
+        <path d="M21 6h-5V4.33A2.42 2.42 0 0 0 13.5 2h-3A2.42 2.42 0 0 0 8 4.33V6H3a1 1 0 0 0 0 2h1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8h1a1 1 0 0 0 0-2zM10 4.33c0-.16.21-.33.5-.33h3c.29 0 .5.17.5.33V6h-4zM18 19a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V8h12z" />
+        <path d="M9 17a1 1 0 0 0 1-1v-4a1 1 0 0 0-2 0v4a1 1 0 0 0 1 1z" />
+        <path d="M15 17a1 1 0 0 0 1-1v-4a1 1 0 0 0-2 0v4a1 1 0 0 0 1 1z" />
+      </g>
+    </g>
+  </svg>
+);
 
 type Props = {
   contracts: Contract[];
@@ -16,12 +53,14 @@ type Props = {
 };
 
 const getStatusClass = (status: string) => {
-  switch (status) {
+  const normalized = status.trim();
+  switch (normalized) {
     case 'Draft':
       return styles.statusDraft;
     case 'Sent':
       return styles.statusSent;
     case 'Signed':
+    case 'ScheduleCompleted':
       return styles.statusSigned;
     case 'Cancelled':
       return styles.statusCancelled;
@@ -33,13 +72,16 @@ const getStatusClass = (status: string) => {
 };
 
 const getStatusLabel = (status: string) => {
-  switch (status) {
+  const normalized = status.trim();
+  switch (normalized) {
     case 'Draft':
       return 'Bản nháp';
     case 'Sent':
       return 'Đã gửi';
     case 'Signed':
       return 'Đã ký';
+    case 'ScheduleCompleted':
+      return 'Lịch đã hoàn tất';
     case 'Cancelled':
       return 'Đã hủy';
     case 'Expired':
@@ -123,7 +165,7 @@ export function ContractList({ contracts, selectedContractId, onSelectContract, 
                         onClick={() => onEdit?.(contract)}
                         aria-label={`Chỉnh sửa ${contract.contractCode}`}
                       >
-                        <Pencil1Icon />
+                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
                       </Button>
                       <Button
                         variant="outline"
@@ -132,7 +174,7 @@ export function ContractList({ contracts, selectedContractId, onSelectContract, 
                         onClick={() => onDelete?.(contract)}
                         aria-label={`Xóa ${contract.contractCode}`}
                       >
-                        <TrashIcon />
+                        <Trash2OutlineIcon fill="#FD6161" size={16} />
                       </Button>
                     </div>
                   </td>
