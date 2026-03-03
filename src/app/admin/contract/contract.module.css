@@ -41,6 +41,10 @@
   overflow: hidden;
 }
 
+.paginationWrapper {
+  margin-top: var(--spacing-md);
+}
+
 .loading,
 .error {
   padding: 40px;

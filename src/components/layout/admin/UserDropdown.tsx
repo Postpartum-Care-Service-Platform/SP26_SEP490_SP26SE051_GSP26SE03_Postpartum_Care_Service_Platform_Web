@@ -2,8 +2,8 @@
 
 import {
   Activity,
-  Bell,
   CalendarCheck,
+  CreditCard,
   FileText,
   MessageSquare,
   User,
@@ -23,11 +23,11 @@ import styles from './user-dropdown.module.css';
 
 const menuItems = [
   { icon: User, label: 'Hồ sơ', route: ROUTES.adminProfile },
-  { icon: MessageSquare, label: 'Tin nhắn' },
-  { icon: Activity, label: 'Hoạt động' },
-  { icon: CalendarCheck, label: 'Nhiệm vụ' },
-  { icon: FileText, label: 'Ghi chú' },
-  { icon: Bell, label: 'Thông báo' },
+  { icon: MessageSquare, label: 'Tin nhắn', route: ROUTES.adminChat },
+  { icon: CalendarCheck, label: 'Đặt lịch', route: ROUTES.adminAppointment }, // Booking
+  { icon: Activity, label: 'Nhiệm vụ', route: ROUTES.adminWorkSchedule },
+  { icon: FileText, label: 'Hợp đồng', route: ROUTES.adminContract },
+  { icon: CreditCard, label: 'Giao dịch', route: ROUTES.adminTransaction },
 ];
 
 export function UserDropdown() {

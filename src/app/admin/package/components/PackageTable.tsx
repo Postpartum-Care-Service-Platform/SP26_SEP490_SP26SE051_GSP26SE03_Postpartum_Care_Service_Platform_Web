@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 import type { Package } from '@/types/package';
@@ -59,77 +61,110 @@ const formatDate = (dateString?: string) => {
   }
 };
 
+const translatePackageTypeName = (name?: string | null): string => {
+  if (!name) return '-';
+  const translations: Record<string, string> = {
+    'Center': 'Trung tâm',
+    'Home': 'Tại nhà',
+    'Hybrid': 'Kết hợp',
+  };
+  return translations[name] || name;
+};
+
 export function PackageTable({ packages, onEdit, onDelete, deletingId, pagination }: Props) {
   return (
-    <div className={styles.tableWrapper}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Tên gói</th>
-            <th>Mô tả</th>
-            <th>Số ngày</th>
-            <th>Giá</th>
-            <th>Trạng thái</th>
-            <th>Cập nhật</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {packages.length === 0 ? (
+    <div className={styles.container}>
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
             <tr>
-              <td colSpan={8} className={styles.emptyState}>
-                Chưa có gói dịch vụ nào
-              </td>
+              <th>ID</th>
+              <th>Tên gói</th>
+              <th>Hình ảnh</th>
+              <th>Loại gói dịch vụ</th>
+              <th>Loại phòng</th>
+              <th>Mô tả</th>
+              <th>Số ngày</th>
+              <th>Giá</th>
+              <th>Trạng thái</th>
+              <th>Cập nhật</th>
+              <th>Thao tác</th>
             </tr>
-          ) : (
-            packages.map((pkg) => (
-              <tr key={pkg.id} className={styles.tableRow}>
-                <td>{pkg.id}</td>
-                <td className={styles.name} title={pkg.packageName}>
-                  {pkg.packageName}
-                </td>
-                <td className={styles.truncateCell} title={pkg.description}>
-                  {pkg.description || '-'}
-                </td>
-                <td>{pkg.durationDays}</td>
-                <td>{pkg.basePrice.toLocaleString('vi-VN')}</td>
-                <td>
-                  <span
-                    className={`${styles.statusBadge} ${pkg.isActive ? styles.statusActive : styles.statusInactive}`}
-                  >
-                    {pkg.isActive ? 'Hoạt động' : 'Tạm dừng'}
-                  </span>
-                </td>
-                <td>{formatDate(pkg.updatedAt)}</td>
-                <td>
-                  <div className={styles.actions}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.editButton} btn-icon btn-sm`}
-                      onClick={() => onEdit?.(pkg)}
-                      aria-label={`Chỉnh sửa ${pkg.packageName}`}
-                    >
-                      <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.deleteButton} btn-icon btn-sm`}
-                      onClick={() => onDelete?.(pkg)}
-                      aria-label={`Xóa ${pkg.packageName}`}
-                      disabled={deletingId === pkg.id}
-                    >
-                      <Trash2OutlineIcon fill="#FD6161" size={16} />
-                    </Button>
-                  </div>
+          </thead>
+          <tbody>
+            {packages.length === 0 ? (
+              <tr>
+                <td colSpan={11} className={styles.emptyState}>
+                  Chưa có gói dịch vụ nào
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              packages.map((pkg) => (
+                <tr key={pkg.id} className={styles.tableRow}>
+                  <td>{pkg.id}</td>
+                  <td className={styles.name} title={pkg.packageName}>
+                    {pkg.packageName}
+                  </td>
+                  <td>
+                    {pkg.imageUrl ? (
+                      <div className={styles.imageCell}>
+                        <Image
+                          src={pkg.imageUrl}
+                          alt={pkg.packageName}
+                          width={60}
+                          height={60}
+                          className={styles.packageImage}
+                          unoptimized
+                        />
+                      </div>
+                    ) : (
+                      <div className={styles.imagePlaceholder}>-</div>
+                    )}
+                  </td>
+                  <td>{translatePackageTypeName(pkg.packageTypeName)}</td>
+                  <td>{pkg.roomTypeName || '-'}</td>
+                  <td className={styles.truncateCell} title={pkg.description}>
+                    {pkg.description || '-'}
+                  </td>
+                  <td>{pkg.durationDays}</td>
+                  <td>{pkg.basePrice.toLocaleString('vi-VN')} VND</td>
+                  <td>
+                    <span
+                      className={`${styles.statusBadge} ${pkg.isActive ? styles.statusActive : styles.statusInactive}`}
+                    >
+                      {pkg.isActive ? 'Hoạt động' : 'Tạm dừng'}
+                    </span>
+                  </td>
+                  <td>{formatDate(pkg.updatedAt)}</td>
+                  <td>
+                    <div className={styles.actions}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.editButton} btn-icon btn-sm`}
+                        onClick={() => onEdit?.(pkg)}
+                        aria-label={`Chỉnh sửa ${pkg.packageName}`}
+                      >
+                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.deleteButton} btn-icon btn-sm`}
+                        onClick={() => onDelete?.(pkg)}
+                        aria-label={`Xóa ${pkg.packageName}`}
+                        disabled={deletingId === pkg.id}
+                      >
+                        <Trash2OutlineIcon fill="#FD6161" size={16} />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {pagination && pagination.totalPages > 0 && (
         <div className={styles.paginationWrapper}>

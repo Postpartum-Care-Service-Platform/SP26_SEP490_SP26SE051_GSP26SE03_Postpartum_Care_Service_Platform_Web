@@ -2,18 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+
 import { useToast } from '@/components/ui/toast/use-toast';
 import appointmentService from '@/services/appointment.service';
 import type { Appointment as ApiAppointment } from '@/types/appointment';
 
 import styles from './appointment.module.css';
 import { AppointmentHeader } from './components/AppointmentHeader';
-import { AppointmentStatsCards } from './components/AppointmentStatsCards';
 import { AppointmentTable } from './components/AppointmentTable';
 import { AppointmentTableControls } from './components/AppointmentTableControls';
-import { TodayAppointments } from './components/TodayAppointments';
-
-import type { TimelineAppointment } from './components/AppointmentTimelineItem';
+import { EditAppointmentModal } from './components/EditAppointmentModal';
 import type { Appointment, AppointmentStatus } from './components/types';
 
 const PAGE_SIZE = 10;
@@ -25,6 +23,8 @@ export default function AdminAppointmentPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<AppointmentStatus | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const mapStatus = (status: string): AppointmentStatus => {
     // Map từ status tiếng Anh trong API sang enum nội bộ
@@ -63,10 +63,13 @@ export default function AdminAppointmentPage() {
 
     return {
       id: apt.id,
+      name: apt.name || '',
+      rawDateTime: apt.appointmentDate || null,
       patientName,
       patientAvatar: null,
       doctor,
       department,
+      appointmentTypeId: apt.appointmentType?.id ?? null,
       dateTime: formatDateTime(apt.appointmentDate),
       status: mapStatus(apt.status),
     };
@@ -92,59 +95,6 @@ export default function AdminAppointmentPage() {
   useEffect(() => {
     fetchAppointments();
   }, [fetchAppointments]);
-  const todayTimelineAppointments: TimelineAppointment[] = useMemo(() => {
-    const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-
-    const toTimelineStatus = (status: AppointmentStatus): TimelineAppointment['status'] => {
-      if (status === 'Completed') return 'Completed';
-      if (status === 'Cancelled') return 'Cancelled';
-      if (status === 'Pending') return 'In Progress';
-      return 'Upcoming';
-    };
-
-    return appointments
-      .filter((apt) => {
-        if (!apt.dateTime || apt.dateTime === '-') return false;
-        try {
-          const date = new Date(apt.dateTime);
-          if (isNaN(date.getTime())) return false;
-          return date >= startOfDay && date < endOfDay;
-        } catch {
-          return false;
-        }
-      })
-      .map((apt) => {
-        let time = '-';
-        try {
-          if (apt.dateTime && apt.dateTime !== '-') {
-            const date = new Date(apt.dateTime);
-            if (!isNaN(date.getTime())) {
-              time = date.toLocaleTimeString('vi-VN', {
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false,
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Error parsing time:', apt.dateTime, error);
-        }
-
-        return {
-          id: apt.id,
-          time,
-          patientName: apt.patientName,
-          patientAvatar: apt.patientAvatar,
-          doctorName: apt.doctor,
-          department: apt.department,
-          description: `Lịch hẹn ${apt.department}`,
-          status: toTimelineStatus(apt.status),
-        };
-      });
-  }, [appointments]);
-
   const filteredAppointments = useMemo(() => {
     let filtered = [...appointments];
     if (statusFilter !== 'all') {
@@ -167,51 +117,13 @@ export default function AdminAppointmentPage() {
   };
 
   const handleEdit = (appointment: Appointment) => {
-    console.log('Edit appointment:', appointment);
+    setEditingAppointment(appointment);
+    setIsEditModalOpen(true);
   };
 
   const handleDelete = (appointment: Appointment) => {
     console.log('Delete appointment:', appointment);
   };
-
-  const stats = useMemo(() => {
-    const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-
-    const todayCount = appointments.filter((apt) => {
-      if (!apt.dateTime || apt.dateTime === '-') return false;
-      try {
-        const aptDate = new Date(apt.dateTime);
-        if (isNaN(aptDate.getTime())) return false;
-        return aptDate.toISOString().split('T')[0] === todayStr;
-      } catch {
-        return false;
-      }
-    }).length;
-
-    const upcoming = appointments.filter((apt) => {
-      if (!apt.dateTime || apt.dateTime === '-') return false;
-      try {
-        const aptDate = new Date(apt.dateTime);
-        if (isNaN(aptDate.getTime())) return false;
-        return aptDate > today && apt.status !== 'Completed' && apt.status !== 'Cancelled';
-      } catch {
-        return false;
-      }
-    }).length;
-
-    const completed = appointments.filter((apt) => apt.status === 'Completed').length;
-    const cancelled = appointments.filter((apt) => apt.status === 'Cancelled').length;
-    const rescheduled = appointments.filter((apt) => apt.status === 'Rescheduled').length;
-
-    return {
-      today: todayCount,
-      upcoming,
-      completed,
-      cancelled,
-      rescheduled,
-    };
-  }, [appointments]);
 
   if (loading) {
     return (
@@ -241,7 +153,6 @@ export default function AdminAppointmentPage() {
   return (
     <div className={styles.pageContainer}>
       <AppointmentHeader />
-      <AppointmentStatsCards stats={stats} />
       <div className={styles.contentRow}>
         <div className={styles.tableSection}>
           <AppointmentTableControls onStatusChange={handleStatusChange} />
@@ -258,10 +169,17 @@ export default function AdminAppointmentPage() {
             }}
           />
         </div>
-        <div className={styles.sidebar}>
-          <TodayAppointments appointments={todayTimelineAppointments} />
-        </div>
       </div>
+
+      <EditAppointmentModal
+        open={isEditModalOpen}
+        onOpenChange={(open) => {
+          setIsEditModalOpen(open);
+          if (!open) setEditingAppointment(null);
+        }}
+        appointment={editingAppointment}
+        onSuccess={fetchAppointments}
+      />
     </div>
   );
 }

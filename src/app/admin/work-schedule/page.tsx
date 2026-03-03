@@ -53,7 +53,6 @@ export default function WorkSchedulePage() {
       <WorkScheduleHeader
         title="Lịch làm việc"
         breadcrumbs={[
-          { label: 'Quản trị', href: '/admin' },
           { label: 'Lịch làm việc' },
         ]}
         tabs={tabs}

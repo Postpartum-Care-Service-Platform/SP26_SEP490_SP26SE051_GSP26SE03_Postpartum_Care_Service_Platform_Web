@@ -6,9 +6,8 @@ import styles from '../add-appointment.module.css';
 import { AddAppointmentForm } from '../components/AddAppointmentForm';
 
 const breadcrumbItems = [
-  { label: 'Hospital', href: '/admin' },
-  { label: 'All Appointment', href: '/admin/appointment' },
-  { label: 'Add Appointment' },
+  { label: 'Lịch hẹn', href: '/admin/appointment' },
+  { label: 'Thêm lịch hẹn' },
 ];
 
 export default function AddAppointmentPage() {

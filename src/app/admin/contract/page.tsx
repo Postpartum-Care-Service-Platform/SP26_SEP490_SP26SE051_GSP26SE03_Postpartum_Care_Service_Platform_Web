@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import { Pagination } from '@/components/ui/pagination';
 import contractService from '@/services/contract.service';
 import type { Contract } from '@/types/contract';
 
@@ -11,6 +12,8 @@ import { ContractList } from './components/ContractList';
 import { ContractListHeader } from './components/ContractListHeader';
 import { ContractTableControls } from './components/ContractTableControls';
 import styles from './contract.module.css';
+
+const PAGE_SIZE = 10;
 
 const getErrorMessage = (error: unknown, fallbackMessage: string) => {
   if (error instanceof Error && error.message) return error.message;
@@ -25,6 +28,7 @@ export default function AdminContractPage() {
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('date-newest');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchContracts();
@@ -36,6 +40,7 @@ export default function AdminContractPage() {
       setError(null);
       const data = await contractService.getAllContracts();
       setContracts(data);
+      setCurrentPage(1);
     } catch (error: unknown) {
       setError(getErrorMessage(error, 'Không thể tải danh sách hợp đồng'));
     } finally {
@@ -64,6 +69,7 @@ export default function AdminContractPage() {
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
+    setCurrentPage(1);
   };
 
   const handleAddContract = () => {
@@ -84,6 +90,19 @@ export default function AdminContractPage() {
 
   const handleCloseCustomerInfo = () => {
     setSelectedContract(null);
+  };
+
+  const paginatedContracts = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const end = start + PAGE_SIZE;
+    return sortedContracts.slice(start, end);
+  }, [sortedContracts, currentPage]);
+
+  const totalPages = Math.ceil(sortedContracts.length / PAGE_SIZE) || 1;
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   if (loading) {
@@ -115,7 +134,7 @@ export default function AdminContractPage() {
             onAddContract={handleAddContract}
           />
           <ContractList
-            contracts={sortedContracts}
+            contracts={paginatedContracts}
             selectedContractId={selectedContract?.id || null}
             onSelectContract={handleSelectContract}
             onEdit={(contract) => {
@@ -125,6 +144,18 @@ export default function AdminContractPage() {
               console.log('Delete contract:', contract);
             }}
           />
+          {sortedContracts.length > 0 && totalPages > 1 && (
+            <div className={styles.paginationWrapper}>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={PAGE_SIZE}
+                totalItems={sortedContracts.length}
+                onPageChange={handlePageChange}
+                showResultCount={true}
+              />
+            </div>
+          )}
         </div>
         {selectedContract && (
           <ContractCustomerInfo

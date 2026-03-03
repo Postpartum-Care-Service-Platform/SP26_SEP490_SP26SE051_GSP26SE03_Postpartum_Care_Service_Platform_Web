@@ -10,7 +10,6 @@ export function ActivityListHeader() {
       <h4 className={styles.title}>Danh sách hoạt động</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Hoạt động' },
         ]}
         homeHref="/admin"

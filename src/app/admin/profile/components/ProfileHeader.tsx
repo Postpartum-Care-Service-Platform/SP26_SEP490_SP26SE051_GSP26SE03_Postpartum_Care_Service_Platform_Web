@@ -10,7 +10,6 @@ export function ProfileHeader() {
       <h4 className={styles.title}>Hồ sơ</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Hồ sơ' },
         ]}
         homeHref="/admin"

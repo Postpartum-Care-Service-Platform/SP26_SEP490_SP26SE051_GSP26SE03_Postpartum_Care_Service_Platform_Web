@@ -1,4 +1,23 @@
-import { LayoutDashboard, Users, MessageCircle, Calendar, BedDouble, PlusCircle, MessageSquare, FileText, Utensils, Package, Bell, Activity, ClipboardCheck, UserCircle, CreditCard, CalendarCheck, CalendarDays, LayoutTemplate } from 'lucide-react';
+import {
+  Activity,
+  BedDouble,
+  Bell,
+  Calendar,
+  CalendarDays,
+  ClipboardCheck,
+  FileText,
+  LayoutDashboard,
+  LayoutTemplate,
+  MessageCircle,
+  MessageSquare,
+  Package,
+  PlusCircle,
+  Settings2,
+  UserCircle,
+  Users,
+  Utensils,
+  CreditCard,
+} from 'lucide-react';
 
 export type AdminNavItem = {
   key: string;
@@ -49,18 +68,6 @@ export const adminNav: AdminNavSection[] = [
         icon: Calendar,
       },
       {
-        key: 'appointment-overview',
-        label: 'Tổng quan lịch hẹn',
-        href: '/admin/appointment/overview',
-        icon: Calendar,
-      },
-      {
-        key: 'appointment-type',
-        label: 'Loại lịch hẹn',
-        href: '/admin/appointment-type',
-        icon: CalendarCheck,
-      },
-      {
         key: 'rooms-all',
         label: 'Tất cả phòng',
         href: '/admin/rooms',
@@ -75,25 +82,26 @@ export const adminNav: AdminNavSection[] = [
       {
         key: 'feedback',
         label: 'Phản hồi',
+        href: '/admin/feedback',
         icon: MessageSquare,
-        children: [
-          {
-            key: 'feedback-list',
-            label: 'Danh sách phản hồi',
-            href: '/admin/feedback',
-          },
-          {
-            key: 'feedback-types',
-            label: 'Loại phản hồi',
-            href: '/admin/feedback-type',
-          },
-        ],
       },
       {
         key: 'contract',
         label: 'Hợp đồng',
         href: '/admin/contract',
         icon: FileText,
+      },
+      {
+        key: 'types-config',
+        label: 'Cấu hình danh mục',
+        href: '/admin/types-config',
+        icon: Settings2,
+      },
+      {
+        key: 'booking',
+        label: 'Booking',
+        href: '/admin/booking',
+        icon: CalendarDays,
       },
       {
         key: 'menu-management',
@@ -109,11 +117,6 @@ export const adminNav: AdminNavSection[] = [
             key: 'menu',
             label: 'Thực đơn',
             href: '/admin/menu',
-          },
-          {
-            key: 'menu-type',
-            label: 'Loại thực đơn',
-            href: '/admin/menu-type',
           },
           {
             key: 'menu-record',

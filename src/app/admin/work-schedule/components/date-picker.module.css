@@ -12,6 +12,11 @@
   color: #172b4d;
 }
 
+.bottom {
+  top: calc(100% + 8px);
+  bottom: auto;
+}
+
 .withTime {
   width: 520px;
 }
@@ -40,7 +45,7 @@
 }
 
 .dateInput:focus {
-  border-color: #388bff;
+  border-color: #FA8314;
   outline: none;
 }
 

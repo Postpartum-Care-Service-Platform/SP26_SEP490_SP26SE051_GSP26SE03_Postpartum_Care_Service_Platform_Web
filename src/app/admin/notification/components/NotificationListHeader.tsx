@@ -10,7 +10,6 @@ export function NotificationListHeader() {
       <h4 className={styles.title}>Danh sách thông báo</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Thông báo' },
         ]}
         homeHref="/admin"

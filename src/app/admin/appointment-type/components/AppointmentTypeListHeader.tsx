@@ -10,7 +10,6 @@ export function AppointmentTypeListHeader() {
       <h4 className={styles.title}>Danh sách loại lịch hẹn</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Loại lịch hẹn' },
         ]}
         homeHref="/admin"

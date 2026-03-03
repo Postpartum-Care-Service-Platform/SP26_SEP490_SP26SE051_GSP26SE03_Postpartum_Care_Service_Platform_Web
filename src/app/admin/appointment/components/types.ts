@@ -2,10 +2,13 @@ export type AppointmentStatus = 'Upcoming' | 'Pending' | 'Completed' | 'Cancelle
 
 export type Appointment = {
   id: number;
+  name: string;
+  rawDateTime: string | null;
   patientName: string;
   patientAvatar: string | null;
   doctor: string;
   department: string;
+  appointmentTypeId: number | null;
   dateTime: string;
   status: AppointmentStatus;
 };

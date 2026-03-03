@@ -10,7 +10,6 @@ export function ChatHeader() {
       <h4 className={styles.title}>Chat</h4>
       <Breadcrumbs
         items={[
-          { label: 'Apps', href: '/admin' },
           { label: 'Chat' },
         ]}
         homeHref="/admin"

@@ -30,6 +30,9 @@ apiClient.interceptors.request.use(
 type ApiErrorBody = {
   message?: string;
   error?: string;
+  title?: string;
+  detail?: string;
+  errors?: Record<string, string[]>;
 };
 
 apiClient.interceptors.response.use(
@@ -59,7 +62,10 @@ apiClient.interceptors.response.use(
         console.error('API Error:', status, data);
       }
 
-      const message = data?.message || data?.error || 'Có lỗi xảy ra';
+      const firstValidationError =
+        data?.errors && Object.values(data.errors).length > 0 ? Object.values(data.errors)[0]?.[0] : undefined;
+
+      const message = data?.message || data?.error || firstValidationError || data?.title || 'Có lỗi xảy ra';
 
       return Promise.reject({
         status,

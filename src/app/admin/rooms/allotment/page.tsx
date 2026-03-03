@@ -145,8 +145,7 @@ export default function AddRoomAllotmentPage() {
         <h4 className={styles.title}>Phân bổ phòng</h4>
         <Breadcrumbs
           items={[
-            { label: 'Trang quản trị', href: '/admin' },
-            { label: 'Thêm phân bổ phòng' },
+            { label: 'Phân bổ phòng' },
           ]}
           homeHref="/admin"
         />

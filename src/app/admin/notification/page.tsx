@@ -61,8 +61,8 @@ export default function AdminNotificationPage() {
         const q = searchQuery.trim().toLowerCase();
         if (!q) return true;
         return (
-          n.title.toLowerCase().includes(q) ||
-          n.content.toLowerCase().includes(q) ||
+          (n.title && n.title.toLowerCase().includes(q)) ||
+          (n.content && n.content.toLowerCase().includes(q)) ||
           (n.staffName && n.staffName.toLowerCase().includes(q)) ||
           (n.receiverName && n.receiverName.toLowerCase().includes(q))
         );
@@ -127,7 +127,7 @@ export default function AdminNotificationPage() {
   };
 
   const handleDeleteNotification = async (notification: Notification) => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa thông báo "${notification.title}"?`)) {
+    if (!confirm(`Bạn có chắc chắn muốn xóa thông báo "${notification.title || `ID ${notification.id}`}"?`)) {
       return;
     }
 

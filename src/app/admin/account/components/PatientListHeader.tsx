@@ -10,9 +10,9 @@ export function PatientListHeader() {
       <h4 className={styles.title}>Danh sách tài khoản</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Danh sách tài khoản' },
         ]}
+        homeHref="/admin"
       />
     </div>
   );

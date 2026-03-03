@@ -1,4 +1,4 @@
-.tableWrapper {
+.container {
   background-color: #fff;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
@@ -7,11 +7,15 @@
 
 .tableWrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: var(--spacing-md);
 }
 
 .table {
   width: 100%;
+  min-width: 1200px;
   border-collapse: collapse;
+  table-layout: auto;
 }
 
 .table thead {
@@ -44,14 +48,17 @@
   font-family: var(--font-body);
   font-size: 14px;
   color: var(--color-text-primary);
+  white-space: nowrap;
 }
 
 .name {
   font-weight: 500;
+  min-width: 150px;
 }
 
 .truncateCell {
-  max-width: 320px;
+  min-width: 200px;
+  max-width: 400px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -133,4 +140,24 @@
 
 .paginationWrapper {
   margin-top: var(--spacing-md);
+}
+
+.imageCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  min-width: 80px;
+}
+
+.packageImage {
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--color-border-default);
+}
+
+.imagePlaceholder {
+  text-align: center;
+  color: var(--color-admin-text-muted);
+  padding: 8px;
 }

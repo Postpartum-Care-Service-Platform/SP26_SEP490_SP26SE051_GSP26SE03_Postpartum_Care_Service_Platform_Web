@@ -10,7 +10,6 @@ export function FoodListHeader() {
       <h4 className={styles.title}>Danh sách món ăn</h4>
       <Breadcrumbs
         items={[
-          { label: 'Trang quản trị', href: '/admin' },
           { label: 'Món ăn' },
         ]}
         homeHref="/admin"

@@ -78,31 +78,45 @@ const getNotificationIcon = (typeId: number, typeName: string | null, typesMap?:
 export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) {
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [notificationTypes, setNotificationTypes] = React.useState<Map<number, NotificationType>>(new Map());
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const [notificationsData, typesData] = await Promise.all([
-          notificationService.getMyNotifications(),
-          notificationTypeService.getAllNotificationTypes(),
-        ]);
-        setNotifications(notificationsData);
-        const typesMap = new Map(typesData.map((type) => [type.id, type]));
-        setNotificationTypes(typesMap);
-      } catch (error) {
-        console.error('Failed to fetch notifications:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchData = React.useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const [notificationsData, typesData] = await Promise.all([
+        notificationService.getMyNotifications(),
+        notificationTypeService.getAllNotificationTypes(),
+      ]);
+      setNotifications(notificationsData);
+      const typesMap = new Map(typesData.map((type) => [type.id, type]));
+      setNotificationTypes(typesMap);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
+  // Fetch data on mount and when dropdown opens
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  React.useEffect(() => {
     if (isOpen) {
       fetchData();
     }
-  }, [isOpen]);
+  }, [isOpen, fetchData]);
+
+  // Auto-refresh notifications every 30 seconds
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      fetchData();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [fetchData]);
 
   const unreadCount = notifications.filter((n) => n.status === 'Unread').length;
   const displayCount = unreadCount > 0 ? (unreadCount > 9 ? '9+' : `${unreadCount}`) : null;
@@ -112,6 +126,21 @@ export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) 
       return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: vi });
     } catch {
       return '';
+    }
+  };
+
+  const handleNotificationClick = async (notification: Notification) => {
+    // Mark as read if unread
+    if (notification.status === 'Unread') {
+      try {
+        await notificationService.markAsRead(notification.id);
+        // Update local state
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === notification.id ? { ...n, status: 'Read' as const } : n))
+        );
+      } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+      }
     }
   };
 
@@ -138,10 +167,15 @@ export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) 
           ) : notifications.length === 0 ? (
             <div className={styles.empty}>Không có thông báo</div>
           ) : (
-            notifications.slice(0, 3).map((notification) => {
+            notifications.slice(0, 5).map((notification) => {
               const Icon = getNotificationIcon(notification.notificationTypeId, notification.notificationTypeName, notificationTypes);
+              const isUnread = notification.status === 'Unread';
               return (
-                <div key={notification.id} className={styles.notificationItem}>
+                <div
+                  key={notification.id}
+                  className={`${styles.notificationItem} ${isUnread ? styles.notificationItemUnread : ''}`}
+                  onClick={() => handleNotificationClick(notification)}
+                >
                   <div className={styles.notificationIconWrapper}>
                     <Icon size={20} className={styles.notificationIcon} />
                   </div>
@@ -152,6 +186,7 @@ export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) 
                       <span>{formatTime(notification.createdAt)}</span>
                     </div>
                   </div>
+                  {isUnread && <div className={styles.unreadDot} />}
                   <ChevronRight size={16} className={styles.notificationArrow} />
                 </div>
               );
@@ -159,7 +194,7 @@ export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) 
           )}
         </div>
 
-        {notifications.length > 3 && (
+        {notifications.length > 5 && (
           <div className={styles.dropdownFooter}>
             <button
               type="button"

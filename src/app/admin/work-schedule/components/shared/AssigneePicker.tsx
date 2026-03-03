@@ -1,15 +1,21 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
+
+import { useToast } from '@/components/ui/toast/use-toast';
+import userService from '@/services/user.service';
+import type { Account } from '@/types/account';
 
 import styles from './assignee-picker.module.css';
 
-type Assignee = {
+export type Assignee = {
   id: string;
   name: string;
   email?: string;
   initials?: string;
   color?: string;
+  avatarUrl?: string | null;
   type: 'unassigned' | 'automatic' | 'user';
 };
 
@@ -17,22 +23,45 @@ type Props = {
   value: Assignee | null;
   onChange: (value: Assignee | null) => void;
   onClose: () => void;
+  hideSpecialOptions?: boolean;
+  roleNameFilter?: string[];
 };
 
-const DEMO_ASSIGNEES: Assignee[] = [
+const SPECIAL_ASSIGNEES: Assignee[] = [
   { id: 'unassigned', name: 'Unassigned', type: 'unassigned' },
   { id: 'automatic', name: 'Automatic', type: 'automatic' },
-  {
-    id: 'u1',
-    name: 'Vo Minh Tien',
-    email: 'tienvmse182865@fpt.edu.vn',
-    initials: 'VT',
-    color: '#DE350B',
-    type: 'user',
-  },
-  { id: 'u2', name: 'Thep Mai Tan', initials: 'TT', color: '#FF8B00', type: 'user' },
-  { id: 'u3', name: 'nguyễn văn phúc', initials: 'NP', color: '#0C66E4', type: 'user' },
 ];
+
+const COLOR_PALETTE = ['#DE350B', '#FF8B00', '#0C66E4', '#6554C0', '#00875A', '#0065FF'];
+
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return `${parts[0]!.charAt(0)}${parts[parts.length - 1]!.charAt(0)}`.toUpperCase();
+}
+
+function getColorFromId(id: string) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i += 1) {
+    hash = (hash * 31 + id.charCodeAt(i)) | 0;
+  }
+  const idx = Math.abs(hash) % COLOR_PALETTE.length;
+  return COLOR_PALETTE[idx] ?? '#6554C0';
+}
+
+function accountToAssignee(account: Account): Assignee {
+  const name = account.ownerProfile?.fullName?.trim() || account.username?.trim() || account.email;
+  return {
+    id: account.id,
+    name,
+    email: account.email,
+    initials: getInitials(name),
+    color: getColorFromId(account.id),
+    avatarUrl: account.ownerProfile?.avatarUrl || account.avatarUrl || null,
+    type: 'user',
+  };
+}
 
 function UnassignedAvatar() {
   return (
@@ -49,7 +78,27 @@ function UnassignedAvatar() {
   );
 }
 
-function UserAvatar({ initials, color }: { initials?: string; color?: string }) {
+function UserAvatar({
+  initials,
+  color,
+  avatarUrl,
+}: {
+  initials?: string;
+  color?: string;
+  avatarUrl?: string | null;
+}) {
+  if (avatarUrl) {
+    return (
+      <Image
+        src={avatarUrl}
+        alt=""
+        width={32}
+        height={32}
+        className={styles.avatarImage}
+        aria-hidden="true"
+      />
+    );
+  }
   return (
     <div className={styles.avatar} style={{ background: color || '#6554C0' }} aria-hidden="true">
       {initials || '?'}
@@ -57,24 +106,71 @@ function UserAvatar({ initials, color }: { initials?: string; color?: string }) 
   );
 }
 
-export function AssigneePicker({ value, onChange, onClose }: Props) {
+export function AssigneePicker({
+  value,
+  onChange,
+  onClose,
+  hideSpecialOptions = false,
+  roleNameFilter,
+}: Props) {
   const [query, setQuery] = React.useState('');
+  const [users, setUsers] = React.useState<Assignee[]>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   React.useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
+  React.useEffect(() => {
+    let mounted = true;
+
+    async function fetchUsers() {
+      setIsLoading(true);
+      try {
+        const accounts = await userService.getAllAccounts();
+        const activeAccounts = accounts.filter((a) => a.isActive);
+
+        const normalizedRoleFilter = roleNameFilter?.map((r) => r.trim().toLowerCase()).filter(Boolean);
+        const filteredAccounts = normalizedRoleFilter?.length
+          ? activeAccounts.filter((a) => normalizedRoleFilter.includes(a.roleName?.toLowerCase() ?? ''))
+          : activeAccounts;
+
+        const mapped = filteredAccounts.map(accountToAssignee);
+        if (!mounted) return;
+        setUsers(mapped);
+      } catch (error) {
+        console.error('Failed to fetch accounts:', error);
+        const message =
+          typeof error === 'object' && error && 'message' in error ? String((error as { message?: unknown }).message) : '';
+        toast({ title: message || 'Không thể tải danh sách khách hàng', variant: 'error' });
+        if (!mounted) return;
+        setUsers([]);
+      } finally {
+        if (mounted) setIsLoading(false);
+      }
+    }
+
+    fetchUsers();
+
+    return () => {
+      mounted = false;
+    };
+  }, [roleNameFilter, toast]);
+
   const items = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return DEMO_ASSIGNEES;
-    return DEMO_ASSIGNEES.filter((a) => {
+    const base = hideSpecialOptions ? users : [...SPECIAL_ASSIGNEES, ...users];
+    if (!q) return base;
+
+    return base.filter((a) => {
       if (a.type === 'user') {
         return `${a.name} ${a.email || ''}`.toLowerCase().includes(q);
       }
       return a.name.toLowerCase().includes(q);
     });
-  }, [query]);
+  }, [hideSpecialOptions, query, users]);
 
   function handleSelect(a: Assignee) {
     if (a.type === 'unassigned') {
@@ -89,7 +185,7 @@ export function AssigneePicker({ value, onChange, onClose }: Props) {
     <div
       className={styles.popoverContent}
       role="dialog"
-      aria-label="Assignee picker"
+      aria-label="Chọn người"
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
@@ -101,7 +197,7 @@ export function AssigneePicker({ value, onChange, onClose }: Props) {
             className={styles.searchInput}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={value?.name || 'Unassigned'}
+            placeholder={value?.name || 'Tìm người...'}
           />
           {value && (
             <button
@@ -111,7 +207,7 @@ export function AssigneePicker({ value, onChange, onClose }: Props) {
                 onChange(null);
                 onClose();
               }}
-              aria-label="Clear assignee"
+              aria-label="Xóa người đã chọn"
             >
               ×
             </button>
@@ -120,14 +216,14 @@ export function AssigneePicker({ value, onChange, onClose }: Props) {
       </div>
 
       <div className={styles.userList}>
-        {items.map((a, idx) => {
-          const selected = (value?.id || 'unassigned') === a.id;
-          const showDivider = idx === 1;
+        {isLoading && <div className={styles.userItem}>Đang tải...</div>}
+        {!isLoading &&
+          items.map((a) => {
+            const selected = value?.id === a.id;
 
-          return (
-            <React.Fragment key={a.id}>
-              {showDivider && <div className={styles.divider} />}
+            return (
               <div
+                key={a.id}
                 className={`${styles.userItem} ${selected ? styles.selected : ''}`}
                 onClick={() => handleSelect(a)}
                 role="button"
@@ -144,9 +240,8 @@ export function AssigneePicker({ value, onChange, onClose }: Props) {
                   {a.email && <div className={styles.userEmail}>{a.email}</div>}
                 </div>
               </div>
-            </React.Fragment>
-          );
-        })}
+            );
+          })}
       </div>
     </div>
   );

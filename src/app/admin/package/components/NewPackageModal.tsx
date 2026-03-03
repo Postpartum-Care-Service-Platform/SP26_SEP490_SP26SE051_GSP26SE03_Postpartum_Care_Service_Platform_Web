@@ -30,6 +30,7 @@ type FormErrors = {
   durationDays?: string;
   basePrice?: string;
   description?: string;
+  packageTypeId?: string;
 };
 
 const CustomInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
@@ -52,6 +53,8 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const isEditMode = !!packageToEdit;
+  const [packageTypeId, setPackageTypeId] = useState<number | ''>('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -63,9 +66,12 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
           basePrice: packageToEdit.basePrice,
           isActive: packageToEdit.isActive,
         });
+        setPackageTypeId(packageToEdit.packageTypeId ?? '');
       } else {
         setFormData(INITIAL_FORM_DATA);
+        setPackageTypeId('');
       }
+      setImageFile(null);
       setErrors({});
     }
   }, [open, packageToEdit]);
@@ -92,6 +98,10 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
       newErrors.basePrice = 'Giá cơ bản phải là số dương.';
     }
 
+    if (!packageTypeId) {
+      newErrors.packageTypeId = 'Vui lòng chọn loại gói.';
+    }
+
     return newErrors;
   };
 
@@ -114,12 +124,21 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
           description: formData.description,
           durationDays: formData.durationDays,
           basePrice: formData.basePrice,
+          packageTypeId: packageTypeId === '' ? undefined : Number(packageTypeId),
           isActive: formData.isActive,
         };
         await packageService.updatePackage(packageToEdit.id, updatePayload);
         toast({ title: 'Cập nhật gói dịch vụ thành công', variant: 'success' });
       } else {
-        await packageService.createPackage(formData);
+        const createPayload: CreatePackageRequest = {
+          packageName: formData.packageName,
+          description: formData.description,
+          durationDays: formData.durationDays,
+          basePrice: formData.basePrice,
+          isActive: formData.isActive,
+          packageTypeId: packageTypeId === '' ? undefined : Number(packageTypeId),
+        };
+        await packageService.createPackage(createPayload);
         toast({ title: 'Tạo gói dịch vụ thành công', variant: 'success' });
       }
 
@@ -186,6 +205,29 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
               </div>
 
               <div className={styles.formGroup}>
+                <label htmlFor="packageTypeId">
+                  Loại gói <span className={styles.required}>*</span>
+                </label>
+                <select
+                  id="packageTypeId"
+                  className={`${styles.select} ${errors.packageTypeId ? styles.selectError : ''}`}
+                  value={packageTypeId === '' ? '' : String(packageTypeId)}
+                  onChange={(e) => {
+                    const value = e.target.value ? Number(e.target.value) : '';
+                    setPackageTypeId(value);
+                    if (errors.packageTypeId) {
+                      setErrors((prev) => ({ ...prev, packageTypeId: undefined }));
+                    }
+                  }}
+                >
+                  <option value="">Chọn loại gói</option>
+                  <option value="1">Type 1</option>
+                  <option value="2">Type 2</option>
+                </select>
+                {errors.packageTypeId && <p className={styles.errorMessage}>{errors.packageTypeId}</p>}
+              </div>
+
+              <div className={styles.formGroup}>
                 <label htmlFor="durationDays">
                   Thời hạn (số ngày) <span className={styles.required}>*</span>
                 </label>
@@ -214,6 +256,28 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
                 required
               />
               {errors.basePrice && <p className={styles.errorMessage}>{errors.basePrice}</p>}
+            </div>
+
+            <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+              <label htmlFor="packageImage">Hình ảnh gói dịch vụ</label>
+              <div className={styles.fileInputWrapper}>
+                <label htmlFor="packageImage" className={styles.fileInputLabel}>
+                  Chọn ảnh...
+                </label>
+                <input
+                  id="packageImage"
+                  type="file"
+                  accept="image/*"
+                  className={styles.fileInput}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    setImageFile(file ?? null);
+                  }}
+                />
+                <span className={styles.fileInputText}>
+                  {imageFile?.name ?? 'Chưa chọn ảnh nào'}
+                </span>
+              </div>
             </div>
 
             <div className={`${styles.formGroup} ${styles.fullWidth}`}>

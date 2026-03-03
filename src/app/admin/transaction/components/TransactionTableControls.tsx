@@ -75,7 +75,7 @@ export function TransactionTableControls({
         <MagnifyingGlassIcon className={styles.searchIcon} />
         <input
           type="text"
-          placeholder="Tìm kiếm theo email, username, ID giao dịch, Booking ID..."
+          placeholder="Tìm kiếm theo email, username, ID giao dịch, mã đặt phòng..."
           className={styles.searchInput}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}

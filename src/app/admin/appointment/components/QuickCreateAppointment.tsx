@@ -4,13 +4,16 @@ import * as Popover from '@radix-ui/react-popover';
 import Image from 'next/image';
 import React from 'react';
 
+import { useToast } from '@/components/ui/toast/use-toast';
+import appointmentTypeService from '@/services/appointment-type.service';
 import appointmentService from '@/services/appointment.service';
 import type { CreateCustomerAppointmentRequest } from '@/types/appointment';
 
 import { DatePicker } from '../../work-schedule/components/DatePicker';
 import styles from '../../work-schedule/components/list/work-schedule-list.module.css';
-import { AssigneePicker } from '../../work-schedule/components/shared/AssigneePicker';
-import { TaskTypePicker, TASK_TYPES, type TaskType } from '../../work-schedule/components/shared/TaskTypePicker';
+import { AssigneePicker, type Assignee } from '../../work-schedule/components/shared/AssigneePicker';
+import { TaskTypePicker, type TaskType } from '../../work-schedule/components/shared/TaskTypePicker';
+import TaskFe16Icon from '../../work-schedule/components/list/artifacts/glyph/task-fe/16';
 
 type QuickCreateAppointmentProps = {
   onCreated?: () => void;
@@ -19,17 +22,14 @@ type QuickCreateAppointmentProps = {
 type Customer = {
   id: string;
   name: string;
-};
-
-const APPOINTMENT_TYPE_ID_BY_TASK: Record<string, number> = {
-  'task-be': 1,
-  story: 2,
-  epic: 3,
-  'task-fe': 4,
+  avatarUrl?: string | null;
+  initials?: string;
+  color?: string;
 };
 
 export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProps) {
-  const [selectedTaskType, setSelectedTaskType] = React.useState<TaskType>(TASK_TYPES[TASK_TYPES.length - 1]);
+  const [appointmentTypes, setAppointmentTypes] = React.useState<TaskType[]>([]);
+  const [selectedTaskType, setSelectedTaskType] = React.useState<TaskType | null>(null);
   const [name, setName] = React.useState('');
   const [date, setDate] = React.useState<Date | null>(null);
   const [time, setTime] = React.useState('');
@@ -43,6 +43,7 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
   const datePickerRef = React.useRef<HTMLDivElement | null>(null);
   const typePickerRef = React.useRef<HTMLDivElement | null>(null);
   const footerRef = React.useRef<HTMLDivElement | null>(null);
+  const { toast } = useToast();
 
   const formattedDate = React.useMemo(() => {
     if (!date) return '';
@@ -55,27 +56,44 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
   const formattedDateTimeLabel = React.useMemo(() => {
     if (!date || !time) return '';
 
-    const day = date.getDate();
-    const monthLabel = date.toLocaleString('en-US', { month: 'long' });
-    const year = date.getFullYear();
-
-    const getOrdinal = (n: number) => {
-      const rem10 = n % 10;
-      const rem100 = n % 100;
-      if (rem10 === 1 && rem100 !== 11) return 'st';
-      if (rem10 === 2 && rem100 !== 12) return 'nd';
-      if (rem10 === 3 && rem100 !== 13) return 'rd';
-      return 'th';
-    };
-
-    const suffix = getOrdinal(day);
-    return `${monthLabel} ${day}${suffix}, ${year}, ${time}`;
+    const d = date.toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+    return `${d}, ${time}`;
   }, [date, time]);
 
-  const canSubmit = name.trim() && formattedDate && time && selectedCustomer && !isSubmitting;
+  // Fetch appointment types from API
+  React.useEffect(() => {
+    async function fetchAppointmentTypes() {
+      try {
+        const types = await appointmentTypeService.getAllAppointmentTypes();
+        const activeTypes = types.filter((t) => t.isActive);
+        const mappedTypes: TaskType[] = activeTypes.map((type) => ({
+          id: String(type.id),
+          label: type.name,
+          icon: <TaskFe16Icon />,
+          imageUrl: undefined,
+        }));
+        setAppointmentTypes(mappedTypes);
+        if (mappedTypes.length > 0 && !selectedTaskType) {
+          setSelectedTaskType(mappedTypes[0]);
+        }
+      } catch (error) {
+        const message =
+          typeof error === 'object' && error && 'message' in error ? String((error as { message?: unknown }).message) : '';
+        toast({ title: message || 'Không thể tải loại lịch hẹn', variant: 'error' });
+      }
+    }
+
+    fetchAppointmentTypes();
+  }, [toast, selectedTaskType]);
+
+  const canSubmit = name.trim() && formattedDate && time && selectedCustomer && selectedTaskType && !isSubmitting;
 
   const handleSubmit = async () => {
-    if (!canSubmit || !selectedCustomer) return;
+    if (!canSubmit || !selectedCustomer || !selectedTaskType) return;
 
     setIsSubmitting(true);
     try {
@@ -84,7 +102,7 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
         name: name.trim(),
         date: formattedDate,
         time,
-        appointmentTypeId: APPOINTMENT_TYPE_ID_BY_TASK[selectedTaskType.id] ?? 1,
+        appointmentTypeId: Number(selectedTaskType.id),
       };
 
       await appointmentService.createAppointmentForCustomer(payload);
@@ -93,8 +111,16 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
       setDate(null);
       setTime('');
       setSelectedCustomer(null);
+      if (appointmentTypes.length > 0) {
+        setSelectedTaskType(appointmentTypes[0]);
+      }
       setIsOpen(false);
       onCreated?.();
+      toast({ title: 'Tạo lịch hẹn thành công', variant: 'success' });
+    } catch (error) {
+      const message =
+        typeof error === 'object' && error && 'message' in error ? String((error as { message?: unknown }).message) : '';
+      toast({ title: message || 'Tạo lịch hẹn thất bại. Vui lòng thử lại.', variant: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -199,17 +225,19 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
             }
           }}
         >
-          {selectedTaskType.imageUrl ? (
-            <Image
-              src={selectedTaskType.imageUrl}
-              alt={selectedTaskType.label}
-              width={16}
-              height={16}
-              className={styles.workIconImg}
-            />
-          ) : (
-            <span className={styles.taskTypeSvg}>{selectedTaskType.icon}</span>
-          )}
+          {selectedTaskType ? (
+            selectedTaskType.imageUrl ? (
+              <Image
+                src={selectedTaskType.imageUrl}
+                alt={selectedTaskType.label}
+                width={16}
+                height={16}
+                className={styles.workIconImg}
+              />
+            ) : (
+              <span className={styles.taskTypeSvg}>{selectedTaskType.icon}</span>
+            )
+          ) : null}
           <svg
             width="15"
             height="15"
@@ -225,13 +253,14 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
               clipRule="evenodd"
             />
           </svg>
-          {showTaskTypePicker && (
+          {showTaskTypePicker && appointmentTypes.length > 0 && (
             <TaskTypePicker
-              selectedId={selectedTaskType.id}
+              selectedId={selectedTaskType?.id ?? ''}
               onSelect={(t) => {
                 setSelectedTaskType(t);
                 setShowTaskTypePicker(false);
               }}
+              types={appointmentTypes}
             />
           )}
         </div>
@@ -246,6 +275,12 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
             onChange={(e) => setName(e.target.value)}
             onFocus={() => setIsNameActive(true)}
             onBlur={(e) => setIsNameActive(!!e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                void handleSubmit();
+              }
+            }}
           />
           <div className={isNameActive ? styles.nameFieldLineActive : styles.nameFieldLine} />
         </div>
@@ -296,10 +331,12 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
           {/* Chọn khách hàng (tái sử dụng UI AssigneePicker) */}
           <Popover.Root open={showCustomerPicker} onOpenChange={setShowCustomerPicker}>
             <Popover.Trigger asChild>
-              <button
-                type="button"
-                className={`${styles.createActionBtn} ${styles.createActionBtnRound}`}
+              <div
+                className={`${styles.dateTimeDisplay} ${styles.customerDisplay}`}
+                role="button"
+                tabIndex={0}
                 aria-label="Khách hàng"
+                onClick={() => setShowCustomerPicker((v) => !v)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -307,15 +344,44 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
                   }
                 }}
               >
-                <svg fill="none" viewBox="-4 -4 24 24" width="16" height="16">
-                  <path
-                    fill="currentColor"
-                    fillRule="evenodd"
-                    d="M8 1.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4 4a4 4 0 1 1 8 0 4 4 0 0 1-8 0m-2 9a3.75 3.75 0 0 1 3.75-3.75h4.5A3.75 3.75 0 0 1 14 13v2h-1.5v-2a2.25 2.25 0 0 0-2.25-2.25h-4.5A2.25 2.25 0 0 0 3.5 13v2H2z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
+                {selectedCustomer && (
+                  <div className={styles.customerAvatar}>
+                    {selectedCustomer.avatarUrl ? (
+                      <Image
+                        src={selectedCustomer.avatarUrl}
+                        alt=""
+                        width={32}
+                        height={32}
+                        className={styles.avatarImage}
+                      />
+                    ) : (
+                      <div
+                        className={styles.avatar}
+                        style={{ background: selectedCustomer.color || '#6554C0' }}
+                      >
+                        {selectedCustomer.initials || '?'}
+                      </div>
+                    )}
+                  </div>
+                )}
+                <span
+                  className={`${styles.customerName} ${
+                    !selectedCustomer ? styles.dateTimeDisplayPlaceholder : ''
+                  }`}
+                >
+                  {selectedCustomer?.name || 'Chọn khách hàng'}
+                </span>
+                <span className={styles.dateTimeIcon}>
+                  <svg fill="none" viewBox="-4 -4 24 24" width="16" height="16">
+                    <path
+                      fill="currentColor"
+                      fillRule="evenodd"
+                      d="M8 1.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4 4a4 4 0 1 1 8 0 4 4 0 0 1-8 0m-2 9a3.75 3.75 0 0 1 3.75-3.75h4.5A3.75 3.75 0 0 1 14 13v2h-1.5v-2a2.25 2.25 0 0 0-2.25-2.25h-4.5A2.25 2.25 0 0 0 3.5 13v2H2z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </span>
+              </div>
             </Popover.Trigger>
 
             <Popover.Portal>
@@ -329,14 +395,29 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
                 <AssigneePicker
                   value={
                     selectedCustomer
-                      ? { id: selectedCustomer.id, name: selectedCustomer.name, type: 'user' }
+                      ? {
+                          id: selectedCustomer.id,
+                          name: selectedCustomer.name,
+                          avatarUrl: selectedCustomer.avatarUrl,
+                          initials: selectedCustomer.initials,
+                          color: selectedCustomer.color,
+                          type: 'user',
+                        }
                       : null
                   }
-                  onChange={(a: { id: string; name: string } | null) => {
+                  hideSpecialOptions
+                  roleNameFilter={['customer']}
+                  onChange={(a: Assignee | null) => {
                     if (!a) {
                       setSelectedCustomer(null);
                     } else {
-                      setSelectedCustomer({ id: a.id, name: a.name });
+                      setSelectedCustomer({
+                        id: a.id,
+                        name: a.name,
+                        avatarUrl: a.avatarUrl,
+                        initials: a.initials,
+                        color: a.color,
+                      });
                     }
                   }}
                   onClose={() => setShowCustomerPicker(false)}

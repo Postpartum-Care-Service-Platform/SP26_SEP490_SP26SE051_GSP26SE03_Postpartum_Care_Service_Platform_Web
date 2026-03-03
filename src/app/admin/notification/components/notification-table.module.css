@@ -1,14 +1,21 @@
-.tableWrapper {
+.container {
   background-color: #fff;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   padding: var(--spacing-md);
+}
+
+.tableWrapper {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: var(--spacing-md);
 }
 
 .table {
   width: 100%;
+  min-width: 1400px;
   border-collapse: collapse;
+  table-layout: auto;
 }
 
 .table thead {
@@ -41,11 +48,34 @@
   font-family: var(--font-body);
   font-size: 14px;
   color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+.truncateCell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: help;
+}
+
+.copyableId {
+  cursor: pointer;
+  user-select: none;
 }
 
 .titleCell {
   font-weight: 500;
-  max-width: 220px;
+  min-width: 150px;
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contentCell {
+  min-width: 200px;
+  max-width: 350px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

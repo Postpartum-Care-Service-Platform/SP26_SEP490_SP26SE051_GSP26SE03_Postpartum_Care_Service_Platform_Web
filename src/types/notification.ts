@@ -5,10 +5,10 @@ export interface Notification {
   staffName: string | null;
   receiverId: string | null;
   receiverName: string | null;
-  notificationTypeId: number;
+  notificationTypeId: number | null;
   notificationTypeName: string | null;
-  title: string;
-  content: string;
+  title: string | null;
+  content: string | null;
   createdAt: string;
   updatedAt: string;
   status: 'Unread' | 'Read';

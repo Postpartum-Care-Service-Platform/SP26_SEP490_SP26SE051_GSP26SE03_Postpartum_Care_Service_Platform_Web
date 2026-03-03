@@ -13,6 +13,8 @@ type Props = {
   timeValue?: string;
   /** Callback khi chọn giờ mới */
   onTimeChange?: (time: string) => void;
+  /** Vị trí popup so với trigger (mặc định mở lên trên như thanh tạo nhanh) */
+  side?: 'top' | 'bottom';
 };
 
 const DAY_LABELS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -62,7 +64,7 @@ function monthLabel(d: Date) {
   return `${capitalized} ${d.getFullYear()}`;
 }
 
-export function DatePicker({ value = null, onChange, withTime = false, timeValue, onTimeChange }: Props) {
+export function DatePicker({ value = null, onChange, withTime = false, timeValue, onTimeChange, side = 'top' }: Props) {
   const today = React.useMemo(() => new Date(), []);
   const [viewDate, setViewDate] = React.useState<Date>(() => (value ? startOfMonth(value) : startOfMonth(today)));
   const [inputValue, setInputValue] = React.useState<string>(() => (value ? formatMMDDYYYY(value) : ''));
@@ -134,7 +136,7 @@ export function DatePicker({ value = null, onChange, withTime = false, timeValue
 
   return (
     <div 
-      className={`${styles.datePickerPopup} ${withTime ? styles.withTime : ''}`} 
+      className={`${styles.datePickerPopup} ${withTime ? styles.withTime : ''} ${side === 'bottom' ? styles.bottom : ''}`} 
       role="dialog" 
       aria-label="Chọn ngày"
       onMouseDown={(e) => e.stopPropagation()}
