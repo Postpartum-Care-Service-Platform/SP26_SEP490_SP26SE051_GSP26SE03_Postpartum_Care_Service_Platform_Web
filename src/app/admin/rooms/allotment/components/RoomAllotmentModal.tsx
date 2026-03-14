@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
 import { useToast } from '@/components/ui/toast/use-toast';
+import { Spinner } from '@/components/ui/spinner';
 import roomAllotmentService from '@/services/room-allotment.service';
 import roomTypeService from '@/services/room-type.service';
 import type { Room, RoomStatus, UpdateRoomRequest } from '@/types/room-allotment';

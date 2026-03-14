@@ -1,12 +1,12 @@
 'use client';
 
+import { forwardRef, useState, useEffect } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
-import { useState, useEffect, forwardRef } from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import systemSettingService from '@/services/system-setting.service';
-import type { SystemSetting } from '../page';
 
+import type { SystemSetting } from '../page';
 import styles from './system-settings-modal.module.css';
 
 type Props = {
