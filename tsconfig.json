@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "incremental": true,
+    "skipLibCheck": true,
+    "noEmit": true,
     "target": "es5",
     "lib": [
       "dom",

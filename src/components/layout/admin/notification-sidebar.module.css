@@ -16,7 +16,7 @@
   top: 0;
   right: 0;
   height: 100vh;
-  width: min(420px, 92vw);
+  width: min(620px, 96vw);
   background: #fff;
   border-left: 1px solid var(--color-border-default);
   box-shadow: -16px 0 40px rgba(0, 0, 0, 0.18);

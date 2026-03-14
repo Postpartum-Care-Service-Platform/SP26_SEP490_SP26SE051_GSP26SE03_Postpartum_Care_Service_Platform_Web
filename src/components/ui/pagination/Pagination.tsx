@@ -1,7 +1,15 @@
 'use client';
 
+import { ChevronDownIcon } from '@radix-ui/react-icons';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import React from 'react';
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown';
 
 import styles from './pagination.module.css';
 
@@ -13,6 +21,8 @@ type Props = {
   onPageChange: (page: number) => void;
   showResultCount?: boolean;
   maxVisiblePages?: number;
+  pageSizeOptions?: number[];
+  onPageSizeChange?: (pageSize: number) => void;
 };
 
 export function Pagination({
@@ -23,6 +33,8 @@ export function Pagination({
   onPageChange,
   showResultCount = true,
   maxVisiblePages = 5,
+  pageSizeOptions,
+  onPageSizeChange,
 }: Props) {
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalItems);
@@ -68,11 +80,38 @@ export function Pagination({
 
   return (
     <div className={styles.container}>
-      {showResultCount && (
-        <div className={styles.resultCount}>
-          Hiển thị <strong>{startItem} - {endItem}</strong> trên tổng <strong>{totalItems}</strong> kết quả
-        </div>
-      )}
+      <div className={styles.infoGroup}>
+        {pageSizeOptions && pageSizeOptions.length > 0 && onPageSizeChange && (
+          <div className={styles.pageSizeControl}>
+            <span className={styles.pageSizeLabel}>Dòng/trang:</span>
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <button type="button" className={styles.pageSizeTrigger} aria-label="Số dòng mỗi trang">
+                  <span>{pageSize}</span>
+                  <ChevronDownIcon className={styles.pageSizeChevron} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className={styles.pageSizeDropdown} align="start" sideOffset={6}>
+                {pageSizeOptions.map((size) => (
+                  <DropdownMenuItem
+                    key={size}
+                    className={`${styles.pageSizeItem} ${pageSize === size ? styles.pageSizeItemActive : ''}`}
+                    onClick={() => onPageSizeChange(size)}
+                  >
+                    {size}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
+        {showResultCount && (
+          <div className={styles.resultCount}>
+            Hiển thị <strong>{startItem} - {endItem}</strong> trên tổng <strong>{totalItems}</strong> kết quả
+          </div>
+        )}
+      </div>
 
       <div className={styles.pagination}>
         <button

@@ -74,14 +74,13 @@ export function NotificationTypeModal({ open, onOpenChange, type, onSuccess }: P
       if (isEditMode && type) {
         const payload: UpdateNotificationTypeRequest = {
           name: formData.name.trim(),
-          isActive: formData.isActive,
         };
         await notificationTypeService.updateNotificationType(type.id, payload);
         toast({ title: 'Cập nhật loại thông báo thành công', variant: 'success' });
       } else {
         await notificationTypeService.createNotificationType({
           name: formData.name.trim(),
-          isActive: formData.isActive,
+          isActive: true,
         });
         toast({ title: 'Tạo loại thông báo thành công', variant: 'success' });
       }
@@ -140,17 +139,7 @@ export function NotificationTypeModal({ open, onOpenChange, type, onSuccess }: P
               {errors.name && <p className={styles.errorMessage}>{errors.name}</p>}
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={formData.isActive}
-                  onChange={(e) => handleFieldChange('isActive', e.target.checked)}
-                  className={styles.checkbox}
-                />
-                <span>Hoạt động</span>
-              </label>
-            </div>
+
           </div>
 
           <div className={styles.modalFooter}>

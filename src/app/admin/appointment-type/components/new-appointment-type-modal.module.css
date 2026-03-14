@@ -109,6 +109,63 @@
   cursor: pointer;
 }
 
+/* Toggle status (Hoạt động / Tạm dừng) */
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.toggleButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.toggleTrack {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  box-sizing: border-box;
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggleTrackActive {
+  background-color: #fa5246;
+}
+
+.toggleTrackInactive {
+  background-color: #e5e7eb;
+}
+
+.toggleThumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transform: translateX(0);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggleThumb[data-active='true'] {
+  transform: translateX(18px);
+}
+
+.toggleText {
+  font-size: 13px;
+  color: #495057;
+}
+
 .modalFooter {
   display: flex;
   justify-content: flex-end;

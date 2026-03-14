@@ -1,0 +1,175 @@
+/* QuickCreateAppointment.module.css - CSS riêng để không ảnh hưởng shared styles */
+
+.container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow: visible; /* Cho phép DatePicker popup hiển thị ra ngoài */
+  position: relative;
+  z-index: 9999; /* Z-index cao để DatePicker có thể hiển thị trên header admin (1000) */
+}
+
+/* Appointment Type - giới hạn độ rộng và truncate text */
+.appointmentTypeWrapper {
+  position: relative;
+  flex: 0 0 180px;
+  max-width: 180px;
+  min-width: 44px;
+}
+
+.appointmentTypeTrigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  background: #ffffff;
+  font-size: 14px;
+  color: #172b4d;
+  cursor: pointer;
+  width: 100%;
+  min-width: 0;
+}
+
+.appointmentTypeTrigger:hover {
+  background: #f4f5f7;
+}
+
+.appointmentTypeInner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.appointmentTypeLabel {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.appointmentTypePlaceholder {
+  color: #6b778c;
+}
+
+.appointmentTypeIcon {
+  flex-shrink: 0;
+}
+
+.appointmentTypeArrow {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b778c;
+}
+
+/* Name field - chiếm phần còn lại */
+.nameFieldWrapper {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  position: relative;
+  overflow: hidden; /* Ngăn input và underline tràn ra ngoài */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fieldLeadingIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b778c;
+  flex-shrink: 0;
+}
+
+.nameInput {
+  padding-left: 0 !important;
+}
+
+/* Override cho input trong nameFieldWrapper để xử lý text dài */
+.nameFieldWrapper input {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box; /* Đảm bảo padding không làm input vượt quá container */
+}
+
+.nameFieldLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: transparent;
+}
+
+.nameFieldLineActive {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 1px;
+  background: #FA8314;
+}
+
+/* Actions group - Date/Time, Customer, Button */
+.actionsGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  overflow: visible; /* Cho phép DatePicker popup hiển thị ra ngoài */
+  position: relative; /* Tạo stacking context */
+  z-index: 9999; /* Z-index cao để DatePicker popup hiển thị trên header admin (1000) */
+}
+
+.dateTimeWrapper {
+  position: relative;
+  flex: 0 0 200px;
+  max-width: 200px;
+  min-width: 0;
+  overflow: visible; /* Cho phép DatePicker popup hiển thị ra ngoài */
+  z-index: 9999; /* Z-index cao để DatePicker hiển thị trên header admin (1000) */
+}
+
+.dateTimeWrapper > div:first-child {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Portal container cho DatePicker - render ra document.body */
+.datePickerPortalContainer {
+  position: fixed;
+  z-index: 10000; /* Z-index cao hơn header admin (1000) */
+}
+
+/* Override z-index của DatePicker popup để hiển thị trên header admin */
+.datePickerPortalContainer :global(.datePickerPopup) {
+  position: relative !important;
+  z-index: 10000 !important;
+}
+
+.customerWrapper {
+  flex: 0 0 180px;
+  max-width: 180px;
+  min-width: 0;
+}
+
+.customerWrapper > div {
+  width: 100%;
+  min-width: 0;
+}
+
+.submitButtonWrapper {
+  flex-shrink: 0;
+}

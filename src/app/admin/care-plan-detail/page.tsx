@@ -9,15 +9,13 @@ import type { CarePlanDetail } from '@/types/care-plan-detail';
 import styles from './care-plan-detail.module.css';
 import {
   CarePlanDetailListHeader,
-  CarePlanDetailStatsCards,
   CarePlanDetailTable,
   CarePlanDetailTableControls,
   NewCarePlanDetailModal,
 } from './components';
 
-import type { CarePlanDetailStats } from './components';
 
-const PAGE_SIZE = 10;
+
 
 const sortCarePlanDetails = (items: CarePlanDetail[], sort: string) => {
   const arr = [...items];
@@ -50,6 +48,8 @@ export default function AdminCarePlanDetailPage() {
   const [editingCarePlanDetail, setEditingCarePlanDetail] = useState<CarePlanDetail | null>(null);
   const [sortKey, setSortKey] = useState<string>('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const fetchCarePlanDetails = async () => {
@@ -73,18 +73,6 @@ export default function AdminCarePlanDetailPage() {
     fetchCarePlanDetails();
   }, []);
 
-  const stats: CarePlanDetailStats = useMemo(() => {
-    const total = carePlanDetails.length;
-    const uniquePackages = new Set(carePlanDetails.map((c) => c.packageId)).size;
-    const uniqueActivities = new Set(carePlanDetails.map((c) => c.activityId)).size;
-
-    return {
-      total,
-      uniquePackages,
-      uniqueActivities,
-    };
-  }, [carePlanDetails]);
-
   const filteredCarePlanDetails = useMemo(() => {
     let filtered = [...carePlanDetails];
 
@@ -106,12 +94,12 @@ export default function AdminCarePlanDetailPage() {
   }, [searchQuery, sortKey]);
 
   const paginatedCarePlanDetails = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
     return filteredCarePlanDetails.slice(start, end);
-  }, [filteredCarePlanDetails, currentPage]);
+  }, [filteredCarePlanDetails, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredCarePlanDetails.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredCarePlanDetails.length / pageSize);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -161,8 +149,6 @@ export default function AdminCarePlanDetailPage() {
         </div>
       ) : (
         <>
-          <CarePlanDetailStatsCards stats={stats} />
-
           <CarePlanDetailTableControls
             onSearch={(q) => setSearchQuery(q)}
             onSortChange={(sort) => setSortKey(sort)}
@@ -179,9 +165,14 @@ export default function AdminCarePlanDetailPage() {
                 ? {
                     currentPage,
                     totalPages,
-                    pageSize: PAGE_SIZE,
+                    pageSize,
                     totalItems: filteredCarePlanDetails.length,
                     onPageChange: handlePageChange,
+                    pageSizeOptions: PAGE_SIZE_OPTIONS,
+                    onPageSizeChange: (size) => {
+                      setPageSize(size);
+                      setCurrentPage(1);
+                    },
                   }
                 : undefined
             }

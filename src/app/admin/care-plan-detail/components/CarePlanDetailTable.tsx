@@ -42,6 +42,8 @@ type Props = {
     pageSize: number;
     totalItems: number;
     onPageChange: (page: number) => void;
+    pageSizeOptions?: number[];
+    onPageSizeChange?: (size: number) => void;
   };
 };
 
@@ -88,25 +90,31 @@ export function CarePlanDetailTable({ carePlanDetails, onEdit, onDelete, deletin
                 <td>{detail.sortOrder}</td>
                 <td>
                   <div className={styles.actions}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.editButton} btn-icon btn-sm`}
-                      onClick={() => onEdit?.(detail)}
-                      aria-label={`Chỉnh sửa ${detail.packageName} - ${detail.activityName}`}
-                    >
-                      <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.deleteButton} btn-icon btn-sm`}
-                      onClick={() => onDelete?.(detail)}
-                      aria-label={`Xóa ${detail.packageName} - ${detail.activityName}`}
-                      disabled={deletingId === detail.id}
-                    >
-                      <Trash2OutlineIcon fill="#FD6161" size={16} />
-                    </Button>
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.editButton} btn-icon btn-sm`}
+                        onClick={() => onEdit?.(detail)}
+                        aria-label={`Chỉnh sửa ${detail.packageName} - ${detail.activityName}`}
+                      >
+                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                      </Button>
+                      <span className={styles.tooltip}>Chỉnh sửa</span>
+                    </div>
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.deleteButton} btn-icon btn-sm`}
+                        onClick={() => onDelete?.(detail)}
+                        aria-label={`Xóa ${detail.packageName} - ${detail.activityName}`}
+                        disabled={deletingId === detail.id}
+                      >
+                        <Trash2OutlineIcon fill="#FD6161" size={16} />
+                      </Button>
+                      <span className={styles.tooltip}>Xóa</span>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -123,6 +131,8 @@ export function CarePlanDetailTable({ carePlanDetails, onEdit, onDelete, deletin
             pageSize={pagination.pageSize}
             totalItems={pagination.totalItems}
             onPageChange={pagination.onPageChange}
+            pageSizeOptions={pagination.pageSizeOptions}
+            onPageSizeChange={pagination.onPageSizeChange}
             showResultCount={true}
           />
         </div>

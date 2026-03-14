@@ -1,10 +1,13 @@
-import type { Room, UpdateRoomRequest } from '@/types/room-allotment';
+import type { CreateRoomRequest, Room, UpdateRoomRequest } from '@/types/room-allotment';
 
 import apiClient from './apiClient';
 
 const roomAllotmentService = {
   getAllRooms: (): Promise<Room[]> => {
     return apiClient.get('/Room');
+  },
+  createRoom: (data: CreateRoomRequest): Promise<Room> => {
+    return apiClient.post('/Room', data);
   },
   updateRoom: (id: number, data: UpdateRoomRequest): Promise<Room> => {
     return apiClient.put(`/Room/${id}`, data);

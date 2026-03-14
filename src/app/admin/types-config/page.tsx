@@ -1,21 +1,22 @@
 'use client';
 
-import { Bell, CalendarCheck, MessageSquare, Package, UserCircle2, Utensils } from 'lucide-react';
+import { Activity, Bell, CalendarCheck, MessageSquare, Package, UserCircle2, Utensils } from 'lucide-react';
 import React from 'react';
 
+import AdminActivityTypePage from '../activity-type/page';
 import AdminAppointmentTypePage from '../appointment-type/page';
 import AdminFeedbackTypesPage from '../feedback-type/page';
+import AdminMemberTypePage from '../member-type/page';
 import AdminMenuTypePage from '../menu-type/page';
 import AdminNotificationPage from '../notification/page';
-import AdminPackagePage from '../package/page';
+import AdminNotificationTypePage from '../notification-type/page';
+import AdminPackageTypePage from '../package-type/page';
 import AdminRoomsPage from '../rooms/page';
 import { WorkScheduleHeader } from '../work-schedule/components/WorkScheduleHeader';
 
-import { TypesConfigControlPanel } from './TypesConfigControlPanel';
-
 const tabs = [
-  { key: 'overview', label: 'Tổng quan', icon: undefined },
   { key: 'appointment-types', label: 'Loại lịch hẹn', icon: <CalendarCheck size={16} /> },
+  { key: 'activity-types', label: 'Loại hoạt động', icon: <Activity size={16} /> },
   { key: 'menu-types', label: 'Loại thực đơn', icon: <Utensils size={16} /> },
   { key: 'feedback-types', label: 'Loại phản hồi', icon: <MessageSquare size={16} /> },
   { key: 'member-types', label: 'Loại thành viên', icon: <UserCircle2 size={16} /> },
@@ -37,19 +38,14 @@ export default function AdminTypesConfigPage() {
         onTabChange={setActiveTab}
       />
 
-      {activeTab === 'overview' && <TypesConfigControlPanel />}
       {activeTab === 'appointment-types' && <AdminAppointmentTypePage />}
+      {activeTab === 'activity-types' && <AdminActivityTypePage />}
       {activeTab === 'menu-types' && <AdminMenuTypePage />}
       {activeTab === 'feedback-types' && <AdminFeedbackTypesPage />}
-      {activeTab === 'notification-types' && <AdminNotificationPage />}
-      {activeTab === 'package-types' && <AdminPackagePage />}
+      {activeTab === 'member-types' && <AdminMemberTypePage />}
+      {activeTab === 'notification-types' && <AdminNotificationTypePage />}
+      {activeTab === 'package-types' && <AdminPackageTypePage />}
       {activeTab === 'room-types' && <AdminRoomsPage />}
-      {activeTab === 'member-types' && (
-        <div style={{ padding: 16 }}>
-          Chức năng loại thành viên đang được phát triển.
-        </div>
-      )}
     </div>
   );
 }
-

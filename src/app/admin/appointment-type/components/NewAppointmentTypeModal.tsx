@@ -22,7 +22,6 @@ type Props = {
 
 const INITIAL_FORM_DATA: CreateAppointmentTypeRequest = {
   name: '',
-  isActive: true,
 };
 
 type FormErrors = {
@@ -48,7 +47,6 @@ export function NewAppointmentTypeModal({ open, onOpenChange, onSuccess, appoint
       if (appointmentTypeToEdit) {
         setFormData({
           name: appointmentTypeToEdit.name,
-          isActive: appointmentTypeToEdit.isActive,
         });
       } else {
         setFormData(INITIAL_FORM_DATA);
@@ -90,7 +88,6 @@ export function NewAppointmentTypeModal({ open, onOpenChange, onSuccess, appoint
       if (isEditMode && appointmentTypeToEdit) {
         const updatePayload: UpdateAppointmentTypeRequest = {
           name: formData.name,
-          isActive: formData.isActive,
         };
         await appointmentTypeService.updateAppointmentType(appointmentTypeToEdit.id, updatePayload);
         toast({ title: 'Cập nhật loại lịch hẹn thành công', variant: 'success' });
@@ -147,18 +144,6 @@ export function NewAppointmentTypeModal({ open, onOpenChange, onSuccess, appoint
                 required
               />
               {errors.name && <p className={styles.errorMessage}>{errors.name}</p>}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={formData.isActive}
-                  onChange={(e) => handleFieldChange('isActive', e.target.checked)}
-                  className={styles.checkbox}
-                />
-                <span>Hoạt động</span>
-              </label>
             </div>
           </div>
           <div className={styles.modalFooter}>

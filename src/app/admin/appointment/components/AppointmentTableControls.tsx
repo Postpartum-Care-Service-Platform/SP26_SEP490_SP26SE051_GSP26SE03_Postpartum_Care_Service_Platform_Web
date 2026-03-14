@@ -1,7 +1,6 @@
 'use client';
 
 import { ChevronDownIcon, PlusIcon } from '@radix-ui/react-icons';
-import Link from 'next/link';
 import { useState } from 'react';
 
 import {
@@ -17,6 +16,7 @@ import type { AppointmentStatus } from './types';
 
 type Props = {
   onStatusChange?: (status: AppointmentStatus | 'all') => void;
+  onAddClick?: () => void;
 };
 
 const STATUS_OPTIONS: Array<{ value: AppointmentStatus | 'all'; label: string }> = [
@@ -27,7 +27,7 @@ const STATUS_OPTIONS: Array<{ value: AppointmentStatus | 'all'; label: string }>
   { value: 'Cancelled', label: 'Đã hủy' },
 ];
 
-export function AppointmentTableControls({ onStatusChange }: Props) {
+export function AppointmentTableControls({ onStatusChange, onAddClick }: Props) {
   const [selectedStatus, setSelectedStatus] = useState<AppointmentStatus | 'all'>('all');
 
   const handleStatusSelect = (value: AppointmentStatus | 'all') => {
@@ -62,10 +62,10 @@ export function AppointmentTableControls({ onStatusChange }: Props) {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link href="/admin/appointment/add" className={styles.addButton}>
+          <button type="button" onClick={onAddClick} className={styles.addButton}>
             <PlusIcon className={styles.plusIcon} />
             Thêm lịch hẹn
-          </Link>
+          </button>
         </div>
       </div>
     </div>

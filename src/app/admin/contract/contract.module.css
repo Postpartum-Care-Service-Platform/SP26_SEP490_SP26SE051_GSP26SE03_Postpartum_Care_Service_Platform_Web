@@ -42,7 +42,16 @@
 }
 
 .paginationWrapper {
-  margin-top: var(--spacing-md);
+  padding: 0 16px 16px;
+  background-color: #fff;
+}
+
+.paginationWrapper :global(.container) {
+  margin-top: 0;  
+}
+
+.paginationWrapper :global(.infoGroup) {
+  flex-wrap: nowrap;
 }
 
 .loading,
@@ -61,7 +70,6 @@
 @media (max-width: 1200px) {
   .columnsContainer {
     grid-template-columns: 1fr;
-    grid-template-rows: 1fr 1fr;
   }
 }
 
@@ -78,7 +86,5 @@
 
   .columnsContainer {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
   }
 }
-

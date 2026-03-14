@@ -214,7 +214,4 @@
   stroke: #ffffff !important;
 }
 
-.paginationWrapper {
-  margin-top: var(--spacing-md);
-  padding: 0 var(--spacing-md) var(--spacing-md);
-}
+

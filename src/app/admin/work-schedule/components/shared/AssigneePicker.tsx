@@ -4,8 +4,7 @@ import Image from 'next/image';
 import React from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
-import userService from '@/services/user.service';
-import type { Account } from '@/types/account';
+import { fetchStaffSchedules, type StaffSchedule } from '@/services/staffScheduleService';
 
 import styles from './assignee-picker.module.css';
 
@@ -16,7 +15,10 @@ export type Assignee = {
   initials?: string;
   color?: string;
   avatarUrl?: string | null;
-  type: 'unassigned' | 'automatic' | 'user';
+  type: 'user';
+  roleName?: string;
+  memberTypeName?: string;
+  isActive?: boolean;
 };
 
 type Props = {
@@ -27,10 +29,6 @@ type Props = {
   roleNameFilter?: string[];
 };
 
-const SPECIAL_ASSIGNEES: Assignee[] = [
-  { id: 'unassigned', name: 'Unassigned', type: 'unassigned' },
-  { id: 'automatic', name: 'Automatic', type: 'automatic' },
-];
 
 const COLOR_PALETTE = ['#DE350B', '#FF8B00', '#0C66E4', '#6554C0', '#00875A', '#0065FF'];
 
@@ -50,16 +48,19 @@ function getColorFromId(id: string) {
   return COLOR_PALETTE[idx] ?? '#6554C0';
 }
 
-function accountToAssignee(account: Account): Assignee {
-  const name = account.ownerProfile?.fullName?.trim() || account.username?.trim() || account.email;
+function staffToAssignee(staff: StaffSchedule): Assignee {
+  const name = staff.fullName?.trim() || staff.username?.trim() || staff.email;
   return {
-    id: account.id,
+    id: staff.id,
     name,
-    email: account.email,
+    email: staff.email,
     initials: getInitials(name),
-    color: getColorFromId(account.id),
-    avatarUrl: account.ownerProfile?.avatarUrl || account.avatarUrl || null,
+    color: getColorFromId(staff.id),
+    avatarUrl: staff.avatarUrl || null,
     type: 'user',
+    roleName: staff.roleName,
+    memberTypeName: staff.memberTypeName,
+    isActive: staff.isActive,
   };
 }
 
@@ -129,22 +130,22 @@ export function AssigneePicker({
     async function fetchUsers() {
       setIsLoading(true);
       try {
-        const accounts = await userService.getAllAccounts();
-        const activeAccounts = accounts.filter((a) => a.isActive);
+        const staffs = await fetchStaffSchedules();
+        const activeStaffs = staffs.filter((staff) => staff.isActive);
 
         const normalizedRoleFilter = roleNameFilter?.map((r) => r.trim().toLowerCase()).filter(Boolean);
-        const filteredAccounts = normalizedRoleFilter?.length
-          ? activeAccounts.filter((a) => normalizedRoleFilter.includes(a.roleName?.toLowerCase() ?? ''))
-          : activeAccounts;
+        const filteredStaffs = normalizedRoleFilter?.length
+          ? activeStaffs.filter((staff) => normalizedRoleFilter.includes(staff.roleName?.toLowerCase() ?? ''))
+          : activeStaffs;
 
-        const mapped = filteredAccounts.map(accountToAssignee);
+        const mapped = filteredStaffs.map(staffToAssignee);
         if (!mounted) return;
         setUsers(mapped);
       } catch (error) {
-        console.error('Failed to fetch accounts:', error);
+        console.error('Failed to fetch staff schedules:', error);
         const message =
           typeof error === 'object' && error && 'message' in error ? String((error as { message?: unknown }).message) : '';
-        toast({ title: message || 'Không thể tải danh sách khách hàng', variant: 'error' });
+        toast({ title: message || 'Không thể tải danh sách nhân viên', variant: 'error' });
         if (!mounted) return;
         setUsers([]);
       } finally {
@@ -161,23 +162,14 @@ export function AssigneePicker({
 
   const items = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    const base = hideSpecialOptions ? users : [...SPECIAL_ASSIGNEES, ...users];
+    const base = users;
     if (!q) return base;
 
-    return base.filter((a) => {
-      if (a.type === 'user') {
-        return `${a.name} ${a.email || ''}`.toLowerCase().includes(q);
-      }
-      return a.name.toLowerCase().includes(q);
-    });
+    return base.filter((a) => `${a.name} ${a.email || ''}`.toLowerCase().includes(q));
   }, [hideSpecialOptions, query, users]);
 
   function handleSelect(a: Assignee) {
-    if (a.type === 'unassigned') {
-      onChange(null);
-    } else {
-      onChange(a);
-    }
+    onChange(a);
     onClose();
   }
 
@@ -197,7 +189,7 @@ export function AssigneePicker({
             className={styles.searchInput}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={value?.name || 'Tìm người...'}
+            placeholder={value?.name || 'Tìm nhân viên...'}
           />
           {value && (
             <button
@@ -229,11 +221,7 @@ export function AssigneePicker({
                 role="button"
                 tabIndex={0}
               >
-                {a.type === 'unassigned' || a.type === 'automatic' ? (
-                  <UnassignedAvatar />
-                ) : (
-                  <UserAvatar initials={a.initials} color={a.color} />
-                )}
+                <UserAvatar initials={a.initials} color={a.color} avatarUrl={a.avatarUrl} />
 
                 <div className={styles.userInfo}>
                   <div className={styles.userName}>{a.name}</div>

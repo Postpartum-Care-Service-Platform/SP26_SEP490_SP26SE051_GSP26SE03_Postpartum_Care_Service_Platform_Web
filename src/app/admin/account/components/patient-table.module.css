@@ -10,7 +10,31 @@
 
 .tableScrollArea {
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
+  max-height: 70vh;
+  scrollbar-width: thin;
+  scrollbar-color: #fbb96a #f1f3f5;
+}
+
+/* Webkit scrollbar – dọc & ngang */
+.tableScrollArea::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.tableScrollArea::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 10px;
+}
+.tableScrollArea::-webkit-scrollbar-thumb {
+  background: #fbb96a;
+  border-radius: 10px;
+  border: 1px solid #f1f3f5;
+}
+.tableScrollArea::-webkit-scrollbar-thumb:hover {
+  background: #fa8314;
+}
+.tableScrollArea::-webkit-scrollbar-corner {
+  background: #f1f3f5;
 }
 
 
@@ -111,6 +135,16 @@
 .table td:nth-child(13) {
   width: 100px;
   min-width: 100px;
+  position: sticky;
+  right: 0;
+  z-index: 3;
+  background-color: #fff;
+  box-shadow: -8px 0 12px -10px rgba(0, 0, 0, 0.35);
+}
+
+.table thead th:nth-child(13) {
+  z-index: 4;
+  background-color: rgba(242, 242, 244, 0.98);
 }
 
 .table tbody tr {
@@ -338,6 +372,45 @@
   gap: 6px;
 }
 
+/* ── Tooltip cho nút thao tác ── */
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltipWrapper .tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 20;
+}
+
+.tooltipWrapper .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #343a40;
+}
+
+.tooltipWrapper:hover .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+
 .roleTrigger {
   display: inline-flex;
   align-items: center;
@@ -474,6 +547,28 @@
 
 .profilesTableScrollArea {
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #fbb96a #f1f3f5;
+}
+
+.profilesTableScrollArea::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.profilesTableScrollArea::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 10px;
+}
+.profilesTableScrollArea::-webkit-scrollbar-thumb {
+  background: #fbb96a;
+  border-radius: 10px;
+  border: 1px solid #f1f3f5;
+}
+.profilesTableScrollArea::-webkit-scrollbar-thumb:hover {
+  background: #fa8314;
+}
+.profilesTableScrollArea::-webkit-scrollbar-corner {
+  background: #f1f3f5;
 }
 
 .profilesTable {
@@ -592,4 +687,8 @@
   }
 }
 
-
+.paginationWrapper {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}

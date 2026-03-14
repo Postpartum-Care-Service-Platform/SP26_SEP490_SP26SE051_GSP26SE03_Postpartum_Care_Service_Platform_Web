@@ -1,11 +1,10 @@
 'use client';
 
-import { ChevronDownIcon, ChevronRightIcon } from '@radix-ui/react-icons';
-import { Eye, MessageCircle, Pencil, Trash2 } from 'lucide-react';
+import { ChevronDownIcon } from '@radix-ui/react-icons';
+import { Eye, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
-import type { FamilyProfile } from '@/types/family-profile';
 import type { Role } from '@/types/role';
 
 import { Button } from '@/components/ui/button';
@@ -17,12 +16,10 @@ import {
 } from '@/components/ui/dropdown';
 import { Pagination } from '@/components/ui/pagination';
 import { useToast } from '@/components/ui/toast/use-toast';
-import familyProfileService from '@/services/family-profile.service';
 import roleService from '@/services/role.service';
 import userService from '@/services/user.service';
 import { truncateText } from '@/utils/text';
 
-import { EditFamilyProfileModal } from './EditFamilyProfileModal';
 import styles from './patient-table.module.css';
 import type { Patient } from './patientTypes';
 
@@ -37,6 +34,8 @@ type Props = {
     pageSize: number;
     totalItems: number;
     onPageChange: (page: number) => void;
+    pageSizeOptions?: number[];
+    onPageSizeChange?: (size: number) => void;
   };
 };
 
@@ -143,45 +142,11 @@ const getProfileGenderLabel = (gender: string | null | undefined) => {
 };
 
 export function PatientTable({ patients, onViewProfile, onChat, onRoleUpdated, pagination }: Props) {
+  const showPagination = pagination && pagination.totalPages > 0;
   const { toast } = useToast();
-  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
-  const [profilesMap, setProfilesMap] = useState<Record<string, FamilyProfile[]>>({});
-  const [isLoadingAllProfiles, setIsLoadingAllProfiles] = useState(false);
   const [roles, setRoles] = useState<Role[]>([]);
   const [updatingRoleByAccountId, setUpdatingRoleByAccountId] = useState<Record<string, boolean>>({});
   const [updatingStatusByAccountId, setUpdatingStatusByAccountId] = useState<Record<string, boolean>>({});
-  const [editingProfile, setEditingProfile] = useState<FamilyProfile | null>(null);
-  const [editProfileOpen, setEditProfileOpen] = useState(false);
-
-  // Fetch all profiles once when component mounts
-  useEffect(() => {
-    const fetchAllProfiles = async () => {
-      setIsLoadingAllProfiles(true);
-      try {
-        const allProfiles = await familyProfileService.getAllFamilyProfiles();
-        // Group profiles by customerId
-        const groupedProfiles: Record<string, FamilyProfile[]> = {};
-        allProfiles.forEach((profile) => {
-          if (profile.customerId) {
-            if (!groupedProfiles[profile.customerId]) {
-              groupedProfiles[profile.customerId] = [];
-            }
-            groupedProfiles[profile.customerId].push(profile);
-          }
-        });
-        setProfilesMap(groupedProfiles);
-      } catch (_err) {
-        toast({
-          title: 'Lỗi tải danh sách profile',
-          variant: 'error',
-        });
-      } finally {
-        setIsLoadingAllProfiles(false);
-      }
-    };
-
-    fetchAllProfiles();
-  }, [toast]);
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -260,31 +225,13 @@ export function PatientTable({ patients, onViewProfile, onChat, onRoleUpdated, p
     }
   };
 
-  const handleRowClick = (patient: Patient, e: React.MouseEvent) => {
-    // Prevent expanding when clicking on interactive cells/actions
-    if ((e.target as HTMLElement).closest('[data-stop-row-click="true"]')) {
-      return;
-    }
-
-    const isExpanded = expandedRows.has(patient.id);
-
-    if (isExpanded) {
-      // Nếu đang mở thì đóng lại
-      setExpandedRows(new Set());
-    } else {
-      // Chỉ cho phép 1 hàng mở tại một thời điểm (accordion)
-      setExpandedRows(new Set([patient.id]));
-    }
-  };
-
   return (
     <div className={styles.tableWrapper}>
       <div className={styles.tableScrollArea}>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th></th>
-              <th>ID</th>
+              <th title="Số thứ tự">STT</th>
               <th>Tên tài khoản</th>
               <th>Tên đăng nhập</th>
               <th>Email</th>
@@ -299,39 +246,14 @@ export function PatientTable({ patients, onViewProfile, onChat, onRoleUpdated, p
             </tr>
           </thead>
           <tbody>
-            {patients.map((patient) => {
-              const isExpanded = expandedRows.has(patient.id);
-              const allProfiles = profilesMap[patient.accountId] || [];
-              // Chỉ hiển thị các profile bổ sung (không phải chủ tài khoản đã hiển thị ở hàng account)
-              const profiles = allProfiles.filter((profile) => !profile.isOwner);
+            {patients.map((patient, patientIndex) => {
+              const patientStt = pagination
+                ? (pagination.currentPage - 1) * pagination.pageSize + patientIndex + 1
+                : patientIndex + 1;
 
               return (
-                <>
-                  <tr
-                    key={patient.id}
-                    className={styles.expandableRow}
-                    onClick={(e) => handleRowClick(patient, e)}
-                  >
-                    <td>
-                      <div className={styles.expandIcon}>
-                        {isExpanded ? (
-                          <ChevronDownIcon width={16} height={16} />
-                        ) : (
-                          <ChevronRightIcon width={16} height={16} />
-                        )}
-                      </div>
-                    </td>
-                    <td
-                      title={patient.id}
-                      className={`${styles.truncateCell} ${styles.copyableId}`}
-                      data-stop-row-click="true"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopyId(patient.id);
-                      }}
-                    >
-                      {truncateText(patient.id, 20)}
-                    </td>
+                <tr key={patient.id}>
+                  <td>{patientStt}</td>
                     <td>
                       <div className={styles.patientName}>
                         {patient.avatar ? (
@@ -422,159 +344,39 @@ export function PatientTable({ patients, onViewProfile, onChat, onRoleUpdated, p
                     </td>
                     <td>
                       <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={styles.editButton}
-                          onClick={() => onViewProfile?.(patient)}
-                          aria-label={`Xem hồ sơ ${patient.name}`}
-                        >
-                          <Eye size={16} color="#3B82F6" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={styles.deleteButton}
-                          onClick={() => onChat?.(patient)}
-                          aria-label={`Chat với ${patient.name}`}
-                        >
-                          <MessageCircle size={16} color="#10B981" />
-                        </Button>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={styles.editButton}
+                            onClick={() => onViewProfile?.(patient)}
+                            aria-label={`Xem hồ sơ ${patient.name}`}
+                          >
+                            <Eye size={16} color="#3B82F6" />
+                          </Button>
+                          <span className={styles.tooltip}>Xem hồ sơ</span>
+                        </div>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={styles.deleteButton}
+                            onClick={() => onChat?.(patient)}
+                            aria-label={`Chat với ${patient.name}`}
+                          >
+                            <MessageCircle size={16} color="#10B981" />
+                          </Button>
+                          <span className={styles.tooltip}>Chat</span>
+                        </div>
                       </div>
                     </td>
                   </tr>
-                  {isExpanded && (
-                    <tr className={styles.expandedRow}>
-                      <td colSpan={13}>
-                        <div className={styles.profilesContainer}>
-                          <h4 className={styles.profilesTitle}>
-                            Danh sách người giám hộ bổ sung ({profiles.length})
-                          </h4>
-                          {isLoadingAllProfiles ? (
-                            <div className={styles.loading}>Đang tải...</div>
-                          ) : profiles.length === 0 ? (
-                            <div className={styles.noProfiles}>Chưa có người giám hộ bổ sung nào</div>
-                          ) : (
-                            <div className={styles.profilesTableScrollArea}>
-                              <table className={styles.profilesTable}>
-                                <thead>
-                                  <tr>
-                                    <th>ID</th>
-                                    <th>ID khách hàng</th>
-                                    <th>Họ và tên</th>
-                                    <th>Vai trò thành viên</th>
-                                    <th>Ngày sinh</th>
-                                    <th>Giới tính</th>
-                                    <th>Số điện thoại</th>
-                                    <th>Địa chỉ</th>
-                                    <th>Chủ tài khoản</th>
-                                    <th>Trạng thái</th>
-                                    <th>Thao tác</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                  {profiles.map((profile) => (
-                                    <tr key={profile.id}>
-                                      <td
-                                        title={String(profile.id)}
-                                        className={`${styles.truncateCell} ${styles.copyableId}`}
-                                        data-stop-row-click="true"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleCopyId(String(profile.id));
-                                        }}
-                                      >
-                                        {truncateText(String(profile.id), 20)}
-                                      </td>
-                                      <td
-                                        title={profile.customerId}
-                                        className={`${styles.truncateCell} ${styles.copyableId}`}
-                                        data-stop-row-click="true"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleCopyId(profile.customerId);
-                                        }}
-                                      >
-                                        {truncateText(profile.customerId, 20)}
-                                      </td>
-                                      <td>
-                                        <div className={styles.profileNameCell}>
-                                          <div className={styles.profileAvatar}>
-                                            {profile.avatarUrl ? (
-                                              <Image src={profile.avatarUrl} alt={profile.fullName} width={32} height={32} />
-                                            ) : (
-                                              <span>{getProfileValue(profile.fullName).charAt(0)}</span>
-                                            )}
-                                          </div>
-                                          <span className={styles.profileNameText}>{getProfileValue(profile.fullName)}</span>
-                                        </div>
-                                      </td>
-                                      <td>{getProfileValue(profile.memberTypeName)}</td>
-                                      <td>{getProfileValue(profile.dateOfBirth)}</td>
-                                      <td>{getProfileGenderLabel(profile.gender)}</td>
-                                      <td>{getProfileValue(profile.phoneNumber)}</td>
-                                      <td title={getProfileValue(profile.address)} className={styles.truncateCell}>
-                                        {truncateText(getProfileValue(profile.address), 40)}
-                                      </td>
-                                      <td>{profile.isOwner ? 'Có' : 'Không'}</td>
-                                      <td>{profile.isDeleted ? 'Đã xóa' : 'Đang hoạt động'}</td>
-                                      <td>
-                                        <div className={styles.profileActions}>
-                                          <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            className={styles.editButton}
-                                            aria-label={`Xem profile ${profile.fullName}`}
-                                          >
-                                            <Eye size={16} color="#3B82F6" />
-                                          </Button>
-                                          <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            className={styles.editButton}
-                                            aria-label={`Sửa profile ${profile.fullName}`}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              setEditingProfile(profile);
-                                              setEditProfileOpen(true);
-                                            }}
-                                          >
-                                            <Pencil size={16} color="#f59e0b" />
-                                          </Button>
-                                          <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            className={styles.deleteButton}
-                                            aria-label={`Xóa profile ${profile.fullName}`}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              handleDeleteProfile(profile);
-                                            }}
-                                          >
-                                            <Trash2 size={16} color="#ef4444" />
-                                          </Button>
-                                        </div>
-                                      </td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </>
               );
             })}
           </tbody>
         </table>
       </div>
-      {pagination && pagination.totalPages > 0 && (
+      {showPagination && (
         <div className={styles.paginationWrapper}>
           <Pagination
             currentPage={pagination.currentPage}
@@ -582,30 +384,13 @@ export function PatientTable({ patients, onViewProfile, onChat, onRoleUpdated, p
             pageSize={pagination.pageSize}
             totalItems={pagination.totalItems}
             onPageChange={pagination.onPageChange}
+            pageSizeOptions={pagination.pageSizeOptions}
+            onPageSizeChange={pagination.onPageSizeChange}
             showResultCount={true}
           />
         </div>
       )}
-      {editingProfile && (
-        <EditFamilyProfileModal
-          open={editProfileOpen}
-          onOpenChange={(open) => {
-            setEditProfileOpen(open);
-            if (!open) setEditingProfile(null);
-          }}
-          profile={editingProfile}
-          onSuccess={(updated) => {
-            setProfilesMap((prev) => {
-              const next = { ...prev };
-              const key = updated.customerId;
-              if (next[key]) {
-                next[key] = next[key].map((p) => (p.id === updated.id ? updated : p));
-              }
-              return next;
-            });
-          }}
-        />
-      )}
+
     </div>
   );
 }

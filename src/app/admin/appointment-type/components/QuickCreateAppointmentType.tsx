@@ -10,16 +10,22 @@ import styles from '../../work-schedule/components/list/work-schedule-list.modul
 
 type Props = {
   onCreated?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  hideTrigger?: boolean;
 };
 
-export function QuickCreateAppointmentType({ onCreated }: Props) {
-  const [isOpen, setIsOpen] = React.useState(false);
+export function QuickCreateAppointmentType({ onCreated, open, onOpenChange, hideTrigger = false }: Props) {
+  const [internalOpen, setInternalOpen] = React.useState(false);
   const [name, setName] = React.useState('');
-  const [isActive, setIsActive] = React.useState(true);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isNameActive, setIsNameActive] = React.useState(false);
   const footerRef = React.useRef<HTMLDivElement | null>(null);
   const { toast } = useToast();
+
+  const isControlled = typeof open === 'boolean' && typeof onOpenChange === 'function';
+  const isOpen = isControlled ? (open as boolean) : internalOpen;
+  const setIsOpen = isControlled ? (onOpenChange as (open: boolean) => void) : setInternalOpen;
 
   const canSubmit = name.trim() && !isSubmitting;
 
@@ -28,14 +34,13 @@ export function QuickCreateAppointmentType({ onCreated }: Props) {
 
     const payload: CreateAppointmentTypeRequest = {
       name: name.trim(),
-      isActive,
+      isActive: true,
     };
 
     try {
       setIsSubmitting(true);
       await appointmentTypeService.createAppointmentType(payload);
       setName('');
-      setIsActive(true);
       setIsOpen(false);
       onCreated?.();
       toast({ title: 'Tạo loại lịch hẹn thành công', variant: 'success' });
@@ -64,6 +69,10 @@ export function QuickCreateAppointmentType({ onCreated }: Props) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen]);
+
+  if (!isOpen && hideTrigger) {
+    return null;
+  }
 
   if (!isOpen) {
     return (
@@ -106,6 +115,23 @@ export function QuickCreateAppointmentType({ onCreated }: Props) {
     >
       <div className={styles.createTaskInner}>
         <div className={styles.nameFieldWrapper}>
+          <span className={styles.nameFieldIcon} aria-hidden="true">
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 3L4 9V21H10V15H14V21H20V9L12 3Z"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
           <input
             type="text"
             placeholder="Tên loại lịch hẹn"
@@ -120,56 +146,12 @@ export function QuickCreateAppointmentType({ onCreated }: Props) {
                 void handleSubmit();
               }
             }}
+            style={{ paddingLeft: 24 }}
           />
           <div className={isNameActive ? styles.nameFieldLineActive : styles.nameFieldLine} />
         </div>
 
         <div className={styles.createActions}>
-          <button
-            type="button"
-            className={styles.createActionBtn}
-            aria-label={isActive ? 'Đang bật' : 'Đang tắt'}
-            onClick={() => setIsActive((v) => !v)}
-            style={{
-              border: 'none',
-              background: 'transparent',
-              padding: 0,
-              cursor: 'pointer',
-              width: 'auto',
-              height: 'auto',
-              display: 'inline-flex',
-              alignItems: 'center',
-            }}
-          >
-            <span
-              style={{
-                position: 'relative',
-                width: 42,
-                height: 24,
-                borderRadius: 999,
-                backgroundColor: isActive ? '#FA5246' : '#E5E7EB',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'flex-start',
-                padding: 2,
-                boxSizing: 'border-box',
-                transition: 'background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-              }}
-            >
-              <span
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: '50%',
-                  backgroundColor: '#FFFFFF',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.25)',
-                  transform: isActive ? 'translateX(18px)' : 'translateX(0)',
-                  transition: 'transform 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                }}
-              />
-            </span>
-          </button>
-
           <div className={styles.submitBtnGroup}>
             <button
               type="button"

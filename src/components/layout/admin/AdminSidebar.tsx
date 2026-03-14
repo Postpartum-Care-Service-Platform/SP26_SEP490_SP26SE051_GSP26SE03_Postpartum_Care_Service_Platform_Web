@@ -4,7 +4,7 @@ import { Plus, Minus, Menu } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React from 'react';
+import React, { useState } from 'react';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-32x32.png';
 import { adminNav, type AdminNavItem } from '@/configs/adminNav';
@@ -18,7 +18,8 @@ type Props = {
 
 export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
   const pathname = usePathname();
-  const [openKeys, setOpenKeys] = React.useState<Record<string, boolean>>({ dashboard: true });
+  const [openKeys, setOpenKeys] = useState<Record<string, boolean>>({ dashboard: true });
+  const [tooltipPos, setTooltipPos] = useState<{ top: number; label: string } | null>(null);
 
   // Auto-expand groups that have active children
   React.useEffect(() => {
@@ -56,6 +57,20 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
     return false;
   };
 
+  const handleMouseEnter = (e: React.MouseEvent<HTMLElement>, label: string) => {
+    if (collapsed) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setTooltipPos({
+        top: rect.top + rect.height / 2,
+        label: label,
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setTooltipPos(null);
+  };
+
   return (
     <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
       <div className={styles.sidebarTop}>
@@ -91,6 +106,8 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
                         type="button"
                         className={`${styles.item} ${isActive ? styles.itemActive : ''} ${styles.itemWithChildren}`}
                         onClick={() => toggleGroup(item.key)}
+                        onMouseEnter={(e) => handleMouseEnter(e, item.label)}
+                        onMouseLeave={handleMouseLeave}
                         title={collapsed ? item.label : undefined}
                       >
                         {Icon ? <Icon className={styles.itemIcon} size={18} /> : null}
@@ -105,6 +122,8 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
                       <Link
                         href={item.href}
                         className={`${styles.item} ${isActive ? styles.itemActive : ''}`}
+                        onMouseEnter={(e) => handleMouseEnter(e, item.label)}
+                        onMouseLeave={handleMouseLeave}
                         title={collapsed ? item.label : undefined}
                       >
                         {Icon ? <Icon className={styles.itemIcon} size={18} /> : null}
@@ -136,6 +155,16 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
           </div>
         ))}
       </nav>
+
+      {/* Custom Tooltip */}
+      {collapsed && tooltipPos && (
+        <div
+          className={styles.customTooltip}
+          style={{ top: tooltipPos.top }}
+        >
+          <span>{tooltipPos.label}</span>
+        </div>
+      )}
     </aside>
   );
 }

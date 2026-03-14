@@ -26,6 +26,12 @@ export interface Room {
   updatedAt: string;
 }
 
+export interface CreateRoomRequest {
+  roomTypeId: number;
+  name: string;
+  floor: number;
+}
+
 export interface UpdateRoomRequest {
   roomTypeId: number;
   name: string;

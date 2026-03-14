@@ -3,14 +3,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import userService from '@/services/user.service';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { Pagination } from '@/components/ui/pagination';
 
-import { PatientListHeader, PatientStatsCards, PatientTableControls, PatientTable, NewAccountModal } from './components';
+import { PatientListHeader, PatientTableControls, PatientTable, NewAccountModal } from './components';
 import { mapAccountToPatient } from './components/patientUtils';
 
 import type { Patient } from './components/patientTypes';
-import type { PatientStats } from './components/types';
 
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 
 export default function AdminPatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -21,6 +23,7 @@ export default function AdminPatientsPage() {
   const [roleFilter, setRoleFilter] = useState<number | null>(null);
   const [sortKey, setSortKey] = useState<string>('date-newest');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [isNewAccountOpen, setIsNewAccountOpen] = useState(false);
 
   const fetchPatients = useCallback(async () => {
@@ -41,23 +44,6 @@ export default function AdminPatientsPage() {
   useEffect(() => {
     fetchPatients();
   }, [fetchPatients]);
-
-  const stats: PatientStats = useMemo(() => {
-    const total = patients.length;
-    const stable = patients.filter((p) => p.status === 'Stable').length;
-    const observation = patients.filter((p) => p.status === 'Under Observation').length;
-    const recovering = patients.filter((p) => p.status === 'Recovering').length;
-    const critical = patients.filter((p) => p.status === 'Critical').length;
-
-    return {
-      total,
-      admitted: stable + observation,
-      discharged: recovering,
-      pending: observation,
-      critical,
-      appointmentsToday: 0,
-    };
-  }, [patients]);
 
   const filteredPatients = useMemo(() => {
     let filtered = [...patients];
@@ -111,12 +97,12 @@ export default function AdminPatientsPage() {
   }, [patients, searchQuery, statusFilter, roleFilter, sortKey]);
 
   const paginatedPatients = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
     return filteredPatients.slice(start, end);
-  }, [filteredPatients, currentPage]);
+  }, [filteredPatients, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredPatients.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredPatients.length / pageSize);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -137,6 +123,11 @@ export default function AdminPatientsPage() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
   };
 
   const handleViewProfile = (patient: Patient) => {
@@ -178,39 +169,43 @@ export default function AdminPatientsPage() {
     );
   }
 
+  const paginationConfig = totalPages > 0
+    ? {
+        currentPage,
+        totalPages,
+        pageSize,
+        totalItems: filteredPatients.length,
+        onPageChange: handlePageChange,
+        pageSizeOptions: [...PAGE_SIZE_OPTIONS],
+        onPageSizeChange: handlePageSizeChange,
+      }
+    : undefined;
+
   return (
-    <div>
-      <PatientListHeader />
-      <PatientStatsCards stats={stats} />
-      <PatientTableControls
-        onSearch={handleSearch}
-        onSortChange={handleSortChange}
-        onStatusChange={handleStatusChange}
-        onRoleChange={handleRoleChange}
-        onNewPatient={handleNewPatient}
-      />
+    <AdminPageLayout
+      header={<PatientListHeader />}
+      controlPanel={
+        <PatientTableControls
+          onSearch={handleSearch}
+          onSortChange={handleSortChange}
+          onStatusChange={handleStatusChange}
+          onRoleChange={handleRoleChange}
+          onNewPatient={handleNewPatient}
+        />
+      }
+    >
       <PatientTable
         patients={paginatedPatients}
         onViewProfile={handleViewProfile}
         onChat={handleChat}
         onRoleUpdated={fetchPatients}
-        pagination={
-          totalPages > 0
-            ? {
-                currentPage,
-                totalPages,
-                pageSize: PAGE_SIZE,
-                totalItems: filteredPatients.length,
-                onPageChange: handlePageChange,
-              }
-            : undefined
-        }
+        pagination={paginationConfig}
       />
       <NewAccountModal
         open={isNewAccountOpen}
         onOpenChange={setIsNewAccountOpen}
         onSuccess={fetchPatients}
       />
-    </div>
+    </AdminPageLayout>
   );
 }

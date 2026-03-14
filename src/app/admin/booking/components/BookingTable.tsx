@@ -1,5 +1,6 @@
 'use client';
 
+import { Eye } from 'lucide-react';
 import { Pagination } from '@/components/ui/pagination';
 import type { AdminBooking } from '@/types/admin-booking';
 
@@ -13,7 +14,10 @@ type Props = {
     pageSize: number;
     totalItems: number;
     onPageChange: (page: number) => void;
+    pageSizeOptions?: number[];
+    onPageSizeChange?: (size: number) => void;
   };
+  onViewBooking?: (booking: AdminBooking) => void;
 };
 
 const formatDate = (dateString: string) => {
@@ -58,6 +62,23 @@ const getStatusLabel = (status: string) => {
       return 'Đã hủy';
     case 'pending':
       return 'Đang chờ';
+    case 'completed':
+      return 'Hoàn thành';
+    case 'in_progress':
+    case 'inprogress':
+      return 'Đang thực hiện';
+    case 'checked_in':
+    case 'checkedin':
+      return 'Đã nhận phòng';
+    case 'checked_out':
+    case 'checkedout':
+      return 'Đã trả phòng';
+    case 'no_show':
+    case 'noshow':
+      return 'Không đến';
+    case 'schedulecompleted':
+    case 'schedule_completed':
+      return 'Hoàn thành lịch trình';
     default:
       return status || 'Không rõ';
   }
@@ -68,15 +89,24 @@ const getContractStatusLabel = (status: string | null | undefined) => {
   const normalized = status.trim().toLowerCase();
   switch (normalized) {
     case 'draft':
-      return 'Bản nháp';
+      return 'Bản nháp hợp đồng';
     case 'sent':
-      return 'Đã gửi';
+      return 'Đã gửi hợp đồng';
     case 'signed':
-      return 'Đã ký';
+      return 'Đã ký hợp đồng';
     case 'cancelled':
-      return 'Đã hủy';
+      return 'Đã hủy hợp đồng';
     case 'expired':
-      return 'Hết hạn';
+      return 'Hết hạn hợp đồng';
+    case 'pending':
+      return 'Chờ ký hợp đồng';
+    case 'active':
+      return 'Hợp đồng còn hiệu lực';
+    case 'terminated':
+      return 'Chấm dứt hợp đồng';
+    case 'schedulecompleted':
+    case 'schedule_completed':
+      return 'Hoàn thành lịch trình';
     default:
       return status;
   }
@@ -91,6 +121,10 @@ const getTransactionTypeLabel = (type: string) => {
       return 'Thanh toán';
     case 'refund':
       return 'Hoàn tiền';
+    case 'full':
+      return 'Thanh toán toàn bộ';
+    case 'remaining':
+      return 'Thanh toán phần còn lại';
     default:
       return type;
   }
@@ -115,14 +149,20 @@ const getTransactionStatusLabel = (status: string) => {
   }
 };
 
-export function BookingTable({ bookings, pagination }: Props) {
+const truncateText = (text: string, maxLength: number) => {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '...';
+};
+
+export function BookingTable({ bookings, pagination, onViewBooking }: Props) {
   return (
     <div className={styles.tableWrapper}>
       <div className={styles.tableScroll}>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>ID</th>
+              <th title="Số thứ tự">STT</th>
               <th>Khách hàng</th>
               <th>Số điện thoại</th>
               <th>Gói dịch vụ</th>
@@ -137,21 +177,27 @@ export function BookingTable({ bookings, pagination }: Props) {
               <th>Còn lại</th>
               <th>Trạng thái booking</th>
               <th>Mã hợp đồng</th>
-              <th>Trạng thái HĐ</th>
+              <th>Trạng thái hợp đồng</th>
               <th>Giao dịch gần nhất</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {bookings.length === 0 ? (
               <tr>
-                <td colSpan={16} className={styles.emptyState}>
+                <td colSpan={18} className={styles.emptyState}>
                   Chưa có booking nào
                 </td>
               </tr>
             ) : (
-              bookings.map((booking) => (
+              bookings.map((booking, index) => {
+                const bookingStt = pagination
+                  ? (pagination.currentPage - 1) * pagination.pageSize + index + 1
+                  : index + 1;
+
+                return (
                 <tr key={booking.id}>
-                  <td className={styles['cell-nowrap']}>{booking.id}</td>
+                  <td className={styles['cell-nowrap']}>{bookingStt}</td>
                   <td>
                   <div className={styles.customerInfo}>
                     <span className={styles.customerName}>{booking.customer.username}</span>
@@ -159,9 +205,9 @@ export function BookingTable({ bookings, pagination }: Props) {
                   </div>
                   </td>
                   <td className={styles['cell-nowrap']}>{booking.customer.phone}</td>
-                  <td className={styles['cell-nowrap']}>
+                  <td className={styles['cell-nowrap']} title={booking.package ? `${booking.package.packageName} (${booking.package.durationDays} ngày)` : '-'}>
                   {booking.package
-                    ? `${booking.package.packageName} (${booking.package.durationDays} ngày)`
+                    ? truncateText(`${booking.package.packageName} (${booking.package.durationDays} ngày)`, 25)
                     : '-'}
                   </td>
                   <td className={styles['cell-nowrap']}>
@@ -202,7 +248,7 @@ export function BookingTable({ bookings, pagination }: Props) {
                           )[0]
                         : undefined;
                     return (
-                      <td>
+                      <td className={styles['cell-transaction']}>
                         {lastTx
                           ? `${formatCurrency(lastTx.amount)} - ${getTransactionTypeLabel(
                               lastTx.type,
@@ -211,8 +257,24 @@ export function BookingTable({ bookings, pagination }: Props) {
                       </td>
                     );
                   })()}
+                  <td>
+                    <div className={styles.actions}>
+                      <div className={styles.tooltipWrapper}>
+                        <button
+                          type="button"
+                          className={styles.actionButton}
+                          onClick={() => onViewBooking?.(booking)}
+                          aria-label={`Xem chi tiết booking ${booking.id}`}
+                        >
+                          <Eye size={18} color="#3B82F6" />
+                        </button>
+                        <span className={styles.tooltip}>Xem chi tiết</span>
+                      </div>
+                    </div>
+                  </td>
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>
@@ -226,6 +288,8 @@ export function BookingTable({ bookings, pagination }: Props) {
             pageSize={pagination.pageSize}
             totalItems={pagination.totalItems}
             onPageChange={pagination.onPageChange}
+            pageSizeOptions={pagination.pageSizeOptions}
+            onPageSizeChange={pagination.onPageSizeChange}
             showResultCount={true}
           />
         </div>

@@ -10,30 +10,95 @@
 
 .headerRow {
   display: grid;
-  grid-template-columns: repeat(5, 1fr); /* Mon - Fri */
+  grid-template-columns: 50px repeat(7, 1fr); /* Time column + 7 days */
   height: 48px;
   border-bottom: 1px solid rgba(9, 30, 66, 0.14);
-  background: #f4f5f7;
+  background: #fff;
 }
 
 .headerCell {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   font-weight: 600;
   color: #42526e;
   border-right: 1px solid rgba(9, 30, 66, 0.14);
+  padding: 4px 0;
 }
 
 .headerCell:last-child {
   border-right: none;
 }
 
+.dayName {
+  font-size: 11px;
+  font-weight: 400;
+  color: #6b778c;
+}
+
+.dayNumber {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.todayHeader {
+  background: rgba(255, 165, 0, 0.1);
+}
+
+.todayNumber {
+  background: #ff6600;
+  color: white;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  min-height: 600px; /* Chiều cao tối thiểu cho view tuần */
+  grid-template-columns: 50px repeat(7, 1fr); /* Time column + 7 days */
+  min-height: 1152px; /* 12 hours * 96px */
+}
+
+.timeColumn {
+  border-right: 1px solid rgba(9, 30, 66, 0.14);
+  background: #fff;
+}
+
+.timeSlot {
+  height: 48px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-right: 8px;
+  padding-top: 2px;
+  font-size: 11px;
+  color: #6b778c;
+  box-sizing: border-box;
+  border-bottom: 1px dashed rgba(9, 30, 66, 0.12);
+}
+
+.timeSlotDouble {
+  height: 96px;
+  border-bottom: 1px solid rgba(9, 30, 66, 0.12);
+  position: relative;
+}
+
+.timeSlotDouble::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 48px;
+  border-bottom: 1px dashed rgba(9, 30, 66, 0.08);
+}
+
+.timeSlot:last-child {
+  border-bottom: none;
 }
 
 .dayColumn {
@@ -41,12 +106,6 @@
   position: relative;
   background: #fff;
   transition: background-color 100ms ease;
-  cursor: pointer;
-  outline: none;
-}
-
-.dayColumn:focus-visible {
-  box-shadow: inset 0 0 0 2px #0052cc;
 }
 
 .dayColumn:last-child {
@@ -58,5 +117,181 @@
 }
 
 .today {
-  background: rgba(9, 30, 66, 0.04);
+  background: rgba(0, 82, 204, 0.04);
+}
+
+.hourSlot {
+  height: 48px;
+  border-bottom: 1px dashed rgba(9, 30, 66, 0.12);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.hourSlotTop {
+  flex: 1;
+  border-bottom: 1px dashed rgba(9, 30, 66, 0.08);
+}
+
+.hourSlotBottom {
+  flex: 1;
+}
+
+.hourSlotDouble {
+  height: 96px;
+  border-bottom: 1px solid rgba(9, 30, 66, 0.12);
+  display: flex;
+  flex-direction: column;
+}
+
+.hourSlotDouble .hourSlotTop {
+  flex: 1;
+  border-bottom: 1px dashed rgba(9, 30, 66, 0.08);
+}
+
+.hourSlotDouble .hourSlotBottom {
+  flex: 1;
+}
+
+.hourSlot:last-child {
+  border-bottom: none;
+}
+
+.currentTimeLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #FF6B00 !important;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.currentTimeLine::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  background: #FF6B00 !important;
+  border-radius: 50%;
+}
+
+.currentTimeDot {
+  position: absolute;
+  left: 46px;
+  width: 8px;
+  height: 8px;
+  background: #FF6B00 !important;
+  border-radius: 50%;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.pastTimeLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(9, 30, 66, 0.2);
+  border-bottom: 1px dashed rgba(9, 30, 66, 0.2);
+  z-index: 50;
+  pointer-events: none;
+}
+
+.eventChip {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  overflow: hidden;
+  border-left: 3px solid;
+  border-left-color: rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  min-height: 24px;
+}
+
+.eventChip:hover {
+  opacity: 0.9;
+}
+
+.eventTime {
+  display: block;
+  font-weight: 600;
+  color: #172b4d;
+  font-size: 10px;
+}
+
+.eventTitle {
+  display: block;
+  color: #172b4d;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventCustomer {
+  display: block;
+  color: #5e6c84;
+  font-size: 10px;
+}
+
+.tooltipContent {
+  background: #172b4d;
+  color: #fff;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.tooltipTitle {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.tooltipCode {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-bottom: 2px;
+}
+
+.tooltipTime {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.tooltipArrow {
+  fill: #172b4d;
+}
+
+.quickCreatePopover {
+  background: #fff;
+  border: 1px solid rgba(9, 30, 66, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(9, 30, 66, 0.2);
+  width: 260px;
+  z-index: 1200;
+}
+
+.quickCreateInput {
+  width: 100%;
+  min-height: 60px;
+  border: 1px solid rgba(9, 30, 66, 0.2);
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 12px;
+  resize: vertical;
+  outline: none;
+}
+
+.quickCreateInput:focus {
+  border-color: #0052cc;
+  box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.15);
 }

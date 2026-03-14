@@ -46,6 +46,8 @@ type Props = {
     pageSize: number;
     totalItems: number;
     onPageChange: (page: number) => void;
+    pageSizeOptions?: number[];
+    onPageSizeChange?: (size: number) => void;
   };
 };
 
@@ -194,6 +196,8 @@ export function NotificationTable({
             pageSize={pagination.pageSize}
             totalItems={pagination.totalItems}
             onPageChange={pagination.onPageChange}
+            pageSizeOptions={pagination.pageSizeOptions}
+            onPageSizeChange={pagination.onPageSizeChange}
             showResultCount={true}
           />
         </div>

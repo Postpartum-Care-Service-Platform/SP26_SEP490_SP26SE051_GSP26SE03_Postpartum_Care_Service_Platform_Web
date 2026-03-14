@@ -28,7 +28,6 @@
 
 .table tbody tr {
   background-color: #fff !important;
-  border-bottom: 1px solid var(--color-border-default);
   transition: background-color 0.2s ease;
 }
 
@@ -47,22 +46,100 @@
   font-weight: 500;
 }
 
-.statusBadge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
+.inlineNameInput {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 4px 6px;
   font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background-color: transparent;
 }
 
-.statusActive {
-  background-color: rgba(21, 128, 61, 0.1);
+.inlineNameInput:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+  background-color: #f8f9fa;
+}
+
+/* Dropdown-style status pill (2 trạng thái: Hoạt động / Tạm dừng) */
+.statusTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #172b4d;
+}
+
+.statusTriggerActive {
+  background-color: rgba(21, 128, 61, 0.18);
   color: #15803d;
 }
 
-.statusInactive {
-  background-color: rgba(185, 28, 28, 0.1);
+.statusTriggerInactive {
+  background-color: rgba(185, 28, 28, 0.16);
+  color: #b91c1c;
+}
+
+.statusTrigger:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.statusCaret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.85;
+}
+
+.statusMenu {
+  min-width: 180px;
+  padding: 6px 0;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.statusItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #172b4d;
+  cursor: pointer;
+}
+
+.statusItem:hover {
+  background: rgba(9, 30, 66, 0.06);
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.statusPillActive {
+  background-color: rgba(21, 128, 61, 0.12);
+  color: #15803d;
+}
+
+.statusPillInactive {
+  background-color: rgba(185, 28, 28, 0.12);
   color: #b91c1c;
 }
 
@@ -121,10 +198,7 @@
   font-family: var(--font-body);
 }
 
-.paginationWrapper {
-  margin-top: var(--spacing-md);
-  width: 100%;
-}
+
 
 .paginationWrapper :global(.container) {
   width: 100%;

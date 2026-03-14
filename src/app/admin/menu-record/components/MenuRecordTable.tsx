@@ -42,6 +42,8 @@ type Props = {
     pageSize: number;
     totalItems: number;
     onPageChange: (page: number) => void;
+    pageSizeOptions?: number[];
+    onPageSizeChange?: (size: number) => void;
   };
 };
 
@@ -103,27 +105,33 @@ export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, pag
                 <td>
                   <div className={styles.actions}>
                     {onEdit && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.editButton} btn-icon btn-sm`}
-                        onClick={() => onEdit(menuRecord)}
-                        aria-label={`Chỉnh sửa ${menuRecord.name}`}
-                      >
-                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                      </Button>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={`${styles.editButton} btn-icon btn-sm`}
+                          onClick={() => onEdit(menuRecord)}
+                          aria-label={`Chỉnh sửa ${menuRecord.name}`}
+                        >
+                          <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Chỉnh sửa</span>
+                      </div>
                     )}
                     {onDelete && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.deleteButton} btn-icon btn-sm`}
-                        onClick={() => onDelete(menuRecord)}
-                        disabled={deletingId === menuRecord.id}
-                        aria-label={`Xóa ${menuRecord.name}`}
-                      >
-                        <Trash2OutlineIcon fill="#FD6161" size={16} />
-                      </Button>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={`${styles.deleteButton} btn-icon btn-sm`}
+                          onClick={() => onDelete(menuRecord)}
+                          disabled={deletingId === menuRecord.id}
+                          aria-label={`Xóa ${menuRecord.name}`}
+                        >
+                          <Trash2OutlineIcon fill="#FD6161" size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Xóa</span>
+                      </div>
                     )}
                   </div>
                 </td>
@@ -141,6 +149,8 @@ export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, pag
             pageSize={pagination.pageSize}
             totalItems={pagination.totalItems}
             onPageChange={pagination.onPageChange}
+            pageSizeOptions={pagination.pageSizeOptions}
+            onPageSizeChange={pagination.onPageSizeChange}
             showResultCount={true}
           />
         </div>

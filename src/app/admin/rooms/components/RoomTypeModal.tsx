@@ -1,17 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Cross1Icon } from '@radix-ui/react-icons';
 
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { TextField } from '@/components/ui/text-field';
 import { useToast } from '@/components/ui/toast/use-toast';
 import roomTypeService from '@/services/room-type.service';
 import type { RoomType, CreateRoomTypeRequest, UpdateRoomTypeRequest } from '@/types/room-type';
@@ -25,113 +16,96 @@ type Props = {
   onSuccess?: () => void;
 };
 
+interface FormData {
+  name: string;
+  basePrice: string;
+  capacity: string;
+  description: string;
+}
+
+interface FormErrors {
+  name?: string;
+  basePrice?: string;
+  capacity?: string;
+}
+
+const INITIAL_FORM: FormData = { name: '', basePrice: '', capacity: '', description: '' };
+
 const getErrorMessage = (error: unknown, fallback: string): string => {
-  if (error instanceof Error) {
-    return error.message || fallback;
-  }
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'message' in error &&
-    typeof (error as { message?: unknown }).message === 'string'
-  ) {
+  if (error instanceof Error && error.message) return error.message;
+  if (typeof error === 'object' && error !== null && 'message' in error &&
+    typeof (error as { message?: unknown }).message === 'string')
     return (error as { message: string }).message;
-  }
   return fallback;
 };
 
 export function RoomTypeModal({ open, onOpenChange, room, onSuccess }: Props) {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: '',
-    basePrice: '',
-    capacity: '',
-    description: '',
-  });
+  const [formData, setFormData] = useState<FormData>(INITIAL_FORM);
+  const [errors, setErrors]     = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isEditMode = !!room;
 
   useEffect(() => {
     if (open) {
-      if (room) {
-        setFormData({
-          name: room.name,
-          basePrice: String(room.basePrice),
-          capacity: room.capacity ? String(room.capacity) : '',
-          description: room.description || '',
-        });
-      } else {
-        setFormData({
-          name: '',
-          basePrice: '',
-          capacity: '',
-          description: '',
-        });
-      }
+      setFormData(
+        room
+          ? {
+              name:        room.name,
+              basePrice:   String(room.basePrice),
+              capacity:    room.capacity != null ? String(room.capacity) : '',
+              description: room.description || '',
+            }
+          : INITIAL_FORM,
+      );
+      setErrors({});
     }
   }, [open, room]);
 
-  useEffect(() => {
-    if (open) {
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      if (scrollbarWidth > 0) {
-        document.body.style.paddingRight = `${scrollbarWidth}px`;
-      }
-    } else {
-      document.body.style.paddingRight = '';
-    }
-
-    return () => {
-      document.body.style.paddingRight = '';
-    };
-  }, [open]);
-
-  const handleFieldChange = (field: string, value: string) => {
+  const handleChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (field in errors) setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  const validate = (): FormErrors => {
+    const errs: FormErrors = {};
+    if (!formData.name.trim())
+      errs.name = 'Tên loại phòng không được để trống.';
+    const price = Number(formData.basePrice);
+    if (formData.basePrice === '' || Number.isNaN(price) || price < 0)
+      errs.basePrice = 'Giá cơ bản phải là số không âm.';
+    if (formData.capacity !== '') {
+      const cap = Number(formData.capacity);
+      if (Number.isNaN(cap) || cap < 0 || !Number.isInteger(cap))
+        errs.capacity = 'Sức chứa phải là số nguyên không âm.';
+    }
+    return errs;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.name.trim()) {
-      toast({ title: 'Vui lòng nhập tên loại phòng', variant: 'error' });
-      return;
-    }
+    const errs = validate();
+    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
     const basePrice = Number(formData.basePrice);
-    if (Number.isNaN(basePrice) || basePrice < 0) {
-      toast({ title: 'Giá cơ bản không hợp lệ', variant: 'error' });
-      return;
-    }
-
-    const capacity = formData.capacity ? Number(formData.capacity) : 0;
-    if (formData.capacity && (Number.isNaN(capacity) || capacity < 0)) {
-      toast({ title: 'Sức chứa không hợp lệ', variant: 'error' });
-      return;
-    }
+    const capacity  = formData.capacity !== '' ? Number(formData.capacity) : 0;
 
     try {
       setIsSubmitting(true);
-
-      if (room) {
+      if (isEditMode && room) {
         const updateData: UpdateRoomTypeRequest = {
-          name: formData.name.trim(),
-          basePrice,
-          description: formData.description.trim(),
-          capacity: capacity || 0,
+          name: formData.name.trim(), basePrice, description: formData.description.trim(), capacity,
         };
         await roomTypeService.updateRoomType(room.id, updateData);
         toast({ title: 'Cập nhật loại phòng thành công', variant: 'success' });
       } else {
         const createData: CreateRoomTypeRequest = {
-          name: formData.name.trim(),
-          basePrice,
-          description: formData.description.trim(),
-          capacity: capacity || 0,
+          name: formData.name.trim(), basePrice, description: formData.description.trim(), capacity,
         };
         await roomTypeService.createRoomType(createData);
         toast({ title: 'Tạo loại phòng thành công', variant: 'success' });
       }
-
       onOpenChange(false);
       onSuccess?.();
     } catch (err: unknown) {
@@ -141,74 +115,118 @@ export function RoomTypeModal({ open, onOpenChange, room, onSuccess }: Props) {
     }
   };
 
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
-      <DialogContent className={styles.dialogContent}>
-        <DialogHeader>
-          <DialogTitle className={styles.dialogTitle}>
-            {room ? 'Chỉnh sửa loại phòng' : 'Thêm loại phòng mới'}
-          </DialogTitle>
-          <DialogDescription>
-            {room ? 'Cập nhật thông tin loại phòng' : 'Điền thông tin để tạo loại phòng mới'}
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.formFields}>
-            <TextField
-              label="Tên loại phòng"
-              variant="booking"
-              value={formData.name}
-              onChange={(e) => handleFieldChange('name', e.target.value)}
-              placeholder="Nhập tên loại phòng"
-              required
-            />
+    <div className={styles.modalOverlay} onClick={() => onOpenChange(false)}>
+      <div
+        className={styles.modalContent}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="room-type-modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className={styles.modalHeader}>
+          <h2 id="room-type-modal-title" className={styles.modalTitle}>
+            {isEditMode ? 'Chỉnh sửa loại phòng' : 'Thêm loại phòng mới'}
+          </h2>
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className={styles.closeButton}
+            aria-label="Đóng"
+          >
+            <Cross1Icon />
+          </button>
+        </div>
 
-            <TextField
-              label="Giá cơ bản"
-              type="number"
-              variant="booking"
-              value={formData.basePrice}
-              onChange={(e) => handleFieldChange('basePrice', e.target.value)}
-              placeholder="0"
-              min="0"
-              required
-            />
+        {/* Form */}
+        <form onSubmit={handleSubmit}>
+          <div className={styles.modalBody}>
+            {/* Tên */}
+            <div className={styles.formGroup}>
+              <label htmlFor="roomTypeName">
+                Tên loại phòng <span className={styles.required}>*</span>
+              </label>
+              <input
+                id="roomTypeName"
+                className={`${styles.formControl} ${errors.name ? styles.invalid : ''}`}
+                placeholder="Ví dụ: Phòng đơn, Phòng VIP..."
+                value={formData.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                autoFocus
+              />
+              {errors.name && <p className={styles.errorMessage}>{errors.name}</p>}
+            </div>
 
-            <TextField
-              label="Sức chứa"
-              type="number"
-              variant="booking"
-              value={formData.capacity}
-              onChange={(e) => handleFieldChange('capacity', e.target.value)}
-              placeholder="1"
-              min="0"
-            />
+            {/* 2 cột: Giá + Sức chứa */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="roomTypePrice">
+                  Giá cơ bản (VND) <span className={styles.required}>*</span>
+                </label>
+                <input
+                  id="roomTypePrice"
+                  type="number"
+                  min="0"
+                  className={`${styles.formControl} ${errors.basePrice ? styles.invalid : ''}`}
+                  placeholder="0"
+                  value={formData.basePrice}
+                  onChange={(e) => handleChange('basePrice', e.target.value)}
+                />
+                {errors.basePrice && <p className={styles.errorMessage}>{errors.basePrice}</p>}
+              </div>
 
-            <TextField
-              label="Mô tả"
-              variant="booking"
-              value={formData.description}
-              onChange={(e) => handleFieldChange('description', e.target.value)}
-              placeholder="Nhập mô tả"
-            />
+              <div className={styles.formGroup}>
+                <label htmlFor="roomTypeCapacity">Sức chứa</label>
+                <input
+                  id="roomTypeCapacity"
+                  type="number"
+                  min="0"
+                  className={`${styles.formControl} ${errors.capacity ? styles.invalid : ''}`}
+                  placeholder="1"
+                  value={formData.capacity}
+                  onChange={(e) => handleChange('capacity', e.target.value)}
+                />
+                {errors.capacity && <p className={styles.errorMessage}>{errors.capacity}</p>}
+              </div>
+            </div>
+
+            {/* Mô tả */}
+            <div className={styles.formGroup}>
+              <label htmlFor="roomTypeDesc">Mô tả</label>
+              <textarea
+                id="roomTypeDesc"
+                className={styles.formControl}
+                placeholder="Mô tả ngắn về loại phòng..."
+                value={formData.description}
+                onChange={(e) => handleChange('description', e.target.value)}
+                rows={3}
+              />
+            </div>
           </div>
 
-          <DialogFooter className={styles.footer}>
-            <Button
+          {/* Footer */}
+          <div className={styles.modalFooter}>
+            <button
               type="button"
-              variant="outline"
+              className={`${styles.button} ${styles.buttonOutline}`}
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
               Hủy
-            </Button>
-            <Button type="submit" variant="primary" disabled={isSubmitting}>
-              {isSubmitting ? 'Đang xử lý...' : room ? 'Cập nhật' : 'Thêm mới'}
-            </Button>
-          </DialogFooter>
+            </button>
+            <button
+              type="submit"
+              className={`${styles.button} ${styles.buttonPrimary}`}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Đang xử lý...' : isEditMode ? 'Cập nhật' : 'Thêm mới'}
+            </button>
+          </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
-

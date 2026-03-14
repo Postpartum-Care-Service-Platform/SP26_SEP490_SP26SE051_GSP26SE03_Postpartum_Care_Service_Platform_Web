@@ -1,18 +1,13 @@
 export interface FeedbackType {
   id: number;
   name: string;
-  description?: string;
-  isDeleted?: boolean;
+  isActive: boolean;
 }
 
 export interface CreateFeedbackTypeRequest {
   name: string;
-  description?: string;
 }
 
 export interface UpdateFeedbackTypeRequest {
   name: string;
-  description?: string;
 }
-
-

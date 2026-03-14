@@ -21,6 +21,8 @@ export type AppointmentStatus = 'Pending' | 'Rescheduled' | 'Cancelled' | 'Compl
 export interface Appointment {
   id: number;
   appointmentDate: string;
+  appointmentDateOnly?: string;
+  appointmentTimeOnly?: string;
   name: string;
   status: AppointmentStatus;
   createdAt: string;

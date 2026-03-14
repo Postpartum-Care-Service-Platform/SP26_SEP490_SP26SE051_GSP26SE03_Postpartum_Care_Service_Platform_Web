@@ -12,6 +12,8 @@ import { ProfileHoverCard } from '../ProfileHoverCard';
 import { AssigneePicker } from '../shared/AssigneePicker';
 import { StatusDropdown, type StatusType } from '../StatusDropdown';
 import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
+import type { StaffSchedule } from '@/services/contract.service';
+import contractService from '@/services/contract.service';
 import Epic16Icon from './artifacts/glyph/epic/16';
 import toolbarStyles from './bulk-actions-toolbar.module.css';
 import styles from './work-schedule-list.module.css';
@@ -22,7 +24,18 @@ type Assignee = {
   email?: string;
   initials?: string;
   color?: string;
-  type: 'unassigned' | 'automatic' | 'user';
+  type: 'user';
+};
+
+const formatDate = (dateString?: string | null) => {
+  if (!dateString) return '-';
+  const parsed = new Date(dateString);
+  if (Number.isNaN(parsed.getTime())) return dateString;
+  return parsed.toLocaleDateString('vi-VN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
 };
 
 type Row = {
@@ -31,38 +44,38 @@ type Row = {
   workCode: string;
   workTitle: string;
   assignee: string;
-  reporter: string;
-  priority: string;
   status: string;
-  resolution: string;
-  created: string;
-  updated: string;
-  dueDate: string;
+  staffData: {
+    id: string;
+    roleId: number;
+    roleName: string;
+    memberTypeId: number;
+    memberTypeName: string;
+    fullName: string;
+    email: string;
+    phone: string;
+    username: string;
+    isActive: boolean;
+    avatarUrl: string | null;
+    isScheduled: boolean;
+    scheduledAt: string | null;
+    scheduledUntil: string | null;
+  };
 };
 
 type ColumnId =
+  | 'stt'
   | 'work'
   | 'assignee'
-  | 'reporter'
-  | 'priority'
   | 'status'
-  | 'resolution'
-  | 'created'
-  | 'updated'
-  | 'dueDate'
   | 'view'
   | 'actions';
 
 const DEFAULT_COL_WIDTH: Record<ColumnId, number> = {
-  work: 520,
-  assignee: 180,
-  reporter: 180,
-  priority: 140,
-  status: 140,
-  resolution: 160,
-  created: 190,
-  updated: 190,
-  dueDate: 150,
+  stt: 60,
+  work: 400,
+  assignee: 250,
+  status: 180,
   view: 48,
   actions: 48,
 };
@@ -75,36 +88,7 @@ const MIN_COL_WIDTH: Record<ColumnId, number> = (Object.keys(DEFAULT_COL_WIDTH) 
   {} as Record<ColumnId, number>,
 );
 
-const demoRows: Row[] = [
-  {
-    id: '1',
-    iconUrl: '',
-    workCode: 'ACSCM-26',
-    workTitle: 'Handle Login Error Messages & Account ...',
-    assignee: 'Vo Minh Tien',
-    reporter: 'Vo Minh Tien',
-    priority: 'Medium',
-    status: 'TO DO',
-    resolution: 'Unresolved',
-    created: 'Aug 20, 2025, 5:07 AM',
-    updated: 'Jan 26, 2026, 7:03 PM',
-    dueDate: 'Dec 29, 2025',
-  },
-  {
-    id: '2',
-    iconUrl: '',
-    workCode: 'ACSCM-16',
-    workTitle: 'Epic 6: Nutrition & Health Tracking',
-    assignee: 'Vo Minh Tien',
-    reporter: 'Vo Minh Tien',
-    priority: 'Medium',
-    status: 'TO DO',
-    resolution: 'Unresolved',
-    created: 'Aug 20, 2025, 4:41 AM',
-    updated: 'Aug 20, 2025, 4:41 AM',
-    dueDate: 'None',
-  },
-];
+const demoRows: Row[] = [];
 
 function Avatar({ initials }: { initials: string }) {
   return <span className={styles.avatar}>{initials}</span>;
@@ -129,11 +113,13 @@ function PriorityMark() {
   return <span className={styles.priorityMark} />;
 }
 
-export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
+export function WorkScheduleList() {
   const [rows, setRows] = React.useState<Row[]>(demoRows);
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [isCreating, setIsCreating] = React.useState(false);
   const [openAssigneeId, setOpenAssigneeId] = React.useState<string | null>(null);
+  const [isLoadingContracts, setIsLoadingContracts] = React.useState(false);
+  const [contractError, setContractError] = React.useState<string | null>(null);
 
   const toggleAll = () => {
     if (selectedIds.size === rows.length) {
@@ -145,7 +131,7 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
 
   const updateRowAssignee = (rowId: string, assignee: Assignee | null) => {
     setRows(prev => prev.map(r => 
-      r.id === rowId ? { ...r, assignee: assignee ? assignee.name : 'Unassigned' } : r
+      r.id === rowId ? { ...r, assignee: assignee ? assignee.name : '' } : r
     ));
     setOpenAssigneeId(null);
   };
@@ -173,6 +159,12 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
   const [showDatePicker, setShowDatePicker] = React.useState(false);
   const [showAssigneePicker, setShowAssigneePicker] = React.useState(false);
   const [showTaskTypePicker, setShowTaskTypePicker] = React.useState(false);
+
+  const closeQuickCreateOverlays = React.useCallback(() => {
+    setShowDatePicker(false);
+    setShowAssigneePicker(false);
+    setShowTaskTypePicker(false);
+  }, []);
   const [dueDate, setDueDate] = React.useState<Date | null>(null);
   const [assignee, setAssignee] = React.useState<Assignee | null>(null);
   const [selectedTaskType, setSelectedTaskType] = React.useState<TaskType>(TASK_TYPES[TASK_TYPES.length - 1]); // Lấy phần tử cuối cùng an toàn hơn
@@ -219,14 +211,49 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
     };
   }, [isResizing]);
 
+  React.useEffect(() => {
+    let active = true;
+
+    const fetchContracts = async () => {
+      setIsLoadingContracts(true);
+      setContractError(null);
+      try {
+        const staffList = await contractService.getStaffSchedules();
+        if (!active) return;
+        const mappedRows: Row[] = staffList.map((staff) => ({
+          id: staff.id,
+          iconUrl: staff.avatarUrl || '',
+          workCode: staff.username,
+          workTitle: staff.fullName,
+          assignee: staff.fullName,
+          status: staff.isScheduled ? 'Đã xếp lịch' : 'Chưa xếp lịch',
+          staffData: staff,
+        }));
+        setRows(mappedRows);
+      } catch (error) {
+        if (!active) return;
+        const message = error instanceof Error ? error.message : 'Không thể tải danh sách nhân viên';
+        setContractError(message);
+        setRows([]);
+      } finally {
+        if (active) {
+          setIsLoadingContracts(false);
+        }
+      }
+    };
+
+    fetchContracts();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (footerRef.current && !footerRef.current.contains(event.target as Node)) {
         setIsCreating(false);
-        setShowDatePicker(false);
-        setShowAssigneePicker(false);
-        setShowTaskTypePicker(false);
+        closeQuickCreateOverlays();
       }
     }
 
@@ -237,12 +264,11 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isCreating]);
+  }, [closeQuickCreateOverlays, isCreating]);
 
-  const displayedRows = React.useMemo(() => {
-    if (!assigneeOnly) return rows;
-    return rows.filter((r) => r.assignee === 'Vo Minh Tien');
-  }, [rows, assigneeOnly]);
+  const displayedRows = React.useMemo(() => rows, [rows]);
+
+  const hasRows = displayedRows.length > 0;
 
   return (
     <div className={styles.wrap}>
@@ -265,10 +291,18 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
               </th>
               <th
                 className={styles.th}
+                style={{ width: colWidths.stt, minWidth: MIN_COL_WIDTH.stt }}
+              >
+                <div className={styles.thInner}>
+                  <span>STT</span>
+                </div>
+              </th>
+              <th
+                className={styles.th}
                 style={{ width: colWidths.work, minWidth: MIN_COL_WIDTH.work }}
               >
                 <div className={styles.thInner}>
-                  <span>Work</span>
+                  <span>Công việc</span>
                   <ColumnActionsDropdown columnLabel="Work" />
                 </div>
                 <span
@@ -283,7 +317,7 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                 style={{ width: colWidths.assignee, minWidth: MIN_COL_WIDTH.assignee }}
               >
                 <div className={styles.thInner}>
-                  <span>Assignee</span>
+                  <span>Người phụ trách</span>
                   <ColumnActionsDropdown columnLabel="Assignee" />
                 </div>
                 <span
@@ -295,40 +329,10 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
               </th>
               <th
                 className={styles.th}
-                style={{ width: colWidths.reporter, minWidth: MIN_COL_WIDTH.reporter }}
-              >
-                <div className={styles.thInner}>
-                  <span>Reporter</span>
-                  <ColumnActionsDropdown columnLabel="Reporter" />
-                </div>
-                <span
-                  className={styles.resizer}
-                  onMouseEnter={() => {}}
-                  onMouseLeave={() => {}}
-                  onMouseDown={(e) => startResize('reporter', e)}
-                />
-              </th>
-              <th
-                className={styles.th}
-                style={{ width: colWidths.priority, minWidth: MIN_COL_WIDTH.priority }}
-              >
-                <div className={styles.thInner}>
-                  <span>Priority</span>
-                  <ColumnActionsDropdown columnLabel="Priority" />
-                </div>
-                <span
-                  className={styles.resizer}
-                  onMouseEnter={() => {}}
-                  onMouseLeave={() => {}}
-                  onMouseDown={(e) => startResize('priority', e)}
-                />
-              </th>
-              <th
-                className={styles.th}
                 style={{ width: colWidths.status, minWidth: MIN_COL_WIDTH.status }}
               >
                 <div className={styles.thInner}>
-                  <span>Status</span>
+                  <span>Trạng thái</span>
                   <ColumnActionsDropdown columnLabel="Status" />
                 </div>
                 <span
@@ -336,66 +340,6 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                   onMouseEnter={() => {}}
                   onMouseLeave={() => {}}
                   onMouseDown={(e) => startResize('status', e)}
-                />
-              </th>
-              <th
-                className={styles.th}
-                style={{ width: colWidths.resolution, minWidth: MIN_COL_WIDTH.resolution }}
-              >
-                <div className={styles.thInner}>
-                  <span>Resolution</span>
-                  <ColumnActionsDropdown columnLabel="Resolution" />
-                </div>
-                <span
-                  className={styles.resizer}
-                  onMouseEnter={() => {}}
-                  onMouseLeave={() => {}}
-                  onMouseDown={(e) => startResize('resolution', e)}
-                />
-              </th>
-              <th
-                className={styles.th}
-                style={{ width: colWidths.created, minWidth: MIN_COL_WIDTH.created }}
-              >
-                <div className={styles.thInner}>
-                  <span>Created</span>
-                  <ColumnActionsDropdown columnLabel="Created" />
-                </div>
-                <span
-                  className={styles.resizer}
-                  onMouseEnter={() => {}}
-                  onMouseLeave={() => {}}
-                  onMouseDown={(e) => startResize('created', e)}
-                />
-              </th>
-              <th
-                className={styles.th}
-                style={{ width: colWidths.updated, minWidth: MIN_COL_WIDTH.updated }}
-              >
-                <div className={styles.thInner}>
-                  <span>Updated</span>
-                  <ColumnActionsDropdown columnLabel="Updated" />
-                </div>
-                <span
-                  className={styles.resizer}
-                  onMouseEnter={() => {}}
-                  onMouseLeave={() => {}}
-                  onMouseDown={(e) => startResize('updated', e)}
-                />
-              </th>
-              <th
-                className={styles.th}
-                style={{ width: colWidths.dueDate, minWidth: MIN_COL_WIDTH.dueDate }}
-              >
-                <div className={styles.thInner}>
-                  <span>Due date</span>
-                  <ColumnActionsDropdown columnLabel="Due date" />
-                </div>
-                <span
-                  className={styles.resizer}
-                  onMouseEnter={() => {}}
-                  onMouseLeave={() => {}}
-                  onMouseDown={(e) => startResize('dueDate', e)}
                 />
               </th>
               <th
@@ -413,7 +357,28 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
             </tr>
           </thead>
           <tbody>
-            {displayedRows.map((r, idx) => (
+            {isLoadingContracts && (
+              <tr>
+                <td colSpan={6} className={styles.emptyState}>
+                  Đang tải danh sách hợp đồng...
+                </td>
+              </tr>
+            )}
+            {!isLoadingContracts && contractError && (
+              <tr>
+                <td colSpan={6} className={styles.emptyState}>
+                  {contractError}
+                </td>
+              </tr>
+            )}
+            {!isLoadingContracts && !contractError && !hasRows && (
+              <tr>
+                <td colSpan={6} className={styles.emptyState}>
+                  Chưa có hợp đồng nào
+                </td>
+              </tr>
+            )}
+            {!isLoadingContracts && !contractError && displayedRows.map((r, idx) => (
               <tr key={idx} className={`${styles.row} ${selectedIds.has(r.id) ? styles.rowSelected : ''}`}>
                 <td className={styles.tdCheckbox}>
                   <div className={styles.checkboxCenter}>
@@ -427,6 +392,53 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                       </Checkbox.Indicator>
                     </Checkbox.Root>
                   </div>
+                </td>
+                <td className={styles.td} style={{ width: colWidths.stt, minWidth: MIN_COL_WIDTH.stt, textAlign: 'center' }}>
+                  <Popover.Root>
+                    <Popover.Trigger asChild>
+                      <span
+                        style={{
+                          cursor: 'pointer',
+                          color: '#0052CC',
+                          fontWeight: 500,
+                        }}
+                        title="Click for details"
+                      >
+                        {idx + 1}
+                      </span>
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Content
+                        side="top"
+                        align="center"
+                        sideOffset={8}
+                        collisionPadding={8}
+                        style={{
+                          backgroundColor: '#fff',
+                          border: '1px solid #DFE1E6',
+                          borderRadius: '8px',
+                          padding: '12px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                          maxWidth: '300px',
+                          zIndex: 1000,
+                        }}
+                      >
+                        <div style={{ fontSize: '14px', color: '#172B4D', lineHeight: '1.5' }}>
+                          <strong>Thông tin nhân viên</strong>
+                          <div style={{ marginTop: '8px', fontSize: '13px' }}>
+                            <div><strong>Tên:</strong> {r.staffData.fullName}</div>
+                            <div><strong>Email:</strong> {r.staffData.email}</div>
+                            <div><strong>Điện thoại:</strong> {r.staffData.phone}</div>
+                            <div><strong>Vai trò:</strong> {r.staffData.roleName}</div>
+                            <div><strong>Loại thành viên:</strong> {r.staffData.memberTypeName}</div>
+                            <div><strong>Trạng thái:</strong> {r.staffData.isActive ? 'Hoạt động' : 'Không hoạt động'}</div>
+                            <div><strong>Đã xếp lịch:</strong> {r.staffData.isScheduled ? 'Có' : 'Chưa'}</div>
+                          </div>
+                        </div>
+                        <Popover.Arrow style={{ fill: '#fff' }} />
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
                 </td>
                 <td className={styles.td} style={{ width: colWidths.work, minWidth: MIN_COL_WIDTH.work }}>
                   <div className={styles.workCell}>
@@ -454,9 +466,9 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                       >
                         <ProfileHoverCard
                           user={{
-                            name: r.assignee,
-                            email: 'tienvmse182865@fpt.edu.vn',
-                            initials: 'VT',
+                            name: r.assignee || 'Chưa gán',
+                            email: '',
+                            initials: r.assignee ? r.assignee.slice(0, 2).toUpperCase() : '--',
                           }}
                           onOpenChange={(open) => {
                             if (open) setOpenAssigneeId(null);
@@ -469,11 +481,11 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                               e.stopPropagation();
                             }}
                           >
-                    <Avatar initials="VT" />
-                    </span>
+                            <Avatar initials={r.assignee ? r.assignee.slice(0, 2).toUpperCase() : '--'} />
+                          </span>
                         </ProfileHoverCard>
-                        <span>{r.assignee}</span>
-                  </div>
+                        <span>{r.assignee || '-'}</span>
+                      </div>
                     </Popover.Trigger>
                     <Popover.Portal>
                       <Popover.Content
@@ -484,7 +496,7 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                         onOpenAutoFocus={(e) => e.preventDefault()}
                       >
                         <AssigneePicker
-                          value={r.assignee === 'Unassigned' ? null : { id: r.id, name: r.assignee, initials: 'VT', color: '#DE350B', type: 'user' }}
+                          value={r.assignee ? { id: r.id, name: r.assignee, initials: r.assignee.slice(0, 2).toUpperCase(), color: '#DE350B', type: 'user' } : null}
                           onChange={(a) => updateRowAssignee(r.id, a)}
                           onClose={() => setOpenAssigneeId(null)}
                         />
@@ -492,37 +504,13 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                     </Popover.Portal>
                   </Popover.Root>
                 </td>
-                <td className={styles.td} style={{ width: colWidths.reporter, minWidth: MIN_COL_WIDTH.reporter }}>
-                  <ProfileHoverCard
-                    user={{
-                      name: r.reporter,
-                      email: 'tienvmse182865@fpt.edu.vn',
-                      initials: 'VT',
-                    }}
-                  >
-                  <div className={styles.personCell}>
-                    <Avatar initials="VT" />
-                      <span>{r.reporter}</span>
-                  </div>
-                  </ProfileHoverCard>
-                </td>
-                <td className={styles.td} style={{ width: colWidths.priority, minWidth: MIN_COL_WIDTH.priority }}>
-                  <div className={styles.priorityCell}>
-                    <PriorityMark />
-                    <span>{r.priority}</span>
-                  </div>
-                </td>
                 <td className={styles.td} style={{ width: colWidths.status, minWidth: MIN_COL_WIDTH.status }}>
                   <StatusPill value={r.status as StatusType} />
                 </td>
-                <td className={styles.td} style={{ width: colWidths.resolution, minWidth: MIN_COL_WIDTH.resolution }}>{r.resolution}</td>
-                <td className={styles.td} style={{ width: colWidths.created, minWidth: MIN_COL_WIDTH.created }}>{r.created}</td>
-                <td className={styles.td} style={{ width: colWidths.updated, minWidth: MIN_COL_WIDTH.updated }}>{r.updated}</td>
-                <td className={styles.tdMuted} style={{ width: colWidths.dueDate, minWidth: MIN_COL_WIDTH.dueDate }}>{r.dueDate}</td>
                 <td className={styles.tdIcon}>
                   <button type="button" className={`${styles.iconBtn} ${styles.rowHoverOnly}`} aria-label="More">
                     <svg fill="none" viewBox="0 0 16 16" role="presentation" width="11.99" height="11.99" aria-hidden="true">
-                      <path fill="currentColor" fillRule="evenodd" d="M0 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0m6.5 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0M13 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0" clipRule="evenodd" />
+                      <path fill="currentColor" fillRule="evenodd" d="M0 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0m6.5 0a1.5 1.5 0 0 1 3 0 1.5 1.5 0 0 1-3 0M13 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0" clipRule="evenodd" />
                     </svg>
                   </button>
                 </td>
@@ -642,7 +630,11 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
               role="button"
               tabIndex={0}
               aria-label="Task type"
-              onClick={() => setShowTaskTypePicker((v) => !v)}
+              onClick={() => {
+                setShowTaskTypePicker((v) => !v);
+                setShowDatePicker(false);
+                setShowAssigneePicker(false);
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
@@ -671,6 +663,7 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                     setSelectedTaskType(t);
                     setShowTaskTypePicker(false);
                   }}
+                  onClose={() => setShowTaskTypePicker(false)}
                 />
               )}
             </div>
@@ -686,7 +679,11 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                 role="button"
                 tabIndex={0}
                 aria-label="Due date"
-                onClick={() => setShowDatePicker((v) => !v)}
+                onClick={() => {
+                  setShowDatePicker((v) => !v);
+                  setShowTaskTypePicker(false);
+                  setShowAssigneePicker(false);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -704,6 +701,7 @@ export function WorkScheduleList({ assigneeOnly }: { assigneeOnly: boolean }) {
                       setDueDate(d);
                       setShowDatePicker(false);
                     }}
+                    onClose={() => setShowDatePicker(false)}
                   />
                 )}
               </div>

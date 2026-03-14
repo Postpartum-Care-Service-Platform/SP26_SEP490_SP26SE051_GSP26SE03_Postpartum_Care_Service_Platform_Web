@@ -6,15 +6,12 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import packageService from '@/services/package.service';
 import type { Package } from '@/types/package';
 
-import { NewPackageModal, PackageStatsCards, PackageTable, PackageTableControls } from './components';
+import { NewPackageModal, PackageTable, PackageTableControls } from './components';
 import { PackageListHeader } from './components/PackageListHeader';
 import styles from './package.module.css';
 
-import type { PackageStats } from './components';
 
 
-
-const PAGE_SIZE = 10;
 
 const sortPackages = (items: Package[], sort: string) => {
   const arr = [...items];
@@ -52,6 +49,8 @@ export default function AdminPackagePage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [sortKey, setSortKey] = useState<string>('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
 
@@ -82,25 +81,6 @@ export default function AdminPackagePage() {
      
   }, []);
 
-  const stats: PackageStats = useMemo(() => {
-    const total = packages.length;
-    const active = packages.filter((p) => p.isActive).length;
-    const inactive = total - active;
-
-    const avgDuration = total > 0 ? Math.round(packages.reduce((sum, p) => sum + p.durationDays, 0) / total) : 0;
-    const avgPrice = total > 0 ? Math.round(packages.reduce((sum, p) => sum + p.basePrice, 0) / total) : 0;
-    const highestPrice = total > 0 ? Math.max(...packages.map((p) => p.basePrice)) : 0;
-
-    return {
-      total,
-      active,
-      inactive,
-      avgDuration,
-      avgPrice,
-      highestPrice,
-    };
-  }, [packages]);
-
   const filteredPackages = useMemo(() => {
     let filtered = [...packages];
 
@@ -123,12 +103,12 @@ export default function AdminPackagePage() {
   }, [searchQuery, statusFilter, sortKey]);
 
   const paginatedPackages = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
     return filteredPackages.slice(start, end);
-  }, [filteredPackages, currentPage]);
+  }, [filteredPackages, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredPackages.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredPackages.length / pageSize);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -171,7 +151,6 @@ export default function AdminPackagePage() {
 
   return (
     <div className={styles.pageContainer}>
-      <PackageListHeader />
 
       {loading ? (
         <div className={styles.content}>
@@ -183,8 +162,6 @@ export default function AdminPackagePage() {
         </div>
       ) : (
         <>
-          <PackageStatsCards stats={stats} />
-
           <PackageTableControls
             onSearch={(q) => setSearchQuery(q)}
             onSortChange={(sort) => setSortKey(sort)}
@@ -202,9 +179,14 @@ export default function AdminPackagePage() {
                 ? {
                     currentPage,
                     totalPages,
-                    pageSize: PAGE_SIZE,
+                    pageSize,
                     totalItems: filteredPackages.length,
                     onPageChange: handlePageChange,
+                    pageSizeOptions: PAGE_SIZE_OPTIONS,
+                    onPageSizeChange: (size) => {
+                      setPageSize(size);
+                      setCurrentPage(1);
+                    },
                   }
                 : undefined
             }

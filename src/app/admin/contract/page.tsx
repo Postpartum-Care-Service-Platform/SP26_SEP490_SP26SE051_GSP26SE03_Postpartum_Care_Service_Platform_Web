@@ -13,7 +13,6 @@ import { ContractListHeader } from './components/ContractListHeader';
 import { ContractTableControls } from './components/ContractTableControls';
 import styles from './contract.module.css';
 
-const PAGE_SIZE = 10;
 
 const getErrorMessage = (error: unknown, fallbackMessage: string) => {
   if (error instanceof Error && error.message) return error.message;
@@ -29,6 +28,8 @@ export default function AdminContractPage() {
   const [sortBy, setSortBy] = useState('date-newest');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
   useEffect(() => {
     fetchContracts();
@@ -93,12 +94,12 @@ export default function AdminContractPage() {
   };
 
   const paginatedContracts = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
     return sortedContracts.slice(start, end);
-  }, [sortedContracts, currentPage]);
+  }, [sortedContracts, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(sortedContracts.length / PAGE_SIZE) || 1;
+  const totalPages = Math.ceil(sortedContracts.length / pageSize) || 1;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -121,7 +122,7 @@ export default function AdminContractPage() {
         <div className={styles.error}>{error}</div>
       </div>
     );
-    }
+  }
 
   return (
     <div className={styles.pageContainer}>
@@ -149,9 +150,11 @@ export default function AdminContractPage() {
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
-                pageSize={PAGE_SIZE}
+                pageSize={pageSize}
                 totalItems={sortedContracts.length}
                 onPageChange={handlePageChange}
+                pageSizeOptions={PAGE_SIZE_OPTIONS}
+                onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
                 showResultCount={true}
               />
             </div>

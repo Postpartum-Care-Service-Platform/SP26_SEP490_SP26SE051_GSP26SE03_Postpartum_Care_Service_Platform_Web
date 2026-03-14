@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 
@@ -96,13 +98,19 @@ const getStatusLabel = (status: MedicalHistory['status']) => {
 };
 
 export function MedicalHistoryTable() {
-  const currentPage = 1;
-  const totalPages = 3;
-  const pageSize = 5;
-  const totalItems = 12;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const PAGE_SIZE_OPTIONS = [5, 10, 20];
+  const totalItems = mockData.length;
+  const totalPages = Math.ceil(totalItems / pageSize) || 1;
+
+  const paginatedData = mockData.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   const handlePageChange = (page: number) => {
-    console.log('Page changed:', page);
+    setCurrentPage(page);
   };
 
   const handleEdit = (id: number) => {
@@ -124,14 +132,14 @@ export function MedicalHistoryTable() {
           </tr>
         </thead>
         <tbody>
-          {mockData.length === 0 ? (
+          {paginatedData.length === 0 ? (
             <tr>
               <td colSpan={6} className={styles.emptyState}>
                 Chưa có dữ liệu
               </td>
             </tr>
           ) : (
-            mockData.map((record) => (
+            paginatedData.map((record) => (
               <tr key={record.id} className={styles.tableRow}>
                 <td>{record.date}</td>
                 <td className={styles.diagnosis}>{record.diagnosis}</td>
@@ -169,6 +177,8 @@ export function MedicalHistoryTable() {
             pageSize={pageSize}
             totalItems={totalItems}
             onPageChange={handlePageChange}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
             showResultCount={true}
           />
         </div>

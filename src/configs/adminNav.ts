@@ -5,6 +5,7 @@ import {
   Calendar,
   CalendarDays,
   ClipboardCheck,
+  FileHeart,
   FileText,
   LayoutDashboard,
   LayoutTemplate,
@@ -17,6 +18,9 @@ import {
   Users,
   Utensils,
   CreditCard,
+  Settings,
+  Shield,
+  Palette,
 } from 'lucide-react';
 
 export type AdminNavItem = {
@@ -68,22 +72,22 @@ export const adminNav: AdminNavSection[] = [
         icon: Calendar,
       },
       {
-        key: 'rooms-all',
-        label: 'Tất cả phòng',
-        href: '/admin/rooms',
-        icon: BedDouble,
-      },
-      {
         key: 'room-allotment',
-        label: 'Thêm phân bổ phòng',
+        label: 'Tất cả phòng',
         href: '/admin/rooms/allotment',
-        icon: PlusCircle,
+        icon: BedDouble,
       },
       {
         key: 'feedback',
         label: 'Phản hồi',
         href: '/admin/feedback',
         icon: MessageSquare,
+      },
+      {
+        key: 'medical-record',
+        label: 'Hồ sơ y tế',
+        href: '/admin/medical-record',
+        icon: FileHeart,
       },
       {
         key: 'contract',
@@ -99,7 +103,7 @@ export const adminNav: AdminNavSection[] = [
       },
       {
         key: 'booking',
-        label: 'Booking',
+        label: 'Đặt phòng',
         href: '/admin/booking',
         icon: CalendarDays,
       },
@@ -177,6 +181,30 @@ export const adminNav: AdminNavSection[] = [
             href: '/admin/placeholder-manager',
           },
         ],
+      },
+    ],
+  },
+  {
+    key: 'settings',
+    label: 'Cài đặt',
+    items: [
+      {
+        key: 'system-settings',
+        label: 'Cài đặt hệ thống',
+        href: '/admin/settings/system',
+        icon: Settings,
+      },
+      {
+        key: 'roles-permissions',
+        label: 'Vai trò & Quyền',
+        href: '/admin/settings/roles',
+        icon: Shield,
+      },
+      {
+        key: 'appearance',
+        label: 'Giao diện',
+        href: '/admin/settings/appearance',
+        icon: Palette,
       },
     ],
   },

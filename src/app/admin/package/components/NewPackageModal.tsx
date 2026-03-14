@@ -1,8 +1,14 @@
 'use client';
 
-import { Cross1Icon } from '@radix-ui/react-icons';
+import { Cross1Icon, ChevronDownIcon } from '@radix-ui/react-icons';
 import { useState, useEffect, forwardRef } from 'react';
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown';
 import { useToast } from '@/components/ui/toast/use-toast';
 import packageService from '@/services/package.service';
 import type { CreatePackageRequest, Package, UpdatePackageRequest } from '@/types/package';
@@ -24,6 +30,12 @@ const INITIAL_FORM_DATA: CreatePackageRequest = {
   basePrice: 2000000,
   isActive: true,
 };
+
+const PACKAGE_TYPE_OPTIONS = [
+  { value: 1, label: 'Tại nhà' },
+  { value: 2, label: 'Trung tâm' },
+  { value: 3, label: 'Kết hợp' },
+] as const;
 
 type FormErrors = {
   packageName?: string;
@@ -205,25 +217,40 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="packageTypeId">
+                <label>
                   Loại gói <span className={styles.required}>*</span>
                 </label>
-                <select
-                  id="packageTypeId"
-                  className={`${styles.select} ${errors.packageTypeId ? styles.selectError : ''}`}
-                  value={packageTypeId === '' ? '' : String(packageTypeId)}
-                  onChange={(e) => {
-                    const value = e.target.value ? Number(e.target.value) : '';
-                    setPackageTypeId(value);
-                    if (errors.packageTypeId) {
-                      setErrors((prev) => ({ ...prev, packageTypeId: undefined }));
-                    }
-                  }}
-                >
-                  <option value="">Chọn loại gói</option>
-                  <option value="1">Type 1</option>
-                  <option value="2">Type 2</option>
-                </select>
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className={`${styles.dropdownTrigger} ${errors.packageTypeId ? styles.selectError : ''}`}
+                    >
+                      <span className={packageTypeId === '' ? styles.dropdownPlaceholder : styles.dropdownValue}>
+                        {packageTypeId === ''
+                          ? 'Chọn loại gói'
+                          : PACKAGE_TYPE_OPTIONS.find((opt) => opt.value === packageTypeId)?.label}
+                      </span>
+                      <ChevronDownIcon className={styles.dropdownChevron} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className={styles.dropdownContent} align="start">
+                    {PACKAGE_TYPE_OPTIONS.map((opt) => (
+                      <DropdownMenuItem
+                        key={opt.value}
+                        className={`${styles.dropdownItem} ${packageTypeId === opt.value ? styles.dropdownItemActive : ''}`}
+                        onClick={() => {
+                          setPackageTypeId(opt.value);
+                          if (errors.packageTypeId) {
+                            setErrors((prev) => ({ ...prev, packageTypeId: undefined }));
+                          }
+                        }}
+                      >
+                        {opt.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 {errors.packageTypeId && <p className={styles.errorMessage}>{errors.packageTypeId}</p>}
               </div>
 

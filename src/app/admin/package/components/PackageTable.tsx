@@ -44,6 +44,8 @@ type Props = {
     pageSize: number;
     totalItems: number;
     onPageChange: (page: number) => void;
+    pageSizeOptions?: number[];
+    onPageSizeChange?: (size: number) => void;
   };
 };
 
@@ -78,7 +80,7 @@ export function PackageTable({ packages, onEdit, onDelete, deletingId, paginatio
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>ID</th>
+              <th title="Số thứ tự">STT</th>
               <th>Tên gói</th>
               <th>Hình ảnh</th>
               <th>Loại gói dịch vụ</th>
@@ -99,9 +101,18 @@ export function PackageTable({ packages, onEdit, onDelete, deletingId, paginatio
                 </td>
               </tr>
             ) : (
-              packages.map((pkg) => (
-                <tr key={pkg.id} className={styles.tableRow}>
-                  <td>{pkg.id}</td>
+              packages.map((pkg, index) => {
+                const stt = pagination
+                  ? (pagination.currentPage - 1) * pagination.pageSize + index + 1
+                  : index + 1;
+
+                return (
+                  <tr key={pkg.id} className={styles.tableRow}>
+                  <td>
+                    <span className={styles.sttCell} title={`ID gốc: ${pkg.id}`}>
+                      {stt}
+                    </span>
+                  </td>
                   <td className={styles.name} title={pkg.packageName}>
                     {pkg.packageName}
                   </td>
@@ -138,29 +149,36 @@ export function PackageTable({ packages, onEdit, onDelete, deletingId, paginatio
                   <td>{formatDate(pkg.updatedAt)}</td>
                   <td>
                     <div className={styles.actions}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.editButton} btn-icon btn-sm`}
-                        onClick={() => onEdit?.(pkg)}
-                        aria-label={`Chỉnh sửa ${pkg.packageName}`}
-                      >
-                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.deleteButton} btn-icon btn-sm`}
-                        onClick={() => onDelete?.(pkg)}
-                        aria-label={`Xóa ${pkg.packageName}`}
-                        disabled={deletingId === pkg.id}
-                      >
-                        <Trash2OutlineIcon fill="#FD6161" size={16} />
-                      </Button>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={`${styles.editButton} btn-icon btn-sm`}
+                          onClick={() => onEdit?.(pkg)}
+                          aria-label={`Chỉnh sửa ${pkg.packageName}`}
+                        >
+                          <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Chỉnh sửa</span>
+                      </div>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={`${styles.deleteButton} btn-icon btn-sm`}
+                          onClick={() => onDelete?.(pkg)}
+                          aria-label={`Xóa ${pkg.packageName}`}
+                          disabled={deletingId === pkg.id}
+                        >
+                          <Trash2OutlineIcon fill="#FD6161" size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Xóa</span>
+                      </div>
                     </div>
                   </td>
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>
@@ -174,6 +192,8 @@ export function PackageTable({ packages, onEdit, onDelete, deletingId, paginatio
             pageSize={pagination.pageSize}
             totalItems={pagination.totalItems}
             onPageChange={pagination.onPageChange}
+            pageSizeOptions={pagination.pageSizeOptions}
+            onPageSizeChange={pagination.onPageSizeChange}
             showResultCount={true}
           />
         </div>
