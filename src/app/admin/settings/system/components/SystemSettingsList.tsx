@@ -34,7 +34,7 @@ export type SystemSetting = {
 
 type Props = {
   settings: SystemSetting[];
-  groupDisplayName: string;
+  groupDisplayName?: string;
   onEdit?: (setting: SystemSetting) => void;
   onUpdateRole?: (role: Role, newRoleName: string) => void;
   roles: Role[];
@@ -56,7 +56,7 @@ const formatDate = (dateString?: string) => {
 
 export function SystemSettingsList({
   settings,
-  groupDisplayName,
+  groupDisplayName: _groupDisplayName,
   onEdit,
   onUpdateRole,
   roles,
