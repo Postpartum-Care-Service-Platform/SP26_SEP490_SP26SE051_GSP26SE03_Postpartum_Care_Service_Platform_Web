@@ -8,14 +8,12 @@ import type { Menu } from '@/types/menu';
 
 import {
   MenuListHeader,
-  MenuStatsCards,
   MenuTable,
   MenuTableControls,
   NewMenuModal,
 } from './components';
 import styles from './menu.module.css';
 
-import type { MenuStats } from './components';
 
 const getErrorMessage = (error: unknown, fallbackMessage: string) => {
   if (error instanceof Error && error.message) return error.message;
@@ -23,7 +21,6 @@ const getErrorMessage = (error: unknown, fallbackMessage: string) => {
   return fallbackMessage;
 };
 
-const PAGE_SIZE = 10;
 
 const sortMenus = (items: Menu[], sort: string) => {
   const arr = [...items];
@@ -65,6 +62,8 @@ export default function AdminMenuPage() {
   );
   const [sortKey, setSortKey] = useState<string>('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const fetchMenus = async () => {
@@ -83,18 +82,6 @@ export default function AdminMenuPage() {
   useEffect(() => {
     fetchMenus();
   }, []);
-
-  const stats: MenuStats = useMemo(() => {
-    const total = menus.length;
-    const active = menus.filter((m) => m.isActive).length;
-    const inactive = total - active;
-
-    return {
-      total,
-      active,
-      inactive,
-    };
-  }, [menus]);
 
   const filteredMenus = useMemo(() => {
     let filtered = [...menus];
@@ -123,12 +110,12 @@ export default function AdminMenuPage() {
   }, [searchQuery, statusFilter, sortKey]);
 
   const paginatedMenus = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
     return filteredMenus.slice(start, end);
-  }, [filteredMenus, currentPage]);
+  }, [filteredMenus, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredMenus.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredMenus.length / pageSize);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -177,8 +164,6 @@ export default function AdminMenuPage() {
         </div>
       ) : (
         <>
-          <MenuStatsCards stats={stats} />
-
           <MenuTableControls
             onSearch={(q) => setSearchQuery(q)}
             onSortChange={(sort) => setSortKey(sort)}
@@ -196,9 +181,14 @@ export default function AdminMenuPage() {
                 ? {
                     currentPage,
                     totalPages,
-                    pageSize: PAGE_SIZE,
+                    pageSize,
                     totalItems: filteredMenus.length,
                     onPageChange: handlePageChange,
+                    pageSizeOptions: PAGE_SIZE_OPTIONS,
+                    onPageSizeChange: (size) => {
+                      setPageSize(size);
+                      setCurrentPage(1);
+                    },
                   }
                 : undefined
             }

@@ -14,9 +14,9 @@ type Status = {
 export type CalendarStatusType = 'TO DO' | 'IN PROGRESS' | 'DONE';
 
 const STATUSES: Status[] = [
-  { id: 'DONE', label: 'DONE', pillClass: styles.pillDone },
-  { id: 'IN PROGRESS', label: 'IN PROGRESS', pillClass: styles.pillInProgress },
-  { id: 'TO DO', label: 'TO DO', pillClass: styles.pillTodo },
+  { id: 'DONE', label: 'Hoàn thành', pillClass: styles.pillDone },
+  { id: 'IN PROGRESS', label: 'Đang làm', pillClass: styles.pillInProgress },
+  { id: 'TO DO', label: 'Cần làm', pillClass: styles.pillTodo },
 ];
 
 function SearchIcon() {
@@ -97,7 +97,7 @@ export function CalendarStatusDropdown({
               className={styles.searchInput}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search Status"
+              placeholder="Tìm kiếm trạng thái"
             />
           </div>
 

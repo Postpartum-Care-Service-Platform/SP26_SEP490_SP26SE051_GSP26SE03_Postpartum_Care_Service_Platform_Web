@@ -203,9 +203,10 @@ const getStatusClass = (status: Invoice['status']) => {
 
 export function InvoiceList({ invoices = mockInvoices }: InvoiceListProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const totalItems = invoices.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentInvoices = invoices.slice(startIndex, endIndex);
@@ -320,7 +321,9 @@ export function InvoiceList({ invoices = mockInvoices }: InvoiceListProps) {
             totalPages={totalPages}
             pageSize={itemsPerPage}
             totalItems={totalItems}
-            onPageChange={setCurrentPage}
+            onPageChange={(page) => { setCurrentPage(page); }}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            onPageSizeChange={(size) => { setItemsPerPage(size); setCurrentPage(1); }}
             showResultCount={true}
           />
         </div>

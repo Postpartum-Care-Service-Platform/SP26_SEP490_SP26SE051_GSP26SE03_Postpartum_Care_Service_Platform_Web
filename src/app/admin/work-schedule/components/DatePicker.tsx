@@ -15,6 +15,9 @@ type Props = {
   onTimeChange?: (time: string) => void;
   /** Vị trí popup so với trigger (mặc định mở lên trên như thanh tạo nhanh) */
   side?: 'top' | 'bottom';
+  /** Tiêu đề hiển thị ở đầu date picker */
+  title?: string;
+  onClose?: () => void;
 };
 
 const DAY_LABELS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -64,7 +67,16 @@ function monthLabel(d: Date) {
   return `${capitalized} ${d.getFullYear()}`;
 }
 
-export function DatePicker({ value = null, onChange, withTime = false, timeValue, onTimeChange, side = 'top' }: Props) {
+export function DatePicker({
+  value = null,
+  onChange,
+  withTime = false,
+  timeValue,
+  onTimeChange,
+  side = 'top',
+  title = 'Ngày đến hạn',
+  onClose,
+}: Props) {
   const today = React.useMemo(() => new Date(), []);
   const [viewDate, setViewDate] = React.useState<Date>(() => (value ? startOfMonth(value) : startOfMonth(today)));
   const [inputValue, setInputValue] = React.useState<string>(() => (value ? formatMMDDYYYY(value) : ''));
@@ -90,6 +102,24 @@ export function DatePicker({ value = null, onChange, withTime = false, timeValue
     setInputValue(formatMMDDYYYY(value));
     setViewDate(startOfMonth(value));
   }, [value]);
+
+  React.useEffect(() => {
+    if (!onClose) return;
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (!target || !document.contains(target)) return;
+      const popup = popupRef.current;
+      if (popup && !popup.contains(target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [onClose]);
 
   const grid = React.useMemo(() => {
     const first = startOfMonth(viewDate);
@@ -134,15 +164,28 @@ export function DatePicker({ value = null, onChange, withTime = false, timeValue
     }
   }
 
+  const popupRef = React.useRef<HTMLDivElement>(null);
+
   return (
     <div 
+      ref={popupRef}
       className={`${styles.datePickerPopup} ${withTime ? styles.withTime : ''} ${side === 'bottom' ? styles.bottom : ''}`} 
       role="dialog" 
       aria-label="Chọn ngày"
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className={styles.title}>Ngày đến hạn</div>
+      {onClose && (
+        <button
+          type="button"
+          className={styles.closeBtn}
+          aria-label="Đóng"
+          onClick={onClose}
+        >
+          ×
+        </button>
+      )}
+      <div className={styles.title}>{title}</div>
 
       <div className={styles.inputWrapper}>
         <input

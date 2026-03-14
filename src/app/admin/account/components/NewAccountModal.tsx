@@ -1,11 +1,18 @@
 'use client';
 
-import { Cross1Icon } from '@radix-ui/react-icons';
-import { forwardRef, useEffect, useState } from 'react';
+import { Cross1Icon, ChevronDownIcon } from '@radix-ui/react-icons';
+import { forwardRef, useEffect, useState, useCallback } from 'react';
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown';
 import { Spinner } from '@/components/ui/spinner';
 import { useToast } from '@/components/ui/toast/use-toast';
 import authService from '@/services/auth.service';
+import memberTypeService, { type MemberType } from '@/services/member-type.service';
 
 import styles from './new-account-modal.module.css';
 
@@ -19,12 +26,14 @@ type CreateCustomerRequest = {
   email: string;
   phone: string;
   username: string;
+  memberTypeId: number | null;
 };
 
 type FormErrors = {
   email?: string;
   phone?: string;
   username?: string;
+  memberTypeId?: string;
 };
 
 type ApiClientError = {
@@ -54,7 +63,6 @@ function mapMessageToFieldErrors(message: string): FormErrors {
   }
 
   if (m.includes('username') || m.includes('tên đăng nhập') || m.includes('ten dang nhap')) {
-    // Chuẩn hoá thông báo sang tiếng Việt cho username
     if (m.includes('đã tồn tại') || m.includes('da ton tai')) {
       next.username = 'Tên đăng nhập đã tồn tại';
     } else {
@@ -69,6 +77,7 @@ const INITIAL_FORM_DATA: CreateCustomerRequest = {
   email: '',
   phone: '',
   username: '',
+  memberTypeId: null,
 };
 
 const CustomInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
@@ -84,16 +93,33 @@ export function NewAccountModal({ open, onOpenChange, onSuccess }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
+  // MemberType state
+  const [memberTypes, setMemberTypes] = useState<MemberType[]>([]);
+  const [loadingMemberTypes, setLoadingMemberTypes] = useState(false);
+
+  const fetchMemberTypes = useCallback(async () => {
+    try {
+      setLoadingMemberTypes(true);
+      const data = await memberTypeService.getAll();
+      setMemberTypes(data.filter((mt) => mt.isActive));
+    } catch {
+      toast({ title: 'Không thể tải danh sách loại thành viên', variant: 'error' });
+    } finally {
+      setLoadingMemberTypes(false);
+    }
+  }, [toast]);
+
   useEffect(() => {
     if (open) {
       setFormData(INITIAL_FORM_DATA);
       setErrors({});
+      fetchMemberTypes();
     }
-  }, [open]);
+  }, [open, fetchMemberTypes]);
 
   const handleFieldChange = <K extends keyof CreateCustomerRequest>(field: K, value: CreateCustomerRequest[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
+    if (errors[field as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
   };
@@ -117,6 +143,10 @@ export function NewAccountModal({ open, onOpenChange, onSuccess }: Props) {
       newErrors.phone = 'Số điện thoại không hợp lệ.';
     }
 
+    if (formData.memberTypeId === null) {
+      newErrors.memberTypeId = 'Vui lòng chọn loại thành viên.';
+    }
+
     return newErrors;
   };
 
@@ -137,6 +167,7 @@ export function NewAccountModal({ open, onOpenChange, onSuccess }: Props) {
         email: formData.email.trim(),
         phone: formData.phone.trim(),
         username: formData.username.trim(),
+        memberTypeId: formData.memberTypeId as number,
       });
 
       toast({ title: 'Tạo tài khoản thành công', variant: 'success' });
@@ -153,6 +184,8 @@ export function NewAccountModal({ open, onOpenChange, onSuccess }: Props) {
       setIsSubmitting(false);
     }
   };
+
+  const selectedMemberType = memberTypes.find((mt) => mt.id === formData.memberTypeId) ?? null;
 
   if (!open) return null;
 
@@ -214,6 +247,52 @@ export function NewAccountModal({ open, onOpenChange, onSuccess }: Props) {
                 required
               />
               {errors.email && <p className={styles.errorMessage}>{errors.email}</p>}
+            </div>
+
+            {/* Member Type Dropdown */}
+            <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+              <label>
+                Loại thành viên <span className={styles.required}>*</span>
+              </label>
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    id="memberTypeId"
+                    className={`${styles.dropdownTrigger} ${errors.memberTypeId ? styles.invalid : ''}`}
+                  >
+                    <span className={selectedMemberType ? styles.dropdownValueSelected : styles.dropdownPlaceholder}>
+                      {loadingMemberTypes
+                        ? 'Đang tải...'
+                        : selectedMemberType
+                          ? selectedMemberType.name
+                          : 'Chọn loại thành viên'}
+                    </span>
+                    <ChevronDownIcon className={styles.dropdownChevron} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className={styles.dropdownContent} align="start">
+                  {loadingMemberTypes ? (
+                    <div className={styles.dropdownLoading}>
+                      <Spinner size="sm" />
+                      <span>Đang tải...</span>
+                    </div>
+                  ) : memberTypes.length === 0 ? (
+                    <div className={styles.dropdownEmpty}>Chưa có loại thành viên nào</div>
+                  ) : (
+                    memberTypes.map((mt) => (
+                      <DropdownMenuItem
+                        key={mt.id}
+                        className={`${styles.dropdownItem} ${formData.memberTypeId === mt.id ? styles.dropdownItemActive : ''}`}
+                        onClick={() => handleFieldChange('memberTypeId', mt.id)}
+                      >
+                        {mt.name}
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              {errors.memberTypeId && <p className={styles.errorMessage}>{errors.memberTypeId}</p>}
             </div>
           </div>
 

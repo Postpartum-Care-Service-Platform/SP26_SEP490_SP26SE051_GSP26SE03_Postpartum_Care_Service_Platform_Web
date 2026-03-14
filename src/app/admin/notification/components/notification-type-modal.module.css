@@ -95,18 +95,61 @@
   margin-top: 4px;
 }
 
-.checkboxLabel {
+/* ── Toggle switch ── */
+.toggleRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  font-weight: normal !important;
+  gap: 12px;
 }
 
-.checkbox {
+.toggleLabel {
+  color: #343a40;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background-color 0.25s ease;
+  flex-shrink: 0;
+}
+
+.toggleOn  { background-color: #fa8314; }
+.toggleOff { background-color: #ced4da; }
+
+.toggleThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
   width: 18px;
   height: 18px;
-  cursor: pointer;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  transition: transform 0.25s ease;
+}
+
+.toggleOn  .toggleThumb { transform: translateX(20px); }
+.toggleOff .toggleThumb { transform: translateX(0); }
+
+.toggleStatusOn {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fa8314;
+}
+
+.toggleStatusOff {
+  font-size: 13px;
+  font-weight: 600;
+  color: #868e96;
 }
 
 .modalFooter {

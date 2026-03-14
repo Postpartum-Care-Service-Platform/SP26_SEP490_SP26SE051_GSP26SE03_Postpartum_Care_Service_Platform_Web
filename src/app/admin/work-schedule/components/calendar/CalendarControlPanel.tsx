@@ -10,6 +10,7 @@ import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
 import styles from './calendar-control-panel.module.css';
 import { CalendarStatusDropdown, type CalendarStatusType } from './CalendarStatusDropdown';
 import { CalendarViewDropdown, type CalendarViewMode } from './CalendarViewDropdown';
+import { MonthYearPicker } from './MonthYearPicker';
 
 type Assignee = {
   id: string;
@@ -100,6 +101,7 @@ type Props = {
   onMonthCursorChange?: (value: Date) => void;
   taskType?: TaskType | null;
   onTaskTypeChange?: (value: TaskType | null) => void;
+  onTodayClick?: () => void;
 };
 
 export function CalendarControlPanel({
@@ -113,19 +115,13 @@ export function CalendarControlPanel({
   onMonthCursorChange,
   taskType,
   onTaskTypeChange,
+  onTodayClick,
 }: Props) {
   const [assignee, setAssignee] = React.useState<Assignee | null>(null);
   const [isAssigneeOpen, setIsAssigneeIdOpen] = React.useState(false);
 
   const [isTaskTypeOpen, setIsTaskTypeOpen] = React.useState(false);
   const selectedTaskType = taskType ?? TASK_TYPES[TASK_TYPES.length - 1];
-
-  const monthLabel = React.useMemo(() => {
-    const cursor = monthCursor || new Date();
-    const month = cursor.getMonth() + 1;
-    const year = cursor.getFullYear();
-    return `Thg ${month} ${year}`;
-  }, [monthCursor]);
 
   function addMonths(base: Date, delta: number) {
     const d = new Date(base);
@@ -154,7 +150,7 @@ export function CalendarControlPanel({
           <span className={styles.searchIcon}><SearchIcon /></span>
           <input
             className={styles.searchInput}
-            placeholder="Search calendar"
+            placeholder="Tìm kiếm lịch"
             value={searchValue}
             onChange={(e) => onSearchChange?.(e.target.value)}
           />
@@ -163,7 +159,7 @@ export function CalendarControlPanel({
         <Popover.Root open={isAssigneeOpen} onOpenChange={setIsAssigneeIdOpen}>
           <Popover.Trigger asChild>
             <button type="button" className={styles.filterBtn}>
-              <span>{assignee ? assignee.name : 'Assignee'}</span>
+              <span>{assignee ? assignee.name : 'Người phụ trách'}</span>
               <ChevronDownIcon />
             </button>
           </Popover.Trigger>
@@ -189,7 +185,7 @@ export function CalendarControlPanel({
         <Popover.Root open={isTaskTypeOpen} onOpenChange={setIsTaskTypeOpen}>
           <Popover.Trigger asChild>
             <button type="button" className={styles.filterBtn}>
-              <span>{selectedTaskType ? selectedTaskType.label : 'Type'}</span>
+              <span>{selectedTaskType ? selectedTaskType.label : 'Loại'}</span>
               <ChevronDownIcon />
             </button>
           </Popover.Trigger>
@@ -214,19 +210,19 @@ export function CalendarControlPanel({
 
         <CalendarStatusDropdown value={statusValue} onChange={onStatusChange}>
           <button type="button" className={styles.filterBtn}>
-            <span>Status</span>
+            <span>Trạng thái</span>
             <ChevronDownIcon />
           </button>
         </CalendarStatusDropdown>
 
         <button type="button" className={styles.filterBtn}>
-          <span>More filters</span>
+          <span>Lọc thêm</span>
           <ChevronDownIcon />
         </button>
       </div>
 
       <div className={styles.right}>
-        <button type="button" className={styles.todayBtn}>Today</button>
+        <button type="button" className={styles.todayBtn} onClick={onTodayClick}>Hôm nay</button>
 
         <Tooltip.Provider delayDuration={350}>
           <div className={styles.monthNav} aria-label="Month navigation">
@@ -243,13 +239,13 @@ export function CalendarControlPanel({
               </Tooltip.Trigger>
               <Tooltip.Portal>
                 <Tooltip.Content className={styles.tooltip} side="bottom" align="center" sideOffset={6}>
-                  Previous month
+                  Tháng trước
                   <Tooltip.Arrow className={styles.tooltipArrow} />
                 </Tooltip.Content>
               </Tooltip.Portal>
             </Tooltip.Root>
 
-            <div className={styles.currentMonth}>{monthLabel}</div>
+            <MonthYearPicker value={monthCursor || new Date()} onChange={(date) => onMonthCursorChange?.(date)} />
 
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
@@ -264,7 +260,7 @@ export function CalendarControlPanel({
               </Tooltip.Trigger>
               <Tooltip.Portal>
                 <Tooltip.Content className={styles.tooltip} side="bottom" align="center" sideOffset={6}>
-                  Next month
+                  Tháng sau
                   <Tooltip.Arrow className={styles.tooltipArrow} />
                 </Tooltip.Content>
               </Tooltip.Portal>

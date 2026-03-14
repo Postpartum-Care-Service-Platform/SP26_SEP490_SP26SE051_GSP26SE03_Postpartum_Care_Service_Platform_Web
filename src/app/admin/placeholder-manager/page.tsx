@@ -1,8 +1,20 @@
 'use client';
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from 'react';
+import { MagnifyingGlassIcon, PlusIcon, ChevronDownIcon } from '@radix-ui/react-icons';
 
-import apiClient from "@/services/apiClient";
+import { Pagination } from '@/components/ui/pagination';
+import { Button } from '@/components/ui/button';
+import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown';
+import apiClient from '@/services/apiClient';
+
+import styles from './placeholder-manager.module.css';
 
 export interface PlaceholderItem {
   id: number;
@@ -27,6 +39,31 @@ interface PlaceholderFormData {
   isActive: boolean;
 }
 
+const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={fill}>
+    <g data-name="Layer 2">
+      <g data-name="edit-2">
+        <rect width="24" height="24" opacity="0" />
+        <path d="M19 20H5a1 1 0 0 0 0 2h14a1 1 0 0 0 0-2z" />
+        <path d="M5 18h.09l4.17-.38a2 2 0 0 0 1.21-.57l9-9a1.92 1.92 0 0 0-.07-2.71L16.66 2.6A2 2 0 0 0 14 2.53l-9 9a2 2 0 0 0-.57 1.21L4 16.91a1 1 0 0 0 .29.8A1 1 0 0 0 5 18z" />
+      </g>
+    </g>
+  </svg>
+);
+
+const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={fill}>
+    <g data-name="Layer 2">
+      <g data-name="trash-2">
+        <rect width="24" height="24" opacity="0" />
+        <path d="M21 6h-5V4.33A2.42 2.42 0 0 0 13.5 2h-3A2.42 2.42 0 0 0 8 4.33V6H3a1 1 0 0 0 0 2h1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8h1a1 1 0 0 0 0-2zM10 4.33c0-.16.21-.33.5-.33h3c.29 0 .5.17.5.33V6h-4zM18 19a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V8h12z" />
+        <path d="M9 17a1 1 0 0 0 1-1v-4a1 1 0 0 0-2 0v4a1 1 0 0 0 1 1z" />
+        <path d="M15 17a1 1 0 0 0 1-1v-4a1 1 0 0 0-2 0v4a1 1 0 0 0 1 1z" />
+      </g>
+    </g>
+  </svg>
+);
+
 const initialFormData: PlaceholderFormData = {
   key: '',
   label: '',
@@ -40,12 +77,21 @@ const initialFormData: PlaceholderFormData = {
 export default function PlaceholderManagerPage() {
   const [placeholders, setPlaceholders] = useState<PlaceholderItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterType, setFilterType] = useState<number | null>(null);
+  const [filterType, setFilterType] = useState<string>('all');
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<PlaceholderItem | null>(null);
   const [formData, setFormData] = useState<PlaceholderFormData>(initialFormData);
   const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const PAGE_SIZE_OPTIONS = [10, 20, 50];
+
+  const filterTypeOptions = [
+    { value: 'all', label: 'Tất cả' },
+    { value: '1', label: 'Hợp đồng' },
+    { value: '2', label: 'Email' },
+  ];
 
   const fetchPlaceholders = useCallback(async () => {
     setLoading(true);
@@ -64,15 +110,32 @@ export default function PlaceholderManagerPage() {
     fetchPlaceholders();
   }, [fetchPlaceholders]);
 
-  const filteredPlaceholders = placeholders.filter(p => {
+  const filteredPlaceholders = placeholders.filter((p) => {
     const matchesActive = p.isActive === true;
-    const matchesType = filterType === null || p.templateType === filterType;
-    const matchesSearch = !searchTerm ||
+    const matchesType = filterType === 'all' || p.templateType === parseInt(filterType, 10);
+    const matchesSearch =
+      !searchTerm ||
       p.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.table.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesActive && matchesType && matchesSearch;
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterType]);
+
+  const paginatedPlaceholders = filteredPlaceholders.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
+
+  const totalPages = Math.ceil(filteredPlaceholders.length / pageSize) || 1;
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleOpenModal = (item?: PlaceholderItem) => {
     if (item) {
@@ -130,7 +193,7 @@ export default function PlaceholderManagerPage() {
 
     try {
       await apiClient.delete(`/template-placeholders/${id}`);
-      setPlaceholders(prev => prev.filter(p => p.id !== id));
+      setPlaceholders((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
       console.error('Error deleting placeholder:', error);
       alert('Có lỗi xảy ra khi xóa');
@@ -150,357 +213,265 @@ export default function PlaceholderManagerPage() {
     return type === 1 ? 'Hợp đồng' : 'Email';
   };
 
-  const getTemplateTypeColor = (type: number) => {
-    return type === 1 ? '#2a9d8f' : '#fa8314';
-  };
-
   return (
-    <div style={{ padding: '24px', background: '#f5f6fa', minHeight: '100vh' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <div>
-          <h1 style={{ fontSize: '24px', fontWeight: '600', color: '#343A40', margin: 0 }}>Quản lý Placeholder</h1>
-          <p style={{ color: '#8A92A4', margin: '4px 0 0' }}>Quản lý các trường dữ liệu cho template</p>
+    <div className={styles.pageContainer}>
+      <div className={styles.header}>
+        <div className={styles.titleBlock}>
+          <h4 className={styles.title}>Danh sách placeholder</h4>
         </div>
-        <button
-          onClick={() => handleOpenModal()}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '10px 20px',
-            background: '#fa8314',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-          }}
-        >
-          <span>+</span> Thêm placeholder
-        </button>
+        <Breadcrumbs items={[{ label: 'Placeholder' }]} homeHref="/admin" />
       </div>
 
-      {/* Filters */}
-      <div style={{
-        display: 'flex',
-        gap: '12px',
-        marginBottom: '20px',
-        flexWrap: 'wrap',
-        alignItems: 'center'
-      }}>
-        {/* Search */}
-        <input
-          type="text"
-          placeholder="Tìm kiếm..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            padding: '10px 16px',
-            border: '1px solid #e0e0e0',
-            borderRadius: '8px',
-            fontSize: '14px',
-            width: '280px',
-            outline: 'none',
-          }}
-        />
+      <div className={styles.controls}>
+        <div className={styles.left}>
+          <div className={styles.searchWrapper}>
+            <MagnifyingGlassIcon className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Tìm kiếm placeholder..."
+              className={styles.searchInput}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
 
-        {/* Type Filter */}
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={() => setFilterType(null)}
-            style={{
-              padding: '8px 16px',
-              border: '1px solid #e0e0e0',
-              borderRadius: '20px',
-              background: filterType === null ? '#fa8314' : '#fff',
-              color: filterType === null ? '#fff' : '#555',
-              cursor: 'pointer',
-              fontSize: '13px',
-              fontWeight: '500',
-            }}
-          >
-            Tất cả
-          </button>
-          <button
-            onClick={() => setFilterType(1)}
-            style={{
-              padding: '8px 16px',
-              border: '1px solid #e0e0e0',
-              borderRadius: '20px',
-              background: filterType === 1 ? '#2a9d8f' : '#fff',
-              color: filterType === 1 ? '#fff' : '#555',
-              cursor: 'pointer',
-              fontSize: '13px',
-              fontWeight: '500',
-            }}
-          >
-            Hợp đồng
-          </button>
-          <button
-            onClick={() => setFilterType(2)}
-            style={{
-              padding: '8px 16px',
-              border: '1px solid #e0e0e0',
-              borderRadius: '20px',
-              background: filterType === 2 ? '#fa8314' : '#fff',
-              color: filterType === 2 ? '#fff' : '#555',
-              cursor: 'pointer',
-              fontSize: '13px',
-              fontWeight: '500',
-            }}
-          >
-            Email
-          </button>
+          <div className={styles.typeFilters}>
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className={styles.filterButton}>
+                  {filterTypeOptions.find(opt => opt.value === filterType)?.label || 'Tất cả'}
+                  <ChevronDownIcon className={styles.chevronIcon} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className={styles.dropdownContent}>
+                {filterTypeOptions.map((option) => (
+                  <DropdownMenuItem
+                    key={option.value}
+                    className={`${styles.dropdownItem} ${filterType === option.value ? styles.dropdownItemActive : ''}`}
+                    onClick={() => setFilterType(option.value)}
+                  >
+                    {option.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+
+        <div className={styles.right}>
+          <Button variant="primary" size="sm" className={styles.addButton} onClick={() => handleOpenModal()}>
+            <PlusIcon className={styles.plusIcon} />
+            Placeholder mới
+          </Button>
         </div>
       </div>
 
-      {/* Table */}
-      <div style={{
-        background: '#fff',
-        borderRadius: '12px',
-        border: '1px solid #e0e0e0',
-        overflow: 'hidden',
-      }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: '#f8f9fa' }}>
-              <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#8A92A4', textTransform: 'uppercase' }}>Key</th>
-              <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#8A92A4', textTransform: 'uppercase' }}>Label</th>
-              <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#8A92A4', textTransform: 'uppercase' }}>Bảng</th>
-              <th style={{ padding: '14px 16px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#8A92A4', textTransform: 'uppercase' }}>Loại</th>
-              <th style={{ padding: '14px 16px', textAlign: 'center', fontSize: '12px', fontWeight: '600', color: '#8A92A4', textTransform: 'uppercase' }}>Thứ tự</th>
-              <th style={{ padding: '14px 16px', textAlign: 'center', fontSize: '12px', fontWeight: '600', color: '#8A92A4', textTransform: 'uppercase' }}>Trạng thái</th>
-              <th style={{ padding: '14px 16px', textAlign: 'right', fontSize: '12px', fontWeight: '600', color: '#8A92A4', textTransform: 'uppercase' }}>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+      <div className={styles.tableContainer}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#8A92A4' }}>Đang tải...</td>
+                <th>Key</th>
+                <th>Label</th>
+                <th>Bảng</th>
+                <th>Loại</th>
+                <th style={{ textAlign: 'center' }}>Thứ tự</th>
+                <th style={{ textAlign: 'center' }}>Trạng thái</th>
+                <th style={{ textAlign: 'right' }}>Thao tác</th>
               </tr>
-            ) : filteredPlaceholders.length === 0 ? (
-              <tr>
-                <td colSpan={7} style={{ padding: '40px', textAlign: 'center', color: '#8A92A4' }}>Không có dữ liệu</td>
-              </tr>
-            ) : (
-              filteredPlaceholders.map((item) => (
-                <tr key={item.id} style={{ borderTop: '1px solid #f0f0f0' }}>
-                  <td style={{ padding: '14px 16px' }}>
-                    <code style={{
-                      background: 'rgba(250, 131, 20, 0.1)',
-                      color: '#fa8314',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      fontFamily: 'monospace',
-                    }}>
-                      {`{{${item.key}}}`}
-                    </code>
-                  </td>
-                  <td style={{ padding: '14px 16px', fontSize: '14px', color: '#343A40' }}>{item.label}</td>
-                  <td style={{ padding: '14px 16px', fontSize: '13px', color: '#666' }}>{item.table}</td>
-                  <td style={{ padding: '14px 16px' }}>
-                    <span style={{
-                      padding: '4px 10px',
-                      borderRadius: '12px',
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      background: `${getTemplateTypeColor(item.templateType)}20`,
-                      color: getTemplateTypeColor(item.templateType),
-                    }}>
-                      {getTemplateTypeLabel(item.templateType)}
-                    </span>
-                  </td>
-                  <td style={{ padding: '14px 16px', textAlign: 'center', fontSize: '13px', color: '#666' }}>{item.displayOrder || '-'}</td>
-                  <td style={{ padding: '14px 16px', textAlign: 'center' }}>
-                    <button
-                      onClick={() => handleToggleActive(item)}
-                      style={{
-                        padding: '4px 12px',
-                        border: 'none',
-                        borderRadius: '12px',
-                        fontSize: '11px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        background: item.isActive ? '#d4edda' : '#f8d7da',
-                        color: item.isActive ? '#155724' : '#721c24',
-                      }}
-                    >
-                      {item.isActive ? 'Hoạt động' : 'Không hoạt động'}
-                    </button>
-                  </td>
-                  <td style={{ padding: '14px 16px', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                      <button
-                        onClick={() => handleOpenModal(item)}
-                        style={{
-                          padding: '6px 12px',
-                          border: '1px solid #e0e0e0',
-                          borderRadius: '6px',
-                          background: '#fff',
-                          color: '#555',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                        }}
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        style={{
-                          padding: '6px 12px',
-                          border: '1px solid #f5c6cb',
-                          borderRadius: '6px',
-                          background: '#fff',
-                          color: '#dc3545',
-                          cursor: 'pointer',
-                          fontSize: '12px',
-                        }}
-                      >
-                        Xóa
-                      </button>
-                    </div>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className={styles.emptyState}>
+                    Đang tải...
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : filteredPlaceholders.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className={styles.emptyState}>
+                    Không có dữ liệu
+                  </td>
+                </tr>
+              ) : (
+                paginatedPlaceholders.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <code className={styles.codeTag}>{`{{${item.key}}}`}</code>
+                    </td>
+                    <td>{item.label}</td>
+                    <td>{item.table}</td>
+                    <td>
+                      <span
+                        className={`${styles.typeBadge} ${item.templateType === 1 ? styles.typeContract : styles.typeEmail}`}
+                      >
+                        {getTemplateTypeLabel(item.templateType)}
+                      </span>
+                    </td>
+                    <td style={{ textAlign: 'center' }}>{item.displayOrder || '-'}</td>
+                    <td style={{ textAlign: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleActive(item)}
+                        className={`${styles.statusButton} ${item.isActive ? styles.statusActive : styles.statusInactive}`}
+                      >
+                        {item.isActive ? 'Hoạt động' : 'Không hoạt động'}
+                      </button>
+                    </td>
+                    <td>
+                      <div className={styles.actions}>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={styles.editButton}
+                            onClick={() => handleOpenModal(item)}
+                            aria-label={`Chỉnh sửa ${item.key}`}
+                          >
+                            <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                        </div>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={styles.deleteButton}
+                            onClick={() => handleDelete(item.id)}
+                            aria-label={`Xóa ${item.key}`}
+                          >
+                            <Trash2OutlineIcon fill="#FD6161" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Xóa</span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {filteredPlaceholders.length > 0 && totalPages > 1 && (
+          <div className={styles.paginationWrapper}>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={filteredPlaceholders.length}
+              onPageChange={handlePageChange}
+              pageSizeOptions={PAGE_SIZE_OPTIONS}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              showResultCount={true}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Modal */}
       {showModal && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-        }} onClick={handleCloseModal}>
-          <div style={{
-            background: '#fff',
-            borderRadius: '12px',
-            padding: '24px',
-            width: '500px',
-            maxWidth: '95vw',
-          }} onClick={e => e.stopPropagation()}>
-            <h2 style={{ margin: '0 0 20px', fontSize: '18px', fontWeight: '600' }}>
+        <div className={styles.modalOverlay} onClick={handleCloseModal}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <h2 className={styles.modalTitle}>
               {editingItem ? 'Sửa placeholder' : 'Thêm placeholder mới'}
             </h2>
             <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#8A92A4', marginBottom: '6px' }}>KEY</label>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Key</label>
                 <input
                   type="text"
                   value={formData.key}
-                  onChange={(e) => setFormData({ ...formData, key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      key: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''),
+                    })
+                  }
                   required
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px' }}
+                  className={styles.formInput}
                   placeholder="ví dụ: ho_ten"
                 />
               </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#8A92A4', marginBottom: '6px' }}>LABEL</label>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Label</label>
                 <input
                   type="text"
                   value={formData.label}
                   onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                   required
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px' }}
+                  className={styles.formInput}
                   placeholder="ví dụ: Họ tên"
                 />
               </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#8A92A4', marginBottom: '6px' }}>BẢNG</label>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Bảng</label>
                 <input
                   type="text"
                   value={formData.table}
                   onChange={(e) => setFormData({ ...formData, table: e.target.value })}
                   required
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px' }}
+                  className={styles.formInput}
                   placeholder="ví dụ: Account"
                 />
               </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#8A92A4', marginBottom: '6px' }}>MÔ TẢ</label>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Mô tả</label>
                 <input
                   type="text"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px' }}
+                  className={styles.formInput}
                   placeholder="Mô tả cho placeholder"
                 />
               </div>
-              <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+              <div className={styles.formRow}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#8A92A4', marginBottom: '6px' }}>LOẠI</label>
+                  <label className={styles.formLabel}>Loại</label>
                   <select
                     value={formData.templateType}
-                    onChange={(e) => setFormData({ ...formData, templateType: parseInt(e.target.value) })}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px' }}
+                    onChange={(e) =>
+                      setFormData({ ...formData, templateType: parseInt(e.target.value, 10) })
+                    }
+                    className={styles.formSelect}
                   >
                     <option value={1}>Hợp đồng</option>
                     <option value={2}>Email</option>
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '600', color: '#8A92A4', marginBottom: '6px' }}>THỨ TỰ</label>
+                  <label className={styles.formLabel}>Thứ tự</label>
                   <input
                     type="number"
                     value={formData.displayOrder}
-                    onChange={(e) => setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })}
-                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #e0e0e0', borderRadius: '8px', fontSize: '14px' }}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        displayOrder: parseInt(e.target.value, 10) || 0,
+                      })
+                    }
+                    className={styles.formInput}
                   />
                 </div>
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <div className={styles.checkboxRow}>
+                <label className={styles.checkboxLabel}>
                   <input
                     type="checkbox"
                     checked={formData.isActive}
                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    style={{ width: '18px', height: '18px' }}
                   />
-                  <span style={{ fontSize: '14px' }}>Hoạt động</span>
+                  <span>Hoạt động</span>
                 </label>
               </div>
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  style={{
-                    padding: '10px 20px',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '8px',
-                    background: '#fff',
-                    color: '#555',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                  }}
-                >
+              <div className={styles.modalActions}>
+                <button type="button" onClick={handleCloseModal} className={styles.cancelButton}>
                   Hủy
                 </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  style={{
-                    padding: '10px 20px',
-                    border: 'none',
-                    borderRadius: '8px',
-                    background: '#fa8314',
-                    color: '#fff',
-                    cursor: saving ? 'not-allowed' : 'pointer',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    opacity: saving ? 0.7 : 1,
-                  }}
-                >
-                  {saving ? 'Đang lưu...' : (editingItem ? 'Cập nhật' : 'Thêm mới')}
+                <button type="submit" disabled={saving} className={styles.submitButton}>
+                  {saving ? 'Đang lưu...' : editingItem ? 'Cập nhật' : 'Thêm mới'}
                 </button>
               </div>
             </form>

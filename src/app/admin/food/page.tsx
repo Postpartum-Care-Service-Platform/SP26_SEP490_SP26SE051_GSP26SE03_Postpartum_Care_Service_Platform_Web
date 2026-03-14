@@ -6,12 +6,10 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import foodService from '@/services/food.service';
 import type { Food } from '@/types/food';
 
-import { FoodListHeader, FoodStatsCards, FoodTable, FoodTableControls, NewFoodModal } from './components';
+import { FoodListHeader, FoodTable, FoodTableControls, NewFoodModal } from './components';
 import styles from './food.module.css';
 
-import type { FoodStats } from './components';
 
-const PAGE_SIZE = 10;
 
 const getErrorMessage = (error: unknown, fallbackMessage: string) => {
   if (error instanceof Error && error.message) return error.message;
@@ -51,6 +49,8 @@ export default function AdminFoodPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [sortKey, setSortKey] = useState<string>('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const fetchFoods = async () => {
@@ -69,18 +69,6 @@ export default function AdminFoodPage() {
   useEffect(() => {
     fetchFoods();
   }, []);
-
-  const stats: FoodStats = useMemo(() => {
-    const total = foods.length;
-    const active = foods.filter((f) => f.isActive).length;
-    const inactive = total - active;
-
-    return {
-      total,
-      active,
-      inactive,
-    };
-  }, [foods]);
 
   const filteredFoods = useMemo(() => {
     let filtered = [...foods];
@@ -104,12 +92,12 @@ export default function AdminFoodPage() {
   }, [searchQuery, statusFilter, sortKey]);
 
   const paginatedFoods = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
     return filteredFoods.slice(start, end);
-  }, [filteredFoods, currentPage]);
+  }, [filteredFoods, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredFoods.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredFoods.length / pageSize);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -158,8 +146,6 @@ export default function AdminFoodPage() {
         </div>
       ) : (
         <>
-          <FoodStatsCards stats={stats} />
-
           <FoodTableControls
             onSearch={(q) => setSearchQuery(q)}
             onSortChange={(sort) => setSortKey(sort)}
@@ -177,9 +163,14 @@ export default function AdminFoodPage() {
                 ? {
                     currentPage,
                     totalPages,
-                    pageSize: PAGE_SIZE,
+                    pageSize,
                     totalItems: filteredFoods.length,
                     onPageChange: handlePageChange,
+                    pageSizeOptions: PAGE_SIZE_OPTIONS,
+                    onPageSizeChange: (size) => {
+                      setPageSize(size);
+                      setCurrentPage(1);
+                    },
                   }
                 : undefined
             }

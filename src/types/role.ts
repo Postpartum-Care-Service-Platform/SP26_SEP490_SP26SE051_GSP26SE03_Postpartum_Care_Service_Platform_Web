@@ -2,6 +2,8 @@ export interface Role {
   id: number;
   roleName: string;
   description: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CreateRoleRequest {

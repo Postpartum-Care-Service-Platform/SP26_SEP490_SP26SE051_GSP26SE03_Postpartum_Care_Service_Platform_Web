@@ -4,6 +4,8 @@
   background: #fff;
   overflow: hidden;
   margin-top: 12px;
+  display: flex;
+  flex-direction: column;
 }
 
 .headerRow {
@@ -11,6 +13,8 @@
   grid-template-columns: repeat(7, 1fr);
   height: 48px;
   border-bottom: 1px solid rgba(9, 30, 66, 0.14);
+  flex-shrink: 0;
+  background: #fff;
 }
 
 .headerCell {
@@ -26,6 +30,8 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-auto-rows: 140px;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .dayCell {
@@ -34,6 +40,11 @@
   padding: 10px;
   position: relative;
   transition: background-color 100ms ease;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 140px;
+  overflow: hidden;
 }
 
 .dayCell:hover {
@@ -100,9 +111,97 @@
 }
 
 .today {
-  background: rgba(9, 30, 66, 0.06);
+  background: rgba(255, 122, 0, 0.1);
+}
+
+.selected {
+  background: rgba(255, 122, 0, 0.1);
+  border-color: #ff7a00;
+}
+
+.selected .dayNumber {
+  color: #ff7a00;
+  font-weight: 600;
 }
 
 .dayBody {
   margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.eventChip {
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px dashed rgba(9, 30, 66, 0.3);
+  max-width: 100%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.eventChip:hover {
+  opacity: 0.8;
+}
+
+.eventTime {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.eventTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #172b4d;
+  flex: 1;
+  min-width: 0;
+}
+
+.moreIndicator {
+  font-size: 11px;
+  color: #6b778c;
+  padding: 2px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tooltipContent {
+  background: #172b4d;
+  color: #fff;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.tooltipTitle {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.tooltipCode {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-bottom: 2px;
+}
+
+.tooltipTime {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.tooltipArrow {
+  fill: #172b4d;
 }

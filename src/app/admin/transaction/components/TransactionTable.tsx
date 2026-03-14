@@ -101,6 +101,8 @@ type Props = {
     pageSize: number;
     totalItems: number;
     onPageChange: (page: number) => void;
+    pageSizeOptions?: number[];
+    onPageSizeChange?: (size: number) => void;
   };
 };
 
@@ -152,15 +154,18 @@ export function TransactionTable({ transactions, onView, pagination }: Props) {
                 </td>
                 <td>
                   <div className={styles.actions}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.viewButton} btn-icon btn-sm`}
-                      onClick={() => onView?.(transaction)}
-                      aria-label={`Xem chi tiết giao dịch ${transaction.id}`}
-                    >
-                      <Eye size={16} />
-                    </Button>
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.viewButton} btn-icon btn-sm`}
+                        onClick={() => onView?.(transaction)}
+                        aria-label={`Xem chi tiết giao dịch ${transaction.id}`}
+                      >
+                        <Eye size={16} />
+                      </Button>
+                      <span className={styles.tooltip}>Xem chi tiết</span>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -177,6 +182,8 @@ export function TransactionTable({ transactions, onView, pagination }: Props) {
             pageSize={pagination.pageSize}
             totalItems={pagination.totalItems}
             onPageChange={pagination.onPageChange}
+            pageSizeOptions={pagination.pageSizeOptions}
+            onPageSizeChange={pagination.onPageSizeChange}
             showResultCount={true}
           />
         </div>

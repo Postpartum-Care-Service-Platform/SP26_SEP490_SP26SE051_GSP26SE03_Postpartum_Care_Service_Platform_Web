@@ -74,6 +74,8 @@
 
 .formControl {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box; /* Đảm bảo padding không làm input vượt quá container */
   padding: 8px 14px;
   background-color: #ffffff;
   border: 1px solid #dee2e6;
@@ -98,27 +100,66 @@
   border-color: #dc3545;
 }
 
-/* Dropdown kiểu giống Appointment Type (select cơ bản với mũi tên) */
-.select {
+/* Custom dropdown cho Loại gói */
+.dropdownTrigger {
   width: 100%;
   height: 42px;
   border-radius: 4px;
   border: 1px solid #dee2e6;
-  padding: 8px 38px 8px 14px;
+  padding: 8px 14px;
   font-size: 14px;
   color: #495057;
   background-color: #f8f9fa;
   font-weight: 500;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9L12 15L18 9' stroke='%238A92A4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dropdownTrigger:focus-visible {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.dropdownPlaceholder {
+  color: #8a92a4;
+}
+
+.dropdownValue {
+  color: #495057;
+}
+
+.dropdownChevron {
+  width: 16px;
+  height: 16px;
+  color: #8a92a4;
+}
+
+.dropdownContent {
+  min-width: 280px;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  z-index: 1200;
+}
+
+.dropdownItem {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.dropdownItemActive {
+  background-color: rgba(250, 131, 20, 0.12);
+  color: #fa8314;
+  font-weight: 600;
 }
 
 .selectError {
-  border-color: #dc3545;
+  border-color: #dc3545 !important;
 }
 
 .errorMessage {

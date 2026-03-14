@@ -7,24 +7,25 @@ import activityService from '@/services/activity.service';
 import type { Activity } from '@/types/activity';
 
 import styles from './activity.module.css';
-import { ActivityStatsCards, ActivityTable, ActivityTableControls, NewActivityModal } from './components';
-import { ActivityListHeader } from './components/ActivityListHeader';
+import { ActivityListHeader, ActivityTable, ActivityTableControls, NewActivityModal } from './components';
 
-import type { ActivityStats } from './components';
 
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10;
+const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 
 const sortActivities = (items: Activity[], sort: string) => {
   const arr = [...items];
   switch (sort) {
     case 'createdAt-asc':
-      return arr.sort((a, b) => new Date((a.createdAt as string) || 0).getTime() - new Date((b.createdAt as string) || 0).getTime());
+    case 'id-asc':
+      return arr.sort((a, b) => a.id - b.id);
     case 'createdAt-desc':
-      return arr.sort((a, b) => new Date((b.createdAt as string) || 0).getTime() - new Date((a.createdAt as string) || 0).getTime());
+    case 'id-desc':
+      return arr.sort((a, b) => b.id - a.id);
     case 'name-asc':
-      return arr.sort((a, b) => ((a.name as string) || '').localeCompare((b.name as string) || ''));
+      return arr.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     case 'name-desc':
-      return arr.sort((a, b) => ((b.name as string) || '').localeCompare((a.name as string) || ''));
+      return arr.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
     default:
       return arr;
   }
@@ -42,6 +43,7 @@ export default function AdminActivityPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [sortKey, setSortKey] = useState<string>('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const fetchActivities = async () => {
@@ -63,17 +65,6 @@ export default function AdminActivityPage() {
     fetchActivities();
   }, []);
 
-  const stats: ActivityStats = useMemo(() => {
-    const total = activities.length;
-    const active = activities.filter((a) => (a.isActive as boolean) === true).length;
-    const inactive = total - active;
-
-    return {
-      total,
-      active,
-      inactive,
-    };
-  }, [activities]);
 
   const filteredActivities = useMemo(() => {
     let filtered = [...activities];
@@ -86,7 +77,9 @@ export default function AdminActivityPage() {
     }
 
     if (statusFilter !== 'all') {
-      filtered = filtered.filter((a) => (statusFilter === 'active' ? (a.isActive as boolean) === true : (a.isActive as boolean) === false));
+      filtered = filtered.filter((a) =>
+        statusFilter === 'active' ? a.status === 'Active' : a.status !== 'Active'
+      );
     }
 
     return sortActivities(filtered, sortKey);
@@ -97,16 +90,21 @@ export default function AdminActivityPage() {
   }, [searchQuery, statusFilter, sortKey]);
 
   const paginatedActivities = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
     return filteredActivities.slice(start, end);
-  }, [filteredActivities, currentPage]);
+  }, [filteredActivities, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredActivities.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredActivities.length / pageSize);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
   };
 
   const handleEdit = (activity: Activity) => {
@@ -139,7 +137,6 @@ export default function AdminActivityPage() {
   return (
     <div className={styles.pageContainer}>
       <ActivityListHeader />
-
       {loading ? (
         <div className={styles.content}>
           <p>Đang tải dữ liệu...</p>
@@ -150,8 +147,6 @@ export default function AdminActivityPage() {
         </div>
       ) : (
         <>
-          <ActivityStatsCards stats={stats} />
-
           <ActivityTableControls
             onSearch={(q) => setSearchQuery(q)}
             onSortChange={(sort) => setSortKey(sort)}
@@ -169,9 +164,11 @@ export default function AdminActivityPage() {
                 ? {
                     currentPage,
                     totalPages,
-                    pageSize: PAGE_SIZE,
+                    pageSize,
                     totalItems: filteredActivities.length,
                     onPageChange: handlePageChange,
+                    pageSizeOptions: [...PAGE_SIZE_OPTIONS],
+                    onPageSizeChange: handlePageSizeChange,
                   }
                 : undefined
             }

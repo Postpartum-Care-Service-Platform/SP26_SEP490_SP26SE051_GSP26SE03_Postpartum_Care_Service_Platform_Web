@@ -44,16 +44,24 @@ export const TASK_TYPES: TaskType[] = [
 type Props = {
   selectedId: string;
   onSelect: (type: TaskType) => void;
+  onClose?: () => void;
 };
 
-export function TaskTypePicker({ selectedId, onSelect }: Props) {
+export function TaskTypePicker({ selectedId, onSelect, onClose }: Props) {
   return (
-    <div className={styles.picker} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+    <div
+      className={styles.picker}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
       {TASK_TYPES.map((type) => (
         <div
           key={type.id}
           className={`${styles.item} ${selectedId === type.id ? styles.selected : ''}`}
-          onClick={() => onSelect(type)}
+          onClick={() => {
+            onSelect(type);
+            onClose?.();
+          }}
         >
           <div className={styles.iconWrapper}>
             {type.imageUrl ? (

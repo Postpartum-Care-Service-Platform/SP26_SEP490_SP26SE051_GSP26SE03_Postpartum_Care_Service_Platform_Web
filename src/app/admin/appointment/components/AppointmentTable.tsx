@@ -1,13 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-
+import React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
 
 import styles from './appointment-table.module.css';
-import { QuickCreateAppointment } from './QuickCreateAppointment';
 import type { Appointment } from './types';
 
 const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
@@ -46,7 +45,10 @@ type Props = {
     pageSize: number;
     totalItems: number;
     onPageChange: (page: number) => void;
+    pageSizeOptions?: number[];
+    onPageSizeChange?: (size: number) => void;
   };
+  quickCreateComponent?: React.ReactNode;
 };
 
 const getStatusClass = (status: Appointment['status']) => {
@@ -83,7 +85,7 @@ const getStatusLabel = (status: Appointment['status']) => {
   }
 };
 
-export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pagination }: Props) {
+export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pagination, quickCreateComponent }: Props) {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
@@ -92,8 +94,8 @@ export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pa
             <th>Mã lịch hẹn</th>
             <th>Tên lịch hẹn</th>
             <th>Khách hàng</th>
-            <th>Nhân viên phụ trách</th>
             <th>Loại lịch hẹn</th>
+            <th>Ngày</th>
             <th>Thời gian</th>
             <th>Trạng thái</th>
             <th>Thao tác</th>
@@ -122,9 +124,9 @@ export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pa
                   <span>{appointment.patientName}</span>
                 </div>
               </td>
-              <td>{appointment.doctor}</td>
               <td>{appointment.department}</td>
-              <td>{appointment.dateTime}</td>
+              <td>{appointment.date}</td>
+              <td>{appointment.time}</td>
               <td>
                 <span className={`${styles.statusBadge} ${getStatusClass(appointment.status)}`}>
                   {getStatusLabel(appointment.status)}
@@ -132,24 +134,30 @@ export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pa
               </td>
               <td>
                 <div className={styles.actions}>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={`${styles.editButton} btn-icon btn-sm`}
-                    onClick={() => onEdit?.(appointment)}
-                    aria-label={`Chỉnh sửa ${appointment.id}`}
-                  >
-                    <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={`${styles.deleteButton} btn-icon btn-sm`}
-                    onClick={() => onDelete?.(appointment)}
-                    aria-label={`Xóa ${appointment.id}`}
-                  >
-                    <Trash2OutlineIcon fill="#FD6161" size={16} />
-                  </Button>
+                  <div className={styles.tooltipWrapper}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={`${styles.editButton} btn-icon btn-sm`}
+                      onClick={() => onEdit?.(appointment)}
+                      aria-label={`Chỉnh sửa ${appointment.id}`}
+                    >
+                      <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                    </Button>
+                    <span className={styles.tooltip}>Chỉnh sửa</span>
+                  </div>
+                  <div className={styles.tooltipWrapper}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={`${styles.deleteButton} btn-icon btn-sm`}
+                      onClick={() => onDelete?.(appointment)}
+                      aria-label={`Xóa ${appointment.id}`}
+                    >
+                      <Trash2OutlineIcon fill="#FD6161" size={16} />
+                    </Button>
+                    <span className={styles.tooltip}>Xóa</span>
+                  </div>
                 </div>
               </td>
             </tr>
@@ -157,9 +165,11 @@ export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pa
         </tbody>
       </table>
 
-      <div className={styles.quickCreateWrapper}>
-        <QuickCreateAppointment onCreated={onCreated} />
-      </div>
+      {quickCreateComponent && (
+        <div className={styles.quickCreateWrapper}>
+          {quickCreateComponent}
+        </div>
+      )}
 
       {pagination && pagination.totalPages > 0 && (
         <div className={styles.paginationWrapper}>
@@ -169,6 +179,8 @@ export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pa
             pageSize={pagination.pageSize}
             totalItems={pagination.totalItems}
             onPageChange={pagination.onPageChange}
+            pageSizeOptions={pagination.pageSizeOptions}
+            onPageSizeChange={pagination.onPageSizeChange}
             showResultCount={true}
           />
         </div>

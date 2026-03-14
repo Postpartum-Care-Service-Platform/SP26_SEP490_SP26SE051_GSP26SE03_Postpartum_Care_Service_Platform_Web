@@ -47,6 +47,23 @@
   font-weight: 500;
 }
 
+.inlineNameInput {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background-color: transparent;
+}
+
+.inlineNameInput:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+  background-color: #f8f9fa;
+}
+
 .statusBadge {
   display: inline-block;
   padding: 4px 8px;
@@ -66,10 +83,128 @@
   color: #b91c1c;
 }
 
+/* Dropdown-style status pill (2 trạng thái: Hoạt động / Tạm dừng) */
+.statusTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #172b4d;
+}
+
+.statusTriggerActive {
+  background-color: rgba(21, 128, 61, 0.18);
+  color: #15803d;
+}
+
+.statusTriggerInactive {
+  background-color: rgba(185, 28, 28, 0.16);
+  color: #b91c1c;
+}
+
+.statusTrigger:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.statusCaret {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.85;
+}
+
+.statusMenu {
+  min-width: 180px;
+  padding: 6px 0;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+.statusItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #172b4d;
+  cursor: pointer;
+}
+
+.statusItem:hover {
+  background: rgba(9, 30, 66, 0.06);
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.statusPillActive {
+  background-color: rgba(21, 128, 61, 0.12);
+  color: #15803d;
+}
+
+.statusPillInactive {
+  background-color: rgba(185, 28, 28, 0.12);
+  color: #b91c1c;
+}
+
 .actions {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* ── Tooltip cho nút thao tác ── */
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltipWrapper .tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 20;
+}
+
+.tooltipWrapper .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #343a40;
+}
+
+.tooltipWrapper:hover .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
 }
 
 .editButton {
@@ -121,10 +256,7 @@
   font-family: var(--font-body);
 }
 
-.paginationWrapper {
-  margin-top: var(--spacing-md);
-  width: 100%;
-}
+
 
 .paginationWrapper :global(.container) {
   width: 100%;

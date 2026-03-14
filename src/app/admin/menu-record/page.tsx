@@ -6,18 +6,16 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import menuRecordService from '@/services/menu-record.service';
 import type { MenuRecord } from '@/types/menu-record';
 
-import { NewMenuRecordModal, MenuRecordStatsCards, MenuRecordTable, MenuRecordTableControls } from './components';
+import { NewMenuRecordModal, MenuRecordTable, MenuRecordTableControls } from './components';
 import { MenuRecordListHeader } from './components/MenuRecordListHeader';
 import styles from './menu-record.module.css';
 
-import type { MenuRecordStats } from './components';
 
 const getErrorMessage = (error: unknown, fallbackMessage: string) => {
   if (error instanceof Error && error.message) return error.message;
   if (typeof error === 'string' && error.trim()) return error;
   return fallbackMessage;
 };
-const PAGE_SIZE = 10;
 
 const sortMenuRecords = (items: MenuRecord[], sort: string) => {
   const arr = [...items];
@@ -51,6 +49,8 @@ export default function AdminMenuRecordPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [sortKey, setSortKey] = useState<string>('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const fetchMenuRecords = async () => {
@@ -69,18 +69,6 @@ export default function AdminMenuRecordPage() {
   useEffect(() => {
     fetchMenuRecords();
   }, []);
-
-  const stats: MenuRecordStats = useMemo(() => {
-    const total = menuRecords.length;
-    const active = menuRecords.filter((m) => m.isActive).length;
-    const inactive = total - active;
-
-    return {
-      total,
-      active,
-      inactive,
-    };
-  }, [menuRecords]);
 
   const filteredMenuRecords = useMemo(() => {
     let filtered = [...menuRecords];
@@ -102,12 +90,12 @@ export default function AdminMenuRecordPage() {
   }, [searchQuery, statusFilter, sortKey]);
 
   const paginatedMenuRecords = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
     return filteredMenuRecords.slice(start, end);
-  }, [filteredMenuRecords, currentPage]);
+  }, [filteredMenuRecords, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredMenuRecords.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredMenuRecords.length / pageSize);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -156,8 +144,6 @@ export default function AdminMenuRecordPage() {
         </div>
       ) : (
         <>
-          <MenuRecordStatsCards stats={stats} />
-
           <MenuRecordTableControls
             onSearch={(q) => setSearchQuery(q)}
             onSortChange={(sort) => setSortKey(sort)}
@@ -175,9 +161,14 @@ export default function AdminMenuRecordPage() {
                 ? {
                     currentPage,
                     totalPages,
-                    pageSize: PAGE_SIZE,
+                    pageSize,
                     totalItems: filteredMenuRecords.length,
                     onPageChange: handlePageChange,
+                    pageSizeOptions: PAGE_SIZE_OPTIONS,
+                    onPageSizeChange: (size) => {
+                      setPageSize(size);
+                      setCurrentPage(1);
+                    },
                   }
                 : undefined
             }

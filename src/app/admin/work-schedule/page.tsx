@@ -1,5 +1,6 @@
 'use client';
 
+import { format } from 'date-fns';
 import React from 'react';
 
 import { BoardControlPanel } from './components/board/BoardControlPanel';
@@ -7,6 +8,7 @@ import { BoardView } from './components/board/BoardView';
 import { CalendarControlPanel } from './components/calendar/CalendarControlPanel';
 import { CalendarMonthView } from './components/calendar/CalendarMonthView';
 import { CalendarWeekView } from './components/calendar/CalendarWeekView';
+import { CalendarDayView } from './components/calendar/CalendarDayView';
 import { WorkScheduleList } from './components/list/WorkScheduleList';
 import { SummaryIcon, TimelineIcon, BoardIcon, CalendarIcon, ListIcon } from './components/TabIcons';
 import { TASK_TYPES, type TaskType } from './components/TaskTypePicker';
@@ -20,6 +22,8 @@ import { WorkScheduleStatusOverview } from './components/WorkScheduleStatusOverv
 
 import type { CalendarStatusType } from './components/calendar/CalendarStatusDropdown';
 import type { CalendarViewMode } from './components/calendar/CalendarViewDropdown';
+import staffScheduleService from '@/services/staff-schedule.service';
+import type { StaffSchedule } from '@/types/staff-schedule';
 
 
 const tabs = [
@@ -37,6 +41,12 @@ export default function WorkSchedulePage() {
   const [assigneeOnly, setAssigneeOnly] = React.useState(false);
   const [timelineAssigneeOnly, setTimelineAssigneeOnly] = React.useState(false);
 
+  React.useEffect(() => {
+    if (activeTab === 'list') {
+      setViewMode('table');
+    }
+  }, [activeTab]);
+
   // Calendar State
   const [calendarMonth, setCalendarMonth] = React.useState(() => {
     const d = new Date();
@@ -44,9 +54,56 @@ export default function WorkSchedulePage() {
     d.setHours(0, 0, 0, 0);
     return d;
   });
+  const [calendarSelectedDate, setCalendarSelectedDate] = React.useState<Date>(new Date());
   const [calendarViewMode, setCalendarViewMode] = React.useState<CalendarViewMode>('Month');
   const [calendarStatus, setCalendarStatus] = React.useState<CalendarStatusType>('TO DO');
   const [calendarTaskType, setCalendarTaskType] = React.useState<TaskType | null>(TASK_TYPES[TASK_TYPES.length - 1]);
+  const [schedules, setSchedules] = React.useState<StaffSchedule[]>([]);
+
+  // Fetch schedules when calendarMonth changes
+  React.useEffect(() => {
+    const fetchSchedules = async () => {
+      try {
+        const year = calendarMonth.getFullYear();
+        const month = calendarMonth.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        
+        const from = format(firstDay, 'yyyy-MM-dd');
+        const to = format(lastDay, 'yyyy-MM-dd');
+        
+        // TODO: Replace with actual staffId
+        const staffId = '40bbcefe-8a22-47c0-aa3e-9147db0e5a01';
+        
+        const data = await staffScheduleService.getStaffSchedule({ staffId, from, to });
+        setSchedules(data);
+      } catch (error) {
+        console.error('Failed to fetch schedules:', error);
+      }
+    };
+    
+    if (activeTab === 'calendar') {
+      fetchSchedules();
+    }
+  }, [calendarMonth, activeTab]);
+
+  const handleTodayClick = React.useCallback(() => {
+    const today = new Date();
+    const month = new Date(today);
+    month.setDate(1);
+    month.setHours(0, 0, 0, 0);
+    setCalendarMonth(month);
+    setCalendarSelectedDate(today);
+  }, []);
+
+  const handleSelectedDateChange = React.useCallback((date: Date) => {
+    setCalendarSelectedDate(date);
+    // Chuyển calendar lớn đến tháng của ngày được chọn
+    const month = new Date(date);
+    month.setDate(1);
+    month.setHours(0, 0, 0, 0);
+    setCalendarMonth(month);
+  }, []);
 
   return (
     <div>
@@ -77,7 +134,7 @@ export default function WorkSchedulePage() {
             assigneeOnly={assigneeOnly}
             onAssigneeOnlyChange={setAssigneeOnly}
           />
-          {viewMode === 'list' ? <WorkScheduleList assigneeOnly={assigneeOnly} /> : <WorkScheduleDetailView />}
+          {viewMode === 'table' ? <WorkScheduleList /> : <WorkScheduleDetailView />}
         </>
       )}
 
@@ -114,11 +171,43 @@ export default function WorkSchedulePage() {
             onStatusChange={setCalendarStatus}
             taskType={calendarTaskType}
             onTaskTypeChange={setCalendarTaskType}
+            onTodayClick={handleTodayClick}
           />
           {calendarViewMode === 'Month' ? (
-            <CalendarMonthView monthCursor={calendarMonth} />
+            <CalendarMonthView 
+              monthCursor={calendarMonth} 
+              selectedDate={calendarSelectedDate}
+              onSelectedDateChange={handleSelectedDateChange}
+              schedules={schedules}
+            />
+          ) : calendarViewMode === 'Week' ? (
+            <CalendarWeekView 
+              monthCursor={calendarMonth} 
+              schedules={schedules}
+              onEventCreated={() => {
+                // Refresh schedules after creating new event
+                const fetchSchedules = async () => {
+                  const year = calendarMonth.getFullYear();
+                  const month = calendarMonth.getMonth();
+                  const firstDay = new Date(year, month, 1);
+                  const lastDay = new Date(year, month + 1, 0);
+                  
+                  const from = format(firstDay, 'yyyy-MM-dd');
+                  const to = format(lastDay, 'yyyy-MM-dd');
+                  
+                  const staffId = '40bbcefe-8a22-47c0-aa3e-9147db0e5a01';
+                  
+                  const data = await staffScheduleService.getStaffSchedule({ staffId, from, to });
+                  setSchedules(data);
+                };
+                fetchSchedules();
+              }}
+            />
           ) : (
-            <CalendarWeekView monthCursor={calendarMonth} />
+            <CalendarDayView 
+              monthCursor={calendarMonth} 
+              schedules={schedules}
+            />
           )}
         </>
       )}

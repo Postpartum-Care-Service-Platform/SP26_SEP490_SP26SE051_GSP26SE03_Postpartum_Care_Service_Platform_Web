@@ -12,9 +12,9 @@ import { AppointmentHeader } from './components/AppointmentHeader';
 import { AppointmentTable } from './components/AppointmentTable';
 import { AppointmentTableControls } from './components/AppointmentTableControls';
 import { EditAppointmentModal } from './components/EditAppointmentModal';
+import { QuickCreateAppointment } from './components/QuickCreateAppointment';
 import type { Appointment, AppointmentStatus } from './components/types';
 
-const PAGE_SIZE = 10;
 
 export default function AdminAppointmentPage() {
   const { toast } = useToast();
@@ -23,8 +23,11 @@ export default function AdminAppointmentPage() {
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<AppointmentStatus | 'all'>('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showQuickCreate, setShowQuickCreate] = useState(false);
 
   const mapStatus = (status: string): AppointmentStatus => {
     // Map từ status tiếng Anh trong API sang enum nội bộ
@@ -56,6 +59,36 @@ export default function AdminAppointmentPage() {
     }
   };
 
+  const formatDate = (isoString: string | null | undefined): string => {
+    if (!isoString) return '-';
+    try {
+      const date = new Date(isoString);
+      if (isNaN(date.getTime())) {
+        return '-';
+      }
+      return date.toLocaleDateString('vi-VN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      });
+    } catch (error) {
+      console.error('Error formatting date:', isoString, error);
+      return '-';
+    }
+  };
+
+  const formatDateOnly = (dateOnly: string | null | undefined): string => {
+    if (!dateOnly) return '-';
+    const [year, month, day] = dateOnly.split('-');
+    if (!year || !month || !day) return dateOnly;
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatTimeOnly = (timeOnly: string | null | undefined): string => {
+    if (!timeOnly) return '-';
+    return timeOnly.slice(0, 5); // HH:mm từ HH:mm:ss
+  };
+
   const mapAppointment = useCallback((apt: ApiAppointment): Appointment => {
     const patientName = apt.customer?.username || apt.customer?.email || 'Không xác định';
     const doctor = apt.staff?.username || 'Chưa phân công';
@@ -71,6 +104,8 @@ export default function AdminAppointmentPage() {
       department,
       appointmentTypeId: apt.appointmentType?.id ?? null,
       dateTime: formatDateTime(apt.appointmentDate),
+      date: apt.appointmentDateOnly ? formatDateOnly(apt.appointmentDateOnly) : formatDate(apt.appointmentDate),
+      time: apt.appointmentTimeOnly ? formatTimeOnly(apt.appointmentTimeOnly) : '-',
       status: mapStatus(apt.status),
     };
   }, []);
@@ -104,12 +139,12 @@ export default function AdminAppointmentPage() {
   }, [appointments, statusFilter]);
 
   const paginatedAppointments = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
     return filteredAppointments.slice(start, end);
-  }, [filteredAppointments, currentPage]);
+  }, [filteredAppointments, currentPage, pageSize]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredAppointments.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filteredAppointments.length / pageSize));
 
   const handleStatusChange = (status: AppointmentStatus | 'all') => {
     setStatusFilter(status);
@@ -155,7 +190,10 @@ export default function AdminAppointmentPage() {
       <AppointmentHeader />
       <div className={styles.contentRow}>
         <div className={styles.tableSection}>
-          <AppointmentTableControls onStatusChange={handleStatusChange} />
+          <AppointmentTableControls 
+            onStatusChange={handleStatusChange}
+            onAddClick={() => setShowQuickCreate(true)}
+          />
           <AppointmentTable
             appointments={paginatedAppointments}
             onEdit={handleEdit}
@@ -163,10 +201,25 @@ export default function AdminAppointmentPage() {
             pagination={{
               currentPage,
               totalPages,
-              pageSize: PAGE_SIZE,
+              pageSize,
               totalItems: filteredAppointments.length,
               onPageChange: setCurrentPage,
+              pageSizeOptions: PAGE_SIZE_OPTIONS,
+              onPageSizeChange: (size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              },
             }}
+            quickCreateComponent={
+              <QuickCreateAppointment
+                hideDefaultButton={true}
+                isOpen={showQuickCreate}
+                onOpenChange={setShowQuickCreate}
+                onCreated={() => {
+                  fetchAppointments();
+                }}
+              />
+            }
           />
         </div>
       </div>

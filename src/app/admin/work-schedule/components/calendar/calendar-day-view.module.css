@@ -1,0 +1,201 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid rgba(9, 30, 66, 0.14);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  border-bottom: 1px solid rgba(9, 30, 66, 0.14);
+  background: #f4f5f7;
+}
+
+.dayLabel {
+  font-size: 14px;
+  color: #6b778c;
+  font-weight: 500;
+}
+
+.dateNumber {
+  display: flex;
+  flex-direction: column;
+}
+
+.dayOfMonth {
+  font-size: 24px;
+  font-weight: 600;
+  color: #172b4d;
+  line-height: 1;
+}
+
+.todayNumber {
+  background: #0052cc;
+  color: white;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.monthYear {
+  font-size: 14px;
+  color: #6b778c;
+}
+
+.content {
+  flex: 1;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 50px 1fr;
+  min-height: 720px;
+}
+
+.timeColumn {
+  border-right: 1px solid rgba(9, 30, 66, 0.14);
+  background: #f4f5f7;
+  position: relative;
+}
+
+.timeSlot {
+  height: 48px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-right: 8px;
+  font-size: 11px;
+  color: #6b778c;
+  transform: translateY(-8px);
+}
+
+.dayColumn {
+  position: relative;
+  border-left: 1px solid rgba(9, 30, 66, 0.08);
+}
+
+.today {
+  background: rgba(0, 82, 204, 0.04);
+}
+
+.hourSlot {
+  height: 48px;
+  border-bottom: 1px dashed rgba(9, 30, 66, 0.12);
+  box-sizing: border-box;
+}
+
+.hourSlot:last-child {
+  border-bottom: none;
+}
+
+.currentTimeLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #FF6B00 !important;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.currentTimeLine::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  background: #FF6B00 !important;
+  border-radius: 50%;
+}
+
+.currentTimeDot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  background: #FF6B00 !important;
+  border-radius: 50%;
+  z-index: 10;
+}
+
+.eventChip {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  overflow: hidden;
+  border-left: 3px solid;
+  border-left-color: rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  min-height: 24px;
+}
+
+.eventChip:hover {
+  opacity: 0.9;
+}
+
+.eventTime {
+  display: block;
+  font-weight: 600;
+  color: #172b4d;
+  font-size: 10px;
+}
+
+.eventTitle {
+  display: block;
+  color: #172b4d;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventCustomer {
+  display: block;
+  color: #5e6c84;
+  font-size: 10px;
+}
+
+.tooltipContent {
+  background: #172b4d;
+  color: #fff;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.tooltipTitle {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.tooltipCode {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-bottom: 2px;
+}
+
+.tooltipTime {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.tooltipArrow {
+  fill: #172b4d;
+}

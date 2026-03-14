@@ -7,11 +7,13 @@
 
 .tableScroll {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 70vh;
 }
 
 .table {
   width: 100%;
-  min-width: 1400px;
+  min-width: 1600px;
   border-collapse: collapse;
 }
 
@@ -49,6 +51,89 @@
 
 .cell-nowrap {
   white-space: nowrap;
+}
+
+.cell-transaction {
+  white-space: nowrap;
+  min-width: 250px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* ── Tooltip cho nút thao tác ── */
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltipWrapper .tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 20;
+}
+
+.tooltipWrapper .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #343a40;
+}
+
+.tooltipWrapper:hover .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+/* Sticky column for Actions - last column */
+.table th:last-child,
+.table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 3;
+  background-color: #fff;
+  box-shadow: -8px 0 12px -10px rgba(0, 0, 0, 0.15);
+}
+
+.table thead th:last-child {
+  z-index: 4;
+  background-color: rgba(242, 242, 244, 0.98);
 }
 
 .customerInfo {
@@ -103,10 +188,7 @@
   font-family: var(--font-body);
 }
 
-.paginationWrapper {
-  margin-top: var(--spacing-md);
-  width: 100%;
-}
+
 
 .paginationWrapper :global(.container) {
   width: 100%;

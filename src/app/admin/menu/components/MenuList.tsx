@@ -55,24 +55,30 @@ export function MenuList({ menus, onEdit, onDelete }: Props) {
                   </td>
                   <td>
                     <div className={styles.actions}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={styles.editButton}
-                        onClick={() => onEdit?.(menu)}
-                        aria-label={`Chỉnh sửa ${menu.menuName}`}
-                      >
-                        <Pencil1Icon />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={styles.deleteButton}
-                        onClick={() => onDelete?.(menu)}
-                        aria-label={`Xóa ${menu.menuName}`}
-                      >
-                        <TrashIcon />
-                      </Button>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={styles.editButton}
+                          onClick={() => onEdit?.(menu)}
+                          aria-label={`Chỉnh sửa ${menu.menuName}`}
+                        >
+                          <Pencil1Icon />
+                        </Button>
+                        <span className={styles.tooltip}>Chỉnh sửa</span>
+                      </div>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={styles.deleteButton}
+                          onClick={() => onDelete?.(menu)}
+                          aria-label={`Xóa ${menu.menuName}`}
+                        >
+                          <TrashIcon />
+                        </Button>
+                        <span className={styles.tooltip}>Xóa</span>
+                      </div>
                     </div>
                   </td>
                 </tr>

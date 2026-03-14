@@ -155,10 +155,7 @@
   font-family: var(--font-body);
 }
 
-.paginationWrapper {
-  margin-top: var(--spacing-md);
-  width: 100%;
-}
+
 
 .paginationWrapper :global(.container) {
   width: 100%;

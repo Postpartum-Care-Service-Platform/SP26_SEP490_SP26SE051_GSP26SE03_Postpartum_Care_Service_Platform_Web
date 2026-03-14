@@ -18,7 +18,7 @@
   height: 100vh;
   z-index: 1000;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: visible;
 }
 
 .sidebarCollapsed {
@@ -80,8 +80,11 @@
   flex: 1;
   padding: var(--spacing-sm);
   overflow-y: auto;
+  overflow-x: visible;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  z-index: 1001;
+  position: relative;
 }
 
 .nav::-webkit-scrollbar {
@@ -143,6 +146,23 @@
 
 .sidebarCollapsed .item:hover {
   background-color: rgba(250, 131, 20, 0.1);
+}
+
+/* Custom Tooltip cho sidebar khi collapsed */
+.customTooltip {
+  position: fixed;
+  left: 84px;
+  transform: translateY(-50%);
+  background-color: #343a40;
+  color: #fff;
+  font-size: 12px;
+  font-family: var(--font-body);
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 6px;
+  z-index: 99999;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  pointer-events: none;
 }
 
 .item a {
@@ -401,7 +421,9 @@
 .content {
   flex: 1;
   padding: 16px;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .controlDropdownContent {

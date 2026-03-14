@@ -6,14 +6,7 @@ import type { Contract } from '@/types/contract';
 import styles from './contract-list.module.css';
 
 const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    className="eva eva-edit-2-outline"
-    fill={fill}
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={fill}>
     <g data-name="Layer 2">
       <g data-name="edit-2">
         <rect width="24" height="24" opacity="0" />
@@ -25,14 +18,7 @@ const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size
 );
 
 const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; size?: number }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    className="eva eva-trash-2-outline"
-    fill={fill}
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={fill}>
     <g data-name="Layer 2">
       <g data-name="trash-2">
         <rect width="24" height="24" opacity="0" />
@@ -55,50 +41,34 @@ type Props = {
 const getStatusClass = (status: string) => {
   const normalized = status.trim();
   switch (normalized) {
-    case 'Draft':
-      return styles.statusDraft;
-    case 'Sent':
-      return styles.statusSent;
+    case 'Draft': return styles.statusDraft;
+    case 'Sent': return styles.statusSent;
     case 'Signed':
-    case 'ScheduleCompleted':
-      return styles.statusSigned;
-    case 'Cancelled':
-      return styles.statusCancelled;
-    case 'Expired':
-      return styles.statusExpired;
-    default:
-      return '';
+    case 'ScheduleCompleted': return styles.statusSigned;
+    case 'Cancelled': return styles.statusCancelled;
+    case 'Expired': return styles.statusExpired;
+    default: return '';
   }
 };
 
 const getStatusLabel = (status: string) => {
   const normalized = status.trim();
   switch (normalized) {
-    case 'Draft':
-      return 'Bản nháp';
-    case 'Sent':
-      return 'Đã gửi';
-    case 'Signed':
-      return 'Đã ký';
-    case 'ScheduleCompleted':
-      return 'Lịch đã hoàn tất';
-    case 'Cancelled':
-      return 'Đã hủy';
-    case 'Expired':
-      return 'Hết hạn';
-    default:
-      return status;
+    case 'Draft': return 'Bản nháp';
+    case 'Sent': return 'Đã gửi';
+    case 'Signed': return 'Đã ký';
+    case 'ScheduleCompleted': return 'Lịch đã hoàn tất';
+    case 'Cancelled': return 'Đã hủy';
+    case 'Expired': return 'Hết hạn';
+    default: return status;
   }
 };
 
-const formatDate = (dateString: string) => {
-  if (!dateString) return '-';
+const formatDate = (dateString: string | null | undefined) => {
+  if (!dateString) return '—';
   try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
+    return new Date(dateString).toLocaleDateString('vi-VN', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
     });
   } catch {
     return dateString;
@@ -107,9 +77,7 @@ const formatDate = (dateString: string) => {
 
 export function ContractList({ contracts, selectedContractId, onSelectContract, onEdit, onDelete }: Props) {
   const handleRowClick = (contract: Contract, e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('.actions')) {
-      return;
-    }
+    if ((e.target as HTMLElement).closest('.actions')) return;
     onSelectContract?.(contract);
   };
 
@@ -119,63 +87,104 @@ export function ContractList({ contracts, selectedContractId, onSelectContract, 
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>ID</th>
+              <th title="Số thứ tự">STT</th>
               <th>Mã hợp đồng</th>
+              <th>Mã booking</th>
+              <th>Khách hàng</th>
               <th>Ngày hợp đồng</th>
               <th>Hiệu lực từ</th>
               <th>Hiệu lực đến</th>
+              <th>Ngày ký</th>
               <th>Ngày check-in</th>
               <th>Ngày check-out</th>
+              <th>File hợp đồng</th>
               <th>Trạng thái</th>
-              <th>Thao tác</th>
+              <th className={styles.stickyActionsCol}>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {contracts.length === 0 ? (
               <tr>
-                <td colSpan={9} className={styles.emptyState}>
+                <td colSpan={13} className={styles.emptyState}>
                   Chưa có hợp đồng nào
                 </td>
               </tr>
             ) : (
-              contracts.map((contract) => (
+              contracts.map((contract, index) => (
                 <tr
                   key={contract.id}
                   className={`${styles.tableRow} ${selectedContractId === contract.id ? styles.tableRowActive : ''}`}
                   onClick={(e) => handleRowClick(contract, e)}
                 >
-                  <td>{contract.id}</td>
+                  <td>
+                    <span className={styles.sttCell} title={`ID: ${contract.id}`}>
+                      {index + 1}
+                    </span>
+                  </td>
                   <td className={styles.contractCode}>{contract.contractCode}</td>
+                  <td className={styles.bookingId}>#{contract.bookingId}</td>
+                  <td>
+                    <div className={styles.customerInfo}>
+                      <span className={styles.customerName}>{contract.customer?.username ?? '—'}</span>
+                      <span className={styles.customerEmail}>{contract.customer?.email ?? ''}</span>
+                      {contract.customer?.phone && (
+                        <span className={styles.customerPhone}>{contract.customer.phone}</span>
+                      )}
+                    </div>
+                  </td>
                   <td>{formatDate(contract.contractDate)}</td>
                   <td>{formatDate(contract.effectiveFrom)}</td>
                   <td>{formatDate(contract.effectiveTo)}</td>
+                  <td>{formatDate(contract.signedDate)}</td>
                   <td>{formatDate(contract.checkinDate)}</td>
                   <td>{formatDate(contract.checkoutDate)}</td>
+                  <td>
+                    {contract.fileUrl ? (
+                      <a
+                        href={contract.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.fileLink}
+                        onClick={(e) => e.stopPropagation()}
+                        title="Xem file hợp đồng"
+                      >
+                        📄 Xem file
+                      </a>
+                    ) : (
+                      <span className={styles.noFile}>—</span>
+                    )}
+                  </td>
                   <td>
                     <span className={`${styles.statusBadge} ${getStatusClass(contract.status)}`}>
                       {getStatusLabel(contract.status)}
                     </span>
                   </td>
-                  <td>
+                  <td className={styles.stickyActionsCol}>
                     <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={styles.editButton}
-                        onClick={() => onEdit?.(contract)}
-                        aria-label={`Chỉnh sửa ${contract.contractCode}`}
-                      >
-                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={styles.deleteButton}
-                        onClick={() => onDelete?.(contract)}
-                        aria-label={`Xóa ${contract.contractCode}`}
-                      >
-                        <Trash2OutlineIcon fill="#FD6161" size={16} />
-                      </Button>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={styles.editButton}
+                          onClick={() => onEdit?.(contract)}
+                          aria-label={`Chỉnh sửa ${contract.contractCode}`}
+                        >
+                          <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Chỉnh sửa</span>
+                      </div>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={styles.deleteButton}
+                          onClick={() => onDelete?.(contract)}
+                          aria-label={`Xóa ${contract.contractCode}`}
+                        >
+                          <Trash2OutlineIcon fill="#FD6161" size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Xóa</span>
+                      </div>
                     </div>
                   </td>
                 </tr>

@@ -20,7 +20,7 @@ const menuTypeService = {
   },
 
   restoreMenuType: (id: number): Promise<MenuType> => {
-    return apiClient.post(`/MenuType/restore/${id}`);
+    return apiClient.patch(`/MenuType/restore/${id}`);
   },
 };
 

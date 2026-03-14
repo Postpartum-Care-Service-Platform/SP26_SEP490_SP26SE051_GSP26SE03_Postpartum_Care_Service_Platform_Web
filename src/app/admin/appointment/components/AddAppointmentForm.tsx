@@ -1,8 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 
+import { useToast } from '@/components/ui/toast/use-toast';
 import appointmentService from '@/services/appointment.service';
 import type { CreateCustomerAppointmentRequest } from '@/types/appointment';
 
@@ -16,7 +16,12 @@ type FormValues = {
   appointmentTypeId: number;
 };
 
-export function AddAppointmentForm() {
+type Props = {
+  onCancel?: () => void;
+  onSuccess?: () => void;
+};
+
+export function AddAppointmentForm({ onCancel, onSuccess }: Props) {
   const [values, setValues] = useState<FormValues>({
     customerId: '',
     name: '',
@@ -25,6 +30,7 @@ export function AddAppointmentForm() {
     appointmentTypeId: 1,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const handleChange =
     (field: keyof FormValues) =>
@@ -32,6 +38,11 @@ export function AddAppointmentForm() {
       const value = field === 'appointmentTypeId' ? Number(event.target.value) : event.target.value;
       setValues((prev) => ({ ...prev, [field]: value as never }));
     };
+
+  const normalizeTimeForApi = (rawTime: string): string => {
+    if (!rawTime) return rawTime;
+    return /^\d{2}:\d{2}$/.test(rawTime) ? `${rawTime}:00` : rawTime;
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -42,11 +53,12 @@ export function AddAppointmentForm() {
         customerId: values.customerId,
         name: values.name,
         date: values.date,
-        time: values.time,
+        time: normalizeTimeForApi(values.time),
         appointmentTypeId: values.appointmentTypeId,
       };
 
       await appointmentService.createAppointmentForCustomer(payload);
+      toast({ title: 'Tạo lịch hẹn thành công', variant: 'success' });
       setValues({
         customerId: '',
         name: '',
@@ -54,6 +66,13 @@ export function AddAppointmentForm() {
         time: '',
         appointmentTypeId: 1,
       });
+      onSuccess?.();
+    } catch (error) {
+      const message =
+        typeof error === 'object' && error && 'message' in error
+          ? String((error as { message?: unknown }).message)
+          : 'Tạo lịch hẹn thất bại. Vui lòng thử lại.';
+      toast({ title: message, variant: 'error' });
     } finally {
       setIsSubmitting(false);
     }
@@ -130,11 +149,11 @@ export function AddAppointmentForm() {
       </div>
 
       <div className={styles.actions}>
-        <Link href="/admin/appointment" className={styles.secondaryButton}>
-          Cancel
-        </Link>
+        <button type="button" onClick={onCancel} className={styles.secondaryButton}>
+          Hủy
+        </button>
         <button type="submit" className={styles.primaryButton} disabled={isSubmitting}>
-          {isSubmitting ? 'Saving...' : 'Save Appointment'}
+          {isSubmitting ? 'Đang lưu...' : 'Lưu lịch hẹn'}
         </button>
       </div>
     </form>

@@ -1,8 +1,10 @@
 'use client';
 
+import { CalendarIcon, ChevronDownIcon, PersonIcon, TextIcon } from '@radix-ui/react-icons';
 import * as Popover from '@radix-ui/react-popover';
 import Image from 'next/image';
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import appointmentTypeService from '@/services/appointment-type.service';
@@ -10,13 +12,18 @@ import appointmentService from '@/services/appointment.service';
 import type { CreateCustomerAppointmentRequest } from '@/types/appointment';
 
 import { DatePicker } from '../../work-schedule/components/DatePicker';
+import TaskFe16Icon from '../../work-schedule/components/list/artifacts/glyph/task-fe/16';
 import styles from '../../work-schedule/components/list/work-schedule-list.module.css';
 import { AssigneePicker, type Assignee } from '../../work-schedule/components/shared/AssigneePicker';
 import { TaskTypePicker, type TaskType } from '../../work-schedule/components/shared/TaskTypePicker';
-import TaskFe16Icon from '../../work-schedule/components/list/artifacts/glyph/task-fe/16';
+
+import localStyles from './QuickCreateAppointment.module.css';
 
 type QuickCreateAppointmentProps = {
   onCreated?: () => void;
+  hideDefaultButton?: boolean; // Ẩn nút "Tạo lịch hẹn nhanh" mặc định
+  isOpen?: boolean; // Điều khiển từ bên ngoài
+  onOpenChange?: (open: boolean) => void; // Callback khi mở/đóng
 };
 
 type Customer = {
@@ -27,7 +34,12 @@ type Customer = {
   color?: string;
 };
 
-export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProps) {
+export function QuickCreateAppointment({ 
+  onCreated, 
+  hideDefaultButton = false,
+  isOpen: controlledIsOpen,
+  onOpenChange
+}: QuickCreateAppointmentProps) {
   const [appointmentTypes, setAppointmentTypes] = React.useState<TaskType[]>([]);
   const [selectedTaskType, setSelectedTaskType] = React.useState<TaskType | null>(null);
   const [name, setName] = React.useState('');
@@ -38,9 +50,21 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
   const [showTaskTypePicker, setShowTaskTypePicker] = React.useState(false);
   const [showCustomerPicker, setShowCustomerPicker] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [internalIsOpen, setInternalIsOpen] = React.useState(false);
+  
+  // Sử dụng controlled state nếu có, nếu không thì dùng internal state
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+  const setIsOpen = React.useCallback((open: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(open);
+    } else {
+      setInternalIsOpen(open);
+    }
+  }, [onOpenChange]);
   const [isNameActive, setIsNameActive] = React.useState(false);
+  const [datePickerPosition, setDatePickerPosition] = React.useState<{ top: number; right: number } | null>(null);
   const datePickerRef = React.useRef<HTMLDivElement | null>(null);
+  const datePickerTriggerRef = React.useRef<HTMLDivElement | null>(null);
   const typePickerRef = React.useRef<HTMLDivElement | null>(null);
   const footerRef = React.useRef<HTMLDivElement | null>(null);
   const { toast } = useToast();
@@ -77,9 +101,7 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
           imageUrl: undefined,
         }));
         setAppointmentTypes(mappedTypes);
-        if (mappedTypes.length > 0 && !selectedTaskType) {
-          setSelectedTaskType(mappedTypes[0]);
-        }
+        setSelectedTaskType(mappedTypes[0] ?? null);
       } catch (error) {
         const message =
           typeof error === 'object' && error && 'message' in error ? String((error as { message?: unknown }).message) : '';
@@ -87,10 +109,16 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
       }
     }
 
-    fetchAppointmentTypes();
-  }, [toast, selectedTaskType]);
+    void fetchAppointmentTypes();
+  }, [toast]);
 
   const canSubmit = name.trim() && formattedDate && time && selectedCustomer && selectedTaskType && !isSubmitting;
+
+  const normalizeTimeForApi = (rawTime: string): string => {
+    if (!rawTime) return rawTime;
+    // API chấp nhận string, ưu tiên chuẩn HH:mm:ss
+    return /^\d{2}:\d{2}$/.test(rawTime) ? `${rawTime}:00` : rawTime;
+  };
 
   const handleSubmit = async () => {
     if (!canSubmit || !selectedCustomer || !selectedTaskType) return;
@@ -101,7 +129,7 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
         customerId: selectedCustomer.id,
         name: name.trim(),
         date: formattedDate,
-        time,
+        time: normalizeTimeForApi(time),
         appointmentTypeId: Number(selectedTaskType.id),
       };
 
@@ -117,6 +145,15 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
       setIsOpen(false);
       onCreated?.();
       toast({ title: 'Tạo lịch hẹn thành công', variant: 'success' });
+      
+      // Reset form
+      setName('');
+      setDate(null);
+      setTime('');
+      setSelectedCustomer(null);
+      if (appointmentTypes.length > 0) {
+        setSelectedTaskType(appointmentTypes[0]);
+      }
     } catch (error) {
       const message =
         typeof error === 'object' && error && 'message' in error ? String((error as { message?: unknown }).message) : '';
@@ -126,17 +163,60 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
     }
   };
 
+  // Tính toán vị trí cho DatePicker khi mở
   React.useEffect(() => {
-    if (!showDatePicker) return;
+    if (!showDatePicker || !datePickerTriggerRef.current) {
+      setDatePickerPosition(null);
+      return;
+    }
 
-    function handleClickOutside(event: MouseEvent) {
-      if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
-        setShowDatePicker(false);
+    const updatePosition = () => {
+      if (!datePickerTriggerRef.current) return;
+      
+      const trigger = datePickerTriggerRef.current;
+      const rect = trigger.getBoundingClientRect();
+      const datePickerWidth = 520; // Width của DatePicker với time
+      
+      // Tính toán vị trí: hiển thị phía trên trigger, căn phải
+      let right = window.innerWidth - rect.right;
+      
+      // Đảm bảo DatePicker không bị overflow bên phải
+      if (right < 0) {
+        right = 16; // Margin từ edge
       }
+      
+      // Đảm bảo DatePicker không bị overflow bên trái
+      if (right + datePickerWidth > window.innerWidth) {
+        right = window.innerWidth - datePickerWidth - 16;
+      }
+      
+      setDatePickerPosition({
+        top: rect.top - 8, // 8px offset phía trên
+        right: Math.max(16, right), // Ít nhất 16px từ edge
+      });
+    };
+
+    updatePosition();
+    
+    // Update position khi scroll hoặc resize
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+      if (
+        datePickerTriggerRef.current?.contains(target) ||
+        datePickerRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setShowDatePicker(false);
     }
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showDatePicker]);
@@ -156,15 +236,28 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
     };
   }, [showTaskTypePicker]);
 
+  // Reset form khi đóng
+  React.useEffect(() => {
+    if (!isOpen) {
+      setName('');
+      setDate(null);
+      setTime('');
+      setSelectedCustomer(null);
+      setShowDatePicker(false);
+      setShowTaskTypePicker(false);
+      setShowCustomerPicker(false);
+      if (appointmentTypes.length > 0) {
+        setSelectedTaskType(appointmentTypes[0]);
+      }
+    }
+  }, [isOpen, appointmentTypes]);
+
   React.useEffect(() => {
     if (!isOpen) return;
 
     function handleClickOutside(event: MouseEvent) {
       if (footerRef.current && !footerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
-        setShowDatePicker(false);
-        setShowTaskTypePicker(false);
-        setShowCustomerPicker(false);
       }
     }
 
@@ -172,9 +265,13 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, setIsOpen]);
 
+  // Nếu hideDefaultButton = true, không hiển thị nút mặc định, chỉ hiển thị form khi isOpen = true
   if (!isOpen) {
+    if (hideDefaultButton) {
+      return null; // Ẩn hoàn toàn khi hideDefaultButton = true
+    }
     return (
       <div
         className={styles.footer}
@@ -207,70 +304,74 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
       style={{
         marginTop: 0,
         border: 'none',
+        position: 'relative',
+        zIndex: 9999, // Z-index cao để DatePicker có thể hiển thị trên header admin (1000)
       }}
     >
-      <div className={styles.createTaskInner}>
-        {/* Appointment type - UI giống TaskTypePicker */}
-        <div
-          ref={typePickerRef}
-          className={styles.typeDropdown}
-          role="button"
-          tabIndex={0}
-          aria-label="Appointment type"
-          onClick={() => setShowTaskTypePicker((v) => !v)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              setShowTaskTypePicker((v) => !v);
-            }
-          }}
-        >
-          {selectedTaskType ? (
-            selectedTaskType.imageUrl ? (
-              <Image
-                src={selectedTaskType.imageUrl}
-                alt={selectedTaskType.label}
-                width={16}
-                height={16}
-                className={styles.workIconImg}
-              />
-            ) : (
-              <span className={styles.taskTypeSvg}>{selectedTaskType.icon}</span>
-            )
-          ) : null}
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 15 15"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
+      <div className={localStyles.container}>
+        {/* Appointment type - 180px với label text truncate */}
+        <div ref={typePickerRef} className={localStyles.appointmentTypeWrapper}>
+          <div
+            className={localStyles.appointmentTypeTrigger}
+            role="button"
+            tabIndex={0}
+            aria-label="Appointment type"
+            onClick={() => setShowTaskTypePicker((v) => !v)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setShowTaskTypePicker((v) => !v);
+              }
+            }}
           >
-            <path
-              d="M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.49999 8.86362L10.1818 6.18181C10.3575 6.00608 10.6424 6.00608 10.8182 6.18181C10.9939 6.35755 10.9939 6.64247 10.8182 6.81821L7.81819 9.81821C7.73379 9.9026 7.61934 9.95001 7.49999 9.95001C7.38064 9.95001 7.26618 9.9026 7.18179 9.81821L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z"
-              fill="currentColor"
-              fillRule="evenodd"
-              clipRule="evenodd"
-            />
-          </svg>
-          {showTaskTypePicker && appointmentTypes.length > 0 && (
-            <TaskTypePicker
-              selectedId={selectedTaskType?.id ?? ''}
-              onSelect={(t) => {
-                setSelectedTaskType(t);
-                setShowTaskTypePicker(false);
-              }}
-              types={appointmentTypes}
-            />
-          )}
+            <span className={localStyles.appointmentTypeInner}>
+              {selectedTaskType ? (
+                selectedTaskType.imageUrl ? (
+                  <Image
+                    src={selectedTaskType.imageUrl}
+                    alt={selectedTaskType.label}
+                    width={16}
+                    height={16}
+                    className={localStyles.appointmentTypeIcon}
+                  />
+                ) : (
+                  <span className={localStyles.appointmentTypeIcon}>{selectedTaskType.icon}</span>
+                )
+              ) : null}
+              <span
+                className={`${localStyles.appointmentTypeLabel} ${
+                  !selectedTaskType ? localStyles.appointmentTypePlaceholder : ''
+                }`}
+                title={selectedTaskType?.label}
+              >
+                {selectedTaskType?.label || 'Chọn loại lịch hẹn'}
+              </span>
+            </span>
+            <span className={localStyles.appointmentTypeArrow} aria-hidden="true">
+              <ChevronDownIcon width={16} height={16} />
+            </span>
+            {showTaskTypePicker && appointmentTypes.length > 0 && (
+              <TaskTypePicker
+                selectedId={selectedTaskType?.id ?? ''}
+                onSelect={(t) => {
+                  setSelectedTaskType(t);
+                  setShowTaskTypePicker(false);
+                }}
+                types={appointmentTypes}
+              />
+            )}
+          </div>
         </div>
 
-        {/* Tên lịch hẹn với line cam ở dưới khi focus */}
-        <div className={styles.nameFieldWrapper}>
+        {/* Tên lịch hẹn - flex-1 chiếm phần còn lại */}
+        <div className={localStyles.nameFieldWrapper}>
+          <span className={localStyles.fieldLeadingIcon} aria-hidden="true">
+            <TextIcon width={16} height={16} />
+          </span>
           <input
             type="text"
-            placeholder="Tên lịch hẹn"
-            className={styles.createInput}
+            placeholder="Nhập tên lịch hẹn"
+            className={`${styles.createInput} ${localStyles.nameInput}`}
             value={name}
             onChange={(e) => setName(e.target.value)}
             onFocus={() => setIsNameActive(true)}
@@ -282,13 +383,14 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
               }
             }}
           />
-          <div className={isNameActive ? styles.nameFieldLineActive : styles.nameFieldLine} />
+          <div className={isNameActive ? localStyles.nameFieldLineActive : localStyles.nameFieldLine} />
         </div>
 
-        {/* Ngày giờ & khách hàng */}
-        <div className={styles.createActions}>
-          <div ref={datePickerRef} style={{ position: 'relative' }}>
+        {/* Actions group - Date/Time (200px), Customer (180px), Button (auto) */}
+        <div className={localStyles.actionsGroup}>
+          <div className={localStyles.dateTimeWrapper}>
             <div
+              ref={datePickerTriggerRef}
               className={styles.dateTimeDisplay}
               role="button"
               tabIndex={0}
@@ -301,38 +403,44 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
                 }
               }}
             >
-              <span className={!formattedDateTimeLabel ? styles.dateTimeDisplayPlaceholder : undefined}>
-                {formattedDateTimeLabel || 'Chọn ngày & giờ'}
+              <span className={localStyles.fieldLeadingIcon} aria-hidden="true">
+                <CalendarIcon width={16} height={16} />
               </span>
-              <span className={styles.dateTimeIcon}>
-                <svg fill="none" viewBox="0 0 16 16" width="16" height="16">
-                  <path
-                    fill="currentColor"
-                    fillRule="evenodd"
-                    d="M4.5 2.5v2H6v-2h4v2h1.5v-2H13a.5.5 0 0 1 .5.5v3h-11V3a.5.5 0 0 1 .5-.5zm-2 5V13a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V7.5zm9-6.5H13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2h1.5V0H6v1h4V0h1.5z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+              <span className={!formattedDateTimeLabel ? styles.dateTimeDisplayPlaceholder : undefined}>
+                {formattedDateTimeLabel || 'Chọn ngày và giờ khám'}
               </span>
             </div>
-            {showDatePicker && (
-              <DatePicker
-                value={date}
-                onChange={(d) => {
-                  setDate(d);
+            {/* Render DatePicker qua Portal để tránh stacking context conflict */}
+            {showDatePicker && datePickerPosition && typeof window !== 'undefined' && createPortal(
+              <div
+                ref={datePickerRef}
+                className={localStyles.datePickerPortalContainer}
+                style={{
+                  position: 'fixed',
+                  top: `${datePickerPosition.top}px`,
+                  right: `${datePickerPosition.right}px`,
+                  zIndex: 10000,
                 }}
-                withTime
-                timeValue={time}
-                onTimeChange={(t) => setTime(t)}
-              />
+              >
+                <DatePicker
+                  value={date}
+                  onChange={(d) => {
+                    setDate(d);
+                  }}
+                  withTime
+                  timeValue={time}
+                  onTimeChange={(t) => setTime(t)}
+                />
+              </div>,
+              document.body
             )}
           </div>
 
-          {/* Chọn khách hàng (tái sử dụng UI AssigneePicker) */}
+          {/* Chọn khách hàng - 180px */}
           <Popover.Root open={showCustomerPicker} onOpenChange={setShowCustomerPicker}>
             <Popover.Trigger asChild>
               <div
-                className={`${styles.dateTimeDisplay} ${styles.customerDisplay}`}
+                className={`${styles.dateTimeDisplay} ${styles.customerDisplay} ${localStyles.customerWrapper}`}
                 role="button"
                 tabIndex={0}
                 aria-label="Khách hàng"
@@ -344,7 +452,7 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
                   }
                 }}
               >
-                {selectedCustomer && (
+                {selectedCustomer ? (
                   <div className={styles.customerAvatar}>
                     {selectedCustomer.avatarUrl ? (
                       <Image
@@ -363,6 +471,10 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
                       </div>
                     )}
                   </div>
+                ) : (
+                  <span className={localStyles.fieldLeadingIcon} aria-hidden="true">
+                    <PersonIcon width={16} height={16} />
+                  </span>
                 )}
                 <span
                   className={`${styles.customerName} ${
@@ -370,16 +482,6 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
                   }`}
                 >
                   {selectedCustomer?.name || 'Chọn khách hàng'}
-                </span>
-                <span className={styles.dateTimeIcon}>
-                  <svg fill="none" viewBox="-4 -4 24 24" width="16" height="16">
-                    <path
-                      fill="currentColor"
-                      fillRule="evenodd"
-                      d="M8 1.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4 4a4 4 0 1 1 8 0 4 4 0 0 1-8 0m-2 9a3.75 3.75 0 0 1 3.75-3.75h4.5A3.75 3.75 0 0 1 14 13v2h-1.5v-2a2.25 2.25 0 0 0-2.25-2.25h-4.5A2.25 2.25 0 0 0 3.5 13v2H2z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
                 </span>
               </div>
             </Popover.Trigger>
@@ -391,6 +493,7 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
                 sideOffset={8}
                 collisionPadding={12}
                 onOpenAutoFocus={(e) => e.preventDefault()}
+                style={{ zIndex: 10000 }} // Z-index cao hơn header admin (1000)
               >
                 <AssigneePicker
                   value={
@@ -426,8 +529,8 @@ export function QuickCreateAppointment({ onCreated }: QuickCreateAppointmentProp
             </Popover.Portal>
           </Popover.Root>
 
-          {/* Submit button */}
-          <div className={styles.submitBtnGroup}>
+          {/* Submit button - auto width */}
+          <div className={`${styles.submitBtnGroup} ${localStyles.submitButtonWrapper}`}>
             <button
               type="button"
               className={styles.submitBtn}

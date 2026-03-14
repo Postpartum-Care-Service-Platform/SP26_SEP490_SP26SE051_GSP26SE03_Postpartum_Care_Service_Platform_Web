@@ -44,6 +44,8 @@ type Props = {
     pageSize: number;
     totalItems: number;
     onPageChange: (page: number) => void;
+    pageSizeOptions?: number[];
+    onPageSizeChange?: (size: number) => void;
   };
 };
 
@@ -118,25 +120,31 @@ export function FoodTable({ foods, onEdit, onDelete, deletingId, pagination }: P
                 <td>{formatDate(food.updatedAt)}</td>
                 <td>
                   <div className={styles.actions}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.editButton} btn-icon btn-sm`}
-                      onClick={() => onEdit?.(food)}
-                      aria-label={`Chỉnh sửa ${food.name}`}
-                    >
-                      <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.deleteButton} btn-icon btn-sm`}
-                      onClick={() => onDelete?.(food)}
-                      aria-label={`Xóa ${food.name}`}
-                      disabled={deletingId === food.id}
-                    >
-                      <Trash2OutlineIcon fill="#FD6161" size={16} />
-                    </Button>
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.editButton} btn-icon btn-sm`}
+                        onClick={() => onEdit?.(food)}
+                        aria-label={`Chỉnh sửa ${food.name}`}
+                      >
+                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                      </Button>
+                      <span className={styles.tooltip}>Chỉnh sửa</span>
+                    </div>
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.deleteButton} btn-icon btn-sm`}
+                        onClick={() => onDelete?.(food)}
+                        aria-label={`Xóa ${food.name}`}
+                        disabled={deletingId === food.id}
+                      >
+                        <Trash2OutlineIcon fill="#FD6161" size={16} />
+                      </Button>
+                      <span className={styles.tooltip}>Xóa</span>
+                    </div>
                   </div>
                 </td>
               </tr>
@@ -153,6 +161,8 @@ export function FoodTable({ foods, onEdit, onDelete, deletingId, pagination }: P
             pageSize={pagination.pageSize}
             totalItems={pagination.totalItems}
             onPageChange={pagination.onPageChange}
+            pageSizeOptions={pagination.pageSizeOptions}
+            onPageSizeChange={pagination.onPageSizeChange}
             showResultCount={true}
           />
         </div>

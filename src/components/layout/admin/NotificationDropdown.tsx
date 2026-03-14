@@ -10,42 +10,12 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown/Dropdown';
-import notificationTypeService from '@/services/notification-type.service';
 import notificationService from '@/services/notification.service';
 import type { Notification } from '@/types/notification';
-import type { NotificationType } from '@/types/notification-type';
 
 import styles from './notification-dropdown.module.css';
 
-const getNotificationIcon = (typeId: number, typeName: string | null, typesMap?: Map<number, NotificationType>) => {
-  if (typesMap) {
-    const type = typesMap.get(typeId);
-    if (type && type.name) {
-      const name = type.name.toLowerCase();
-      if (name.includes('báo cáo') || name.includes('tài liệu') || name.includes('document') || name.includes('report')) {
-        return FileText;
-      }
-      if (name.includes('đơn hàng') || name.includes('order') || name.includes('cart')) {
-        return ShoppingCart;
-      }
-      if (name.includes('cuộc họp') || name.includes('nhóm') || name.includes('meeting') || name.includes('group')) {
-        return Users;
-      }
-      if (name.includes('cảnh báo') || name.includes('warning') || name.includes('alert')) {
-        return AlertCircle;
-      }
-      if (name.includes('thành công') || name.includes('success') || name.includes('complete')) {
-        return CheckCircle;
-      }
-      if (name.includes('lỗi') || name.includes('error') || name.includes('fail')) {
-        return XCircle;
-      }
-      if (name.includes('thông tin') || name.includes('info')) {
-        return Info;
-      }
-    }
-  }
-
+const getNotificationIcon = (_typeId: number, typeName: string | null) => {
   if (!typeName) {
     return FileText;
   }
@@ -77,46 +47,44 @@ const getNotificationIcon = (typeId: number, typeName: string | null, typesMap?:
 
 export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) {
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
-  const [notificationTypes, setNotificationTypes] = React.useState<Map<number, NotificationType>>(new Map());
   const [isLoading, setIsLoading] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
 
+  const isFetchingRef = React.useRef(false);
+
   const fetchData = React.useCallback(async () => {
+    if (isFetchingRef.current) return;
+
     try {
+      isFetchingRef.current = true;
       setIsLoading(true);
-      const [notificationsData, typesData] = await Promise.all([
-        notificationService.getMyNotifications(),
-        notificationTypeService.getAllNotificationTypes(),
-      ]);
+
+      const notificationsData = await notificationService.getMyNotifications();
       setNotifications(notificationsData);
-      const typesMap = new Map(typesData.map((type) => [type.id, type]));
-      setNotificationTypes(typesMap);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     } finally {
+      isFetchingRef.current = false;
       setIsLoading(false);
     }
   }, []);
 
-  // Fetch data on mount and when dropdown opens
+  // Chỉ fetch khi mở dropdown
   React.useEffect(() => {
+    if (!isOpen) return;
     fetchData();
-  }, [fetchData]);
-
-  React.useEffect(() => {
-    if (isOpen) {
-      fetchData();
-    }
   }, [isOpen, fetchData]);
 
-  // Auto-refresh notifications every 30 seconds
+  // Auto-refresh chỉ khi dropdown đang mở
   React.useEffect(() => {
+    if (!isOpen) return;
+
     const interval = setInterval(() => {
       fetchData();
-    }, 30000); // 30 seconds
+    }, 30000);
 
     return () => clearInterval(interval);
-  }, [fetchData]);
+  }, [isOpen, fetchData]);
 
   const unreadCount = notifications.filter((n) => n.status === 'Unread').length;
   const displayCount = unreadCount > 0 ? (unreadCount > 9 ? '9+' : `${unreadCount}`) : null;
@@ -168,7 +136,7 @@ export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) 
             <div className={styles.empty}>Không có thông báo</div>
           ) : (
             notifications.slice(0, 5).map((notification) => {
-              const Icon = getNotificationIcon(notification.notificationTypeId, notification.notificationTypeName, notificationTypes);
+              const Icon = getNotificationIcon(notification.notificationTypeId, notification.notificationTypeName);
               const isUnread = notification.status === 'Unread';
               return (
                 <div
@@ -181,6 +149,9 @@ export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) 
                   </div>
                   <div className={styles.notificationContent}>
                     <div className={styles.notificationTitle}>{notification.title}</div>
+                    {notification.content && (
+                      <div className={styles.notificationContentText}>{notification.content}</div>
+                    )}
                     <div className={styles.notificationTime}>
                       <Clock size={12} />
                       <span>{formatTime(notification.createdAt)}</span>

@@ -42,97 +42,108 @@ type Props = {
     pageSize: number;
     totalItems: number;
     onPageChange: (page: number) => void;
+    pageSizeOptions?: number[];
+    onPageSizeChange?: (size: number) => void;
   };
 };
 
-const formatDate = (dateString?: string | unknown) => {
-  if (!dateString || typeof dateString !== 'string') return '-';
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    });
-  } catch {
-    return dateString;
-  }
+const TARGET_LABEL: Record<string, string> = {
+  Mom: 'Mẹ',
+  Baby: 'Bé',
+  Both: 'Cả hai',
 };
 
 export function ActivityTable({ activities, onEdit, onDelete, deletingId, pagination }: Props) {
   return (
     <div className={styles.tableWrapper}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Tên hoạt động</th>
-            <th>Mô tả</th>
-            <th>Trạng thái</th>
-            <th>Cập nhật</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {activities.length === 0 ? (
+      <div className={styles.scrollContainer}>
+        <table className={styles.table}>
+          <thead>
             <tr>
-              <td colSpan={6} className={styles.emptyState}>
-                Chưa có hoạt động nào
-              </td>
+              <th title="Số thứ tự">STT</th>
+              <th>Tên hoạt động</th>
+              <th>Mô tả</th>
+              <th>Loại</th>
+              <th>Đối tượng</th>
+              <th>Thời lượng (phút)</th>
+              <th>Trạng thái</th>
+              <th className={styles.stickyColHeader}>Thao tác</th>
             </tr>
-          ) : (
-            activities.map((activity) => {
-              const name = (activity.name as string) || '';
-              const description = (activity.description as string) || '';
-              const isActive = (activity.isActive as boolean) === true;
-              const updatedAt = activity.updatedAt as string | undefined;
+          </thead>
+          <tbody>
+            {activities.length === 0 ? (
+              <tr>
+                <td colSpan={8} className={styles.emptyState}>
+                  Chưa có hoạt động nào
+                </td>
+              </tr>
+            ) : (
+              activities.map((activity, index) => {
+                const isActive = activity.status === 'Active';
+                const stt = pagination ? (pagination.currentPage - 1) * pagination.pageSize + index + 1 : index + 1;
 
-              return (
-                <tr key={activity.id} className={styles.tableRow}>
-                  <td>{activity.id}</td>
-                  <td className={styles.name} title={name}>
-                    {name || '-'}
-                  </td>
-                  <td className={styles.truncateCell} title={description}>
-                    {description || '-'}
-                  </td>
-                  <td>
-                    <span
-                      className={`${styles.statusBadge} ${isActive ? styles.statusActive : styles.statusInactive}`}
-                    >
-                      {isActive ? 'Hoạt động' : 'Tạm dừng'}
-                    </span>
-                  </td>
-                  <td>{formatDate(updatedAt)}</td>
-                  <td>
-                    <div className={styles.actions}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.editButton} btn-icon btn-sm`}
-                        onClick={() => onEdit?.(activity)}
-                        aria-label={`Chỉnh sửa ${name}`}
+                return (
+                  <tr key={activity.id} className={styles.tableRow}>
+                    <td><span className={styles.sttCell} title={`ID gốc: ${activity.id}`}>{stt}</span></td>
+                    <td className={styles.name} title={activity.name}>
+                      {activity.name || '-'}
+                    </td>
+                    <td className={styles.truncateCell} title={activity.description}>
+                      {activity.description || '-'}
+                    </td>
+                    <td>{activity.activityTypeName || '-'}</td>
+                    <td>
+                      <span className={styles.targetBadge}>
+                        {TARGET_LABEL[activity.target] ?? activity.target ?? '-'}
+                      </span>
+                    </td>
+                    <td>{activity.duration != null ? activity.duration : '-'}</td>
+                    <td>
+                      <span
+                        className={`${styles.statusBadge} ${isActive ? styles.statusActive : styles.statusInactive}`}
                       >
-                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.deleteButton} btn-icon btn-sm`}
-                        onClick={() => onDelete?.(activity)}
-                        aria-label={`Xóa ${name}`}
-                        disabled={deletingId === activity.id}
-                      >
-                        <Trash2OutlineIcon fill="#FD6161" size={16} />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
+                        {isActive ? 'Hoạt động' : 'Tạm dừng'}
+                      </span>
+                    </td>
+                    <td className={styles.stickyCol}>
+                      <div className={styles.actions}>
+                        {/* Tooltip wrapper cho nút Chỉnh sửa */}
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${styles.editButton} btn-icon btn-sm`}
+                            onClick={() => onEdit?.(activity)}
+                            aria-label={`Chỉnh sửa ${activity.name}`}
+                          >
+                            <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                        </div>
+
+                        {/* Tooltip wrapper cho nút Xóa */}
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${styles.deleteButton} btn-icon btn-sm`}
+                            onClick={() => onDelete?.(activity)}
+                            aria-label={`Xóa ${activity.name}`}
+                            disabled={deletingId === activity.id}
+                          >
+                            <Trash2OutlineIcon fill="#FD6161" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Xóa</span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {pagination && pagination.totalPages > 0 && (
         <div className={styles.paginationWrapper}>
@@ -142,6 +153,8 @@ export function ActivityTable({ activities, onEdit, onDelete, deletingId, pagina
             pageSize={pagination.pageSize}
             totalItems={pagination.totalItems}
             onPageChange={pagination.onPageChange}
+            pageSizeOptions={pagination.pageSizeOptions}
+            onPageSizeChange={pagination.onPageSizeChange}
             showResultCount={true}
           />
         </div>

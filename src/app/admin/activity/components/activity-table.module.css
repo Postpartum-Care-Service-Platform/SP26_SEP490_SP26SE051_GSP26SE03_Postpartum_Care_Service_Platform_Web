@@ -1,3 +1,4 @@
+/* ── Outer wrapper: chỉ chứa scroll container + pagination ── */
 .tableWrapper {
   background-color: #fff;
   border-radius: var(--radius-md);
@@ -5,17 +6,46 @@
   padding: var(--spacing-md);
 }
 
-.tableWrapper {
+/* ── Scroll container: bao quanh table, có cả 2 thanh scroll ── */
+.scrollContainer {
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 560px;
+  border-radius: var(--radius-sm);
+  scrollbar-width: thin;
+  scrollbar-color: #fbb96a #f1f3f5;
 }
 
+/* Webkit custom scrollbar – dọc & ngang */
+.scrollContainer::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+.scrollContainer::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 10px;
+}
+.scrollContainer::-webkit-scrollbar-thumb {
+  background: #fbb96a;
+  border-radius: 10px;
+  border: 1px solid #f1f3f5;
+}
+.scrollContainer::-webkit-scrollbar-thumb:hover {
+  background: #fa8314;
+}
+.scrollContainer::-webkit-scrollbar-corner {
+  background: #f1f3f5;
+}
+
+/* ── Table ── */
 .table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 900px; /* đảm bảo luôn có scroll khi cần */
 }
 
 .table thead {
-  background-color: rgba(242, 242, 244, 0.5);
+  background-color: #f2f2f4;
 }
 
 .table th {
@@ -27,16 +57,25 @@
   color: #343A40;
   border-bottom: 1px solid var(--color-border-default);
   white-space: nowrap;
+  /* Sticky header đặt trên từng th mới hoạt động đúng */
+  position: sticky;
+  top: 0;
+  background-color: #f2f2f4;
+  z-index: 3;
 }
 
 .table tbody tr {
   background-color: #fff !important;
-  border-bottom: 1px solid var(--color-border-default);
   transition: background-color 0.2s ease;
 }
 
 .table tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Đảm bảo sticky cell kế thừa màu nền của row */
+.table tbody tr:hover .stickyCol {
+  background-color: rgba(242, 242, 244, 0.85) !important;
 }
 
 .table td {
@@ -46,17 +85,46 @@
   color: var(--color-text-primary);
 }
 
+/* ── Sticky cột Thao tác ── */
+.stickyCol {
+  position: sticky;
+  right: 0;
+  background-color: #fff;
+  z-index: 2;
+  /* đường kẻ phân cách bên trái */
+  box-shadow: -2px 0 6px -2px rgba(0, 0, 0, 0.08);
+}
+
+/* Sticky header của cột Thao tác — cần z-index cao hơn th thường */
+.stickyColHeader {
+  position: sticky !important;
+  right: 0;
+  top: 0;
+  background-color: #f2f2f4 !important;
+  z-index: 5 !important;
+  box-shadow: -2px 0 6px -2px rgba(0, 0, 0, 0.08);
+}
+
+/* ── Other cells ── */
 .name {
   font-weight: 500;
 }
 
+.sttCell {
+  cursor: help;
+  border-bottom: 1px dashed #aaa;
+  display: inline-block;
+  line-height: 1.4;
+}
+
 .truncateCell {
-  max-width: 320px;
+  max-width: 260px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* ── Status badge ── */
 .statusBadge {
   display: inline-block;
   padding: 4px 8px;
@@ -76,11 +144,64 @@
   color: #b91c1c;
 }
 
+/* ── Target badge ── */
+.targetBadge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  background-color: rgba(117, 136, 222, 0.12);
+  color: #4b5fa6;
+}
+
+/* ── Actions ── */
 .actions {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
+/* Tooltip container */
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltipWrapper .tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  font-family: var(--font-body);
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 10;
+}
+
+/* Mũi tên nhỏ phía dưới tooltip */
+.tooltipWrapper .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #343a40;
+}
+
+.tooltipWrapper:hover .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
 
 .editButton {
   width: calc(16px + 0.5rem + 4px) !important;
@@ -124,6 +245,7 @@
   fill: #ffffff !important;
 }
 
+/* ── Empty state ── */
 .emptyState {
   text-align: center;
   padding: var(--spacing-xl) !important;
@@ -131,6 +253,5 @@
   font-family: var(--font-body);
 }
 
-.paginationWrapper {
-  margin-top: var(--spacing-md);
-}
+/* ── Pagination ── */
+

@@ -1,0 +1,295 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.placeholder {
+  padding: 32px 16px;
+  text-align: center;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  color: #8a92a4;
+}
+
+/* ── Section title ── */
+.sectionTitle {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a92a4;
+  padding: 20px 0 8px;
+  border-bottom: 1px solid #f1f3f5;
+  margin-bottom: 4px;
+}
+
+.sectionTitle:first-child {
+  padding-top: 4px;
+}
+
+/* ── Field group ── */
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Single field row ── */
+.fieldRow {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f8f9fa;
+  gap: 12px;
+}
+
+.fieldRow:last-child {
+  border-bottom: none;
+}
+
+.fieldReadOnly .displayWrapper {
+  cursor: default !important;
+}
+
+.fieldReadOnly .displayWrapper:hover {
+  background: transparent !important;
+}
+
+.fieldReadOnly .editHint {
+  display: none !important;
+}
+
+.fieldLabel {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 13px;
+  color: #8a92a4;
+  flex: 0 0 140px;
+  min-width: 140px;
+}
+
+.fieldValue {
+  flex: 1;
+  position: relative;
+}
+
+/* ── Display mode ── */
+.displayWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+  min-height: 34px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.displayWrapper:hover {
+  background-color: rgba(250, 131, 20, 0.06);
+}
+
+.displayWrapper:hover .editHint {
+  opacity: 1;
+}
+
+.displayValue {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #343a40;
+  word-break: break-all;
+}
+
+.emptyValue {
+  color: #adb5bd;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.editHint {
+  color: #adb5bd;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Edit mode ── */
+.editingWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.editInput {
+  flex: 1;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  color: #343a40;
+  background-color: #fff;
+  border: 1.5px solid #fa8314;
+  border-radius: 6px;
+  padding: 6px 10px;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(250, 131, 20, 0.12);
+  transition: border-color 0.15s;
+  min-width: 0;
+  width: 100%;
+  max-width: 320px;
+}
+
+.editInput:focus {
+  border-color: #e67310;
+}
+
+.editActions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.saveBtn,
+.cancelBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.15s;
+}
+
+.saveBtn {
+  background-color: #fa8314;
+  color: #fff;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background-color: #e67310;
+}
+
+.saveBtn:disabled {
+  background-color: #ffc68a;
+  cursor: wait;
+}
+
+.cancelBtn {
+  background-color: #f1f3f5;
+  color: #6c757d;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background-color: #e9ecef;
+  color: #343a40;
+}
+
+/* ── Gender dropdown ── */
+.genderDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+  min-width: 120px;
+}
+
+.genderOption {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 14px;
+  color: #343a40;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.genderOption:hover {
+  background-color: rgba(250, 131, 20, 0.08);
+  color: #fa8314;
+}
+
+.genderOptionActive {
+  background-color: rgba(250, 131, 20, 0.1);
+  color: #fa8314;
+  font-weight: 600;
+}
+
+/* ── Badges ── */
+.roleBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: rgba(99, 102, 241, 0.1);
+  color: #4338ca;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.verifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: rgba(21, 128, 61, 0.1);
+  color: #15803d;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.unverifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: rgba(185, 28, 28, 0.1);
+  color: #b91c1c;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ── Hint ── */
+.hint {
+  margin-top: 20px;
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: 12px;
+  color: #adb5bd;
+  text-align: center;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+@media (max-width: 480px) {
+  .fieldRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .fieldLabel {
+    flex: none;
+    min-width: auto;
+  }
+}

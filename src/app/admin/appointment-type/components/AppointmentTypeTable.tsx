@@ -95,27 +95,33 @@ export function AppointmentTypeTable({ appointmentTypes, onEdit, onDelete, delet
                 <td>
                   <div className={styles.actions}>
                     {onEdit && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.editButton} btn-icon btn-sm`}
-                        onClick={() => onEdit(appointmentType)}
-                        aria-label={`Chỉnh sửa ${appointmentType.name}`}
-                      >
-                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                      </Button>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={`${styles.editButton} btn-icon btn-sm`}
+                          onClick={() => onEdit(appointmentType)}
+                          aria-label={`Chỉnh sửa ${appointmentType.name}`}
+                        >
+                          <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Chỉnh sửa</span>
+                      </div>
                     )}
                     {onDelete && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.deleteButton} btn-icon btn-sm`}
-                        onClick={() => onDelete(appointmentType)}
-                        disabled={deletingId === appointmentType.id}
-                        aria-label={`Xóa ${appointmentType.name}`}
-                      >
-                        <Trash2OutlineIcon fill="#FD6161" size={16} />
-                      </Button>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={`${styles.deleteButton} btn-icon btn-sm`}
+                          onClick={() => onDelete(appointmentType)}
+                          disabled={deletingId === appointmentType.id}
+                          aria-label={`Xóa ${appointmentType.name}`}
+                        >
+                          <Trash2OutlineIcon fill="#FD6161" size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Xóa</span>
+                      </div>
                     )}
                   </div>
                 </td>

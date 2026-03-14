@@ -11,7 +11,7 @@ import { TransactionTable } from './components/TransactionTable';
 import { TransactionTableControls } from './components/TransactionTableControls';
 import styles from './transaction.module.css';
 
-const PAGE_SIZE = 10;
+
 
 const getErrorMessage = (error: unknown, fallback: string): string => {
   if (error instanceof Error) {
@@ -55,6 +55,8 @@ export default function AdminTransactionPage() {
   const [typeFilter, setTypeFilter] = useState<'all' | 'Deposit' | 'Payment' | 'Refund'>('all');
   const [sortKey, setSortKey] = useState<string>('date-desc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -105,12 +107,12 @@ export default function AdminTransactionPage() {
   }, [searchQuery, statusFilter, typeFilter, sortKey]);
 
   const paginatedTransactions = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end = start + PAGE_SIZE;
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
     return filteredTransactions.slice(start, end);
-  }, [filteredTransactions, currentPage]);
+  }, [filteredTransactions, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredTransactions.length / PAGE_SIZE);
+  const totalPages = Math.ceil(filteredTransactions.length / pageSize);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -149,9 +151,14 @@ export default function AdminTransactionPage() {
                 ? {
                     currentPage,
                     totalPages,
-                    pageSize: PAGE_SIZE,
+                    pageSize,
                     totalItems: filteredTransactions.length,
                     onPageChange: handlePageChange,
+                    pageSizeOptions: PAGE_SIZE_OPTIONS,
+                    onPageSizeChange: (size) => {
+                      setPageSize(size);
+                      setCurrentPage(1);
+                    },
                   }
                 : undefined
             }

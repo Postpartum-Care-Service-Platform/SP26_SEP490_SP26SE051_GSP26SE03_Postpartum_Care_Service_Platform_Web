@@ -9,8 +9,10 @@ export interface Account {
   username: string;
   isActive: boolean;
   isEmailVerified: boolean;
-   createdAt: string;
+  createdAt: string;
+  updatedAt?: string;
   avatarUrl: string | null;
   ownerProfile: FamilyProfile | null;
+  nowPackage?: unknown;
 }
 

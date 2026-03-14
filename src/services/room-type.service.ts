@@ -15,6 +15,9 @@ const roomTypeService = {
   deleteRoomType: (id: number): Promise<void> => {
     return apiClient.delete(`/RoomType/${id}`);
   },
+  restoreRoomType: (id: number): Promise<RoomType> => {
+    return apiClient.patch(`/RoomType/restore/${id}`);
+  },
 };
 
 export default roomTypeService;

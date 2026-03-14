@@ -9,7 +9,9 @@ export type Appointment = {
   doctor: string;
   department: string;
   appointmentTypeId: number | null;
-  dateTime: string;
+  dateTime: string; // Giữ lại để tương thích
+  date: string; // Ngày định dạng dd/MM/yyyy
+  time: string; // Thời gian định dạng HH:mm
   status: AppointmentStatus;
 };
 

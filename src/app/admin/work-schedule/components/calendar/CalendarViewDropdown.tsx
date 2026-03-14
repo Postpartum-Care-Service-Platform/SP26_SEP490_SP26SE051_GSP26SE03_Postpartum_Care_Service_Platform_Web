@@ -5,7 +5,7 @@ import React from 'react';
 
 import styles from './calendar-view-dropdown.module.css';
 
-type ViewMode = 'Month' | 'Week';
+type ViewMode = 'Month' | 'Week' | 'Day';
 
 function ChevronDownIcon() {
   return (
@@ -15,7 +15,17 @@ function ChevronDownIcon() {
   );
 }
 
-const OPTIONS: ViewMode[] = ['Month', 'Week'];
+const OPTIONS: { value: ViewMode; label: string }[] = [
+  { value: 'Month', label: 'Tháng' },
+  { value: 'Week', label: 'Tuần' },
+  { value: 'Day', label: 'Ngày' },
+];
+
+const VIEW_LABELS: Record<ViewMode, string> = {
+  Month: 'Tháng',
+  Week: 'Tuần',
+  Day: 'Ngày',
+};
 
 export function CalendarViewDropdown({
   value,
@@ -30,7 +40,7 @@ export function CalendarViewDropdown({
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger asChild>
         <button type="button" className={styles.trigger}>
-          <span>{value}</span>
+          <span>{VIEW_LABELS[value]}</span>
           <span className={styles.caret} aria-hidden="true">
             <ChevronDownIcon />
           </span>
@@ -47,18 +57,18 @@ export function CalendarViewDropdown({
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
           {OPTIONS.map((opt) => {
-            const selected = opt === value;
+            const selected = opt.value === value;
             return (
               <button
-                key={opt}
+                key={opt.value}
                 type="button"
                 className={`${styles.item} ${selected ? styles.itemSelected : ''}`}
                 onClick={() => {
-                  onChange?.(opt);
+                  onChange?.(opt.value);
                   setOpen(false);
                 }}
               >
-                {opt}
+                {opt.label}
               </button>
             );
           })}

@@ -1,4 +1,8 @@
 const notificationTypeTranslations: Record<string, string> = {
+  'For_all': 'Tất cả',
+  'for_all': 'Tất cả',
+  'For all': 'Tất cả',
+  'For All': 'Tất cả',
   'For_cutomers': 'Cho khách hàng',
   'For_customers': 'Cho khách hàng',
   'for_cutomers': 'Cho khách hàng',

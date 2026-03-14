@@ -9,7 +9,7 @@ type Props = {
 // Summary / Overview Icon
 export function SummaryIcon({ className }: Props) {
   return (
-    <svg fill="none" viewBox="-4 -4 24 24" role="presentation" className={className}>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" role="presentation" className={className}>
       <path
         fill="currentColor"
         fillRule="evenodd"
@@ -23,7 +23,7 @@ export function SummaryIcon({ className }: Props) {
 // Timeline Icon
 export function TimelineIcon({ className }: Props) {
   return (
-    <svg fill="none" viewBox="-4 -4 24 24" role="presentation" className={className}>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" role="presentation" className={className}>
       <path
         fill="currentColor"
         fillRule="evenodd"
@@ -37,7 +37,7 @@ export function TimelineIcon({ className }: Props) {
 // Board Icon
 export function BoardIcon({ className }: Props) {
   return (
-    <svg fill="none" viewBox="-4 -4 24 24" role="presentation" className={className}>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" role="presentation" className={className}>
       <path
         fill="currentColor"
         fillRule="evenodd"
@@ -51,7 +51,7 @@ export function BoardIcon({ className }: Props) {
 // Calendar Icon
 export function CalendarIcon({ className }: Props) {
   return (
-    <svg fill="none" viewBox="-4 -4 24 24" role="presentation" className={className}>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" role="presentation" className={className}>
       <path
         fill="currentColor"
         fillRule="evenodd"
@@ -65,7 +65,7 @@ export function CalendarIcon({ className }: Props) {
 // List Icon
 export function ListIcon({ className }: Props) {
   return (
-    <svg fill="none" viewBox="-4 -4 24 24" role="presentation" className={className}>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" role="presentation" className={className}>
       <path
         fill="currentColor"
         fillRule="evenodd"
