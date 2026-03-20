@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronDownIcon, MagnifyingGlassIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
+import { Download, Upload } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -239,6 +240,26 @@ export default function AdminRoomsPage() {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className={styles.exportButton}>
+                <Download size={16} className={styles.exportIcon} />
+                Nhập/Xuất
+                <ChevronDownIcon className={styles.chevronIcon} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className={styles.dropdownContent} align="end">
+              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+                <Upload size={16} className={styles.itemIcon} />
+                Nhập từ Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+                <Download size={16} className={styles.itemIcon} />
+                Xuất ra Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button variant="primary" size="sm" className={styles.createButton} onClick={handleOpenCreate}>
             <PlusIcon className={styles.plusIcon} />
             Loại mới
@@ -281,9 +302,19 @@ export default function AdminRoomsPage() {
                         <td>
                           <span className={styles.sttCell} title={`ID gốc: ${room.id}`}>{stt}</span>
                         </td>
-                        <td className={styles.nameCell}>{room.name}</td>
-                        <td className={styles.descCell} title={room.description || ''}>
-                          {room.description || '-'}
+                        <td className={styles.nameCell}>
+                          <div className={styles.tooltipWrapper}>
+                            <span className={styles.textTruncate}>{room.name}</span>
+                            <span className={styles.tooltip}>{room.name}</span>
+                          </div>
+                        </td>
+                        <td className={styles.descCell}>
+                          {room.description ? (
+                            <div className={styles.tooltipWrapper}>
+                              <span className={styles.textTruncate}>{room.description}</span>
+                              <span className={styles.tooltip}>{room.description}</span>
+                            </div>
+                          ) : '-'}
                         </td>
                         <td>{room.capacity ?? '-'}</td>
                         <td className={styles.priceCell}>{formatPrice(room.basePrice)}</td>

@@ -50,79 +50,102 @@ type Props = {
 export function CarePlanDetailTable({ carePlanDetails, onEdit, onDelete, deletingId, pagination }: Props) {
   return (
     <div className={styles.tableWrapper}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Gói dịch vụ</th>
-            <th>Hoạt động</th>
-            <th>Ngày</th>
-            <th>Thời gian</th>
-            <th>Hướng dẫn</th>
-            <th>Thứ tự</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {carePlanDetails.length === 0 ? (
+      <div className={styles.tableContainer}>
+        <table className={styles.table}>
+          <thead>
             <tr>
-              <td colSpan={8} className={styles.emptyState}>
-                Chưa có chi tiết kế hoạch chăm sóc nào
-              </td>
+              <th>
+                <div className={styles.tooltipWrapper}>
+                  STT
+                  <span className={styles.tooltip}>Số thứ tự</span>
+                </div>
+              </th>
+              <th>Gói dịch vụ</th>
+              <th>Hoạt động</th>
+              <th>Ngày</th>
+              <th>Thời gian</th>
+              <th>Hướng dẫn</th>
+              <th>Thao tác</th>
             </tr>
-          ) : (
-            carePlanDetails.map((detail) => (
-              <tr key={detail.id} className={styles.tableRow}>
-                <td>{detail.id}</td>
-                <td className={styles.name} title={detail.packageName}>
-                  {detail.packageName}
-                </td>
-                <td className={styles.name} title={detail.activityName}>
-                  {detail.activityName}
-                </td>
-                <td>Ngày {detail.dayNo}</td>
-                <td>
-                  {detail.startTime} - {detail.endTime}
-                </td>
-                <td className={styles.truncateCell} title={detail.instruction}>
-                  {detail.instruction || '-'}
-                </td>
-                <td>{detail.sortOrder}</td>
-                <td>
-                  <div className={styles.actions}>
-                    <div className={styles.tooltipWrapper}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.editButton} btn-icon btn-sm`}
-                        onClick={() => onEdit?.(detail)}
-                        aria-label={`Chỉnh sửa ${detail.packageName} - ${detail.activityName}`}
-                      >
-                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                      </Button>
-                      <span className={styles.tooltip}>Chỉnh sửa</span>
-                    </div>
-                    <div className={styles.tooltipWrapper}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.deleteButton} btn-icon btn-sm`}
-                        onClick={() => onDelete?.(detail)}
-                        aria-label={`Xóa ${detail.packageName} - ${detail.activityName}`}
-                        disabled={deletingId === detail.id}
-                      >
-                        <Trash2OutlineIcon fill="#FD6161" size={16} />
-                      </Button>
-                      <span className={styles.tooltip}>Xóa</span>
-                    </div>
-                  </div>
+          </thead>
+          <tbody>
+            {carePlanDetails.length === 0 ? (
+              <tr>
+                <td colSpan={7} className={styles.emptyState}>
+                  Chưa có chi tiết kế hoạch chăm sóc nào
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-
+            ) : (
+              carePlanDetails.map((detail, index) => {
+                const stt = pagination
+                  ? (pagination.currentPage - 1) * pagination.pageSize + index + 1
+                  : index + 1;
+                
+                return (
+                  <tr key={detail.id} className={styles.tableRow}>
+                    <td>{stt}</td>
+                    <td className={styles.name}>
+                      <div className={styles.tooltipWrapper}>
+                        <span className={styles.nameTruncate}>{detail.packageName}</span>
+                        <span className={styles.tooltip}>{detail.packageName}</span>
+                      </div>
+                    </td>
+                    <td className={styles.name}>
+                     <div className={styles.tooltipWrapper}>
+                        <span className={styles.nameTruncate}>{detail.activityName}</span>
+                        <span className={styles.tooltip}>{detail.activityName}</span>
+                      </div>
+                    </td>
+                    <td className={styles.dayCell}>Ngày {detail.dayNo}</td>
+                    <td className={styles.timeCell}>
+                      {detail.startTime} - {detail.endTime}
+                    </td>
+                    <td className={styles.instructionCell}>
+                      {detail.instruction ? (
+                        <div className={styles.tooltipWrapper}>
+                          <span className={styles.truncateCell}>{detail.instruction}</span>
+                          <span className={styles.tooltip}>{detail.instruction}</span>
+                        </div>
+                      ) : (
+                        <span className={styles.emptyText}>-</span>
+                      )}
+                    </td>
+                    <td>
+                      <div className={styles.actions}>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${styles.editButton} btn-icon btn-sm`}
+                            onClick={() => onEdit?.(detail)}
+                            aria-label={`Chỉnh sửa ${detail.packageName} - ${detail.activityName}`}
+                          >
+                            <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                        </div>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${styles.deleteButton} btn-icon btn-sm`}
+                            onClick={() => onDelete?.(detail)}
+                            aria-label={`Xóa ${detail.packageName} - ${detail.activityName}`}
+                            disabled={deletingId === detail.id}
+                          >
+                            <Trash2OutlineIcon fill="#FD6161" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Xóa</span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
       {pagination && pagination.totalPages > 0 && (
         <div className={styles.paginationWrapper}>
           <Pagination

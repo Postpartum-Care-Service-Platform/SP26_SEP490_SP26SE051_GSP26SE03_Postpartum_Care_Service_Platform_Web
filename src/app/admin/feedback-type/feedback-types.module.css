@@ -98,6 +98,38 @@
   border-color: var(--color-brand-accent);
 }
 
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exportButton:hover {
+  background-color: #e9ecef;
+  border-color: var(--color-brand-accent);
+}
+
+.exportIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.itemIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
 .filterIcon {
   width: 16px;
   height: 16px;

@@ -205,6 +205,8 @@ export default function WorkSchedulePage() {
             />
           ) : (
             <CalendarDayView 
+              dayCursor={calendarSelectedDate}
+              onDayChange={handleSelectedDateChange}
               monthCursor={calendarMonth} 
               schedules={schedules}
             />

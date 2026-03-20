@@ -3,23 +3,54 @@
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
 }
 
-.tableWrapper {
+.tableContainer {
+  width: 100%;
   overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+  margin-bottom: 0;
+}
+
+/* Custom Scrollbar Styles */
+.tableContainer::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 0;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background: #f97316;
+  border-radius: 0;
+  border: 2px solid #f1f1f1;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background: #ea580c;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  margin-bottom: 20px; /* Space for tooltips */
 }
 
-.table thead {
-  background-color: rgba(242, 242, 244, 0.5);
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f8f9fa; /* Ensure header has background when sticky */
 }
 
 .table th {
-  padding: 10px 14px;
+  padding: 12px 14px;
   text-align: left;
   font-family: "Funnel Sans", sans-serif;
   font-size: 13px;
@@ -27,6 +58,29 @@
   color: #343A40;
   border-bottom: 1px solid var(--color-border-default);
   white-space: nowrap;
+}
+
+/* Sticky Actions Column */
+.table th:last-child,
+.table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  background-color: inherit;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.05); /* Optional: add a subtle shadow to separate from table */
+}
+
+.table th:last-child {
+  z-index: 11; /* Higher than header sticky */
+  background-color: #f8f9fa;
+}
+
+.table td:last-child {
+  background-color: #fff;
+}
+
+.table tbody tr:hover td:last-child {
+  background-color: #f1f3f5; /* Match row hover color if possible */
 }
 
 .table tbody tr {
@@ -49,11 +103,39 @@
   font-weight: 500;
 }
 
-.truncateCell {
-  max-width: 320px;
+.nameTruncate {
+  max-width: 400px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: block;
+}
+
+.truncateCell {
+  max-width: 500px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.emptyText {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+.instructionCell {
+  min-width: 300px;
+}
+
+.timeCell {
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.dayCell {
+  white-space: nowrap;
+  min-width: 100px;
 }
 
 .actions {
@@ -70,7 +152,7 @@
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%) scale(0.85);
   background-color: #343a40;
@@ -82,22 +164,43 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
+  z-index: 9999;
 }
 
 .tooltipWrapper .tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #343a40;
+  border-bottom-color: #343a40;
 }
 
 .tooltipWrapper:hover .tooltip {
   opacity: 1;
   transform: translateX(-50%) scale(1);
+}
+
+/* Đảm bảo tooltip ở header không bị đè/cắt bởi container */
+.table thead .tooltipWrapper .tooltip {
+  bottom: auto;
+  top: calc(100% + 10px);
+  left: 0;
+  transform: scale(0.85);
+}
+
+.table thead .tooltipWrapper:hover .tooltip {
+  transform: scale(1);
+}
+
+.table thead .tooltipWrapper .tooltip::after {
+  top: auto;
+  bottom: 100%;
+  left: 15px;
+  transform: none;
+  border-top-color: transparent;
+  border-bottom-color: #343a40;
 }
 
 .editButton {
@@ -147,6 +250,21 @@
   padding: var(--spacing-xl) !important;
   color: var(--color-admin-text-muted);
   font-family: var(--font-body);
+}
+
+.dotsRow {
+  padding: 8px 14px !important;
+  color: #343a40;
+  font-weight: 600;
+  font-size: 18px;
+  border-bottom: none !important;
+}
+
+.paginationWrapper {
+  margin-top: auto;
+  padding-top: 0;
+  border-top: none;
+  width: 100%;
 }
 
 

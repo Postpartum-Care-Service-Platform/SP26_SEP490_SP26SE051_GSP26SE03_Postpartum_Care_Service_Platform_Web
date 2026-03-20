@@ -12,7 +12,7 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
+  overflow-x: visible;
 }
 
 body.app-shell {
@@ -225,16 +225,26 @@ a:hover {
 
 ::-webkit-scrollbar {
   width: 8px;
-  height: 3px;
+  height: 8px; /* Tăng height cho scrollbar ngang đồng nhất */
   scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-accent) rgba(0, 0, 0, 0.05);
+}
+
+/* Ẩn mũi tên hai đầu của scrollbar */
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 ::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.05);
+  border-radius: 0; /* Bỏ border radius */
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgb(250, 131, 20);
+  background-color: var(--color-brand-accent);
+  border-radius: 0; /* Bỏ border radius */
 }
 
 ::-webkit-scrollbar-thumb:hover {

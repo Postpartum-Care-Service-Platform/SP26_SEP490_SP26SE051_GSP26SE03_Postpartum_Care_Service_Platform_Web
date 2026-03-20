@@ -105,7 +105,14 @@ export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pa
           {appointments.map((appointment) => (
             <tr key={appointment.id}>
               <td className={styles.appointmentId}>{appointment.id}</td>
-              <td className={styles.appointmentName}>{appointment.name || '-'}</td>
+              <td className={styles.appointmentName}>
+                {appointment.name ? (
+                  <div className={styles.tooltipWrapper}>
+                    <span className={styles.textTruncate}>{appointment.name}</span>
+                    <span className={styles.tooltip}>{appointment.name}</span>
+                  </div>
+                ) : '-'}
+              </td>
               <td>
                 <div className={styles.patientName}>
                   {appointment.patientAvatar ? (
@@ -121,7 +128,10 @@ export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pa
                       {appointment.patientName.charAt(0)}
                     </div>
                   )}
-                  <span>{appointment.patientName}</span>
+                  <div className={styles.tooltipWrapper}>
+                    <span className={styles.patientNameText}>{appointment.patientName}</span>
+                    <span className={styles.tooltip}>{appointment.patientName}</span>
+                  </div>
                 </div>
               </td>
               <td>{appointment.department}</td>

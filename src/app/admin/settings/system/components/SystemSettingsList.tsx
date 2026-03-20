@@ -56,7 +56,7 @@ const formatDate = (dateString?: string) => {
 
 export function SystemSettingsList({
   settings,
-  groupDisplayName: _groupDisplayName,
+  groupDisplayName,
   onEdit,
   onUpdateRole,
   roles,

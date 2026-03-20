@@ -33,6 +33,38 @@
 }
 .filterButton:hover, .statusButton:hover { background-color: #e9ecef; border-color: var(--color-brand-accent); }
 
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exportButton:hover {
+  background-color: #e9ecef;
+  border-color: var(--color-brand-accent);
+}
+
+.exportIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.itemIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
 .filterIcon { width: 16px; height: 16px; }
 .chevronIcon { width: 14px; height: 14px; }
 
@@ -89,10 +121,7 @@
 }
 
 .tooltipWrapper .tooltip {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%) scale(0.85);
+  position: fixed;
   background-color: #343a40;
   color: #fff;
   font-size: 11px;
@@ -101,23 +130,14 @@
   border-radius: 5px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
-}
-
-.tooltipWrapper .tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: #343a40;
+  transition: opacity 0.18s ease;
+  z-index: 99999;
+  transform: translate(-50%, -100%);
+  margin-top: -8px;
 }
 
 .tooltipWrapper:hover .tooltip {
   opacity: 1;
-  transform: translateX(-50%) scale(1);
 }
 
 .paginationWrapper { padding: 0 16px 16px; }

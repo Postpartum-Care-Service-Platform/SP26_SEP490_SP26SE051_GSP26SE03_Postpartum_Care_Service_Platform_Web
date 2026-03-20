@@ -22,6 +22,10 @@ const menuRecordService = {
   deleteMenuRecord: (id: number): Promise<void> => {
     return apiClient.delete(`/MenuRecord/${id}`);
   },
+
+  getMenuRecordByCustomer: (customerId: string): Promise<MenuRecord[]> => {
+    return apiClient.get(`/MenuRecord/customer/${customerId}`);
+  },
 };
 
 export default menuRecordService;

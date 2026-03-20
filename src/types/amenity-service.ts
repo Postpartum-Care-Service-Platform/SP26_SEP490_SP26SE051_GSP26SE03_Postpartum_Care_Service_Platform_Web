@@ -7,4 +7,6 @@ export interface AmenityService {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  imageUrl?: string;
+  duration?: string;
 }

@@ -31,11 +31,11 @@
 }
 
 .unread {
-  background-color: rgba(250, 131, 20, 0.05);
+  background-color: #f0f7ff;
 }
 
 .unread:hover {
-  background-color: rgba(250, 131, 20, 0.08);
+  background-color: #e6f0fa;
 }
 
 .iconWrapper {
@@ -50,7 +50,7 @@
 }
 
 .unread .iconWrapper {
-  background-color: rgba(250, 131, 20, 0.1);
+  background-color: rgba(0, 123, 255, 0.1);
 }
 
 .icon {
@@ -58,7 +58,7 @@
 }
 
 .unread .icon {
-  color: var(--color-brand-accent);
+  color: var(--color-brand-primary);
 }
 
 .content {
@@ -67,7 +67,7 @@
 }
 
 .title {
-  font-family: var(--font-body);
+  font-family: 'Lexend Deca', sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -94,14 +94,4 @@
   font-family: var(--font-body);
   font-size: 12px;
   color: var(--color-text-secondary);
-}
-
-.arrow {
-  color: var(--color-border-strong);
-  flex-shrink: 0;
-  transition: transform 0.2s ease;
-}
-
-.card:hover .arrow {
-  transform: translateX(2px);
 }

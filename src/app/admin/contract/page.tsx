@@ -26,6 +26,7 @@ export default function AdminContractPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState('date-newest');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -49,8 +50,18 @@ export default function AdminContractPage() {
     }
   };
 
+  const filteredContracts = useMemo(() => {
+    if (!searchQuery.trim()) return contracts;
+    const lowerQuery = searchQuery.toLowerCase();
+    return contracts.filter((c) =>
+      c.contractCode.toLowerCase().includes(lowerQuery) ||
+      c.customer?.username?.toLowerCase().includes(lowerQuery) ||
+      c.customer?.email?.toLowerCase().includes(lowerQuery)
+    );
+  }, [contracts, searchQuery]);
+
   const sortedContracts = useMemo(() => {
-    const sorted = [...contracts];
+    const sorted = [...filteredContracts];
 
     switch (sortBy) {
       case 'date-newest':
@@ -66,7 +77,7 @@ export default function AdminContractPage() {
       default:
         return sorted;
     }
-  }, [contracts, sortBy]);
+  }, [filteredContracts, sortBy]);
 
   const handleSortChange = (value: string) => {
     setSortBy(value);
@@ -133,6 +144,8 @@ export default function AdminContractPage() {
             sortBy={sortBy}
             onSortChange={handleSortChange}
             onAddContract={handleAddContract}
+            searchQuery={searchQuery}
+            onSearchChange={(val) => { setSearchQuery(val); setCurrentPage(1); }}
           />
           <ContractList
             contracts={paginatedContracts}

@@ -1,8 +1,11 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Eye } from 'lucide-react';
 import { Pagination } from '@/components/ui/pagination';
 import type { AdminBooking } from '@/types/admin-booking';
+import { ContractModalHeader } from './ContractModalHeader';
+import { ContractPreviewModal } from './ContractPreviewModal';
 
 import styles from './booking-table.module.css';
 
@@ -156,6 +159,8 @@ const truncateText = (text: string, maxLength: number) => {
 };
 
 export function BookingTable({ bookings, pagination, onViewBooking }: Props) {
+  const [selectedContract, setSelectedContract] = useState<{ id: string; code: string; fileUrl: string | null } | null>(null);
+
   return (
     <div className={styles.tableWrapper}>
       <div className={styles.tableScroll}>
@@ -166,12 +171,10 @@ export function BookingTable({ bookings, pagination, onViewBooking }: Props) {
               <th>Khách hàng</th>
               <th>Số điện thoại</th>
               <th>Gói dịch vụ</th>
-              <th>Loại phòng</th>
               <th>Phòng</th>
-              <th>Thời gian</th>
+              <th>Thời hạn gói</th>
               <th>Ngày đặt</th>
               <th>Tổng giá</th>
-              <th>Giảm giá</th>
               <th>Thành tiền</th>
               <th>Đã thanh toán</th>
               <th>Còn lại</th>
@@ -198,32 +201,40 @@ export function BookingTable({ bookings, pagination, onViewBooking }: Props) {
                 return (
                 <tr key={booking.id}>
                   <td className={styles['cell-nowrap']}>{bookingStt}</td>
-                  <td>
+                  <td className={styles['cell-ellipsis']}>
                   <div className={styles.customerInfo}>
-                    <span className={styles.customerName}>{booking.customer.username}</span>
-                    <span className={styles.customerEmail}>{booking.customer.email}</span>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.customerName}>{booking.customer.username}</span>
+                      <span className={styles.tooltip}>{booking.customer.username}</span>
+                    </div>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.customerEmail}>{booking.customer.email}</span>
+                      <span className={styles.tooltip}>{booking.customer.email}</span>
+                    </div>
                   </div>
                   </td>
                   <td className={styles['cell-nowrap']}>{booking.customer.phone}</td>
-                  <td className={styles['cell-nowrap']} title={booking.package ? `${booking.package.packageName} (${booking.package.durationDays} ngày)` : '-'}>
-                  {booking.package
-                    ? truncateText(`${booking.package.packageName} (${booking.package.durationDays} ngày)`, 25)
-                    : '-'}
+                  <td className={`${styles['cell-nowrap']} ${styles['cell-ellipsis']}`}>
+                  {booking.package ? (
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.textTruncate}>{`${booking.package.packageName} (${booking.package.durationDays} ngày)`}</span>
+                      <span className={styles.tooltip}>{`${booking.package.packageName} (${booking.package.durationDays} ngày)`}</span>
+                    </div>
+                  ) : '-'}
                   </td>
-                  <td className={styles['cell-nowrap']}>
-                  {booking.package?.roomTypeName || booking.room?.roomTypeName || '-'}
-                  </td>
-                  <td className={styles['cell-nowrap']}>
-                  {booking.room
-                    ? `Phòng ${booking.room.name} (Tầng ${booking.room.floor})`
-                    : '-'}
+                   <td className={`${styles['cell-nowrap']} ${styles['cell-ellipsis']}`}>
+                  {booking.room ? (
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.textTruncate}>{`Phòng ${booking.room.name} (Tầng ${booking.room.floor})`}</span>
+                      <span className={styles.tooltip}>{`Phòng ${booking.room.name} (Tầng ${booking.room.floor})`}</span>
+                    </div>
+                  ) : '-'}
                   </td>
                   <td className={styles['cell-nowrap']}>
                   {formatDate(booking.startDate)} - {formatDate(booking.endDate)}
                   </td>
                   <td className={styles['cell-nowrap']}>{formatDate(booking.bookingDate)}</td>
                   <td className={styles['cell-nowrap']}>{formatCurrency(booking.totalPrice)}</td>
-                  <td className={styles['cell-nowrap']}>{formatCurrency(booking.discountAmount)}</td>
                   <td className={`${styles.amount} ${styles['cell-nowrap']}`}>
                     {formatCurrency(booking.finalAmount)}
                   </td>
@@ -234,7 +245,23 @@ export function BookingTable({ bookings, pagination, onViewBooking }: Props) {
                       {getStatusLabel(booking.status)}
                     </span>
                   </td>
-                  <td className={styles['cell-nowrap']}>{booking.contract?.contractCode ?? '-'}</td>
+                  <td className={`${styles['cell-nowrap']} ${styles['cell-ellipsis']}`}>
+                    {booking.contract?.contractCode ? (
+                      <div className={styles.tooltipWrapper}>
+                        <span 
+                          className={`${styles.textTruncate} ${styles.contractLink}`}
+                          onClick={() => setSelectedContract({ 
+                            id: booking.id.toString(), 
+                            code: booking.contract?.contractCode || '',
+                            fileUrl: booking.contract?.fileUrl || null
+                          })}
+                        >
+                          {booking.contract.contractCode}
+                        </span>
+                        <span className={styles.tooltip}>{booking.contract.contractCode}</span>
+                      </div>
+                    ) : '-'}
+                  </td>
                   <td className={styles['cell-nowrap']}>
                     {getContractStatusLabel(booking.contract?.status)}
                   </td>
@@ -248,12 +275,16 @@ export function BookingTable({ bookings, pagination, onViewBooking }: Props) {
                           )[0]
                         : undefined;
                     return (
-                      <td className={styles['cell-transaction']}>
-                        {lastTx
-                          ? `${formatCurrency(lastTx.amount)} - ${getTransactionTypeLabel(
-                              lastTx.type,
-                            )} (${getTransactionStatusLabel(lastTx.status)})`
-                          : '-'}
+                      <td className={`${styles['cell-transaction']} ${styles['cell-ellipsis']}`}>
+                        {lastTx ? (() => {
+                          const text = `${formatCurrency(lastTx.amount)} - ${getTransactionTypeLabel(lastTx.type)} (${getTransactionStatusLabel(lastTx.status)})`;
+                          return (
+                            <div className={styles.tooltipWrapper}>
+                              <span className={styles.textTruncate}>{text}</span>
+                              <span className={styles.tooltip}>{text}</span>
+                            </div>
+                          );
+                        })() : '-'}
                       </td>
                     );
                   })()}
@@ -293,6 +324,14 @@ export function BookingTable({ bookings, pagination, onViewBooking }: Props) {
             showResultCount={true}
           />
         </div>
+      )}
+
+      {/* Contract Preview Modal */}
+      {selectedContract && (
+        <ContractPreviewModal 
+          contract={selectedContract} 
+          onClose={() => setSelectedContract(null)} 
+        />
       )}
     </div>
   );

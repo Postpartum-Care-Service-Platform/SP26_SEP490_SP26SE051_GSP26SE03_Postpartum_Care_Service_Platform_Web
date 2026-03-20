@@ -165,6 +165,7 @@ export function CalendarControlPanel({
           </Popover.Trigger>
           <Popover.Portal>
             <Popover.Content
+              className={styles.popoverContent}
               side="bottom"
               align="start"
               sideOffset={6}
@@ -191,6 +192,7 @@ export function CalendarControlPanel({
           </Popover.Trigger>
           <Popover.Portal>
             <Popover.Content
+              className={styles.popoverContent}
               side="bottom"
               align="start"
               sideOffset={6}

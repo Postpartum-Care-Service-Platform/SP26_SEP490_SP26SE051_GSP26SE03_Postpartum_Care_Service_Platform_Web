@@ -15,6 +15,14 @@ export const ROUTES = {
   adminWorkSchedule: '/admin/work-schedule',
   adminContract: '/admin/contract',
   adminTransaction: '/admin/transaction',
+  manager: '/manager',
+  managerProfile: '/manager/profile',
+  managerChat: '/manager/chat',
+  managerAppointment: '/manager/appointment',
+  managerActivity: '/manager/activity',
+  managerWorkSchedule: '/manager/work-schedule',
+  managerContract: '/manager/contract',
+  managerTransaction: '/manager/transaction',
 } as const;
 
 export const buildVerifyEmailRoute = (email: string) =>

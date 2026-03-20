@@ -70,10 +70,27 @@
   color: var(--color-text-primary);
   transition: background-color 0.2s ease;
   flex-shrink: 0;
+  position: relative;
 }
 
 .iconBtn:hover {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.iconBtn:hover::after {
+  content: 'Mở rộng';
+  position: fixed;
+  transform: translate(-50%, -100%);
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 99999;
+  margin-top: -8px;
+  margin-left: 8px;
 }
 
 .nav {
@@ -278,7 +295,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   margin-left: 263.99px;
   transition: margin-left 0.2s ease;
   width: calc(100% - 263.99px);
@@ -287,6 +304,7 @@
 .mainCollapsed {
   margin-left: 76px;
   width: calc(100% - 76px);
+  overflow: visible;
 }
 
 .header {
@@ -327,10 +345,26 @@
   color: var(--color-text-primary);
   transition: background-color 0.2s ease;
   flex-shrink: 0;
+  position: relative;
 }
 
 .headerToggleBtn:hover {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.headerToggleBtn:hover::after {
+  content: 'Thu gọn';
+  position: fixed;
+  transform: translate(-50%, -100%);
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 99999;
+  margin-top: -8px;
 }
 
 .actionsGroup {
@@ -421,7 +455,8 @@
 .content {
   flex: 1;
   padding: 16px;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: visible;
   display: flex;
   flex-direction: column;
 }

@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
+import amenityTicketService from '@/services/amenity-ticket.service';
+import amenityServiceService from '@/services/amenity-service.service';
+import type { AmenityTicket } from '@/types/amenity-ticket';
+import type { AmenityService } from '@/types/amenity-service';
 
 import styles from './prescriptions-table.module.css';
 
@@ -44,69 +48,69 @@ const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; siz
   </svg>
 );
 
-type Prescription = {
-  id: number;
-  date: string;
-  medicine: string;
-  dosage: string;
-  duration: string;
-  prescribedBy: string;
-};
 
-const mockData: Prescription[] = [
-  {
-    id: 1,
-    date: '14 Sep 2025',
-    medicine: 'Metformin',
-    dosage: '500 mg',
-    duration: '30 Days',
-    prescribedBy: 'Dr. Neha Patel',
-  },
-  {
-    id: 2,
-    date: '10 Sep 2025',
-    medicine: 'Amlodipine',
-    dosage: '10 mg',
-    duration: '20 Days',
-    prescribedBy: 'Dr. Amit Sharma',
-  },
-  {
-    id: 3,
-    date: '05 Sep 2025',
-    medicine: 'Salbutamol Inhaler',
-    dosage: '2 puffs',
-    duration: 'As Needed',
-    prescribedBy: 'Dr. Neha Patel',
-  },
-  {
-    id: 4,
-    date: '01 Sep 2025',
-    medicine: 'Atorvastatin',
-    dosage: '20 mg',
-    duration: '45 Days',
-    prescribedBy: 'Dr. Amit Sharma',
-  },
-  {
-    id: 5,
-    date: '28 Aug 2025',
-    medicine: 'Omeprazole',
-    dosage: '40 mg',
-    duration: '14 Days',
-    prescribedBy: 'Dr. Neha Patel',
-  },
-];
-
-export function PrescriptionsTable() {
+export function PrescriptionsTable({ customerId }: { customerId: string | null }) {
+  const [data, setData] = useState<AmenityTicket[]>([]);
+  const [services, setServices] = useState<AmenityService[]>([]);
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const PAGE_SIZE_OPTIONS = [5, 10, 20];
-  const totalItems = mockData.length;
-  const totalPages = Math.ceil(totalItems / pageSize) || 1;
 
-  const paginatedData = mockData.slice(
+  const fetchData = async () => {
+    if (!customerId) return;
+    try {
+      setLoading(true);
+      const [ticketRes, serviceRes] = await Promise.all([
+        amenityTicketService.getAmenityTicketsByUserId(customerId),
+        amenityServiceService.getAllAmenityServices()
+      ]);
+      setData(ticketRes);
+      setServices(serviceRes);
+    } catch (error) {
+      console.error('Failed to fetch amenity tickets:', error);
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [customerId]);
+
+  const totalItems = data.length;
+  const totalPages = Math.ceil(totalItems / pageSize) || 0;
+
+  const paginatedData = data.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
+
+  const getServiceName = (id: number) => {
+    return services.find(s => s.id === id)?.name || `Dịch vụ #${id}`;
+  };
+
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+  
+  const getStatusLabelText = (status: string) => {
+    switch (status) {
+      case 'Booked': return 'Đã đặt';
+      case 'Accepted': return 'Đã chấp nhận';
+      case 'Completed': return 'Hoàn thành';
+      case 'Pending': return 'Đang chờ';
+      case 'Canceled': return 'Đã hủy';
+      default: return status;
+    }
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -126,62 +130,64 @@ export function PrescriptionsTable() {
 
   return (
     <div className={styles.tableWrapper}>
-      <h5 className={styles.title}>Prescriptions</h5>
+      <h5 className={styles.title}>Dịch vụ tiện ích</h5>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Medicine</th>
-            <th>Dosage</th>
-            <th>Duration</th>
-            <th>Prescribed By</th>
-            <th>Actions</th>
+            <th>Dịch vụ</th>
+            <th>Thời gian bắt đầu</th>
+            <th>Thời gian kết thúc</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
           </tr>
         </thead>
         <tbody>
-          {paginatedData.length === 0 ? (
+          {loading ? (
             <tr>
-              <td colSpan={6} className={styles.emptyState}>
-                Chưa có dữ liệu
-              </td>
+              <td colSpan={5} className={styles.emptyState}>Đang tải...</td>
+            </tr>
+          ) : paginatedData.length === 0 ? (
+            <tr>
+              <td colSpan={5} className={styles.emptyState}>Chưa có dữ liệu</td>
             </tr>
           ) : (
-            paginatedData.map((prescription) => (
-              <tr key={prescription.id} className={styles.tableRow}>
-                <td>{prescription.date}</td>
-                <td className={styles.medicine}>{prescription.medicine}</td>
-                <td>{prescription.dosage}</td>
-                <td>{prescription.duration}</td>
-                <td>{prescription.prescribedBy}</td>
+            paginatedData.map((ticket) => (
+              <tr key={ticket.id} className={styles.tableRow}>
+                <td className={styles.medicine}>{getServiceName(ticket.amenityServiceId)}</td>
+                <td>{formatDateTime(ticket.startTime)}</td>
+                <td>{formatDateTime(ticket.endTime)}</td>
+                <td>
+                  <span className={`${styles.statusBadge} ${ticket.status === 'Completed' ? styles.statusRecovered : styles.statusOngoing}`}>
+                    {getStatusLabelText(ticket.status)}
+                  </span>
+                </td>
                 <td>
                   <div className={styles.actions}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.viewButton} btn-icon btn-sm`}
-                      onClick={() => handleView(prescription.id)}
-                      aria-label={`Xem ${prescription.medicine}`}
-                    >
-                      <EyeOutlineIcon fill="#15803d" size={16} />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.editButton} btn-icon btn-sm`}
-                      onClick={() => handleEdit(prescription.id)}
-                      aria-label={`Chỉnh sửa ${prescription.medicine}`}
-                    >
-                      <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.deleteButton} btn-icon btn-sm`}
-                      onClick={() => handleDelete(prescription.id)}
-                      aria-label={`Xóa ${prescription.medicine}`}
-                    >
-                      <Trash2OutlineIcon fill="#FD6161" size={16} />
-                    </Button>
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.viewButton} btn-icon btn-sm`}
+                        onClick={() => handleView(ticket.id)}
+                        aria-label={`Xem chi tiết ticket #${ticket.id}`}
+                      >
+                        <EyeOutlineIcon fill="#15803d" size={16} />
+                      </Button>
+                      <span className={styles.tooltip}>Xem chi tiết</span>
+                    </div>
+
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.editButton} btn-icon btn-sm`}
+                        onClick={() => handleEdit(ticket.id)}
+                        aria-label={`Chỉnh sửa ticket #${ticket.id}`}
+                      >
+                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                      </Button>
+                      <span className={styles.tooltip}>Chỉnh sửa</span>
+                    </div>
                   </div>
                 </td>
               </tr>

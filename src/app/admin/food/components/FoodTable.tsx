@@ -65,93 +65,111 @@ const formatDate = (dateString?: string) => {
 
 export function FoodTable({ foods, onEdit, onDelete, deletingId, pagination }: Props) {
   return (
-    <div className={styles.tableWrapper}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Tên món</th>
-            <th>Loại</th>
-            <th>Mô tả</th>
-            <th>Hình ảnh</th>
-            <th>Trạng thái</th>
-            <th>Cập nhật</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {foods.length === 0 ? (
+    <div className={styles.container}>
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
             <tr>
-              <td colSpan={8} className={styles.emptyState}>
-                Chưa có món ăn nào
-              </td>
+              <th className={styles.sttHeaderCell} title="Số thứ tự">STT</th>
+              <th>Tên món</th>
+              <th>Loại</th>
+              <th>Mô tả</th>
+              <th>Hình ảnh</th>
+              <th>Trạng thái</th>
+              <th>Cập nhật</th>
+              <th className={styles.stickyActionsCol}>Thao tác</th>
             </tr>
-          ) : (
-            foods.map((food) => (
-              <tr key={food.id} className={styles.tableRow}>
-                <td>{food.id}</td>
-                <td className={styles.name} title={food.name}>
-                  {food.name}
-                </td>
-                <td>{food.type}</td>
-                <td className={styles.truncateCell} title={food.description}>
-                  {food.description || '-'}
-                </td>
-                <td>
-                  {food.imageUrl ? (
-                    <Image
-                      src={food.imageUrl}
-                      alt={food.name}
-                      className={styles.foodImage}
-                      width={64}
-                      height={64}
-                    />
-                  ) : (
-                    <span className={styles.noImage}>-</span>
-                  )}
-                </td>
-                <td>
-                  <span
-                    className={`${styles.statusBadge} ${food.isActive ? styles.statusActive : styles.statusInactive}`}
-                  >
-                    {food.isActive ? 'Hoạt động' : 'Tạm dừng'}
-                  </span>
-                </td>
-                <td>{formatDate(food.updatedAt)}</td>
-                <td>
-                  <div className={styles.actions}>
-                    <div className={styles.tooltipWrapper}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.editButton} btn-icon btn-sm`}
-                        onClick={() => onEdit?.(food)}
-                        aria-label={`Chỉnh sửa ${food.name}`}
-                      >
-                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                      </Button>
-                      <span className={styles.tooltip}>Chỉnh sửa</span>
-                    </div>
-                    <div className={styles.tooltipWrapper}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.deleteButton} btn-icon btn-sm`}
-                        onClick={() => onDelete?.(food)}
-                        aria-label={`Xóa ${food.name}`}
-                        disabled={deletingId === food.id}
-                      >
-                        <Trash2OutlineIcon fill="#FD6161" size={16} />
-                      </Button>
-                      <span className={styles.tooltip}>Xóa</span>
-                    </div>
-                  </div>
+          </thead>
+          <tbody>
+            {foods.length === 0 ? (
+              <tr>
+                <td colSpan={8} className={styles.emptyState}>
+                  Chưa có món ăn nào
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              foods.map((food, index) => {
+                const stt = pagination ? (pagination.currentPage - 1) * pagination.pageSize + index + 1 : index + 1;
+                return (
+                  <tr key={food.id} className={styles.tableRow}>
+                    <td className={styles.sttDataCell}>
+                      <div className={styles.tooltipWrapper}>
+                        <span className={styles.sttCell}>{stt}</span>
+                        <span className={styles.tooltip}>ID gốc: {food.id}</span>
+                       </div>
+                    </td>
+                    <td className={styles.name}>
+                      <div className={styles.tooltipWrapper}>
+                        <span className={styles.textTruncate}>{food.name}</span>
+                        <span className={styles.tooltip}>{food.name}</span>
+                      </div>
+                    </td>
+                    <td>{food.foodType || food.type}</td>
+                    <td className={styles.truncateCell}>
+                      {food.description ? (
+                        <div className={styles.tooltipWrapper}>
+                          <span className={styles.textTruncate}>{food.description}</span>
+                          <span className={styles.tooltip}>{food.description}</span>
+                        </div>
+                      ) : '-'}
+                    </td>
+                    <td>
+                      {food.imageUrl ? (
+                        <Image
+                          src={food.imageUrl}
+                          alt={food.name}
+                          className={styles.foodImage}
+                          width={64}
+                          height={64}
+                        />
+                      ) : (
+                        <span className={styles.noImage}>-</span>
+                      )}
+                    </td>
+                    <td>
+                      <span
+                        className={`${styles.statusBadge} ${food.isActive ? styles.statusActive : styles.statusInactive}`}
+                      >
+                        {food.isActive ? 'Hoạt động' : 'Tạm dừng'}
+                      </span>
+                    </td>
+                    <td>{formatDate(food.updatedAt)}</td>
+                    <td className={styles.stickyActionsCol}>
+                      <div className={styles.actions}>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${styles.editButton} btn-icon btn-sm`}
+                            onClick={() => onEdit?.(food)}
+                            aria-label={`Chỉnh sửa ${food.name}`}
+                          >
+                            <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                        </div>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${styles.deleteButton} btn-icon btn-sm`}
+                            onClick={() => onDelete?.(food)}
+                            aria-label={`Xóa ${food.name}`}
+                            disabled={deletingId === food.id}
+                          >
+                            <Trash2OutlineIcon fill="#FD6161" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Xóa</span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
 
       {pagination && pagination.totalPages > 0 && (
         <div className={styles.paginationWrapper}>

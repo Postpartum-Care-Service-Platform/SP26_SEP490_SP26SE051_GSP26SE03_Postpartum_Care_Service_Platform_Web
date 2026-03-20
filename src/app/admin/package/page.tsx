@@ -6,8 +6,7 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import packageService from '@/services/package.service';
 import type { Package } from '@/types/package';
 
-import { NewPackageModal, PackageTable, PackageTableControls } from './components';
-import { PackageListHeader } from './components/PackageListHeader';
+import { NewPackageModal, PackageListHeader, PackageTable, PackageTableControls } from './components';
 import styles from './package.module.css';
 
 
@@ -151,6 +150,8 @@ export default function AdminPackagePage() {
 
   return (
     <div className={styles.pageContainer}>
+
+      <PackageListHeader />
 
       {loading ? (
         <div className={styles.content}>

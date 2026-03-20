@@ -2,8 +2,9 @@
 .modalContent { background-color: #fff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.18); width: 480px; max-width: calc(100vw - 32px); overflow: hidden; }
 .modalHeader { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e9ecef; }
 .modalTitle { color: #343a40; font-family: "Funnel Sans", sans-serif; font-size: 13px; font-weight: 600; margin: 0; }
-.closeButton { background: transparent; border: none; color: #868e96; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: color 0.15s, background 0.15s; }
-.closeButton:hover { color: #343a40; background: #f1f3f5; }
+.closeButton { background: transparent; border: none; color: #dc3545; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: color 0.15s, background 0.15s; position: relative; }
+.closeButton:hover { color: #fff; background: #dc3545; }
+.closeButton:hover::after { content: 'Đóng'; position: fixed; transform: translate(-50%, -100%); background-color: #343a40; color: #fff; font-size: 11px; white-space: nowrap; padding: 4px 8px; border-radius: 5px; pointer-events: none; z-index: 99999; margin-top: -8px; }
 .modalBody { padding: 20px 16px 4px; display: flex; flex-direction: column; }
 .formGroup { margin-bottom: 16px; }
 .formGroup label { display: block; color: #343a40; font-family: "Funnel Sans", sans-serif; font-size: 13px; font-weight: 600; margin-bottom: 6px; }

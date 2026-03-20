@@ -12,9 +12,20 @@
 }
 
 .chartSection {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
+  display: flex;
+  gap: 15px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.revenueChartWrapper {
+  flex: 5;
+  min-width: 0;
+}
+
+.categoryChartWrapper {
+  flex: 3;
+  min-width: 0;
 }
 
 .bottomSection {
@@ -111,4 +122,23 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  height: 474.27px;
+}
+
+.middleRow {
+  display: flex;
+  gap: 15px;
+  align-items: stretch;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.popularityWrapperSide {
+  flex: 1;
+  min-width: 0;
+}
+
+.cashflowWrapper {
+  flex: 2;
+  min-width: 0;
 }

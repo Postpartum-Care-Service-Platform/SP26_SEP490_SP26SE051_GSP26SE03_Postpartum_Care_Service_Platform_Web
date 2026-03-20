@@ -4,6 +4,9 @@
   align-items: center;
   gap: 12px;
   padding: 10px 0;
+  position: relative;
+  z-index: 100;
+  /* Ensure controls are above calendar visually */
 }
 
 .left {
@@ -145,4 +148,8 @@
 
 .tooltipArrow {
   fill: #172b4d;
+}
+
+.popoverContent {
+  z-index: 9999;
 }

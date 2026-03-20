@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronDownIcon, MagnifyingGlassIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
+import { ChevronDownIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
+import { Download, Upload } from 'lucide-react';
 
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import {
 import { Pagination } from '@/components/ui/pagination';
 import { useToast } from '@/components/ui/toast/use-toast';
 import roomAllotmentService from '@/services/room-allotment.service';
+import roomTypeService from '@/services/room-type.service';
 import type { Room, RoomStatus } from '@/types/room-allotment';
 
 import styles from './allotment.module.css';
@@ -66,8 +68,7 @@ const ActivateIcon = () => (
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 
-type SortKey      = 'id-asc' | 'id-desc' | 'name-asc' | 'name-desc' | 'floor-asc' | 'floor-desc';
-type StatusFilter = 'all' | RoomStatus;
+type SortKey = 'id-asc' | 'id-desc' | 'name-asc' | 'name-desc' | 'floor-asc' | 'floor-desc';
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: 'id-desc',    label: 'STT: giảm dần' },
@@ -76,16 +77,6 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: 'name-desc',  label: 'Tên Z → A' },
   { value: 'floor-asc',  label: 'Tầng thấp → cao' },
   { value: 'floor-desc', label: 'Tầng cao → thấp' },
-];
-
-const STATUS_FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
-  { value: 'all',                label: 'Tất cả' },
-  { value: 'Available',          label: 'Có sẵn' },
-  { value: 'Reserved',           label: 'Đã đặt' },
-  { value: 'Occupied',           label: 'Đang sử dụng' },
-  { value: 'Cleaning Scheduled', label: 'Lên lịch dọn dẹp' },
-  { value: 'Needs Repair',       label: 'Cần sửa chữa' },
-  { value: 'Maintenance',        label: 'Bảo trì' },
 ];
 
 const ACTIVE_OPTIONS: { value: 'all' | 'active' | 'inactive'; label: string }[] = [
@@ -122,7 +113,6 @@ export default function AddRoomAllotmentPage() {
   const [actionId, setActionId]   = useState<number | null>(null);
 
   const [searchQuery, setSearchQuery]   = useState('');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [sortKey, setSortKey]           = useState<SortKey>('id-desc');
   const [currentPage, setCurrentPage]   = useState(1);
@@ -139,8 +129,18 @@ export default function AddRoomAllotmentPage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await roomAllotmentService.getAllRooms();
-      setRooms(Array.isArray(data) ? data : []);
+      const [data, roomTypesData] = await Promise.all([
+        roomAllotmentService.getAllRooms(),
+        roomTypeService.getAdminRoomTypes()
+      ]);
+      const roomTypeMap = new Map((roomTypesData || []).map(rt => [rt.id, rt.name]));
+
+      const mappedData = Array.isArray(data) ? data.map(room => ({
+        ...room,
+        roomTypeName: room.roomTypeName || roomTypeMap.get(room.roomTypeId) || '-'
+      })) : [];
+
+      setRooms(mappedData);
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Không thể tải danh sách phân bổ phòng'));
     } finally {
@@ -158,16 +158,13 @@ export default function AddRoomAllotmentPage() {
         (r) => r.name.toLowerCase().includes(q) || r.roomTypeName.toLowerCase().includes(q),
       );
     }
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter((r) => r.status === statusFilter);
-    }
     if (activeFilter !== 'all') {
       filtered = filtered.filter((r) => activeFilter === 'active' ? r.isActive : !r.isActive);
     }
     return sortItems(filtered, sortKey);
-  }, [rooms, searchQuery, statusFilter, activeFilter, sortKey]);
+  }, [rooms, searchQuery, activeFilter, sortKey]);
 
-  useEffect(() => { setCurrentPage(1); }, [searchQuery, statusFilter, activeFilter, sortKey]);
+  useEffect(() => { setCurrentPage(1); }, [searchQuery, activeFilter, sortKey]);
 
   const paginatedItems = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -220,22 +217,20 @@ export default function AddRoomAllotmentPage() {
   };
 
   const selectedSortLabel   = SORT_OPTIONS.find((o) => o.value === sortKey)?.label ?? 'Sắp xếp';
-  const selectedStatusLabel = STATUS_FILTER_OPTIONS.find((o) => o.value === statusFilter)?.label ?? 'Tất cả';
   const selectedActiveLabel = ACTIVE_OPTIONS.find((o) => o.value === activeFilter)?.label ?? 'Tất cả';
 
   return (
     <div className={styles.pageContainer}>
       {/* Header */}
       <div className={styles.header}>
-        <h4 className={styles.title}>Phân bổ phòng</h4>
-        <Breadcrumbs items={[{ label: 'Phân bổ phòng' }]} homeHref="/admin" />
+        <h4 className={styles.title}>Danh sách Tất cả phòng</h4>
+        <Breadcrumbs items={[{ label: 'Tất cả phòng' }]} homeHref="/admin" />
       </div>
 
       {/* Controls */}
       <div className={styles.controls}>
         <div className={styles.controlsLeft}>
           <div className={styles.searchWrapper}>
-            <MagnifyingGlassIcon className={styles.searchIcon} />
             <input
               type="text"
               placeholder="Tìm kiếm tên phòng, loại phòng..."
@@ -266,25 +261,6 @@ export default function AddRoomAllotmentPage() {
         </div>
 
         <div className={styles.controlsRight}>
-          {/* Filter trạng thái phòng */}
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={styles.statusButton}>
-                {selectedStatusLabel}
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {STATUS_FILTER_OPTIONS.map((opt) => (
-                <DropdownMenuItem key={opt.value}
-                  className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setStatusFilter(opt.value)}>
-                  {opt.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           {/* Filter hoạt động */}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
@@ -303,6 +279,27 @@ export default function AddRoomAllotmentPage() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className={styles.exportButton}>
+                <Download size={16} className={styles.exportIcon} />
+                Nhập/Xuất
+                <ChevronDownIcon className={styles.chevronIcon} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className={styles.dropdownContent} align="end">
+              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+                <Upload size={16} className={styles.itemIcon} />
+                Nhập từ Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+                <Download size={16} className={styles.itemIcon} />
+                Xuất ra Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button variant="primary" size="sm" className={styles.createButton} onClick={handleOpenCreate}>
             <PlusIcon className={styles.plusIcon} />
             Thêm phòng mới
@@ -327,7 +324,7 @@ export default function AddRoomAllotmentPage() {
                   <th>Tầng</th>
                   <th>Trạng thái</th>
                   <th>Hoạt động</th>
-                  <th>Thao tác</th>
+                  <th className={styles.stickyActionsCol}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -355,7 +352,7 @@ export default function AddRoomAllotmentPage() {
                             {room.isActive ? 'Hoạt động' : 'Dừng'}
                           </span>
                         </td>
-                        <td>
+                        <td className={styles.stickyActionsCol}>
                           <div className={styles.actions}>
                             <div className={styles.tooltipWrapper}>
                               <Button variant="outline" size="sm" className={styles.editButton}
@@ -364,23 +361,6 @@ export default function AddRoomAllotmentPage() {
                               </Button>
                               <span className={styles.tooltip}>Chỉnh sửa</span>
                             </div>
-                            {room.status !== 'Maintenance' ? (
-                              <div className={styles.tooltipWrapper}>
-                                <Button variant="outline" size="sm" className={styles.maintainButton}
-                                  onClick={() => handleMaintain(room)} disabled={actionId === room.id}>
-                                  <WrenchIcon />
-                                </Button>
-                                <span className={styles.tooltip}>Bảo trì</span>
-                              </div>
-                            ) : (
-                              <div className={styles.tooltipWrapper}>
-                                <Button variant="outline" size="sm" className={styles.activateButton}
-                                  onClick={() => handleActivate(room)} disabled={actionId === room.id}>
-                                  <ActivateIcon />
-                                </Button>
-                                <span className={styles.tooltip}>Kích hoạt</span>
-                              </div>
-                            )}
                             <div className={styles.tooltipWrapper}>
                               <Button variant="outline" size="sm" className={styles.deleteButton}
                                 onClick={() => handleDelete(room)} disabled={actionId === room.id}>

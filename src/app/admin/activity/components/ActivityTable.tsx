@@ -60,7 +60,7 @@ export function ActivityTable({ activities, onEdit, onDelete, deletingId, pagina
         <table className={styles.table}>
           <thead>
             <tr>
-              <th title="Số thứ tự">STT</th>
+              <th className={styles.sttHeaderCell} title="Số thứ tự">STT</th>
               <th>Tên hoạt động</th>
               <th>Mô tả</th>
               <th>Loại</th>
@@ -84,12 +84,24 @@ export function ActivityTable({ activities, onEdit, onDelete, deletingId, pagina
 
                 return (
                   <tr key={activity.id} className={styles.tableRow}>
-                    <td><span className={styles.sttCell} title={`ID gốc: ${activity.id}`}>{stt}</span></td>
-                    <td className={styles.name} title={activity.name}>
-                      {activity.name || '-'}
+                    <td className={styles.sttDataCell}>
+                      <span className={styles.sttCell} title={`ID gốc: ${activity.id}`}>
+                        {stt}
+                      </span>
                     </td>
-                    <td className={styles.truncateCell} title={activity.description}>
-                      {activity.description || '-'}
+                    <td className={styles.name}>
+                      <div className={styles.tooltipWrapper}>
+                        <span className={styles.textTruncate}>{activity.name || '-'}</span>
+                        <span className={styles.tooltip}>{activity.name || '-'}</span>
+                      </div>
+                    </td>
+                    <td className={styles.truncateCell}>
+                      {activity.description ? (
+                        <div className={styles.tooltipWrapper}>
+                          <span className={styles.textTruncate}>{activity.description}</span>
+                          <span className={styles.tooltip}>{activity.description}</span>
+                        </div>
+                      ) : '-'}
                     </td>
                     <td>{activity.activityTypeName || '-'}</td>
                     <td>

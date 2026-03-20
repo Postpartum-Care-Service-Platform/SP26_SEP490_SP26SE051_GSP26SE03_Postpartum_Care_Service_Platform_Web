@@ -115,11 +115,7 @@ export function GenderStatsCard({
             </svg>
           </div>
           <div className={styles.mainValue}>
-            <CountUp
-              value={parseFloat(value.replace('%', ''))}
-              format="percentage"
-            />
-            %
+            {value.replace('%', '')}<span>%</span>
           </div>
         </div>
         <div className={styles.chartContainer}>
@@ -136,8 +132,8 @@ export function GenderStatsCard({
                 </linearGradient>
               </defs>
               <CartesianGrid
-                strokeDasharray="5 5"
-                stroke="#e0e0e0"
+                strokeDasharray="3 3"
+                stroke="#f0f0f0"
                 vertical={true}
                 horizontal={false}
               />
@@ -147,8 +143,9 @@ export function GenderStatsCard({
                 type="monotone"
                 dataKey="value"
                 stroke={chartColor}
-                strokeWidth={1}
+                strokeWidth={2}
                 fill={`url(#${gradientId})`}
+                activeDot={{ r: 4, fill: chartColor, stroke: '#fff', strokeWidth: 2 }}
               />
             </AreaChart>
           </ResponsiveContainer>

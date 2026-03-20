@@ -1,6 +1,7 @@
 'use client';
 
 import { MagnifyingGlassIcon, PlusIcon, MixerHorizontalIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+import { Download } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -111,6 +112,11 @@ export function NotificationTableControls({ onCreateClick, onSearch, onStatusCha
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <Button variant="outline" size="sm" className={styles.exportButton} onClick={() => console.log('Export')}>
+          <Download size={16} className={styles.exportIcon} />
+          Xuất file
+        </Button>
 
         <Button variant="primary" size="sm" className={styles.newNotificationButton} onClick={onCreateClick}>
           <PlusIcon className={styles.plusIcon} />

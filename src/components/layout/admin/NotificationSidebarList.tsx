@@ -2,7 +2,7 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { AlertCircle, CheckCircle, ChevronRight, Clock, FileText, Info, ShoppingCart, Users, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Clock, FileText, Info, ShoppingCart, Users, XCircle } from 'lucide-react';
 import React from 'react';
 
 import notificationService from '@/services/notification.service';
@@ -10,7 +10,7 @@ import type { Notification } from '@/types/notification';
 
 import styles from './notification-sidebar-list.module.css';
 
-const getNotificationIcon = (_typeId: number, typeName: string | null) => {
+const getNotificationIcon = (_typeId: number | null, typeName: string | null) => {
   if (!typeName) return FileText;
 
   const name = typeName.toLowerCase();
@@ -52,6 +52,19 @@ export function NotificationSidebarList() {
     }
   };
 
+  const handleNotificationClick = async (notification: Notification) => {
+    if (notification.status === 'Unread') {
+      try {
+        await notificationService.markAsRead(notification.id);
+        setNotifications((prev) =>
+          prev.map((n) => (n.id === notification.id ? { ...n, status: 'Read' } : n))
+        );
+      } catch (error) {
+        console.error('Failed to mark as read:', error);
+      }
+    }
+  };
+
   if (isLoading) {
     return <div className={styles.centered}>Đang tải...</div>;
   }
@@ -66,7 +79,11 @@ export function NotificationSidebarList() {
         const Icon = getNotificationIcon(notification.notificationTypeId, notification.notificationTypeName);
         const isUnread = notification.status === 'Unread';
         return (
-          <div key={notification.id} className={`${styles.card} ${isUnread ? styles.unread : ''}`}>
+          <div 
+            key={notification.id} 
+            className={`${styles.card} ${isUnread ? styles.unread : ''}`}
+            onClick={() => handleNotificationClick(notification)}
+          >
             <div className={styles.iconWrapper}>
               <Icon size={20} className={styles.icon} />
             </div>
@@ -78,7 +95,6 @@ export function NotificationSidebarList() {
                 <span>{formatTime(notification.createdAt)}</span>
               </div>
             </div>
-            <ChevronRight size={16} className={styles.arrow} />
           </div>
         );
       })}

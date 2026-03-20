@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronDownIcon, MagnifyingGlassIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
+import { Download, Upload } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -204,6 +205,26 @@ export default function AdminPackageTypePage() {
           </DropdownMenu>
         </div>
         <div className={styles.controlsRight}>
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className={styles.exportButton}>
+                <Download size={16} className={styles.exportIcon} />
+                Nhập/Xuất
+                <ChevronDownIcon className={styles.chevronIcon} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className={styles.dropdownContent} align="end">
+              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+                <Upload size={16} className={styles.itemIcon} />
+                Nhập từ Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+                <Download size={16} className={styles.itemIcon} />
+                Xuất ra Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className={styles.statusButton}>

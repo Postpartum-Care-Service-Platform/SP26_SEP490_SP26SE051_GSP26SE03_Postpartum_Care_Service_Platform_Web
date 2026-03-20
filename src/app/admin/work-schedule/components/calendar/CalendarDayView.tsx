@@ -11,8 +11,9 @@ import { CalendarQuickCreate } from './CalendarQuickCreate';
 import { MiniCalendar } from './MiniCalendar';
 import { ScheduleDetailPopover } from '../shared/ScheduleDetailPopover';
 
-// Generate hours from 6 AM to 8 PM (like Outlook)
-const HOURS = Array.from({ length: 15 }, (_, i) => i + 6);
+// Generate hours from 12 AM to 11 PM
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
+const START_HOUR = 0;
 
 // Color mapping for target
 const TARGET_COLORS = {
@@ -21,9 +22,19 @@ const TARGET_COLORS = {
   Both: '#DDA0DD',
 } as const;
 
-function formatTime(time: string): string {
-  const [hours, minutes] = time.split(':');
-  return `${hours}:${minutes}`;
+function formatTimeSlot(slotIndex: number): number | string {
+  const hour = START_HOUR + slotIndex;
+  if (hour === 0) return '12 AM';
+  if (hour === 12) return '12 PM';
+  if (hour < 12) return `${hour} AM`;
+  return `${hour - 12} PM`;
+}
+
+function formatEventTime(time: string): string {
+  const [hours, minutes] = time.split(':').map(Number);
+  const hour = hours % 12 || 12;
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  return `${hour}:${minutes.toString().padStart(2, '0')} ${ampm}`;
 }
 
 function getEventsForDate(date: Date, events: StaffSchedule[]): StaffSchedule[] {
@@ -36,30 +47,31 @@ function getEventsForDate(date: Date, events: StaffSchedule[]): StaffSchedule[] 
 }
 
 function getEventPosition(startTime: string): number {
-  const [hours] = startTime.split(':').map(Number);
-  return hours - 6; // Offset from 6 AM
+  const [hours, minutes] = startTime.split(':').map(Number);
+  return (hours - START_HOUR) + (minutes / 60);
 }
 
 function getCurrentTimePosition(): number {
   const now = new Date();
   const hours = now.getHours(); // Local time
   const minutes = now.getMinutes();
-  if (hours < 6) return -1;
-  return (hours - 6) * 48 + (minutes / 60) * 48;
+  if (hours < START_HOUR) return -1;
+  return (hours - START_HOUR) * 96 + (minutes / 60) * 96;
 }
 
-export function CalendarDayView({ monthCursor, schedules }: { 
-  monthCursor: Date; 
+export function CalendarDayView({ dayCursor, schedules, onDayChange, monthCursor }: { 
+  dayCursor: Date; 
   schedules: StaffSchedule[];
+  onDayChange?: (date: Date) => void;
+  monthCursor: Date;
 }) {
   const [openDayKey, setOpenDayKey] = React.useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
   const [selectedSchedule, setSelectedSchedule] = React.useState<StaffSchedule | null>(null);
   const [anchorRect, setAnchorRect] = React.useState<DOMRect | null>(null);
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 
-  // Use monthCursor as the day to display
-  const day = monthCursor;
+  // Use dayCursor as the day to display
+  const day = dayCursor;
 
   const dayLabels = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'] as const;
   const dayOfWeek = day.getDay();
@@ -85,19 +97,19 @@ export function CalendarDayView({ monthCursor, schedules }: {
       <div style={{ display: 'flex', gap: '16px' }}>
         <div style={{ flexShrink: 0 }}>
           <MiniCalendar 
-            selectedDate={selectedDate} 
-            onDateSelect={setSelectedDate}
+            selectedDate={dayCursor} 
+            onDateSelect={onDayChange}
             currentMonth={monthCursor}
           />
         </div>
 
         <div className={styles.wrap} style={{ flex: 1, overflow: 'auto' }}>
       <div className={styles.header}>
-        <div className={styles.dayLabel}>{dayLabel}</div>
-        <div className={styles.dateNumber}>
-              <span className={`${styles.dayOfMonth} ${isToday ? styles.todayNumber : ''}`}>{format(day, 'd')}</span>
-          <span className={styles.monthYear}>{monthYear}</span>
+        <div className={styles.headerTop}>
+          <span className={styles.dayNumberLarge}>{format(day, 'd')}</span>
+          <span className={styles.dayNameLarge}>{dayLabel}</span>
         </div>
+        <div className={styles.monthYearSub}>{monthYear}</div>
       </div>
 
       <div className={styles.content}>
@@ -107,18 +119,29 @@ export function CalendarDayView({ monthCursor, schedules }: {
               <div className={styles.timeColumn}>
                 {HOURS.map(hour => (
                   <div key={hour} className={styles.timeSlot}>
-                    {hour}:00
+                    {formatTimeSlot(hour)}
                   </div>
                 ))}
-                {/* Current time dot in time column */}
-                {isToday && currentTimePosition >= 0 && (
-                  <div 
-                    className={styles.currentTimeDot}
-                    style={{ 
-                      top: `${currentTimePosition}px`,
-                      backgroundColor: '#FF6B00'
-                    }}
-                  />
+                {/* Current time indicator - dot with tooltip */}
+                {currentTimePosition >= 0 && (
+                  <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                      <div 
+                        className={styles.currentTimeDot}
+                        style={{ 
+                          top: `${currentTimePosition}px`,
+                          backgroundColor: '#FF6B00',
+                          cursor: 'help'
+                        }}
+                      />
+                    </Tooltip.Trigger>
+                    <Tooltip.Portal>
+                      <Tooltip.Content className={styles.tooltipContent} side="right" sideOffset={10}>
+                        {format(new Date(), 'HH:mm')}
+                        <Tooltip.Arrow className={styles.tooltipArrow} />
+                      </Tooltip.Content>
+                    </Tooltip.Portal>
+                  </Tooltip.Root>
                 )}
               </div>
 
@@ -129,37 +152,21 @@ export function CalendarDayView({ monthCursor, schedules }: {
                   <div key={hour} className={styles.hourSlot} />
                 ))}
                 
-                {/* Current time line */}
+                {/* Current time line - only show on today */}
                 {isToday && currentTimePosition >= 0 && (
-                  <>
                   <div 
                     className={styles.currentTimeLine}
-                      style={{ 
-                        top: `${currentTimePosition}px`,
-                        backgroundColor: '#FF6B00'
-                      }}
-                    />
-                    {/* Dot at start of line (in day column) */}
-                    <div 
-                      style={{
-                        position: 'absolute',
-                        top: `${currentTimePosition - 4}px`,
-                        left: '-4px',
-                        width: '8px',
-                        height: '8px',
-                        backgroundColor: '#FF6B00',
-                        borderRadius: '50%',
-                        zIndex: 11
-                      }}
+                    style={{ 
+                      top: `${currentTimePosition}px`
+                    }}
                   />
-                  </>
                 )}
                 
                 {/* Events */}
                 {dayEvents.map((schedule) => {
                   const { familyScheduleResponse: fs } = schedule;
                   const eventColor = TARGET_COLORS[fs.target] || TARGET_COLORS.Baby;
-                  const topPosition = getEventPosition(fs.startTime) * 48;
+                  const topPosition = getEventPosition(fs.startTime) * 96;
                   
                   return (
                     <Tooltip.Root key={schedule.id}>
@@ -175,7 +182,7 @@ export function CalendarDayView({ monthCursor, schedules }: {
                           tabIndex={0}
                         >
                           <span className={styles.eventTime}>
-                            {formatTime(fs.startTime)} - {formatTime(fs.endTime)}
+                            {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
                           </span>
                           <span className={styles.eventTitle}>
                             {fs.activity}
@@ -190,7 +197,7 @@ export function CalendarDayView({ monthCursor, schedules }: {
                           <div className={styles.tooltipTitle}>{fs.activity}</div>
                           <div className={styles.tooltipCode}>{fs.customerName}</div>
                           <div className={styles.tooltipTime}>
-                            {formatTime(fs.startTime)} - {formatTime(fs.endTime)}
+                            {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
                           </div>
                           <div className={styles.tooltipCode}>{fs.packageName}</div>
                           <Tooltip.Arrow className={styles.tooltipArrow} />

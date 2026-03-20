@@ -1,7 +1,8 @@
-'use client';
-
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Eye } from 'lucide-react';
 import type { Contract } from '@/types/contract';
+import { ContractPreviewModal } from '../../booking/components/ContractPreviewModal';
 
 import styles from './contract-list.module.css';
 
@@ -29,6 +30,7 @@ const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; siz
     </g>
   </svg>
 );
+
 
 type Props = {
   contracts: Contract[];
@@ -76,6 +78,8 @@ const formatDate = (dateString: string | null | undefined) => {
 };
 
 export function ContractList({ contracts, selectedContractId, onSelectContract, onEdit, onDelete }: Props) {
+  const [previewContract, setPreviewContract] = useState<{ code: string; fileUrl: string | null } | null>(null);
+
   const handleRowClick = (contract: Contract, e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.actions')) return;
     onSelectContract?.(contract);
@@ -91,21 +95,21 @@ export function ContractList({ contracts, selectedContractId, onSelectContract, 
               <th>Mã hợp đồng</th>
               <th>Mã booking</th>
               <th>Khách hàng</th>
-              <th>Ngày hợp đồng</th>
-              <th>Hiệu lực từ</th>
-              <th>Hiệu lực đến</th>
-              <th>Ngày ký</th>
-              <th>Ngày check-in</th>
-              <th>Ngày check-out</th>
-              <th>File hợp đồng</th>
-              <th>Trạng thái</th>
+              <th className={styles.dateCol}>Ngày hợp đồng</th>
+              <th className={styles.dateCol}>Hiệu lực từ</th>
+              <th className={styles.dateCol}>Hiệu lực đến</th>
+              <th className={styles.dateCol}>Ngày ký</th>
+              <th className={styles.dateCol}>Ngày check-in</th>
+              <th className={styles.dateCol}>Ngày check-out</th>
+              <th className={styles.fileCol}>File hợp đồng</th>
+              <th className={styles.statusCol}>Trạng thái</th>
               <th className={styles.stickyActionsCol}>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {contracts.length === 0 ? (
               <tr>
-                <td colSpan={13} className={styles.emptyState}>
+                <td colSpan={14} className={styles.emptyState}>
                   Chưa có hợp đồng nào
                 </td>
               </tr>
@@ -132,67 +136,97 @@ export function ContractList({ contracts, selectedContractId, onSelectContract, 
                       )}
                     </div>
                   </td>
-                  <td>{formatDate(contract.contractDate)}</td>
-                  <td>{formatDate(contract.effectiveFrom)}</td>
-                  <td>{formatDate(contract.effectiveTo)}</td>
-                  <td>{formatDate(contract.signedDate)}</td>
-                  <td>{formatDate(contract.checkinDate)}</td>
-                  <td>{formatDate(contract.checkoutDate)}</td>
-                  <td>
+                  <td className={styles.dateCol}>{formatDate(contract.contractDate)}</td>
+                  <td className={styles.dateCol}>{formatDate(contract.effectiveFrom)}</td>
+                  <td className={styles.dateCol}>{formatDate(contract.effectiveTo)}</td>
+                  <td className={styles.dateCol}>{formatDate(contract.signedDate)}</td>
+                  <td className={styles.dateCol}>{formatDate(contract.checkinDate)}</td>
+                  <td className={styles.dateCol}>{formatDate(contract.checkoutDate)}</td>
+                  <td className={styles.fileCol}>
                     {contract.fileUrl ? (
-                      <a
-                        href={contract.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
                         className={styles.fileLink}
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPreviewContract({ code: contract.contractCode, fileUrl: contract.fileUrl });
+                        }}
                         title="Xem file hợp đồng"
                       >
-                        📄 Xem file
-                      </a>
+                        <img
+                          src="https://res.public.onecdn.static.microsoft/assets/fluentui-resources/1.1.0/app-min/assets/item-types/20/docx.svg"
+                          alt="Word"
+                          className={styles.fileIcon}
+                        />
+                        <div className={styles.fileInfo}>
+                          <span className={styles.fileName}>{contract.contractCode}</span>
+                        </div>
+                      </button>
                     ) : (
                       <span className={styles.noFile}>—</span>
                     )}
                   </td>
-                  <td>
+                  <td className={styles.statusCol}>
                     <span className={`${styles.statusBadge} ${getStatusClass(contract.status)}`}>
                       {getStatusLabel(contract.status)}
                     </span>
                   </td>
-                  <td className={styles.stickyActionsCol}>
-                    <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
-                      <div className={styles.tooltipWrapper}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={styles.editButton}
-                          onClick={() => onEdit?.(contract)}
-                          aria-label={`Chỉnh sửa ${contract.contractCode}`}
-                        >
-                          <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                        </Button>
-                        <span className={styles.tooltip}>Chỉnh sửa</span>
-                      </div>
-                      <div className={styles.tooltipWrapper}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={styles.deleteButton}
-                          onClick={() => onDelete?.(contract)}
-                          aria-label={`Xóa ${contract.contractCode}`}
-                        >
-                          <Trash2OutlineIcon fill="#FD6161" size={16} />
-                        </Button>
-                        <span className={styles.tooltip}>Xóa</span>
-                      </div>
-                    </div>
-                  </td>
+                   <td className={styles.stickyActionsCol}>
+                     <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+                       <div className={styles.tooltipWrapper}>
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           className={styles.viewButton}
+                           onClick={() => {
+                             if (contract.fileUrl) {
+                               setPreviewContract({ code: contract.contractCode, fileUrl: contract.fileUrl });
+                             }
+                           }}
+                           aria-label={`Xem tài liệu ${contract.contractCode}`}
+                         >
+                           <Eye size={16} color="#3B82F6" />
+                         </Button>
+                         <span className={styles.tooltip}>Xem tài liệu</span>
+                       </div>
+                       <div className={styles.tooltipWrapper}>
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           className={styles.editButton}
+                           onClick={() => onEdit?.(contract)}
+                           aria-label={`Chỉnh sửa ${contract.contractCode}`}
+                         >
+                           <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                         </Button>
+                         <span className={styles.tooltip}>Chỉnh sửa</span>
+                       </div>
+                       <div className={styles.tooltipWrapper}>
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           className={styles.deleteButton}
+                           onClick={() => onDelete?.(contract)}
+                           aria-label={`Xóa ${contract.contractCode}`}
+                         >
+                           <Trash2OutlineIcon fill="#FD6161" size={16} />
+                         </Button>
+                         <span className={styles.tooltip}>Xóa</span>
+                       </div>
+                     </div>
+                   </td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
       </div>
+      {previewContract && (
+        <ContractPreviewModal
+          contract={previewContract}
+          onClose={() => setPreviewContract(null)}
+        />
+      )}
     </div>
   );
 }

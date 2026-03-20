@@ -35,7 +35,7 @@ export function HealthMetricsTimeline() {
   ];
 
   return (
-    <div className={styles.card}>
+    <div className={styles.card} style={{ marginTop: '24px' }}>
       <div className={styles.cardHeader}>
         <h5 className={styles.title}>Health Metrics Timeline</h5>
         <div className={styles.tabs}>

@@ -3,52 +3,50 @@
   flex-direction: column;
   background: #fff;
   border: 1px solid rgba(9, 30, 66, 0.14);
-  border-radius: 6px;
-  overflow: hidden;
+  border-radius: 0;
+  height: calc(100vh - 280px); /* Limit height to enable internal scroll */
+  min-height: 500px;
+  overflow-y: auto;
+  position: relative;
   margin-top: 12px;
+  z-index: 1;
 }
 
 .header {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 12px 24px;
-  border-bottom: 1px solid rgba(9, 30, 66, 0.14);
-  background: #f4f5f7;
-}
-
-.dayLabel {
-  font-size: 14px;
-  color: #6b778c;
-  font-weight: 500;
-}
-
-.dateNumber {
-  display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(9, 30, 66, 0.14);
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 3;
 }
 
-.dayOfMonth {
-  font-size: 24px;
-  font-weight: 600;
-  color: #172b4d;
-  line-height: 1;
-}
-
-.todayNumber {
-  background: #0052cc;
-  color: white;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
+.headerTop {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: baseline;
+  gap: 8px;
 }
 
-.monthYear {
+.dayNumberLarge {
+  font-size: 32px;
+  font-weight: 700;
+  color: #FF6B00; /* Orange date as requested */
+  line-height: normal;
+}
+
+.dayNameLarge {
+  font-size: 16px;
+  font-weight: 500;
+  color: #42526e;
+}
+
+.monthYearSub {
   font-size: 14px;
   color: #6b778c;
+  margin-top: -4px;
 }
 
 .content {
@@ -58,24 +56,26 @@
 .grid {
   display: grid;
   grid-template-columns: 50px 1fr;
-  min-height: 720px;
+  min-height: 2304px; /* 24 hours * 96px */
 }
 
 .timeColumn {
   border-right: 1px solid rgba(9, 30, 66, 0.14);
-  background: #f4f5f7;
+  background: #fff;
   position: relative;
 }
 
 .timeSlot {
-  height: 48px;
+  height: 96px;
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
   padding-right: 8px;
+  padding-top: 2px;
   font-size: 11px;
   color: #6b778c;
-  transform: translateY(-8px);
+  box-sizing: border-box;
+  border-bottom: 1px solid rgba(9, 30, 66, 0.12);
 }
 
 .dayColumn {
@@ -84,12 +84,12 @@
 }
 
 .today {
-  background: rgba(0, 82, 204, 0.04);
+  background: #fff;
 }
 
 .hourSlot {
-  height: 48px;
-  border-bottom: 1px dashed rgba(9, 30, 66, 0.12);
+  height: 96px;
+  border-bottom: 1px solid rgba(9, 30, 66, 0.12);
   box-sizing: border-box;
 }
 
@@ -97,36 +97,26 @@
   border-bottom: none;
 }
 
+.currentTimeDot {
+  position: absolute;
+  left: 46px; /* Centered on the border of 50px wide column */
+  width: 8px;
+  height: 8px;
+  margin-top: -3px; /* Center dot vertically on the exact minute line */
+  background: #FF6B00 !important;
+  border-radius: 50%;
+  z-index: 2;
+  pointer-events: auto; /* Enable hover for tooltip */
+}
+
 .currentTimeLine {
   position: absolute;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 3px;
   background: #FF6B00 !important;
-  z-index: 10;
+  z-index: 2;
   pointer-events: none;
-}
-
-.currentTimeLine::before {
-  content: '';
-  position: absolute;
-  left: -4px;
-  top: -3px;
-  width: 8px;
-  height: 8px;
-  background: #FF6B00 !important;
-  border-radius: 50%;
-}
-
-.currentTimeDot {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 8px;
-  height: 8px;
-  background: #FF6B00 !important;
-  border-radius: 50%;
-  z-index: 10;
 }
 
 .eventChip {

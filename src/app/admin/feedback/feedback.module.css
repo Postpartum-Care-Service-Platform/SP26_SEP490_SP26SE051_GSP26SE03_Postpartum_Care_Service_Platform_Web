@@ -111,6 +111,38 @@
     border-color: var(--color-brand-accent);
 }
 
+.exportButton {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background-color: #f8f9fa;
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.exportButton:hover {
+    background-color: #e9ecef;
+    border-color: var(--color-brand-accent);
+}
+
+.exportIcon {
+    width: 16px;
+    height: 16px;
+}
+
+.itemIcon {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+}
+
 .filterIcon {
     width: 16px;
     height: 16px;
@@ -204,11 +236,77 @@
 
 .nameCell {
     font-weight: 500;
-    min-width: 160px;
-    max-width: 220px;
+    min-width: 140px;
+}
+
+.contentCell {
+    min-width: 150px;
+    max-width: 300px;
+    position: relative;
+}
+
+.contentTruncate {
+    display: block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 100%;
+}
+
+.textTooltipWrapper {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+}
+
+.imageCell {
+    min-width: 100px;
+    padding: 8px 14px !important;
+}
+
+.imageStack {
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 32px;
+}
+
+.imageWrapper {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: #fff;
+}
+
+.imageWrapper:not(:first-child) {
+    margin-left: -12px;
+}
+
+.imagePreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.imageCountBadge {
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #4b5563;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    height: 20px;
+    min-width: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 0 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .dateCell {
@@ -256,7 +354,8 @@
   display: inline-flex;
 }
 
-.tooltipWrapper .tooltip {
+.tooltipWrapper .tooltip,
+.textTooltipWrapper .tooltip {
   position: absolute;
   bottom: calc(100% + 6px);
   left: 50%;
@@ -273,7 +372,8 @@
   z-index: 20;
 }
 
-.tooltipWrapper .tooltip::after {
+.tooltipWrapper .tooltip::after,
+.textTooltipWrapper .tooltip::after {
   content: '';
   position: absolute;
   top: 100%;
@@ -283,32 +383,35 @@
   border-top-color: #343a40;
 }
 
-.tooltipWrapper:hover .tooltip {
+.tooltipWrapper:hover .tooltip,
+.textTooltipWrapper:hover .tooltip {
   opacity: 1;
   transform: translateX(-50%) scale(1);
 }
 
 .viewButton {
-    width: calc(14px + 1rem + 4px) !important;
-    height: calc(14px + 1rem + 4px) !important;
+    width: calc(16px + 0.5rem + 4px) !important;
+    height: calc(16px + 0.5rem + 4px) !important;
     padding: 0.5rem !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    background-color: rgba(29, 78, 216, 0.12) !important;
+    background-color: rgba(59, 130, 246, 0.1) !important;
     border-color: transparent !important;
     border-radius: 3.6px !important;
-    color: #1d4ed8 !important;
 }
 
 .viewButton:hover {
-    background-color: #1d4ed8 !important;
-    color: #fff !important;
+    background-color: #3b82f6 !important;
+}
+
+.viewButton:hover svg {
+    fill: #ffffff !important;
 }
 
 .deleteButton {
-    width: calc(14px + 1rem + 4px) !important;
-    height: calc(14px + 1rem + 4px) !important;
+    width: calc(16px + 0.5rem + 4px) !important;
+    height: calc(16px + 0.5rem + 4px) !important;
     padding: 0.5rem !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -316,17 +419,19 @@
     background-color: rgba(253, 97, 97, 0.15) !important;
     border-color: transparent !important;
     border-radius: 3.6px !important;
-    color: #fd6161 !important;
 }
 
 .deleteButton:hover {
     background-color: #fc6060 !important;
-    color: #fff !important;
+}
+
+.deleteButton:hover svg {
+    fill: #ffffff !important;
 }
 
 .restoreButton {
-    width: calc(14px + 1rem + 4px) !important;
-    height: calc(14px + 1rem + 4px) !important;
+    width: calc(16px + 0.5rem + 4px) !important;
+    height: calc(16px + 0.5rem + 4px) !important;
     padding: 0.5rem !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -334,12 +439,14 @@
     background-color: rgba(21, 128, 61, 0.15) !important;
     border-color: transparent !important;
     border-radius: 3.6px !important;
-    color: #15803d !important;
 }
 
 .restoreButton:hover {
     background-color: #15803d !important;
-    color: #fff !important;
+}
+
+.restoreButton:hover svg {
+    fill: #ffffff !important;
 }
 
 .placeholder {

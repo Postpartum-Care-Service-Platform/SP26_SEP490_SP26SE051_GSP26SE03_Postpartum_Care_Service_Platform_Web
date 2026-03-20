@@ -21,13 +21,16 @@ import {
   Settings,
   Shield,
   Palette,
+  Sparkles,
+  Ticket,
+  Building2,
 } from 'lucide-react';
 
 export type AdminNavItem = {
   key: string;
   label: string;
   href?: string;
-  icon?: React.ComponentType<{ size?: number; className?: string }>;
+  icon?: React.ComponentType<{ size?: number | string; className?: string }>;
   children?: Array<{ key: string; label: string; href: string }>;
 };
 
@@ -40,6 +43,7 @@ export type AdminNavSection = {
 export const adminNav: AdminNavSection[] = [
   {
     key: 'main',
+    label: 'Chính',
     items: [
       {
         key: 'dashboard',
@@ -66,6 +70,18 @@ export const adminNav: AdminNavSection[] = [
         icon: MessageCircle,
       },
       {
+        key: 'notification',
+        label: 'Thông báo',
+        href: '/admin/notification',
+        icon: Bell,
+      },
+    ],
+  },
+  {
+    key: 'operation',
+    label: 'Nghiệp vụ',
+    items: [
+      {
         key: 'appointment',
         label: 'Lịch hẹn',
         href: '/admin/appointment',
@@ -78,16 +94,10 @@ export const adminNav: AdminNavSection[] = [
         icon: BedDouble,
       },
       {
-        key: 'feedback',
-        label: 'Phản hồi',
-        href: '/admin/feedback',
-        icon: MessageSquare,
-      },
-      {
-        key: 'medical-record',
-        label: 'Hồ sơ y tế',
-        href: '/admin/medical-record',
-        icon: FileHeart,
+        key: 'booking',
+        label: 'Đặt phòng',
+        href: '/admin/booking',
+        icon: CalendarDays,
       },
       {
         key: 'contract',
@@ -96,17 +106,41 @@ export const adminNav: AdminNavSection[] = [
         icon: FileText,
       },
       {
-        key: 'types-config',
-        label: 'Cấu hình danh mục',
-        href: '/admin/types-config',
-        icon: Settings2,
+        key: 'medical-record',
+        label: 'Hồ sơ y tế',
+        href: '/admin/medical-record',
+        icon: FileHeart,
       },
       {
-        key: 'booking',
-        label: 'Đặt phòng',
-        href: '/admin/booking',
-        icon: CalendarDays,
+        key: 'care-plan-detail',
+        label: 'Chi tiết kế hoạch chăm sóc',
+        href: '/admin/care-plan-detail',
+        icon: ClipboardCheck,
       },
+      {
+        key: 'feedback',
+        label: 'Phản hồi',
+        href: '/admin/feedback',
+        icon: MessageSquare,
+      },
+    ],
+  },
+  {
+    key: 'facilities',
+    label: 'Cơ sở vật chất',
+    items: [
+      {
+        key: 'room-visualizer',
+        label: 'Sơ đồ tòa nhà',
+        href: '/admin/room-visualizer',
+        icon: Building2,
+      },
+    ],
+  },
+  {
+    key: 'management',
+    label: 'Quản lý',
+    items: [
       {
         key: 'menu-management',
         label: 'Quản lý thực đơn',
@@ -136,22 +170,22 @@ export const adminNav: AdminNavSection[] = [
         icon: Package,
       },
       {
+        key: 'amenity-service',
+        label: 'Tiện ích',
+        href: '/admin/amenity-service',
+        icon: Sparkles,
+      },
+      {
+        key: 'amenity-ticket',
+        label: 'Vé tiện ích',
+        href: '/admin/amenity-ticket',
+        icon: Ticket,
+      },
+      {
         key: 'activity',
         label: 'Hoạt động',
         href: '/admin/activity',
         icon: Activity,
-      },
-      {
-        key: 'care-plan-detail',
-        label: 'Chi tiết kế hoạch chăm sóc',
-        href: '/admin/care-plan-detail',
-        icon: ClipboardCheck,
-      },
-      {
-        key: 'notification',
-        label: 'Thông báo',
-        href: '/admin/notification',
-        icon: Bell,
       },
       {
         key: 'work-schedule',
@@ -188,6 +222,12 @@ export const adminNav: AdminNavSection[] = [
     key: 'settings',
     label: 'Cài đặt',
     items: [
+      {
+        key: 'types-config',
+        label: 'Cấu hình danh mục',
+        href: '/admin/types-config',
+        icon: Settings2,
+      },
       {
         key: 'system-settings',
         label: 'Cài đặt hệ thống',

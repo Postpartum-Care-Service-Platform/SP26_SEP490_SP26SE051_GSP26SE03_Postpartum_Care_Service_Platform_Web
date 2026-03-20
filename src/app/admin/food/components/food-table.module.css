@@ -1,5 +1,5 @@
-.tableWrapper {
-  background-color: #fff;
+.container {
+  background-color: #ffffff;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   padding: var(--spacing-md);
@@ -7,11 +7,52 @@
 
 .tableWrapper {
   overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: var(--spacing-md);
+  max-height: calc(100vh - 300px);
+  scrollbar-width: thin;
+  scrollbar-color: #fbb96a #f1f3f5;
+}
+
+.tableWrapper::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tableWrapper::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 0;
+}
+
+/* Ẩn mũi tên hai đầu của scrollbar */
+.tableWrapper::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb {
+  background: var(--color-brand-accent);
+  border-radius: 0;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb:hover {
+  background: #fa8314;
 }
 
 .table {
   width: 100%;
+  min-width: 1000px;
   border-collapse: collapse;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f8f9fa;
+  box-shadow: 0 1px 0 var(--color-border-default);
 }
 
 .table thead {
@@ -19,7 +60,7 @@
 }
 
 .table th {
-  padding: 10px 14px;
+  padding: 8px 12px;
   text-align: left;
   font-family: "Funnel Sans", sans-serif;
   font-size: 13px;
@@ -36,29 +77,46 @@
 
 .table tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.03) !important;
+  z-index: 20;
+  position: relative;
+}
+
+.table tbody tr:hover td {
+  z-index: 20;
+}
+
+.table tbody tr:hover .stickyActionsCol {
+  z-index: 30;
 }
 
 .table td {
-  padding: var(--spacing-sm);
+  padding: 6px 12px;
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-primary);
 }
 
 .name {
   font-weight: 500;
+  max-width: 180px;
 }
 
 .truncateCell {
   max-width: 320px;
+  white-space: nowrap;
+}
+
+.textTruncate {
+  display: block;
+  width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .foodImage {
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   object-fit: cover;
   border-radius: var(--radius-sm);
 }
@@ -86,6 +144,36 @@
   color: #b91c1c;
 }
 
+.stickyActionsCol {
+  position: sticky !important;
+  right: 0;
+  background-color: #ffffff !important;
+  z-index: 5;
+  min-width: 100px;
+  border-left: none !important;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+.table thead th.stickyActionsCol {
+  z-index: 11;
+  background-color: #f8f9fa !important;
+}
+
+.sttCell {
+  color: #555;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.sttHeaderCell {
+  text-align: center !important;
+  width: 60px;
+}
+
+.sttDataCell {
+  text-align: center !important;
+}
+
 .actions {
   display: flex;
   align-items: center;
@@ -100,29 +188,34 @@
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%) scale(0.85);
   background-color: #343a40;
   color: #fff;
   font-size: 11px;
+  font-family: var(--font-body);
   white-space: nowrap;
   padding: 4px 8px;
   border-radius: 5px;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
+  z-index: 9999;
 }
 
 .tooltipWrapper .tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #343a40;
+  border-bottom-color: #343a40;
+}
+
+.tooltipWrapper:hover {
+  z-index: 100 !important;
 }
 
 .tooltipWrapper:hover .tooltip {
@@ -179,4 +272,27 @@
   font-family: var(--font-body);
 }
 
+.paginationWrapper {
+  margin-top: var(--spacing-md);
+  padding: 12px 0;
+  border-top: 1px solid #f1f3f5;
+}
 
+.paginationWrapper :global(.container) {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.paginationWrapper :global(.pagination) {
+  margin: 0 !important;
+}
+
+.paginationWrapper :global(.pageSizeSelector) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

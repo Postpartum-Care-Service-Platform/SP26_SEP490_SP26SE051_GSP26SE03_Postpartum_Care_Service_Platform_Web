@@ -15,9 +15,8 @@ export interface Notification {
 }
 
 export interface CreateNotificationRequest {
-  amenityTicketId?: number | null;
-  staffId?: string | null;
-  receiverId?: string | null;
+  amenityTicketId: number;
+  receiverIds: string[];
   notificationTypeId: number;
   title: string;
   content: string;

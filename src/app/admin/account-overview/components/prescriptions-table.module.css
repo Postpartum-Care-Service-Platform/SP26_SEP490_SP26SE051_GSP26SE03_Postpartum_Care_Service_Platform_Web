@@ -42,6 +42,8 @@
 
 .table tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.03) !important;
+  position: relative;
+  z-index: 20;
 }
 
 .table td {
@@ -122,6 +124,45 @@
 
 .deleteButton:hover svg {
   fill: #ffffff !important;
+}
+
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltipWrapper .tooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 9999;
+  font-family: var(--font-body);
+  font-weight: 400;
+}
+
+.tooltipWrapper .tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: #343a40;
+}
+
+.tooltipWrapper:hover .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
 }
 
 .emptyState {

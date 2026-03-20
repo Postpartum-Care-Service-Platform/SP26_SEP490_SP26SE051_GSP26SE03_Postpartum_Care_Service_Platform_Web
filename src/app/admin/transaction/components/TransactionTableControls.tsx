@@ -1,7 +1,7 @@
 'use client';
 
-import { MagnifyingGlassIcon, ChevronDownIcon } from '@radix-ui/react-icons';
-import { MixerHorizontalIcon } from '@radix-ui/react-icons';
+import { MagnifyingGlassIcon, ChevronDownIcon, MixerHorizontalIcon } from '@radix-ui/react-icons';
+import { Download } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -75,7 +75,7 @@ export function TransactionTableControls({
         <MagnifyingGlassIcon className={styles.searchIcon} />
         <input
           type="text"
-          placeholder="Tìm kiếm theo email, username, ID giao dịch, mã đặt phòng..."
+          placeholder="Tìm kiếm giao dịch..."
           className={styles.searchInput}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
@@ -125,6 +125,16 @@ export function TransactionTableControls({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Button
+        variant="outline"
+        size="sm"
+        className={styles.exportButton}
+        onClick={() => console.log('Export Transaction')}
+      >
+        <Download size={16} className={styles.exportIcon} />
+        Xuất file
+      </Button>
     </div>
   );
 }

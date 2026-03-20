@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import userService from '@/services/user.service';
@@ -15,6 +16,7 @@ const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 
 export default function AdminPatientsPage() {
+  const router = useRouter();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -131,7 +133,11 @@ export default function AdminPatientsPage() {
   };
 
   const handleViewProfile = (patient: Patient) => {
+    if (patient.customerId) {
+      router.push(`/admin/account-overview?customId=${patient.customerId}`);
+    } else {
     console.log('View profile overview:', patient);
+    }
   };
 
   const handleChat = (patient: Patient) => {

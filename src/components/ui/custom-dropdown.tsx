@@ -61,46 +61,50 @@ export function CustomDropdown({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'flex items-center justify-between gap-2 px-3 py-2 min-h-[36px] h-[36px]',
-          'border border-[rgba(30,30,30,0.1)] rounded-[var(--radius-sm)]',
-          'bg-[#f0f0f0] text-sm font-medium text-[var(--color-text-primary)]',
+          'flex items-center justify-between gap-2 px-3 py-2 min-h-[40px] w-full',
+          'border border-[var(--color-border-default)] rounded-[var(--radius-sm)]',
+          'text-sm font-medium text-[var(--color-text-primary)]',
           'cursor-pointer transition-all duration-200',
-          'hover:bg-[#e6e6e6]',
+          'hover:bg-[#f8f9fa] hover:border-[var(--color-brand-accent)]',
           triggerClassName
         )}
+        style={{ backgroundColor: '#ffffff' }}
       >
         <span>{selectedLabel}</span>
         <ChevronDownIcon
-          className={cn('w-3.5 h-3.5 transition-transform duration-200', isOpen && 'rotate-180')}
+          className={cn('w-4 h-4 text-slate-500 transition-transform duration-200', isOpen && 'rotate-180')}
         />
       </button>
 
       {isOpen && (
         <div
           className={cn(
-            'absolute z-50 top-full left-0 mt-1 min-w-[200px]',
-            'bg-white border border-[rgba(30,30,30,0.1)] rounded-[var(--radius-sm)]',
-            'shadow-[var(--shadow-md)] p-1',
+            'absolute z-[10010] top-full left-0 mt-1 min-w-[200px] w-full',
+            'border border-[var(--color-border-default)] rounded-[var(--radius-sm)]',
+            'shadow-[var(--shadow-md)] p-1 animate-in fade-in zoom-in-95 duration-200',
             contentClassName
           )}
+          style={{ backgroundColor: '#ffffff' }}
         >
-          {options.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              onClick={() => handleSelect(option.value)}
-              className={cn(
-                'flex items-center w-full px-3 py-2 min-h-[36px] h-[36px]',
-                'text-sm cursor-pointer rounded-[var(--radius-sm)] transition-colors duration-150',
-                value === option.value
-                  ? 'bg-[#fff0e6] !text-[#ff6600] font-medium'
-                  : 'bg-[#f0f0f0] text-[var(--color-text-primary)] hover:bg-[#e6e6e6]',
-                itemClassName
-              )}
-            >
-              {option.label}
-            </button>
-          ))}
+          <div className="max-h-[250px] overflow-y-auto">
+            {options.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => handleSelect(option.value)}
+                className={cn(
+                  'flex items-center w-full px-3 py-2 min-h-[36px] border-none outline-none text-left',
+                  'text-sm cursor-pointer rounded-[var(--radius-sm)] transition-colors duration-150',
+                  value === option.value
+                    ? 'bg-[rgba(250,131,20,0.1)] text-[var(--color-brand-accent)] font-medium'
+                    : 'bg-transparent text-[var(--color-text-primary)] hover:bg-[rgba(250,131,20,0.05)] hover:text-[var(--color-brand-accent)]',
+                  itemClassName
+                )}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

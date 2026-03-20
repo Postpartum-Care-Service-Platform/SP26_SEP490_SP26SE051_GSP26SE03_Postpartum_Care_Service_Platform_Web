@@ -112,7 +112,7 @@ export function CalendarMonthView({ monthCursor, selectedDate, onSelectedDateCha
 
   return (
     <Tooltip.Provider delayDuration={350}>
-      <div style={{ display: 'flex', gap: '16px', height: 'calc(100vh - 180px)' }}>
+      <div style={{ display: 'flex', gap: '16px', height: 'calc(100vh - 260px)', overflow: 'hidden' }}>
         <div style={{ flexShrink: 0 }}>
           <MiniCalendar 
             selectedDate={currentSelectedDate} 

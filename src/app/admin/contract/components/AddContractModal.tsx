@@ -1,24 +1,17 @@
 'use client';
 
+import { Cross1Icon, ChevronDownIcon } from '@radix-ui/react-icons';
 import { useState, useEffect } from 'react';
 
-import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/Input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown';
 import { useToast } from '@/components/ui/toast/use-toast';
+import { Spinner } from '@/components/ui/spinner';
+import { CustomDatePicker } from './CustomDatePicker';
 
 import styles from './add-contract-modal.module.css';
 
@@ -33,6 +26,14 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 };
+
+const STATUS_OPTIONS = [
+  { value: 'Draft', label: 'Bản nháp' },
+  { value: 'Sent', label: 'Đã gửi' },
+  { value: 'Signed', label: 'Đã ký' },
+  { value: 'Cancelled', label: 'Đã hủy' },
+  { value: 'Expired', label: 'Hết hạn' },
+];
 
 export function AddContractModal({ open, onOpenChange, onSuccess }: Props) {
   const { toast } = useToast();
@@ -51,16 +52,24 @@ export function AddContractModal({ open, onOpenChange, onSuccess }: Props) {
 
   useEffect(() => {
     if (open) {
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      if (scrollbarWidth > 0) {
-        document.body.style.paddingRight = `${scrollbarWidth}px`;
-      }
+      document.body.style.overflow = 'hidden';
+      setFormData({
+        contractCode: '',
+        contractDate: '',
+        effectiveFrom: '',
+        effectiveTo: '',
+        checkinDate: '',
+        checkoutDate: '',
+        signedDate: '',
+        status: 'Draft',
+        fileUrl: '',
+      });
     } else {
-      document.body.style.paddingRight = '';
+      document.body.style.overflow = '';
     }
 
     return () => {
-      document.body.style.paddingRight = '';
+      document.body.style.overflow = '';
     };
   }, [open]);
 
@@ -73,21 +82,13 @@ export function AddContractModal({ open, onOpenChange, onSuccess }: Props) {
 
     try {
       setIsSubmitting(true);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
       console.log('Create contract:', formData);
       toast({ title: 'Tạo hợp đồng thành công', variant: 'success' });
       onOpenChange(false);
       onSuccess?.();
-      setFormData({
-        contractCode: '',
-        contractDate: '',
-        effectiveFrom: '',
-        effectiveTo: '',
-        checkinDate: '',
-        checkoutDate: '',
-        signedDate: '',
-        status: 'Draft',
-        fileUrl: '',
-      });
     } catch (error: unknown) {
       toast({
         title: getErrorMessage(error, 'Tạo hợp đồng thất bại'),
@@ -98,133 +99,151 @@ export function AddContractModal({ open, onOpenChange, onSuccess }: Props) {
     }
   };
 
+  if (!open) return null;
+
+  const currentStatusLabel = STATUS_OPTIONS.find(opt => opt.value === formData.status)?.label || 'Bản nháp';
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange} modal={true}>
-      <DialogContent className={styles.dialogContent}>
-        <DialogHeader>
-          <DialogTitle className={styles.dialogTitle}>Thêm hợp đồng mới</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.formGrid}>
-            <div className={styles.formField}>
-              <label className={styles.label}>Mã hợp đồng</label>
-              <Input
-                variant="booking"
-                value={formData.contractCode}
-                onChange={(e) => handleFieldChange('contractCode', e.target.value)}
-                placeholder="Nhập mã hợp đồng"
-                required
-              />
-            </div>
+    <div className={styles.modalOverlay} onClick={() => onOpenChange(false)}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+        <div className={styles.modalHeader}>
+          <h2 className={styles.modalTitle}>Thêm hợp đồng mới</h2>
+          <button onClick={() => onOpenChange(false)} className={styles.closeButton} aria-label="Close">
+            <Cross1Icon />
+          </button>
+        </div>
 
-            <div className={styles.formField}>
-              <label className={styles.label}>Ngày hợp đồng</label>
-              <Input
-                type="date"
-                variant="booking"
-                value={formData.contractDate}
-                onChange={(e) => handleFieldChange('contractDate', e.target.value)}
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit}>
+          <div className={styles.modalBody}>
+            <div className={styles.formGrid}>
+              <div className={styles.formGroup}>
+                <label>Mã hợp đồng <span className={styles.required}>*</span></label>
+                <input
+                  type="text"
+                  className={styles.formControl}
+                  value={formData.contractCode}
+                  onChange={(e) => handleFieldChange('contractCode', e.target.value)}
+                  placeholder="Nhập mã hợp đồng"
+                  required
+                />
+              </div>
 
-            <div className={styles.formField}>
-              <label className={styles.label}>Hiệu lực từ</label>
-              <Input
-                type="date"
-                variant="booking"
-                value={formData.effectiveFrom}
-                onChange={(e) => handleFieldChange('effectiveFrom', e.target.value)}
-                required
-              />
-            </div>
+               <div className={styles.formGroup}>
+                <label>Ngày hợp đồng <span className={styles.required}>*</span></label>
+                <CustomDatePicker
+                  date={formData.contractDate}
+                  setDate={(val) => handleFieldChange('contractDate', val)}
+                  placeholder="Chọn ngày hợp đồng"
+                />
+              </div>
 
-            <div className={styles.formField}>
-              <label className={styles.label}>Hiệu lực đến</label>
-              <Input
-                type="date"
-                variant="booking"
-                value={formData.effectiveTo}
-                onChange={(e) => handleFieldChange('effectiveTo', e.target.value)}
-                required
-              />
-            </div>
+              <div className={styles.formGroup}>
+                <label>Hiệu lực từ <span className={styles.required}>*</span></label>
+                <CustomDatePicker
+                  date={formData.effectiveFrom}
+                  setDate={(val) => handleFieldChange('effectiveFrom', val)}
+                  placeholder="Chọn ngày có hiệu lực"
+                />
+              </div>
 
-            <div className={styles.formField}>
-              <label className={styles.label}>Ngày check-in</label>
-              <Input
-                type="date"
-                variant="booking"
-                value={formData.checkinDate}
-                onChange={(e) => handleFieldChange('checkinDate', e.target.value)}
-                required
-              />
-            </div>
+              <div className={styles.formGroup}>
+                <label>Hiệu lực đến <span className={styles.required}>*</span></label>
+                <CustomDatePicker
+                  date={formData.effectiveTo}
+                  setDate={(val) => handleFieldChange('effectiveTo', val)}
+                  placeholder="Chọn ngày hết hạn"
+                />
+              </div>
 
-            <div className={styles.formField}>
-              <label className={styles.label}>Ngày check-out</label>
-              <Input
-                type="date"
-                variant="booking"
-                value={formData.checkoutDate}
-                onChange={(e) => handleFieldChange('checkoutDate', e.target.value)}
-                required
-              />
-            </div>
+              <div className={styles.formGroup}>
+                <label>Ngày check-in <span className={styles.required}>*</span></label>
+                <CustomDatePicker
+                  date={formData.checkinDate}
+                  setDate={(val) => handleFieldChange('checkinDate', val)}
+                  placeholder="Chọn ngày check-in"
+                />
+              </div>
 
-            <div className={styles.formField}>
-              <label className={styles.label}>Ngày ký</label>
-              <Input
-                type="date"
-                variant="booking"
-                value={formData.signedDate}
-                onChange={(e) => handleFieldChange('signedDate', e.target.value)}
-              />
-            </div>
+              <div className={styles.formGroup}>
+                <label>Ngày check-out <span className={styles.required}>*</span></label>
+                <CustomDatePicker
+                  date={formData.checkoutDate}
+                  setDate={(val) => handleFieldChange('checkoutDate', val)}
+                  placeholder="Chọn ngày check-out"
+                />
+              </div>
 
-            <div className={styles.formField}>
-              <label className={styles.label}>Trạng thái</label>
-              <Select value={formData.status} onValueChange={(value) => handleFieldChange('status', value)}>
-                <SelectTrigger className={styles.selectTrigger}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Draft">Bản nháp</SelectItem>
-                  <SelectItem value="Sent">Đã gửi</SelectItem>
-                  <SelectItem value="Signed">Đã ký</SelectItem>
-                  <SelectItem value="Cancelled">Đã hủy</SelectItem>
-                  <SelectItem value="Expired">Hết hạn</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+              <div className={styles.formGroup}>
+                <label>Ngày ký</label>
+                <CustomDatePicker
+                  date={formData.signedDate}
+                  setDate={(val) => handleFieldChange('signedDate', val)}
+                  placeholder="Chọn ngày ký"
+                />
+              </div>
 
-            <div className={styles.formFieldFull}>
-              <label className={styles.label}>File URL</label>
-              <Input
-                variant="booking"
-                value={formData.fileUrl}
-                onChange={(e) => handleFieldChange('fileUrl', e.target.value)}
-                placeholder="https://..."
-              />
+              <div className={styles.formGroup}>
+                <label>Trạng thái</label>
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <button type="button" className={styles.dropdownTrigger}>
+                      <span className={formData.status ? styles.dropdownValueSelected : styles.dropdownPlaceholder}>
+                        {currentStatusLabel}
+                      </span>
+                      <ChevronDownIcon className={styles.dropdownChevron} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className={styles.dropdownContent} align="start">
+                    {STATUS_OPTIONS.map((opt) => (
+                      <DropdownMenuItem
+                        key={opt.value}
+                        className={`${styles.dropdownItem} ${formData.status === opt.value ? styles.dropdownItemActive : ''}`}
+                        onClick={() => handleFieldChange('status', opt.value)}
+                      >
+                        {opt.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                <label>File URL (Gắn link Cloudinary hoặc Drive)</label>
+                <input
+                  type="text"
+                  className={styles.formControl}
+                  value={formData.fileUrl}
+                  onChange={(e) => handleFieldChange('fileUrl', e.target.value)}
+                  placeholder="https://cloudinary.com/..."
+                />
+              </div>
             </div>
           </div>
 
-          <DialogFooter className={styles.footer}>
-            <Button
+          <div className={styles.modalFooter}>
+            <button
               type="button"
-              variant="outline"
+              className={`${styles.button} ${styles.buttonOutline}`}
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
               Hủy
-            </Button>
-            <Button type="submit" variant="primary" disabled={isSubmitting}>
-              {isSubmitting ? 'Đang tạo...' : 'Thêm hợp đồng'}
-            </Button>
-          </DialogFooter>
+            </button>
+            <button
+              type="submit"
+              className={`${styles.button} ${styles.buttonPrimary}`}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Spinner size="sm" />
+                  <span style={{ marginLeft: '8px' }}>Đang tạo...</span>
+                </>
+              ) : 'Thêm hợp đồng'}
+            </button>
+          </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
-

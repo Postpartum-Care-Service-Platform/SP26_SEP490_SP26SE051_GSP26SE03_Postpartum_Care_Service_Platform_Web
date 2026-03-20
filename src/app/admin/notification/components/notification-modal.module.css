@@ -13,8 +13,9 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 560px;
-  overflow: hidden;
+  max-width: 800px;
+  overflow: visible;
+  font-family: "Atlassian Sans", ui-sans-serif, -apple-system, sans-serif;
 }
 
 .modalHeader {
@@ -27,7 +28,6 @@
 
 .modalTitle {
   color: #343a40;
-  font-family: 'Funnel Sans', sans-serif;
   font-size: 13px;
   font-weight: 600;
   margin: 0;
@@ -44,7 +44,43 @@
 }
 
 .closeButton:hover {
-  color: #343a40;
+  color: #fb3e3e;
+}
+
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltipWrapper .tooltip {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  transform: scale(0.85);
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 20;
+}
+
+.tooltipWrapper .tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 10px;
+  border: 5px solid transparent;
+  border-bottom-color: #343a40;
+}
+
+.tooltipWrapper:hover .tooltip {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .modalBody {
@@ -58,7 +94,6 @@
 .formGroup label {
   display: block;
   color: #343a40;
-  font-family: 'Funnel Sans', sans-serif;
   font-size: 13px;
   margin: 0px 0px 6px;
   font-weight: 600;
@@ -71,18 +106,23 @@
 .formControl {
   width: 100%;
   padding: 8px 14px;
-  background-color: #f6f7f9;
+  background-color: #ffffff;
   border: 1px solid #dee2e6;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 14px;
   color: #495057;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  transition: all 0.2s ease-in-out;
+  font-family: inherit;
+}
+
+.formControl::placeholder {
+  color: #adb5bd;
 }
 
 .formControl:focus {
   outline: none;
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: #fa8314;
+  box-shadow: 0 0 0 2px rgba(250, 131, 20, 0.1);
 }
 
 .formControl.invalid {
@@ -110,7 +150,7 @@
 
 .button {
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -143,5 +183,224 @@
 .buttonOutline:hover:not(:disabled) {
   background-color: #f8f9fa;
   color: #343a40;
+}
+
+.receiverList {
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 8px;
+  background-color: #f8f9fa;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.receiverList::-webkit-scrollbar {
+  display: none;
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkboxLabel {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: normal !important;
+  margin: 0 !important;
+}
+
+.checkboxLabel input {
+  width: auto;
+  margin: 0;
+}
+
+.formRow {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.formRow > div {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.userOption {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+  padding: 8px 12px !important;
+  border: none !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  text-align: left !important;
+  transition: background-color 0.2s;
+  outline: none !important;
+}
+
+.userOption:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+.userOption.selected {
+  background-color: transparent !important;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 0 12px;
+  transition: all 0.2s ease-in-out;
+}
+
+.searchContainer:focus-within {
+  border-color: #fa8314;
+  box-shadow: 0 0 0 2px rgba(250, 131, 20, 0.1);
+}
+
+.searchIcon {
+  color: #adb5bd;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.searchInput {
+  flex: 1;
+  border: none !important;
+  background: transparent !important;
+  padding: 8px 10px !important;
+  font-size: 13px;
+  color: #495057;
+  outline: none !important;
+  box-shadow: none !important;
+  font-family: inherit;
+}
+
+.searchInput::placeholder {
+  color: #adb5bd;
+}
+
+.userOption input[type="checkbox"] {
+  margin: 0 !important;
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.radixCheckbox {
+  all: unset;
+  background-color: white;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-brand-accent);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.radixCheckbox[data-state='checked'] {
+  background-color: var(--color-brand-accent);
+}
+
+.radixIndicator {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f1f3f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  flex-shrink: 0;
+}
+
+.userAvatar.generic {
+  color: #adb5bd;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.4;
+  align-items: flex-start;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #292A2E;
+  font-family: "Atlassian Sans", ui-sans-serif, -apple-system, sans-serif !important;
+}
+
+.userEmail {
+  font-size: 12px;
+  color: #6B6E76;
+  font-family: "Atlassian Sans", ui-sans-serif, -apple-system, sans-serif !important;
+}
+
+.selectedUsers {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  width: 100%;
+  overflow: hidden;
+  align-items: center;
+}
+
+.userChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #f1f3f5;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: inherit;
+}
+
+.removeChip {
+  cursor: pointer;
+  color: #adb5bd;
+}
+
+.removeChip:hover {
+  color: #fb3e3e;
+}
+
+.noScroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.noScroll::-webkit-scrollbar {
+  display: none;
 }
 

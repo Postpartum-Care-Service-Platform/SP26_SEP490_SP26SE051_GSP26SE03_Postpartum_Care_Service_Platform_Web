@@ -67,7 +67,7 @@ export function MenuTable({ menus, onEdit, onDelete, deletingId, pagination }: P
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>ID</th>
+            <th className={styles.sttHeaderCell}>STT</th>
             <th>Tên thực đơn</th>
             <th>Loại thực đơn</th>
             <th>Mô tả</th>
@@ -85,24 +85,45 @@ export function MenuTable({ menus, onEdit, onDelete, deletingId, pagination }: P
               </td>
             </tr>
           ) : (
-            menus.map((menu) => (
+            menus.map((menu, index) => (
               <tr key={menu.id} className={styles.tableRow}>
-                <td>{menu.id}</td>
-                <td className={styles.name} title={menu.menuName}>
-                  {menu.menuName}
+                <td className={styles.sttDataCell}>
+                  <div className={styles.tooltipWrapper}>
+                    <span className={styles.sttCell}>
+                      {pagination
+                        ? (pagination.currentPage - 1) * pagination.pageSize + index + 1
+                        : index + 1}
+                    </span>
+                    <span className={styles.tooltip}>ID gốc: {menu.id}</span>
+                  </div>
+                </td>
+                <td className={styles.name}>
+                  <div className={styles.tooltipWrapper}>
+                    <span className={styles.textTruncate}>{menu.menuName}</span>
+                    <span className={styles.tooltip}>{menu.menuName}</span>
+                  </div>
                 </td>
                 <td>
                   <span className={styles.menuType}>{menu.menuTypeName}</span>
                 </td>
-                <td className={styles.truncateCell} title={menu.description}>
-                  {menu.description || '-'}
+                <td className={styles.truncateCell}>
+                  {menu.description ? (
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.textTruncate}>{menu.description}</span>
+                      <span className={styles.tooltip}>{menu.description}</span>
+                    </div>
+                  ) : (
+                    '-'
+                  )}
                 </td>
                 <td>
                   <span className={styles.foodCount}>{menu.foods?.length || 0} món</span>
                 </td>
                 <td>
                   <span
-                    className={`${styles.statusBadge} ${menu.isActive ? styles.statusActive : styles.statusInactive}`}
+                    className={`${styles.statusBadge} ${
+                      menu.isActive ? styles.statusActive : styles.statusInactive
+                    }`}
                   >
                     {menu.isActive ? 'Hoạt động' : 'Tạm dừng'}
                   </span>

@@ -16,6 +16,10 @@ const familyProfileService = {
     return apiClient.get(`/FamilyProfile/GetById/${id}`);
   },
 
+  getFamilyProfileByCustomerId: (customerId: string): Promise<FamilyProfile> => {
+    return apiClient.get(`/FamilyProfile/GetByCustomerId/${customerId}`);
+  },
+
   createFamilyProfile: (payload: CreateFamilyProfileRequest): Promise<FamilyProfile> => {
     const formData = buildFamilyProfileFormData(payload);
     return apiClient.post('/FamilyProfile/Create', formData, {

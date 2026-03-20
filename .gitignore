@@ -106,6 +106,8 @@ screenshots/
 *.cursor/
 .cursorignore
 .cursorrules
+.antigravity/
+.react-doctor/ 
 
 # IDE and editor files
 .vscode/

@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
+import menuRecordService from '@/services/menu-record.service';
+import menuService from '@/services/menu.service';
+import type { MenuRecord } from '@/types/menu-record';
+import type { Menu } from '@/types/menu';
 
 import styles from './medical-history-table.module.css';
 
@@ -19,95 +23,52 @@ const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size
   </svg>
 );
 
-type MedicalHistory = {
-  id: number;
-  date: string;
-  diagnosis: string;
-  treatment: string;
-  status: 'ongoing' | 'follow-up' | 'recovered';
-  doctor: string;
-};
 
-const mockData: MedicalHistory[] = [
-  {
-    id: 1,
-    date: '12 Sep 2025',
-    diagnosis: 'Type 2 Diabetes',
-    treatment: 'Insulin Therapy',
-    status: 'ongoing',
-    doctor: 'Dr. Neha Patel',
-  },
-  {
-    id: 2,
-    date: '15 Aug 2025',
-    diagnosis: 'Hypertension',
-    treatment: 'Beta Blockers',
-    status: 'follow-up',
-    doctor: 'Dr. Amit Sharma',
-  },
-  {
-    id: 3,
-    date: '20 Jul 2025',
-    diagnosis: 'Asthma',
-    treatment: 'Inhaler',
-    status: 'recovered',
-    doctor: 'Dr. Neha Patel',
-  },
-  {
-    id: 4,
-    date: '05 Jun 2025',
-    diagnosis: 'Migraine',
-    treatment: 'Pain Management Therapy',
-    status: 'ongoing',
-    doctor: 'Dr. Amit Sharma',
-  },
-  {
-    id: 5,
-    date: '18 May 2025',
-    diagnosis: 'Fractured Arm',
-    treatment: 'Cast + Physiotherapy',
-    status: 'recovered',
-    doctor: 'Dr. Neha Patel',
-  },
-];
-
-const getStatusBadgeClass = (status: MedicalHistory['status']) => {
-  switch (status) {
-    case 'ongoing':
-      return styles.statusOngoing;
-    case 'follow-up':
-      return styles.statusFollowUp;
-    case 'recovered':
-      return styles.statusRecovered;
-    default:
-      return '';
-  }
-};
-
-const getStatusLabel = (status: MedicalHistory['status']) => {
-  switch (status) {
-    case 'ongoing':
-      return 'Ongoing';
-    case 'follow-up':
-      return 'Follow-up';
-    case 'recovered':
-      return 'Recovered';
-    default:
-      return status;
-  }
-};
-
-export function MedicalHistoryTable() {
+export function MedicalHistoryTable({ customerId }: { customerId: string | null }) {
+  const [data, setData] = useState<MenuRecord[]>([]);
+  const [menus, setMenus] = useState<Menu[]>([]);
+  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const PAGE_SIZE_OPTIONS = [5, 10, 20];
-  const totalItems = mockData.length;
-  const totalPages = Math.ceil(totalItems / pageSize) || 1;
 
-  const paginatedData = mockData.slice(
+  const fetchData = async () => {
+    if (!customerId) return;
+    try {
+      setLoading(true);
+      const [recordRes, menuRes] = await Promise.all([
+        menuRecordService.getMenuRecordByCustomer(customerId),
+        menuService.getAllMenus()
+      ]);
+      setData(recordRes);
+      setMenus(menuRes);
+    } catch (error) {
+      console.error('Failed to fetch menu record:', error);
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [customerId]);
+
+  const totalItems = data.length;
+  const totalPages = Math.ceil(totalItems / pageSize) || 0;
+
+  const paginatedData = data.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize
   );
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('vi-VN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -119,20 +80,26 @@ export function MedicalHistoryTable() {
 
   return (
     <div className={styles.tableWrapper}>
-      <h5 className={styles.title}>Medical History</h5>
+      <h5 className={styles.title}>Lịch sử thực đơn</h5>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Date</th>
-            <th>Diagnosis</th>
-            <th>Treatment</th>
-            <th>Status</th>
-            <th>Doctor</th>
-            <th>Actions</th>
+            <th>Ngày</th>
+            <th>Tên thực đơn</th>
+            <th>Chi tiết thực đơn</th>
+            <th>Trạng thái</th>
+            <th>Ghi chú</th>
+            <th>Thao tác</th>
           </tr>
         </thead>
         <tbody>
-          {paginatedData.length === 0 ? (
+          {loading ? (
+            <tr>
+              <td colSpan={6} className={styles.emptyState}>
+                Đang tải...
+              </td>
+            </tr>
+          ) : paginatedData.length === 0 ? (
             <tr>
               <td colSpan={6} className={styles.emptyState}>
                 Chưa có dữ liệu
@@ -141,26 +108,29 @@ export function MedicalHistoryTable() {
           ) : (
             paginatedData.map((record) => (
               <tr key={record.id} className={styles.tableRow}>
-                <td>{record.date}</td>
-                <td className={styles.diagnosis}>{record.diagnosis}</td>
-                <td>{record.treatment}</td>
+                <td>{formatDate(record.date)}</td>
+                <td className={styles.diagnosis}>{record.name}</td>
+                <td>{menus.find(m => m.id === record.menuId)?.menuName || `Menu #${record.menuId}`}</td>
                 <td>
-                  <span className={`${styles.statusBadge} ${getStatusBadgeClass(record.status)}`}>
-                    {getStatusLabel(record.status)}
+                  <span className={`${styles.statusBadge} ${record.isActive ? styles.statusRecovered : styles.statusOngoing}`}>
+                    {record.isActive ? 'Hoạt động' : 'Tạm dừng'}
                   </span>
                 </td>
-                <td>{record.doctor}</td>
+                <td>Hệ thống</td>
                 <td>
                   <div className={styles.actions}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.editButton} btn-icon btn-sm`}
-                      onClick={() => handleEdit(record.id)}
-                      aria-label={`Chỉnh sửa ${record.diagnosis}`}
-                    >
-                      <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                    </Button>
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.editButton} btn-icon btn-sm`}
+                        onClick={() => handleEdit(record.id)}
+                        aria-label={`Chỉnh sửa ${record.name}`}
+                      >
+                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                      </Button>
+                      <span className={styles.tooltip}>Chỉnh sửa</span>
+                    </div>
                   </div>
                 </td>
               </tr>

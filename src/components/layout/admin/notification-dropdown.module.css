@@ -221,3 +221,25 @@
   text-decoration: none;
 }
 
+/* Tooltip */
+.tooltipContent {
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  font-family: var(--font-body);
+  padding: 5px 8px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  animation: tooltipFadeIn 150ms ease-out;
+  z-index: 9999;
+}
+
+.tooltipArrow {
+  fill: #343a40;
+}
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+

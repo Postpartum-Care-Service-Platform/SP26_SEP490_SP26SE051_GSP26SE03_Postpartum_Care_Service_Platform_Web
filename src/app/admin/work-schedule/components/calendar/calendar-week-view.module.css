@@ -1,11 +1,15 @@
 .wrap {
   border: 1px solid rgba(9, 30, 66, 0.14);
-  border-radius: 6px;
+  border-radius: 0;
   background: #fff;
-  overflow: hidden;
   margin-top: 12px;
   display: flex;
   flex-direction: column;
+  height: calc(100vh - 280px); /* Limit height to enable internal scroll */
+  min-height: 500px;
+  overflow-y: auto;
+  position: relative;
+  z-index: 1; /* Establish low stacking context */
 }
 
 .headerRow {
@@ -14,6 +18,9 @@
   height: 48px;
   border-bottom: 1px solid rgba(9, 30, 66, 0.14);
   background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 3;
 }
 
 .headerCell {
@@ -61,16 +68,17 @@
 .grid {
   display: grid;
   grid-template-columns: 50px repeat(7, 1fr); /* Time column + 7 days */
-  min-height: 1152px; /* 12 hours * 96px */
+  min-height: 2304px; /* 24 hours * 96px */
 }
 
 .timeColumn {
   border-right: 1px solid rgba(9, 30, 66, 0.14);
   background: #fff;
+  position: relative; /* Anchor the dot */
 }
 
 .timeSlot {
-  height: 48px;
+  height: 96px;
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
@@ -79,22 +87,7 @@
   font-size: 11px;
   color: #6b778c;
   box-sizing: border-box;
-  border-bottom: 1px dashed rgba(9, 30, 66, 0.12);
-}
-
-.timeSlotDouble {
-  height: 96px;
   border-bottom: 1px solid rgba(9, 30, 66, 0.12);
-  position: relative;
-}
-
-.timeSlotDouble::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 48px;
-  border-bottom: 1px dashed rgba(9, 30, 66, 0.08);
 }
 
 .timeSlot:last-child {
@@ -117,12 +110,12 @@
 }
 
 .today {
-  background: rgba(0, 82, 204, 0.04);
+  background: #fff;
 }
 
 .hourSlot {
-  height: 48px;
-  border-bottom: 1px dashed rgba(9, 30, 66, 0.12);
+  height: 96px;
+  border-bottom: 1px solid rgba(9, 30, 66, 0.12);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -137,55 +130,31 @@
   flex: 1;
 }
 
-.hourSlotDouble {
-  height: 96px;
-  border-bottom: 1px solid rgba(9, 30, 66, 0.12);
-  display: flex;
-  flex-direction: column;
-}
-
-.hourSlotDouble .hourSlotTop {
-  flex: 1;
-  border-bottom: 1px dashed rgba(9, 30, 66, 0.08);
-}
-
-.hourSlotDouble .hourSlotBottom {
-  flex: 1;
-}
-
 .hourSlot:last-child {
   border-bottom: none;
+}
+
+
+
+.currentTimeDot {
+  position: absolute;
+  left: 46px; /* Centered on the border of 50px wide column */
+  width: 8px;
+  height: 8px;
+  margin-top: -3px; /* Center dot vertically on the exact minute line */
+  background: #FF6B00 !important;
+  border-radius: 50%;
+  z-index: 2; /* Still below header which is 3 */
+  pointer-events: auto; /* Enable hover for tooltip */
 }
 
 .currentTimeLine {
   position: absolute;
   left: 0;
   right: 0;
-  height: 2px;
+  height: 3px;
   background: #FF6B00 !important;
-  z-index: 100;
-  pointer-events: none;
-}
-
-.currentTimeLine::before {
-  content: '';
-  position: absolute;
-  left: -4px;
-  top: -3px;
-  width: 8px;
-  height: 8px;
-  background: #FF6B00 !important;
-  border-radius: 50%;
-}
-
-.currentTimeDot {
-  position: absolute;
-  left: 46px;
-  width: 8px;
-  height: 8px;
-  background: #FF6B00 !important;
-  border-radius: 50%;
-  z-index: 100;
+  z-index: 2;
   pointer-events: none;
 }
 
@@ -194,8 +163,7 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: rgba(9, 30, 66, 0.2);
-  border-bottom: 1px dashed rgba(9, 30, 66, 0.2);
+  background: rgba(0, 0, 0, 0.05); /* Extremely faint solid grey */
   z-index: 50;
   pointer-events: none;
 }

@@ -12,18 +12,12 @@
 
 
 .leftColumn {
-  flex: 0 0 41.666667%;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.rightColumn {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
+
 
 .bottomRow {
   display: flex;
@@ -44,9 +38,6 @@
     flex-direction: column;
   }
 
-  .rightColumn {
-    flex: 1;
-  }
 
   .bottomRow {
     flex-direction: column;

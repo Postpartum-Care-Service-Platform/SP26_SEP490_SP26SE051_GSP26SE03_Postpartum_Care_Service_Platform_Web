@@ -38,13 +38,35 @@
   border: none;
   font-size: 24px;
   line-height: 1;
-  color: #868e96;
+  color: #dc3545;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+  position: relative;
 }
 
 .closeButton:hover {
-  color: #343A40;
+  color: #fff;
+  background: #dc3545;
+}
+
+.closeButton:hover::after {
+  content: 'Đóng';
+  position: fixed;
+  transform: translate(-50%, -100%);
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 99999;
+  margin-top: -8px;
 }
 
 .modalBody {
@@ -153,4 +175,107 @@
 .buttonOutline:hover:not(:disabled) {
   background-color: #f8f9fa;
   color: #343a40;
+}
+.imageUploadGroup {
+  margin-bottom: 20px;
+}
+
+.uploadLabel {
+  display: block;
+  color: #343A40;
+  font-family: "Funnel Sans", sans-serif;
+  font-size: 13px;
+  margin: 0px 0px 6px;
+  font-weight: 600;
+}
+
+.imageUploadZone {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  background-color: #F8F9FA;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-height: 160px;
+  justify-content: center;
+}
+
+.imageUploadZone:hover {
+  border-color: #fa8314;
+  background-color: #fffefb;
+}
+
+.imageUploadZone.dragging {
+  border-color: #fa8314;
+  background-color: rgba(250, 131, 20, 0.05);
+  transform: scale(1.01);
+}
+
+.uploadIcon {
+  color: #fa8314;
+  width: 48px;
+  height: 48px;
+  opacity: 0.8;
+}
+
+.uploadText {
+  font-size: 14px;
+  font-family: "Funnel Sans", sans-serif;
+  color: #495057;
+  font-weight: 500;
+}
+
+.uploadHint {
+  font-size: 12px;
+  color: #adb5bd;
+}
+
+.previewContainer {
+  position: relative;
+  width: 100%;
+  max-width: 250px;
+  margin: 0 auto;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.imagePreview {
+  width: 100%;
+  height: 150px;
+  display: block;
+  object-fit: cover;
+}
+
+.removeImage {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(220, 53, 69, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: background 0.2s;
+  z-index: 5;
+}
+
+.removeImage:hover {
+  background: #dc3545;
+}
+
+/* Ẩn input file mặc định */
+.hiddenInput {
+  display: none !important;
 }

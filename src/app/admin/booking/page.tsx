@@ -1,10 +1,12 @@
 'use client';
 
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
 import styles from './booking.module.css';
 import { BookingHeader } from './components/BookingHeader';
 import { BookingTable } from './components/BookingTable';
+import { BookingTableControls } from './components/BookingTableControls';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import bookingService from '@/services/booking.service';
@@ -29,10 +31,16 @@ const getErrorMessage = (error: unknown, fallback: string): string => {
 };
 
 export default function AdminBookingPage() {
+  const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
   const [bookings, setBookings] = useState<AdminBooking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortKey, setSortKey] = useState('newest');
 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -56,20 +64,56 @@ export default function AdminBookingPage() {
     void fetchBookings();
   }, [toast]);
 
-  const sortedBookings = useMemo(() => {
-    const arr = [...bookings];
-    return arr.sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-  }, [bookings]);
+  const filteredAndSortedBookings = useMemo(() => {
+    let result = [...bookings];
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (b) =>
+          b.customer.username.toLowerCase().includes(q) ||
+          b.customer.phone.includes(q) ||
+          b.customer.email.toLowerCase().includes(q) ||
+          b.id.toString().includes(q),
+      );
+    }
+
+    // Status filter
+    if (statusFilter !== 'all') {
+      result = result.filter(
+        (b) => b.status.toLowerCase() === statusFilter.toLowerCase(),
+      );
+    }
+
+    // Sorting
+    result.sort((a, b) => {
+      switch (sortKey) {
+        case 'newest':
+          return new Date(b.bookingDate).getTime() - new Date(a.bookingDate).getTime();
+        case 'oldest':
+          return new Date(a.bookingDate).getTime() - new Date(b.bookingDate).getTime();
+        case 'startDate-asc':
+          return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+        case 'price-desc':
+          return b.totalPrice - a.totalPrice;
+        case 'price-asc':
+          return a.totalPrice - b.totalPrice;
+        default:
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+    });
+
+    return result;
+  }, [bookings, searchQuery, statusFilter, sortKey]);
 
   const paginatedBookings = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
-    return sortedBookings.slice(start, end);
-  }, [sortedBookings, currentPage, pageSize]);
+    return filteredAndSortedBookings.slice(start, end);
+  }, [filteredAndSortedBookings, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(sortedBookings.length / pageSize) || 1;
+  const totalPages = Math.ceil(filteredAndSortedBookings.length / pageSize) || 1;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -82,17 +126,20 @@ export default function AdminBookingPage() {
   };
 
   const handleViewBooking = (booking: AdminBooking) => {
-    // TODO: Implement view booking details modal
-    toast({
-      title: 'Xem chi tiết booking',
-      description: `Booking ID: ${booking.id} - ${booking.customer.username}`,
-      variant: 'info',
-    });
+    const isManager = pathname?.startsWith('/manager');
+    const baseRoute = isManager ? '/manager' : '/admin';
+    router.push(`${baseRoute}/booking/${booking.id}`);
   };
 
   return (
     <div className={styles.pageContainer}>
       <BookingHeader />
+
+      <BookingTableControls
+        onSearch={setSearchQuery}
+        onStatusChange={setStatusFilter}
+        onSortChange={setSortKey}
+      />
 
       {loading ? (
         <div className={styles.content}>
@@ -109,7 +156,7 @@ export default function AdminBookingPage() {
             currentPage,
             totalPages,
             pageSize,
-            totalItems: sortedBookings.length,
+            totalItems: filteredAndSortedBookings.length,
             onPageChange: handlePageChange,
             pageSizeOptions: [...PAGE_SIZE_OPTIONS],
             onPageSizeChange: handlePageSizeChange,

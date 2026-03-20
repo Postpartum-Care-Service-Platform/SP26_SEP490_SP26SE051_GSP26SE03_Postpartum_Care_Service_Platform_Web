@@ -1,6 +1,7 @@
 'use client';
 
 import { MagnifyingGlassIcon, PlusIcon, MixerHorizontalIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+import { Download, Upload } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -115,6 +116,26 @@ export function PackageTableControls({ onSearch, onSortChange, onStatusChange, o
                 {option.label}
               </DropdownMenuItem>
             ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.exportButton}>
+              <Download size={16} className={styles.exportIcon} />
+              Nhập/Xuất
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent} align="end">
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+              <Upload size={16} className={styles.itemIcon} />
+              Nhập từ Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+              <Download size={16} className={styles.itemIcon} />
+              Xuất ra Excel
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 

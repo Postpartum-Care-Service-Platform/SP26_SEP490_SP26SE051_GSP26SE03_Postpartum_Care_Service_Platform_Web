@@ -38,13 +38,35 @@
   border: none;
   font-size: 24px;
   line-height: 1;
-  color: #868e96;
+  color: #dc3545;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+  position: relative;
 }
 
 .closeButton:hover {
-  color: #343a40;
+  color: #fff;
+  background: #dc3545;
+}
+
+.closeButton:hover::after {
+  content: 'Đóng';
+  position: fixed;
+  transform: translate(-50%, -100%);
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 99999;
+  margin-top: -8px;
 }
 
 .modalBody {

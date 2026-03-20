@@ -10,6 +10,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
 import { useToast } from '@/components/ui/toast/use-toast';
+import packageTypeService from '@/services/package-type.service';
+import type { PackageType } from '@/types/package-type';
 import packageService from '@/services/package.service';
 import type { CreatePackageRequest, Package, UpdatePackageRequest } from '@/types/package';
 
@@ -30,12 +32,6 @@ const INITIAL_FORM_DATA: CreatePackageRequest = {
   basePrice: 2000000,
   isActive: true,
 };
-
-const PACKAGE_TYPE_OPTIONS = [
-  { value: 1, label: 'Tại nhà' },
-  { value: 2, label: 'Trung tâm' },
-  { value: 3, label: 'Kết hợp' },
-] as const;
 
 type FormErrors = {
   packageName?: string;
@@ -65,8 +61,23 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const isEditMode = !!packageToEdit;
+  const [packageTypes, setPackageTypes] = useState<PackageType[]>([]);
   const [packageTypeId, setPackageTypeId] = useState<number | ''>('');
   const [imageFile, setImageFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    const fetchTypes = async () => {
+      try {
+        const data = await packageTypeService.getAllPackageTypes();
+        setPackageTypes(data.filter((t) => t.isActive));
+      } catch (err) {
+        console.error('Failed to fetch package types:', err);
+      }
+    };
+    if (open) {
+      fetchTypes();
+    }
+  }, [open]);
 
   useEffect(() => {
     if (open) {
@@ -229,24 +240,24 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
                       <span className={packageTypeId === '' ? styles.dropdownPlaceholder : styles.dropdownValue}>
                         {packageTypeId === ''
                           ? 'Chọn loại gói'
-                          : PACKAGE_TYPE_OPTIONS.find((opt) => opt.value === packageTypeId)?.label}
+                          : packageTypes.find((opt) => opt.id === packageTypeId)?.name}
                       </span>
                       <ChevronDownIcon className={styles.dropdownChevron} />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className={styles.dropdownContent} align="start">
-                    {PACKAGE_TYPE_OPTIONS.map((opt) => (
+                    {packageTypes.map((opt) => (
                       <DropdownMenuItem
-                        key={opt.value}
-                        className={`${styles.dropdownItem} ${packageTypeId === opt.value ? styles.dropdownItemActive : ''}`}
+                        key={opt.id}
+                        className={`${styles.dropdownItem} ${packageTypeId === opt.id ? styles.dropdownItemActive : ''}`}
                         onClick={() => {
-                          setPackageTypeId(opt.value);
+                          setPackageTypeId(opt.id);
                           if (errors.packageTypeId) {
                             setErrors((prev) => ({ ...prev, packageTypeId: undefined }));
                           }
                         }}
                       >
-                        {opt.label}
+                        {opt.name}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>

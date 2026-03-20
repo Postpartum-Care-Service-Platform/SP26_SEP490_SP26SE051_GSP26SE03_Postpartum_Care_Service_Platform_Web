@@ -2,9 +2,64 @@
 
 import Image from 'next/image';
 
+import type { FamilyProfile } from '@/types/family-profile';
+import type { Account } from '@/types/account';
+
 import styles from './account-overview-content.module.css';
 
-export function AccountOverviewContent() {
+interface AccountOverviewContentProps {
+  familyProfile: FamilyProfile | null;
+  account: Account | null;
+  loading: boolean;
+}
+
+function formatDate(dateString: string | null): string {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+export function AccountOverviewContent({ familyProfile, account, loading }: AccountOverviewContentProps) {
+  console.log('AccountOverviewContent - familyProfile:', familyProfile);
+  console.log('AccountOverviewContent - account:', account);
+  console.log('AccountOverviewContent - loading:', loading);
+  
+  // Reference to data
+  const profileData = familyProfile;
+  const accountData = account;
+  
+  // Get fields from API
+  const avatarUrl = profileData?.avatarUrl || accountData?.avatarUrl || accountData?.ownerProfile?.avatarUrl || '/download.png';
+  const fullName = profileData?.fullName || accountData?.ownerProfile?.fullName || accountData?.username || 'N/A';
+  const phoneNumber = profileData?.phoneNumber || accountData?.phone || accountData?.ownerProfile?.phoneNumber || '-';
+  const gender = profileData?.gender || accountData?.ownerProfile?.gender || '-';
+  const dateOfBirth = profileData?.dateOfBirth || accountData?.ownerProfile?.dateOfBirth;
+  const address = profileData?.address || accountData?.ownerProfile?.address || '-';
+  const createdAt = profileData?.createdAt || accountData?.createdAt || accountData?.ownerProfile?.createdAt;
+  const email = accountData?.email || '-';
+  const isActive = profileData?.isDeleted !== true && accountData?.isActive !== false;
+  const memberTypeName = profileData?.memberTypeName || accountData?.ownerProfile?.memberTypeName || '-';
+  
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>Đang tải...</div>
+      </div>
+    );
+  }
+
+  if (!familyProfile) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>Không có dữ liệu</div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.leftSection}>
@@ -12,68 +67,58 @@ export function AccountOverviewContent() {
           <div className={styles.avatarWrapper}>
             <div className={styles.avatar}>
               <Image
-                src="/download.png"
+                src={avatarUrl}
                 alt="Avatar"
                 width={120}
                 height={120}
                 className={styles.avatarImage}
+                unoptimized
               />
             </div>
           </div>
-          <h6 className={styles.name}>Alexandra Rodriguez</h6>
-          <p className={styles.email}>alexandrarodriguez@gmail.com</p>
-          <p className={styles.appointmentsTitle}>Appointments</p>
-          <div className={styles.appointmentsStats}>
-            <div className={styles.statItem}>
-              <h4 className={styles.statValue}>10</h4>
-              <span className={styles.statLabel}>Past</span>
-            </div>
-            <div className={styles.statItem}>
-              <h4 className={styles.statValue}>3</h4>
-              <span className={styles.statLabel}>Upcoming</span>
-            </div>
-          </div>
+          <h6 className={styles.name}>{fullName}</h6>
+          <p className={styles.email}>{phoneNumber}</p>
           <button type="button" className={styles.sendMessageButton}>
-            Send Message
+            Gửi tin nhắn
           </button>
         </div>
       </div>
       <div className={styles.rightSection}>
-        <div className={styles.detailsCard}>
-          <div className={styles.detailsGrid}>
-            <div className={styles.detailItem}>
-              <p className={styles.detailLabel}>Gender</p>
-              <p className={styles.detailValue}>Male</p>
-            </div>
-            <div className={styles.detailItem}>
-              <p className={styles.detailLabel}>Birthday</p>
-              <p className={styles.detailValue}>Jan 12, 1985</p>
-            </div>
-            <div className={styles.detailItem}>
-              <p className={styles.detailLabel}>Phone number</p>
-              <p className={styles.detailValue}>(123) 456-7890</p>
-            </div>
-            <div className={styles.detailItem}>
-              <p className={styles.detailLabel}>Address</p>
-              <p className={styles.detailValue}>123 Main St, Apt 4B</p>
-            </div>
-            <div className={styles.detailItem}>
-              <p className={styles.detailLabel}>City</p>
-              <p className={styles.detailValue}>New York</p>
-            </div>
-            <div className={styles.detailItem}>
-              <p className={styles.detailLabel}>ZIP Code</p>
-              <p className={styles.detailValue}>10001</p>
-            </div>
-            <div className={styles.detailItem}>
-              <p className={styles.detailLabel}>Registration Date</p>
-              <p className={styles.detailValue}>Mar 15, 2020</p>
-            </div>
-            <div className={styles.detailItem}>
-              <p className={styles.detailLabel}>Status</p>
-              <p className={styles.detailValue}>Active</p>
-            </div>
-          </div>
+        {/* Row 1 */}
+        <div className={styles.detailItem}>
+          <p className={styles.detailLabel}>Giới tính</p>
+          <p className={styles.detailValue}>{gender}</p>
+        </div>
+        <div className={styles.detailItem}>
+          <p className={styles.detailLabel}>Ngày sinh</p>
+          <p className={styles.detailValue}>{formatDate(dateOfBirth ?? null)}</p>
+        </div>
+        {/* Row 2 */}
+        <div className={styles.detailItem}>
+          <p className={styles.detailLabel}>Số điện thoại</p>
+          <p className={styles.detailValue}>{phoneNumber}</p>
+        </div>
+        <div className={styles.detailItem}>
+          <p className={styles.detailLabel}>Email</p>
+          <p className={styles.detailValue}>{email}</p>
+        </div>
+        {/* Row 3 */}
+        <div className={styles.detailItem}>
+          <p className={styles.detailLabel}>Địa chỉ</p>
+          <p className={styles.detailValue}>{address}</p>
+        </div>
+        <div className={styles.detailItem}>
+          <p className={styles.detailLabel}>Loại thành viên</p>
+          <p className={styles.detailValue}>{memberTypeName}</p>
+        </div>
+        {/* Row 4 */}
+        <div className={styles.detailItem}>
+          <p className={styles.detailLabel}>Ngày đăng ký</p>
+          <p className={styles.detailValue}>{formatDate(createdAt ?? null)}</p>
+        </div>
+        <div className={styles.detailItem}>
+          <p className={styles.detailLabel}>Trạng thái</p>
+          <p className={styles.detailValue}>{isActive ? 'Hoạt động' : 'Ngừng hoạt động'}</p>
         </div>
       </div>
     </div>

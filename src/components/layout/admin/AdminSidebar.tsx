@@ -7,16 +7,31 @@ import { usePathname } from 'next/navigation';
 import React, { useState } from 'react';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-32x32.png';
-import { adminNav, type AdminNavItem } from '@/configs/adminNav';
 
 import styles from './admin-layout.module.css';
+
+type NavItem = {
+  key: string;
+  label: string;
+  href?: string;
+  icon?: React.ComponentType<{ size?: number | string; className?: string }>;
+  children?: Array<{ key: string; label: string; href: string }>;
+};
+
+type NavSection = {
+  key: string;
+  label?: string;
+  items: NavItem[];
+};
 
 type Props = {
   collapsed: boolean;
   onToggleCollapsed: () => void;
+  navSections: NavSection[];
+  brandText: string;
 };
 
-export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
+export function AdminSidebar({ collapsed, onToggleCollapsed, navSections, brandText }: Props) {
   const pathname = usePathname();
   const [openKeys, setOpenKeys] = useState<Record<string, boolean>>({ dashboard: true });
   const [tooltipPos, setTooltipPos] = useState<{ top: number; label: string } | null>(null);
@@ -26,10 +41,10 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
     const newOpenKeys = { ...openKeys };
     let changed = false;
 
-    adminNav.forEach((section) => {
+    navSections.forEach((section) => {
       section.items.forEach((item) => {
         if (item.children && !openKeys[item.key]) {
-          const hasActiveChild = item.children.some((child) => pathname === child.href);
+          const hasActiveChild = item.children.some((child: { href: string }) => pathname === child.href);
           if (hasActiveChild) {
             newOpenKeys[item.key] = true;
             changed = true;
@@ -41,13 +56,13 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
     if (changed) {
       setOpenKeys(newOpenKeys);
     }
-  }, [pathname, openKeys]);
+  }, [pathname, openKeys, navSections]);
 
   const toggleGroup = (key: string) => {
     setOpenKeys((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const isItemActive = (item: AdminNavItem) => {
+  const isItemActive = (item: NavItem) => {
     if (item.href) {
       return pathname === item.href;
     }
@@ -76,7 +91,7 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
       <div className={styles.sidebarTop}>
         <div className={styles.brand}>
           <Image src={LogoSymbol} alt="Serena Postnatal" width={28} height={28} />
-          {!collapsed && <span className={styles.brandText}>Serena Postnatal</span>}
+          {!collapsed && <span className={styles.brandText}>{brandText}</span>}
         </div>
 
         {!collapsed && (
@@ -87,7 +102,7 @@ export function AdminSidebar({ collapsed, onToggleCollapsed }: Props) {
       </div>
 
       <nav className={styles.nav}>
-        {adminNav.map((section) => (
+        {navSections.map((section) => (
           <div key={section.key}>
             {section.label ? (
               <div className={collapsed ? styles.collapsedHide : styles.sectionLabel}>{section.label}</div>

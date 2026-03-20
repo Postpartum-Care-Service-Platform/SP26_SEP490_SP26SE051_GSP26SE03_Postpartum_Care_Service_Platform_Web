@@ -2,7 +2,7 @@
 
 import * as Popover from '@radix-ui/react-popover';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { addDays, format, startOfWeek, isSameDay, isBefore, startOfDay } from 'date-fns';
+import { addDays, format, startOfWeek, isSameDay, isBefore, startOfDay, isToday } from 'date-fns';
 import React from 'react';
 
 import staffScheduleService from '@/services/staff-schedule.service';
@@ -11,10 +11,10 @@ import type { StaffSchedule } from '@/types/staff-schedule';
 import styles from './calendar-week-view.module.css';
 import { MiniCalendar } from './MiniCalendar';
 
-// Generate hours - each slot represents 2 hours (e.g., "12 AM" = 12 AM - 2 AM)
-const HOURS = Array.from({ length: 8 }, (_, i) => i); // 8 slots: 6 AM - 10 PM
-const START_HOUR = 6; // Schedule starts at 6 AM
-const TIME_SLOT_STEP = 2; // Each slot represents 2 hours
+// Generate hours - each slot represents 1 hour
+const HOURS = Array.from({ length: 24 }, (_, i) => i); // 24 slots: 12 AM - 11 PM
+const START_HOUR = 0; // Schedule starts at 12 AM
+const TIME_SLOT_STEP = 1; // Each slot represents 1 hour
 
 // Color mapping for target
 const TARGET_COLORS = {
@@ -50,7 +50,7 @@ function getEventsForDate(date: Date, events: StaffSchedule[]): StaffSchedule[] 
 function getEventPosition(startTime: string): number {
   const [hours, minutes] = startTime.split(':').map(Number);
   const totalHours = hours + minutes / 60;
-  return (totalHours - START_HOUR) * 48; // Each hour is 48px
+  return (totalHours - START_HOUR) * 96; // Each hour is 96px
 }
 
 function getCurrentTimePosition(): number {
@@ -59,7 +59,7 @@ function getCurrentTimePosition(): number {
   const minutes = now.getMinutes();
   // Each hour = 48px, starting from 6 AM
   if (hours < START_HOUR) return -1;
-  return (hours - START_HOUR) * 48 + (minutes / 60) * 48;
+  return (hours - START_HOUR) * 96 + (minutes / 60) * 96;
 }
 
 export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: { 
@@ -126,36 +126,49 @@ export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: {
           <div className={styles.grid}>
             {/* Time column */}
             <div className={styles.timeColumn}>
-              {/* Each hour slot = 2 hours (96px) */}
+              {/* Each hour slot = 1 hour (48px) */}
               {HOURS.map((slotIndex) => (
-                <div key={slotIndex} className={`${styles.timeSlot} ${styles.timeSlotDouble}`}>
+                <div key={slotIndex} className={styles.timeSlot}>
                   {formatTimeSlot(slotIndex)}
                 </div>
               ))}
-              {/* Current time indicator - dot only */}
-              <div 
-                className={styles.currentTimeDot}
-                style={{ 
-                  top: `${currentTimePosition}px`,
-                  backgroundColor: '#FF6B00'
-                }}
-              />
+              {/* Current time indicator - dot with tooltip */}
+              {currentTimePosition >= 0 && (
+                <Tooltip.Root>
+                  <Tooltip.Trigger asChild>
+                    <div 
+                      className={styles.currentTimeDot}
+                      style={{ 
+                        top: `${currentTimePosition}px`,
+                        backgroundColor: '#FF6B00',
+                        cursor: 'help'
+                      }}
+                    />
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content className={styles.tooltipContent} side="right" sideOffset={10}>
+                      {format(new Date(), 'HH:mm')}
+                      <Tooltip.Arrow className={styles.tooltipArrow} />
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
+              )}
             </div>
 
             {/* Day columns */}
             {days.map((d) => {
-              const isToday = isSameDay(d, today);
-              const isPast = isBefore(d, startOfDay(today));
+              const isTodayDate = isToday(d);
+              const isPast = isBefore(d, startOfDay(new Date()));
               const dayEvents = getEventsForDate(d, schedules);
               const dayKey = d.toISOString();
               
               return (
-                <div key={dayKey} className={`${styles.dayColumn} ${isToday ? styles.today : ''}`}>
-                  {/* Hour grid lines - each slot = 2 hours (96px) */}
+                <div key={dayKey} className={`${styles.dayColumn} ${isTodayDate ? styles.today : ''}`}>
+                  {/* Hour grid lines - each slot = 1 hour (48px) */}
                   {HOURS.map((slotIndex) => (
                     <div 
                       key={slotIndex} 
-                      className={`${styles.hourSlot} ${styles.hourSlotDouble}`}
+                      className={styles.hourSlot}
                       onClick={(event) => handleCellClick(d, slotIndex, event)}
                       style={{ cursor: 'pointer' }}
                     >
@@ -164,8 +177,15 @@ export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: {
                     </div>
                   ))}
                   
-                  {/* Current time line - only show dot on time column */}
-                  
+                  {/* Current time line - only show on today */}
+                  {isTodayDate && currentTimePosition >= 0 && (
+                    <div 
+                      className={styles.currentTimeLine}
+                      style={{ 
+                        top: `${currentTimePosition}px`
+                      }}
+                    />
+                  )}
                   {/* Past time line - dashed, lighter color */}
                   {isPast && (
                     <div 
@@ -294,14 +314,19 @@ function CalendarQuickCreateWrapper({
 
   return (
     <Popover.Root open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
+      <Popover.Anchor
+        style={{
+          position: 'fixed',
+          top: anchorRect.top,
+          left: anchorRect.left,
+          width: anchorRect.width,
+          height: anchorRect.height,
+          pointerEvents: 'none',
+        }}
+      />
       <Popover.Portal>
         <Popover.Content 
           className={styles.quickCreatePopover}
-          style={{
-            position: 'fixed',
-            top: `${anchorRect.top + window.scrollY + 8}px`,
-            left: `${anchorRect.left + window.scrollX + 8}px`,
-          }}
           side="top" 
           align="start"
           sideOffset={8}

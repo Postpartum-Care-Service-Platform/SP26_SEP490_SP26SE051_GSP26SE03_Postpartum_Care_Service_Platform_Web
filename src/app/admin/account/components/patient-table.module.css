@@ -12,29 +12,27 @@
   overflow-x: auto;
   overflow-y: auto;
   max-height: 70vh;
-  scrollbar-width: thin;
-  scrollbar-color: #fbb96a #f1f3f5;
 }
 
 /* Webkit scrollbar – dọc & ngang */
 .tableScrollArea::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 12px;
+  height: 12px;
 }
 .tableScrollArea::-webkit-scrollbar-track {
-  background: #f1f3f5;
-  border-radius: 10px;
+  background: #fff5e6;
+  border-radius: 0;
 }
 .tableScrollArea::-webkit-scrollbar-thumb {
-  background: #fbb96a;
-  border-radius: 10px;
-  border: 1px solid #f1f3f5;
+  background: #fb923c;
+  border-radius: 0;
+  border: 2px solid #fff5e6;
 }
 .tableScrollArea::-webkit-scrollbar-thumb:hover {
-  background: #fa8314;
+  background: #f97316;
 }
 .tableScrollArea::-webkit-scrollbar-corner {
-  background: #f1f3f5;
+  background: #fff5e6;
 }
 
 
@@ -45,7 +43,10 @@
 }
 
 .table thead {
-  background-color: rgba(242, 242, 244, 0.5);
+  background-color: #f2f2f4; 
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .table th {
@@ -56,12 +57,13 @@
   font-weight: 600;
   color: #343A40;
   white-space: nowrap;
+  background-color: inherit; /* Đảm bảo th kế thừa màu từ thead */
 }
 
 .table th:nth-child(1),
 .table td:nth-child(1) {
-  width: 40px;
-  min-width: 40px;
+  width: 60px;
+  min-width: 60px;
 }
 
 .table th:nth-child(2),
@@ -129,22 +131,16 @@
 .table td:nth-child(12) {
   width: 120px;
   min-width: 120px;
-}
-
-.table th:nth-child(13),
-.table td:nth-child(13) {
-  width: 100px;
-  min-width: 100px;
   position: sticky;
   right: 0;
-  z-index: 3;
+  z-index: 20;
   background-color: #fff;
-  box-shadow: -8px 0 12px -10px rgba(0, 0, 0, 0.35);
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.table thead th:nth-child(13) {
-  z-index: 4;
-  background-color: rgba(242, 242, 244, 0.98);
+.table thead th:nth-child(12) {
+  z-index: 60;
+  background-color: #f2f2f4;
 }
 
 .table tbody tr {
@@ -157,6 +153,12 @@
 }
 
 .table tbody tr:hover {
+  background-color: #f8f9fa;
+  position: relative;
+  z-index: 70;
+}
+
+.table tbody tr:hover td:nth-child(12) {
   background-color: #f8f9fa;
 }
 
@@ -380,7 +382,7 @@
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%) scale(0.85);
   background-color: #343a40;
@@ -392,17 +394,17 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
+  z-index: 9999;
 }
 
 .tooltipWrapper .tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #343a40;
+  border-bottom-color: #343a40;
 }
 
 .tooltipWrapper:hover .tooltip {
@@ -450,8 +452,8 @@
 }
 
 .roleBadgeCustomer {
-  background: #e5e7eb;
-  color: #374151;
+  background: #fff7ed;
+  color: #c2410c;
 }
 
 .roleBadgeManager {
@@ -465,8 +467,8 @@
 }
 
 .roleBadgeDefault {
-  background: rgba(9, 30, 66, 0.08);
-  color: #172B4D;
+  background: #fff7ed;
+  color: #c2410c;
 }
 
 .statusActive {

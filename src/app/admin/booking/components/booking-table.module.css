@@ -9,6 +9,7 @@
   overflow-x: auto;
   overflow-y: auto;
   max-height: 70vh;
+  position: relative; /* Base for sticky header */
 }
 
 .table {
@@ -18,7 +19,10 @@
 }
 
 .table thead {
-  background-color: rgba(242, 242, 244, 0.5);
+  background-color: #f2f2f4; /* Solid color to prevent overlapping content */
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .table th {
@@ -40,6 +44,8 @@
 
 .table tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.03) !important;
+  position: relative;
+  z-index: 25;
 }
 
 .table td {
@@ -53,9 +59,22 @@
   white-space: nowrap;
 }
 
+.cell-ellipsis {
+  max-width: 200px; /* Reduced max-width for better control */
+}
+
+.textTruncate {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .cell-transaction {
   white-space: nowrap;
   min-width: 250px;
+  max-width: 300px;
 }
 
 .actions {
@@ -68,12 +87,13 @@
 /* ── Tooltip cho nút thao tác ── */
 .tooltipWrapper {
   position: relative;
-  display: inline-flex;
+  display: block;
+  width: 100%;
 }
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%) scale(0.85);
   background-color: #343a40;
@@ -85,22 +105,26 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
+  z-index: 9999;
 }
 
 .tooltipWrapper .tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #343a40;
+  border-bottom-color: #343a40;
 }
 
 .tooltipWrapper:hover .tooltip {
   opacity: 1;
   transform: translateX(-50%) scale(1);
+}
+
+.tooltipWrapper:hover {
+  z-index: 50; /* Ensure tooltip is above other rows */
 }
 
 .actionButton {
@@ -132,8 +156,12 @@
 }
 
 .table thead th:last-child {
-  z-index: 4;
-  background-color: rgba(242, 242, 244, 0.98);
+  z-index: 11; /* Higher than other th */
+  background-color: #f2f2f4;
+}
+
+.table tbody tr:hover td:last-child {
+  background-color: #f8f9fa;
 }
 
 .customerInfo {
@@ -145,11 +173,30 @@
 .customerName {
   font-weight: 500;
   color: var(--color-text-primary);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .customerEmail {
   font-size: 12px;
   color: var(--color-text-muted);
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.contractLink {
+  color: #3b82f6;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.contractLink:hover {
+  text-decoration: underline;
+  color: #2563eb;
 }
 
 .amount {

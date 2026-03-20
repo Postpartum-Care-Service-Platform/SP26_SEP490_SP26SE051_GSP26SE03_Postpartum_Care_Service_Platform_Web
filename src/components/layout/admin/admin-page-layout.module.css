@@ -17,11 +17,12 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 .tableContainer {
   min-width: 100%;
+  overflow-x: auto;
 }
 
 .pagination {

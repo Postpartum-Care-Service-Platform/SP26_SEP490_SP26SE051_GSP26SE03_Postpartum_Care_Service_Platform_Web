@@ -1,5 +1,6 @@
 'use client';
 
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import { Bell, Clock, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
@@ -15,7 +16,7 @@ import type { Notification } from '@/types/notification';
 
 import styles from './notification-dropdown.module.css';
 
-const getNotificationIcon = (_typeId: number, typeName: string | null) => {
+const getNotificationIcon = (_typeId: number | null, typeName: string | null) => {
   if (!typeName) {
     return FileText;
   }
@@ -45,10 +46,11 @@ const getNotificationIcon = (_typeId: number, typeName: string | null) => {
   return FileText;
 };
 
-export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) {
+export function NotificationDropdown({ onViewAll, isSidebarOpen }: { onViewAll?: () => void; isSidebarOpen?: boolean }) {
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isTooltipOpen, setIsTooltipOpen] = React.useState(false);
 
   const isFetchingRef = React.useRef(false);
 
@@ -113,14 +115,25 @@ export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) 
   };
 
   return (
-    <DropdownMenu modal={false} open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <button className={styles.trigger} type="button" aria-label="Thông báo">
-          <Bell size={18} />
-          {displayCount && <span className={styles.badge}>{displayCount}</span>}
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className={styles.dropdownContent} align="end" sideOffset={8}>
+    <Tooltip.Provider delayDuration={200}>
+      <DropdownMenu modal={false} open={isOpen} onOpenChange={setIsOpen}>
+        <Tooltip.Root open={isOpen || isSidebarOpen ? false : isTooltipOpen} onOpenChange={setIsTooltipOpen}>
+          <Tooltip.Trigger asChild>
+            <DropdownMenuTrigger asChild>
+              <button className={styles.trigger} type="button" aria-label="Thông báo">
+                <Bell size={18} />
+                {displayCount && <span className={styles.badge}>{displayCount}</span>}
+              </button>
+            </DropdownMenuTrigger>
+          </Tooltip.Trigger>
+          <Tooltip.Portal>
+            <Tooltip.Content className={styles.tooltipContent} side="bottom" sideOffset={5}>
+              Thông báo
+              <Tooltip.Arrow className={styles.tooltipArrow} />
+            </Tooltip.Content>
+          </Tooltip.Portal>
+        </Tooltip.Root>
+        <DropdownMenuContent className={styles.dropdownContent} align="end" sideOffset={8}>
         <div className={styles.dropdownHeader}>
           <div className={styles.headerLeft}>
             <Bell size={18} className={styles.headerIcon} />
@@ -172,6 +185,7 @@ export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) 
               className={styles.viewMoreLink}
               onClick={() => {
                 setIsOpen(false);
+                setIsTooltipOpen(false);
                 onViewAll?.();
               }}
             >
@@ -182,6 +196,7 @@ export function NotificationDropdown({ onViewAll }: { onViewAll?: () => void }) 
         )}
       </DropdownMenuContent>
     </DropdownMenu>
+  </Tooltip.Provider>
   );
 }
 

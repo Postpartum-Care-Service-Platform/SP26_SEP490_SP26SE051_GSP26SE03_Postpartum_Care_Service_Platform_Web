@@ -73,6 +73,7 @@ export function mapAccountToPatient(account: Account, _index: number): Patient {
     status: account.isEmailVerified ? 'Stable' : 'Under Observation',
     createdAt: account.createdAt,
     accountId: account.id,
+    customerId: profile?.customerId,
   };
 }
 

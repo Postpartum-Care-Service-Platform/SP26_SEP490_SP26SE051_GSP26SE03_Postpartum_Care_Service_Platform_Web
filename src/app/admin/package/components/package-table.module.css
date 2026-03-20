@@ -19,11 +19,15 @@
 }
 
 .table thead {
-  background-color: rgba(242, 242, 244, 0.5);
+  background-color: #f2f2f4;
+  /* Đổi thành màu solid để không bị trong suốt khi scroll */
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .table th {
-  padding: 10px 14px;
+  padding: 8px 12px;
   text-align: left;
   font-family: "Funnel Sans", sans-serif;
   font-size: 13px;
@@ -31,6 +35,16 @@
   color: #343A40;
   border-bottom: 1px solid var(--color-border-default);
   white-space: nowrap;
+}
+
+/* Thao tác header sticky */
+.table th:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 11;
+  background-color: #f2f2f4;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
+  border-left: none !important;
 }
 
 .table tbody tr {
@@ -41,33 +55,78 @@
 
 .table tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.03) !important;
+  z-index: 20;
+  position: relative;
+}
+
+.table tbody tr:hover td {
+  z-index: 20;
 }
 
 .table td {
-  padding: var(--spacing-sm);
+  padding: 6px 12px;
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-primary);
   white-space: nowrap;
 }
 
+/* Thao tác cell sticky */
+.table td:last-child {
+  position: sticky;
+  right: 0;
+  z-index: 5;
+  background-color: #fff;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
+  border-left: none !important;
+}
+
+/* Thao tác cell sticky hover */
+.table tbody tr:hover td:last-child {
+  background-color: #f8f9fa;
+  z-index: 30;
+}
+
 .sttCell {
-  cursor: help;
-  border-bottom: 1px dashed #aaa;
-  display: inline-block;
-  line-height: 1.4;
+  color: #555;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.sttHeaderCell {
+  text-align: center !important;
+  width: 60px;
+}
+
+.sttDataCell {
+  text-align: center !important;
 }
 
 .name {
   font-weight: 500;
-  min-width: 150px;
+  min-width: 120px;
+  max-width: 180px;
+}
+
+.textTruncate {
+  display: block;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: inherit;
 }
 
 .truncateCell {
-  min-width: 200px;
-  max-width: 400px;
+  min-width: 150px;
+  max-width: 300px;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
+}
+
+.roomTypeCell {
+  min-width: 100px;
+  max-width: 150px;
   text-overflow: ellipsis;
 }
 
@@ -99,7 +158,10 @@
 /* ── Tooltip ── */
 .tooltipWrapper {
   position: relative;
-  display: inline-flex;
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  align-items: center;
 }
 
 .tooltipWrapper .tooltip {
@@ -133,6 +195,10 @@
 .tooltipWrapper:hover .tooltip {
   opacity: 1;
   transform: translateX(-50%) scale(1);
+}
+
+.tooltipWrapper:hover {
+  z-index: 100 !important;
 }
 
 .editButton {
@@ -204,4 +270,27 @@
   text-align: center;
   color: var(--color-admin-text-muted);
   padding: 8px;
+}
+
+.paginationWrapper {
+  margin-top: var(--spacing-md);
+}
+
+.paginationWrapper :global(.container) {
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.paginationWrapper :global(.pagination) {
+  margin: 0 !important;
+}
+
+.paginationWrapper :global(.pageSizeSelector) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

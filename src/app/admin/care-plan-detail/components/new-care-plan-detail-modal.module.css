@@ -44,7 +44,35 @@
 }
 
 .closeButton:hover {
-  color: #343A40;
+  color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltip {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.2s ease;
+  z-index: 10001;
+}
+
+.tooltipWrapper:hover .tooltip {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .modalBody {
@@ -158,4 +186,58 @@
 .buttonOutline:hover:not(:disabled) {
   background-color: #f8f9fa;
   color: #343a40;
+}
+
+.dropdownTrigger {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 14px !important;
+  background-color: #f8f9fa !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 6px !important;
+  color: #495057 !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  height: 38px !important;
+  transition: all 0.2s ease !important;
+}
+
+.dropdownTrigger:hover {
+  background-color: #fff !important;
+  border-color: #fa8314 !important;
+}
+
+.dropdownContent {
+  width: 100% !important;
+  min-width: unset !important;
+  background-color: #fff !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  padding: 4px !important;
+  z-index: 10010 !important;
+}
+
+.dropdownItem {
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  color: #495057 !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+  font-weight: 400 !important;
+  background-color: transparent !important;
+  border: none !important;
+  margin-bottom: 2px !important;
+}
+
+.dropdownItem:hover {
+  background-color: rgba(250, 131, 20, 0.1) !important;
+  color: #fa8314 !important;
+}
+
+.dropdownItem:last-child {
+  margin-bottom: 0 !important;
 }

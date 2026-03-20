@@ -1,6 +1,6 @@
 'use client';
 
-import { Activity, Bell, CalendarCheck, MessageSquare, Package, UserCircle2, Utensils } from 'lucide-react';
+import { Activity, Bell, CalendarCheck, CreditCard, MessageSquare, Package, UserCircle2, Utensils } from 'lucide-react';
 import React from 'react';
 
 import AdminActivityTypePage from '../activity-type/page';
@@ -11,6 +11,7 @@ import AdminMenuTypePage from '../menu-type/page';
 import AdminNotificationPage from '../notification/page';
 import AdminNotificationTypePage from '../notification-type/page';
 import AdminPackageTypePage from '../package-type/page';
+import AdminPaymentTypePage from '../payment-type/page';
 import AdminRoomsPage from '../rooms/page';
 import { WorkScheduleHeader } from '../work-schedule/components/WorkScheduleHeader';
 
@@ -23,6 +24,7 @@ const tabs = [
   { key: 'notification-types', label: 'Loại thông báo', icon: <Bell size={16} /> },
   { key: 'package-types', label: 'Loại gói dịch vụ', icon: <Package size={16} /> },
   { key: 'room-types', label: 'Loại phòng', icon: <Package size={16} /> },
+  { key: 'payment-types', label: 'Loại thanh toán', icon: <CreditCard size={16} /> },
 ];
 
 export default function AdminTypesConfigPage() {
@@ -46,6 +48,7 @@ export default function AdminTypesConfigPage() {
       {activeTab === 'notification-types' && <AdminNotificationTypePage />}
       {activeTab === 'package-types' && <AdminPackageTypePage />}
       {activeTab === 'room-types' && <AdminRoomsPage />}
+      {activeTab === 'payment-types' && <AdminPaymentTypePage />}
     </div>
   );
 }

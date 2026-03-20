@@ -67,10 +67,8 @@ export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, pag
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>ID</th>
+            <th className={styles.sttHeaderCell}>STT</th>
             <th>Tên</th>
-            <th>Account ID</th>
-            <th>Menu ID</th>
             <th>Ngày</th>
             <th>Trạng thái</th>
             <th>Ngày tạo</th>
@@ -81,21 +79,30 @@ export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, pag
         <tbody>
           {menuRecords.length === 0 ? (
             <tr>
-              <td colSpan={9} className={styles.emptyState}>
+              <td colSpan={7} className={styles.emptyState}>
                 Chưa có bản ghi thực đơn nào
               </td>
             </tr>
           ) : (
-            menuRecords.map((menuRecord) => (
+            menuRecords.map((menuRecord, index) => (
               <tr key={menuRecord.id} className={styles.tableRow}>
-                <td>{menuRecord.id}</td>
+                <td className={styles.sttDataCell}>
+                  <div className={styles.tooltipWrapper}>
+                    <span className={styles.sttCell}>
+                      {pagination
+                        ? (pagination.currentPage - 1) * pagination.pageSize + index + 1
+                        : index + 1}
+                    </span>
+                    <span className={styles.tooltip}>ID gốc: {menuRecord.id}</span>
+                  </div>
+                </td>
                 <td className={styles.name}>{menuRecord.name}</td>
-                <td className={styles.idCell}>{menuRecord.accountId.slice(0, 8)}...</td>
-                <td>{menuRecord.menuId}</td>
                 <td>{formatDate(menuRecord.date)}</td>
                 <td>
                   <span
-                    className={`${styles.statusBadge} ${menuRecord.isActive ? styles.statusActive : styles.statusInactive}`}
+                    className={`${styles.statusBadge} ${
+                      menuRecord.isActive ? styles.statusActive : styles.statusInactive
+                    }`}
                   >
                     {menuRecord.isActive ? 'Hoạt động' : 'Tạm dừng'}
                   </span>

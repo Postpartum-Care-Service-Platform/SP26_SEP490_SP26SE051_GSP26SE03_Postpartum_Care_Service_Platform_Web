@@ -1,6 +1,7 @@
 'use client';
 
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { Eye } from 'lucide-react';
 
 import type { Feedback } from '@/types/feedback';
 
@@ -23,6 +24,13 @@ const renderStars = (rating: number) => {
       <span style={{ fontSize: 13, color: '#6c757d', marginLeft: 6 }}>({rating}/10)</span>
     </span>
   );
+};
+
+const normalizeImages = (images: any): string[] => {
+  if (!images) return [];
+  if (Array.isArray(images)) return images;
+  if (typeof images === 'object') return Object.values(images) as string[];
+  return [];
 };
 
 export function FeedbackDetailModal({ open, onOpenChange, feedback }: Props) {
@@ -76,19 +84,22 @@ export function FeedbackDetailModal({ open, onOpenChange, feedback }: Props) {
           </div>
 
           {/* Images */}
-          {feedback.images && feedback.images.length > 0 && (
-            <div className={styles.imagesSection}>
-              <div className={styles.metaLabel}>Hình ảnh</div>
-              <div className={styles.imagesGrid}>
-                {feedback.images.map((src, i) => (
-                  <a key={i} href={src} target="_blank" rel="noopener noreferrer">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt={`Ảnh phản hồi ${i + 1}`} className={styles.thumbnail} />
-                  </a>
-                ))}
+          {(() => {
+            const images = normalizeImages(feedback.images);
+            return images.length > 0 && (
+              <div className={styles.imagesSection}>
+                <div className={styles.metaLabel}>Hình ảnh</div>
+                <div className={styles.imagesGrid}>
+                  {images.map((src, i) => (
+                    <a key={i} href={src} target="_blank" rel="noopener noreferrer">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt={`Ảnh phản hồi ${i + 1}`} className={styles.thumbnail} />
+                    </a>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
 
         <div className={styles.modalFooter}>

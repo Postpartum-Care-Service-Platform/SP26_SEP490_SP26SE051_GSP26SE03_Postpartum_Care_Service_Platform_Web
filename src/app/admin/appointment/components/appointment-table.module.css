@@ -54,7 +54,12 @@
 }
 
 .appointmentName {
-  max-width: 260px;
+  max-width: 200px;
+}
+
+.textTruncate {
+  display: block;
+  width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -64,6 +69,14 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  max-width: 150px;
+}
+
+.patientNameText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
 }
 
 .avatar {
@@ -166,6 +179,10 @@
 .tooltipWrapper:hover .tooltip {
   opacity: 1;
   transform: translateX(-50%) scale(1);
+}
+
+.tooltipWrapper:hover {
+  z-index: 50;
 }
 
 

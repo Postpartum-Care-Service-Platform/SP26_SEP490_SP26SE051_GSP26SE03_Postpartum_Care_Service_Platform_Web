@@ -16,12 +16,9 @@ type Props = {
   onSuccess?: () => void;
 };
 
-const getErrorMessage = (error: unknown, fallback: string): string => {
-  if (error instanceof Error && error.message) return error.message;
-  if (typeof error === 'object' && error !== null && 'message' in error &&
-    typeof (error as { message?: unknown }).message === 'string')
-    return (error as { message: string }).message;
-  return fallback;
+const getErrorMessage = (error: any, fallback: string): string => {
+  if (typeof error === 'string') return error;
+  return error?.message || error?.error || error?.data?.message || error?.data?.error || fallback;
 };
 
 export function PackageTypeModal({ open, onOpenChange, item, onSuccess }: Props) {
@@ -45,11 +42,11 @@ export function PackageTypeModal({ open, onOpenChange, item, onSuccess }: Props)
     try {
       setIsSubmitting(true);
       if (isEditMode && item) {
-        const payload: UpdatePackageTypeRequest = { name: name.trim(), isActive: item.isActive };
+        const payload: UpdatePackageTypeRequest = { typeName: name.trim(), isActive: item.isActive };
         await packageTypeService.updatePackageType(item.id, payload);
         toast({ title: 'Cập nhật loại gói dịch vụ thành công', variant: 'success' });
       } else {
-        const payload: CreatePackageTypeRequest = { name: name.trim(), isActive: true }; // Mặc định isActive: true theo API return isActive true
+        const payload: CreatePackageTypeRequest = { typeName: name.trim() };
         await packageTypeService.createPackageType(payload);
         toast({ title: 'Tạo loại gói dịch vụ thành công', variant: 'success' });
       }

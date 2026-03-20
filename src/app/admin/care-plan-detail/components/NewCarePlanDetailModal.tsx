@@ -4,6 +4,7 @@ import { Cross1Icon } from '@radix-ui/react-icons';
 import { forwardRef, useEffect, useState } from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
+import { CustomDropdown } from '@/components/ui/custom-dropdown';
 import activityService from '@/services/activity.service';
 import carePlanDetailService from '@/services/care-plan-detail.service';
 import packageService from '@/services/package.service';
@@ -193,62 +194,66 @@ export function NewCarePlanDetailModal({ open, onOpenChange, onSuccess, carePlan
     return null;
   }
 
+  const packageOptions = packages.map((pkg) => ({
+    value: pkg.id.toString(),
+    label: pkg.packageName,
+  }));
+
+  const activityOptions = activities.map((activity) => ({
+    value: activity.id.toString(),
+    label: (activity.name as string) || `Hoạt động ${activity.id}`,
+  }));
+
+  const timeOptions = Array.from({ length: 24 * 4 }, (_, i) => {
+    const hours = Math.floor(i / 4).toString().padStart(2, '0');
+    const minutes = (i % 4 * 15).toString().padStart(2, '0');
+    return { value: `${hours}:${minutes}`, label: `${hours}:${minutes}` };
+  });
+
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent} role="dialog" aria-modal="true">
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>{isEditMode ? 'Chỉnh sửa chi tiết kế hoạch chăm sóc' : 'Thêm chi tiết kế hoạch chăm sóc mới'}</h2>
-          <button onClick={() => onOpenChange(false)} className={styles.closeButton} aria-label="Close">
-            <Cross1Icon />
-          </button>
+          <div className={styles.tooltipWrapper}>
+            <button onClick={() => onOpenChange(false)} className={styles.closeButton} aria-label="Close">
+              <Cross1Icon />
+            </button>
+            <span className={styles.tooltip}>Đóng</span>
+          </div>
         </div>
         <form onSubmit={handleSubmit}>
           <div className={styles.modalBody}>
             <div className={styles.formGrid}>
               <div className={styles.formGroup}>
-                <label htmlFor="packageId">
+                <label>
                   Gói dịch vụ <span className={styles.required}>*</span>
                 </label>
-                <CustomSelect
-                  id="packageId"
-                  value={formData.packageId}
-                  onChange={(e) => handleFieldChange('packageId', parseInt(e.target.value, 10) || 0)}
-                  className={errors.packageId ? styles.invalid : ''}
-                  required
-                  disabled={loadingOptions}
-                >
-                  <option value="0">Chọn gói dịch vụ</option>
-                  {packages.map((pkg) => (
-                    <option key={pkg.id} value={pkg.id}>
-                      {pkg.packageName}
-                    </option>
-                  ))}
-                </CustomSelect>
+                <CustomDropdown
+                  options={packageOptions}
+                  value={formData.packageId.toString()}
+                  onChange={(val: string) => handleFieldChange('packageId', parseInt(val, 10))}
+                  placeholder="Chọn gói dịch vụ"
+                  triggerClassName={styles.dropdownTrigger}
+                  contentClassName={styles.dropdownContent}
+                  itemClassName={styles.dropdownItem}
+                />
                 {errors.packageId && <p className={styles.errorMessage}>{errors.packageId}</p>}
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="activityId">
+                <label>
                   Hoạt động <span className={styles.required}>*</span>
                 </label>
-                <CustomSelect
-                  id="activityId"
-                  value={formData.activityId}
-                  onChange={(e) => handleFieldChange('activityId', parseInt(e.target.value, 10) || 0)}
-                  className={errors.activityId ? styles.invalid : ''}
-                  required
-                  disabled={loadingOptions}
-                >
-                  <option value="0">Chọn hoạt động</option>
-                  {activities.map((activity) => {
-                    const name = (activity.name as string) || '';
-                    return (
-                      <option key={activity.id} value={activity.id}>
-                        {name || `Hoạt động ${activity.id}`}
-                      </option>
-                    );
-                  })}
-                </CustomSelect>
+                <CustomDropdown
+                  options={activityOptions}
+                  value={formData.activityId.toString()}
+                  onChange={(val: string) => handleFieldChange('activityId', parseInt(val, 10))}
+                  placeholder="Chọn hoạt động"
+                  triggerClassName={styles.dropdownTrigger}
+                  contentClassName={styles.dropdownContent}
+                  itemClassName={styles.dropdownItem}
+                />
                 {errors.activityId && <p className={styles.errorMessage}>{errors.activityId}</p>}
               </div>
             </div>
@@ -269,21 +274,6 @@ export function NewCarePlanDetailModal({ open, onOpenChange, onSuccess, carePlan
                 />
                 {errors.dayNo && <p className={styles.errorMessage}>{errors.dayNo}</p>}
               </div>
-
-              <div className={styles.formGroup}>
-                <label htmlFor="sortOrder">
-                  Thứ tự
-                </label>
-                <CustomInput
-                  id="sortOrder"
-                  type="number"
-                  min="0"
-                  value={formData.sortOrder}
-                  onChange={(e) => handleFieldChange('sortOrder', parseInt(e.target.value, 10) || 0)}
-                  className={errors.sortOrder ? styles.invalid : ''}
-                />
-                {errors.sortOrder && <p className={styles.errorMessage}>{errors.sortOrder}</p>}
-              </div>
             </div>
 
             <div className={styles.formGrid}>
@@ -291,13 +281,14 @@ export function NewCarePlanDetailModal({ open, onOpenChange, onSuccess, carePlan
                 <label htmlFor="startTime">
                   Thời gian bắt đầu <span className={styles.required}>*</span>
                 </label>
-                <CustomInput
-                  id="startTime"
-                  type="time"
+                <CustomDropdown
+                  options={timeOptions}
                   value={formData.startTime}
-                  onChange={(e) => handleFieldChange('startTime', e.target.value)}
-                  className={errors.startTime ? styles.invalid : ''}
-                  required
+                  onChange={(val: string) => handleFieldChange('startTime', val)}
+                  placeholder="Chọn thời gian"
+                  triggerClassName={styles.dropdownTrigger}
+                  contentClassName={styles.dropdownContent}
+                  itemClassName={styles.dropdownItem}
                 />
                 {errors.startTime && <p className={styles.errorMessage}>{errors.startTime}</p>}
               </div>
@@ -306,13 +297,14 @@ export function NewCarePlanDetailModal({ open, onOpenChange, onSuccess, carePlan
                 <label htmlFor="endTime">
                   Thời gian kết thúc <span className={styles.required}>*</span>
                 </label>
-                <CustomInput
-                  id="endTime"
-                  type="time"
+                <CustomDropdown
+                  options={timeOptions}
                   value={formData.endTime}
-                  onChange={(e) => handleFieldChange('endTime', e.target.value)}
-                  className={errors.endTime ? styles.invalid : ''}
-                  required
+                  onChange={(val: string) => handleFieldChange('endTime', val)}
+                  placeholder="Chọn thời gian"
+                  triggerClassName={styles.dropdownTrigger}
+                  contentClassName={styles.dropdownContent}
+                  itemClassName={styles.dropdownItem}
                 />
                 {errors.endTime && <p className={styles.errorMessage}>{errors.endTime}</p>}
               </div>

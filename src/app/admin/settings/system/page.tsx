@@ -24,13 +24,13 @@ export type SystemSetting = {
 };
 
 const tabs = [
-  { key: 'Payment', label: 'Thanh toan', icon: <CreditCard size={16} /> },
+  { key: 'Payment', label: 'Thanh toán', icon: <CreditCard size={16} /> },
   { key: 'Business', label: 'Kinh doanh', icon: <Briefcase size={16} /> },
-  { key: 'Validation', label: 'Rang buoc du lieu', icon: <ShieldCheck size={16} /> },
-  { key: 'App', label: 'Ung dung', icon: <Monitor size={16} /> },
-  { key: 'AI', label: 'AI & tro ly ao', icon: <Bot size={16} /> },
-  { key: 'Auth', label: 'Xac thuc & bao mat', icon: <Lock size={16} /> },
-  { key: 'Role', label: 'Vai tro', icon: <User size={16} /> },
+  { key: 'Validation', label: 'Ràng buộc dữ liệu', icon: <ShieldCheck size={16} /> },
+  { key: 'App', label: 'Ứng dụng', icon: <Monitor size={16} /> },
+  { key: 'AI', label: 'AI & trợ lý ảo', icon: <Bot size={16} /> },
+  { key: 'Auth', label: 'Xác thực & bảo mật', icon: <Lock size={16} /> },
+  { key: 'Role', label: 'Vai trò', icon: <User size={16} /> },
 ];
 
 export default function AdminSystemSettingsPage() {

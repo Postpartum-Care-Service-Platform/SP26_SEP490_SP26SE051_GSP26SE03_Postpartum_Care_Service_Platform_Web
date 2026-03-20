@@ -1,7 +1,8 @@
 'use client';
 
-import { Cross1Icon } from '@radix-ui/react-icons';
-import { forwardRef, useEffect, useState } from 'react';
+import { Cross1Icon, ImageIcon } from '@radix-ui/react-icons';
+import { Upload } from 'lucide-react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import foodService from '@/services/food.service';
@@ -56,6 +57,8 @@ export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Prop
   const [formData, setFormData] = useState<CreateFoodRequest>(INITIAL_FORM_DATA);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isEditMode = !!foodToEdit;
 
   useEffect(() => {
@@ -80,6 +83,41 @@ export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Prop
     if (errors[field as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
+  };
+
+  const handleFileSelect = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Vui lòng chọn tệp hình ảnh (.jpg, .png, .webp)', variant: 'error' });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      handleFieldChange('imageUrl', e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const onDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelect(file);
+  };
+
+  const removeImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleFieldChange('imageUrl', null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const validateForm = (): FormErrors => {
@@ -194,16 +232,40 @@ export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Prop
               </div>
             </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="imageUrl">URL hình ảnh</label>
-              <CustomInput
-                id="imageUrl"
-                type="url"
-                placeholder="https://example.com/image.jpg"
-                value={formData.imageUrl || ''}
-                onChange={(e) => handleFieldChange('imageUrl', e.target.value || null)}
-                className={errors.imageUrl ? styles.invalid : ''}
+            <div className={styles.imageUploadGroup}>
+              <label className={styles.uploadLabel}>Hình ảnh món ăn</label>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className={styles.hiddenInput}
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileSelect(file);
+                }}
               />
+              <div
+                className={`${styles.imageUploadZone} ${isDragging ? styles.dragging : ''}`}
+                onDragOver={onDragOver}
+                onDragLeave={onDragLeave}
+                onDrop={onDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {formData.imageUrl ? (
+                  <div className={styles.previewContainer}>
+                    <img src={formData.imageUrl} alt="Preview" className={styles.imagePreview} />
+                    <button type="button" className={styles.removeImage} onClick={removeImage}>
+                      <Cross1Icon />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className={styles.uploadIcon} />
+                    <span className={styles.uploadText}>Kéo thả ảnh vào đây hoặc click để chọn</span>
+                    <span className={styles.uploadHint}>Hỗ trợ: JPG, PNG, WEBP (Tối đa 5MB)</span>
+                  </>
+                )}
+              </div>
               {errors.imageUrl && <p className={styles.errorMessage}>{errors.imageUrl}</p>}
             </div>
 
