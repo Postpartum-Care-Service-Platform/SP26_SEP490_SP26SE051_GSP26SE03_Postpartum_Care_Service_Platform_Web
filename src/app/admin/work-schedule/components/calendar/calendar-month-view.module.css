@@ -36,7 +36,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: repeat(6, minmax(92px, 1fr));
+  grid-template-rows: repeat(6, minmax(160px, 1fr));
   overflow-y: auto;
   flex: 1;
   box-sizing: border-box;
@@ -181,13 +181,31 @@
   min-width: 0;
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .moreIndicator {
   font-size: 11px;
-  color: #6b778c;
-  padding: 2px 4px;
+  color: #FF7A00;
+  font-weight: 600;
+  padding: 4px 8px;
+  background: #F4F5F7;
+  border-radius: 3px;
+  margin-top: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  border: 1px solid rgba(9, 30, 66, 0.08);
+  transition: all 0.2s;
+}
+
+.moreIndicator:hover {
+  background: #EBECF0;
+  color: #E66E00;
 }
 
 .tooltipContent {
@@ -200,9 +218,27 @@
   z-index: 1000;
 }
 
+.tooltipHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.tooltipStatusBadge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
 .tooltipTitle {
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 0;
+  flex: 1;
 }
 
 .tooltipCode {
@@ -218,4 +254,13 @@
 
 .tooltipArrow {
   fill: #172b4d;
+}
+
+.sidebarList {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sidebarList::-webkit-scrollbar {
+  display: none;
 }

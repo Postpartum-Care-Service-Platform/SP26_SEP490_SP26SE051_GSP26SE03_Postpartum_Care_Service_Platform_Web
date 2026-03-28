@@ -36,24 +36,20 @@ type Props = {
   onEdit?: (activity: Activity) => void;
   onDelete?: (activity: Activity) => void;
   deletingId?: number | null;
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
-    pageSizeOptions?: number[];
-    onPageSizeChange?: (size: number) => void;
-  };
+  currentPage?: number;
+  pageSize?: number;
 };
 
-const TARGET_LABEL: Record<string, string> = {
-  Mom: 'Mẹ',
-  Baby: 'Bé',
-  Both: 'Cả hai',
+const TARGET_LABEL: Record<string | number, string> = {
+  0: 'Mẹ',
+  1: 'Bé',
+  2: 'Cả hai',
+  'Mom': 'Mẹ',
+  'Baby': 'Bé',
+  'Both': 'Cả hai',
 };
 
-export function ActivityTable({ activities, onEdit, onDelete, deletingId, pagination }: Props) {
+export function ActivityTable({ activities, onEdit, onDelete, deletingId, currentPage = 1, pageSize = 10 }: Props) {
   return (
     <div className={styles.tableWrapper}>
       <div className={styles.scrollContainer}>
@@ -63,6 +59,7 @@ export function ActivityTable({ activities, onEdit, onDelete, deletingId, pagina
               <th className={styles.sttHeaderCell} title="Số thứ tự">STT</th>
               <th>Tên hoạt động</th>
               <th>Mô tả</th>
+              <th>Giá</th>
               <th>Loại</th>
               <th>Đối tượng</th>
               <th>Thời lượng (phút)</th>
@@ -73,14 +70,14 @@ export function ActivityTable({ activities, onEdit, onDelete, deletingId, pagina
           <tbody>
             {activities.length === 0 ? (
               <tr>
-                <td colSpan={8} className={styles.emptyState}>
+                <td colSpan={9} className={styles.emptyState}>
                   Chưa có hoạt động nào
                 </td>
               </tr>
             ) : (
               activities.map((activity, index) => {
-                const isActive = activity.status === 'Active';
-                const stt = pagination ? (pagination.currentPage - 1) * pagination.pageSize + index + 1 : index + 1;
+                const isActive = activity.status === 0 || activity.status === 'Active';
+                const stt = (currentPage - 1) * pageSize + index + 1;
 
                 return (
                   <tr key={activity.id} className={styles.tableRow}>
@@ -103,6 +100,7 @@ export function ActivityTable({ activities, onEdit, onDelete, deletingId, pagina
                         </div>
                       ) : '-'}
                     </td>
+                    <td>{activity.price != null ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(activity.price) : '-'}</td>
                     <td>{activity.activityTypeName || '-'}</td>
                     <td>
                       <span className={styles.targetBadge}>
@@ -157,20 +155,6 @@ export function ActivityTable({ activities, onEdit, onDelete, deletingId, pagina
         </table>
       </div>
 
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
     </div>
   );
 }

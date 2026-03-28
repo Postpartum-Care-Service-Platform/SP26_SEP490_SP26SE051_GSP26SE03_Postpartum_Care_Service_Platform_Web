@@ -16,6 +16,7 @@ export interface FamilyProfile {
 }
 
 export interface CreateFamilyProfileRequest {
+  accountId: string;
   memberTypeId: number;
   fullName: string;
   dateOfBirth: string;

@@ -16,7 +16,7 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-width: 650px; /* Slightly wider for contract fields */
-  overflow: hidden;
+  overflow: visible;
   animation: modal-in 0.3s ease-out;
 }
 
@@ -61,9 +61,9 @@
 /* Modal Body */
 .modalBody {
   padding: 20px;
-  max-height: 75vh;
-  overflow-y: auto;
+  overflow: visible;
 }
+
 
 .formGrid {
   display: grid;
@@ -112,14 +112,41 @@
   box-shadow: 0 0 0 3px rgba(250, 131, 20, 0.1);
 }
 
+.datePickerContainer {
+  position: relative;
+  width: 100%;
+}
+
 .datePickerTrigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
   cursor: pointer;
   text-align: left;
   background-color: #f8f9fa;
+  width: 100%;
 }
+
+.datePickerTriggerOpen {
+  border-color: #fa8314 !important;
+  background-color: #fff !important;
+  box-shadow: 0 0 0 3px rgba(250, 131, 20, 0.1) !important;
+}
+
+.calendarIconLeft {
+  color: #868e96;
+  flex-shrink: 0;
+}
+
+.customPickerWrapper {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 10001; /* Above modal content */
+  margin-top: 4px;
+}
+
 
 .datePlaceholder {
   color: #adb5bd;
@@ -129,28 +156,29 @@
   color: #495057;
 }
 
-.calendarIcon {
-  width: 16px;
-  height: 16px;
-  color: #868e96;
+/* Removed old calendarIcon */
+
+
+.datePickerContainer :global([class*="datePickerPopup"]) {
+  position: relative !important;
+  left: 0 !important;
+  right: auto !important;
+  top: 0 !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 4px !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
-.calendarPopoverContent {
-  width: auto !important;
-  min-width: 304px;
-  padding: 12px !important;
-  border-radius: 12px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
-  border: 1px solid #eef0f2 !important;
-  background-color: #fff !important;
-  z-index: 10001 !important;
-  display: block;
-  visibility: visible;
+.datePickerContainer :global([class*="closeBtn"]),
+.datePickerContainer :global([class*="title"]),
+.datePickerContainer :global([class*="inputWrapper"]) {
+  display: none !important;
 }
 
 .formControl.invalid {
   border-color: #dc3545;
 }
+
 
 .errorMessage {
   color: #dc3545;

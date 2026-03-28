@@ -5,25 +5,8 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding-bottom: var(--spacing-md);
-}
-
-.header h4.title,
-h4.title,
-.title {
-  font-family: var(--font-admin-title);
-  font-size: 15px;
-  font-weight: 500;
-  text-transform: capitalize;
-  line-height: 1.2;
-  color: var(--color-admin-text-primary);
-  margin: 0;
-  padding: 0;
-  letter-spacing: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  justify-content: flex-start;
+  padding-bottom: 16px;
 }
 
 .tabs {
@@ -76,7 +59,103 @@ h4.title,
   border-radius: var(--radius-md);
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  background-color: #fff;
+  padding: 16px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.controlsLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 1;
+}
+
+.controlsRight {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--spacing-sm);
+  width: 18px;
+  height: 18px;
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background-color: #f8f9fa;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+}
+
+.createButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px var(--spacing-md);
+  background-color: var(--color-brand-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.createButton:hover {
+  background-color: #e67310;
+}
+
+.plusIcon {
+  width: 16px;
+  height: 16px;
+}
+
 @media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .controlsLeft,
+  .controlsRight {
+    flex-wrap: wrap;
+  }
+
+  .searchWrapper {
+    max-width: 100%;
+  }
+
   .header {
     flex-direction: column;
     align-items: flex-start;

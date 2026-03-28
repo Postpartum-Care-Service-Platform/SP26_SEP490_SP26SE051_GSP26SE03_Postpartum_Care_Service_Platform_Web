@@ -1,19 +1,9 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   margin-bottom: 16px;
   padding: 0;
-}
-
-.title {
-  font-family: var(--font-admin-title);
-  font-size: 15px;
-  font-weight: 500;
-  text-transform: capitalize;
-  line-height: 1.2;
-  color: var(--color-admin-text-primary);
-  margin: 0;
 }
 
 @media (max-width: 768px) {
@@ -27,4 +17,3 @@
     margin-bottom: 0;
   }
 }
-

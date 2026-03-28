@@ -9,6 +9,7 @@ interface AdminPageLayoutProps {
   header?: React.ReactNode;
   controlPanel?: React.ReactNode;
   pagination?: React.ReactNode;
+  noScroll?: boolean;
 }
 
 export function AdminPageLayout({
@@ -16,22 +17,27 @@ export function AdminPageLayout({
   header,
   controlPanel,
   pagination,
+  noScroll = false,
 }: AdminPageLayoutProps) {
   return (
     <div className={styles.container}>
-      {/* Header + Breadcrumbs - Fixed at top */}
+      {/* Header + Breadcrumbs - Outside the card */}
       {header && <div className={styles.header}>{header}</div>}
 
-      {/* Control Panel - Fixed */}
-      {controlPanel && <div className={styles.controlPanel}>{controlPanel}</div>}
+      {/* Main Table Card - Unified background, radius, and shadow */}
+      <div className={styles.contentCard}>
+        {/* Control Panel - Sticky top of card */}
+        {controlPanel && <div className={styles.controlPanel}>{controlPanel}</div>}
 
-      {/* Main content area - scrollable */}
-      <div className={styles.scrollArea}>
-        <div className={styles.tableContainer}>{children}</div>
+        {/* Scrollable Table Area */}
+        <div className={`${styles.scrollArea} ${noScroll ? styles.noScroll : ''}`}>
+          <div className={styles.tableContainer}>{children}</div>
+        </div>
+
+        {/* Pagination - Sticky bottom of card */}
+        {pagination && <div className={styles.pagination}>{pagination}</div>}
       </div>
-
-      {/* Pagination - Fixed at bottom */}
-      {pagination && <div className={styles.pagination}>{pagination}</div>}
     </div>
   );
 }
+

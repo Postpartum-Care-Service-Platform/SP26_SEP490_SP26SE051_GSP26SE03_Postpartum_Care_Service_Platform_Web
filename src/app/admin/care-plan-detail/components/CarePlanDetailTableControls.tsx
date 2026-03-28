@@ -1,7 +1,6 @@
 'use client';
 
 import { MagnifyingGlassIcon, PlusIcon, MixerHorizontalIcon, ChevronDownIcon } from '@radix-ui/react-icons';
-import { Download, Upload } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -21,8 +20,8 @@ type Props = {
 };
 
 const SORT_OPTIONS = [
-  { value: 'createdAt-desc', label: 'Ngày tạo: mới nhất' },
-  { value: 'createdAt-asc', label: 'Ngày tạo: cũ nhất' },
+  { value: 'createdAt-desc', label: 'Mới nhất' },
+  { value: 'createdAt-asc', label: 'Cũ nhất' },
   { value: 'dayNo-asc', label: 'Ngày: tăng dần' },
   { value: 'dayNo-desc', label: 'Ngày: giảm dần' },
   { value: 'packageName-asc', label: 'Tên gói A-Z' },
@@ -53,7 +52,7 @@ export function CarePlanDetailTableControls({ onSearch, onSortChange, onNewCareP
           <MagnifyingGlassIcon className={styles.searchIcon} />
           <input
             type="text"
-            placeholder="Tìm kiếm chi tiết kế hoạch chăm sóc..."
+            placeholder="Tìm kiếm hoạt động..."
             className={styles.searchInput}
             value={searchQuery}
             onChange={handleSearchChange}
@@ -83,29 +82,9 @@ export function CarePlanDetailTableControls({ onSearch, onSortChange, onNewCareP
       </div>
 
       <div className={styles.right}>
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className={styles.exportButton}>
-              <Download size={16} className={styles.exportIcon} />
-              Nhập/Xuất
-              <ChevronDownIcon className={styles.chevronIcon} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
-              <Upload size={16} className={styles.itemIcon} />
-              Nhập từ Excel
-            </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
-              <Download size={16} className={styles.itemIcon} />
-              Xuất ra Excel
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
         <Button variant="primary" size="sm" className={styles.newCarePlanDetailButton} onClick={onNewCarePlanDetail}>
           <PlusIcon className={styles.plusIcon} />
-          Chi tiết mới
+          Hoạt động mới
         </Button>
       </div>
     </div>

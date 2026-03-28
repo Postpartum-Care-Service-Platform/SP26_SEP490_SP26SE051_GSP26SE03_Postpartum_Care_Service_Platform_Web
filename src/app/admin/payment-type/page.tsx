@@ -50,6 +50,8 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'inactive', label: 'Tạm dừng' },
 ];
 
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+
 export default function AdminPaymentTypePage() {
   const [items, setItems]         = useState<PaymentType[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -116,151 +118,156 @@ export default function AdminPaymentTypePage() {
   const selectedSortLabel   = SORT_OPTIONS.find((o) => o.value === sortKey)?.label ?? 'Sắp xếp';
   const selectedStatusLabel = STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? 'Tất cả';
 
-  return (
-    <div className={styles.pageContainer}>
-      <div className={styles.controls}>
-        <div className={styles.controlsLeft}>
-          <div className={styles.searchWrapper}>
-            <MagnifyingGlassIcon className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Tìm kiếm loại thanh toán..."
-              className={styles.searchInput}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={styles.filterButton}>
-                <MixerHorizontalIcon className={styles.filterIcon} />
-                {selectedSortLabel}
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {SORT_OPTIONS.map((opt) => (
-                <DropdownMenuItem key={opt.value}
-                  className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setSortKey(opt.value)}>
-                  {opt.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className={styles.controlsRight}>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={styles.exportButton}>
-                <Download size={16} className={styles.exportIcon} />
-                Nhập/Xuất
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent} align="end">
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
-                <Upload size={16} className={styles.itemIcon} />
-                Nhập từ Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
-                <Download size={16} className={styles.itemIcon} />
-                Xuất ra Excel
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={styles.statusButton}>
-                {selectedStatusLabel}
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {STATUS_OPTIONS.map((opt) => (
-                <DropdownMenuItem key={opt.value}
-                  className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setStatusFilter(opt.value)}>
-                  {opt.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button variant="primary" size="sm" className={styles.createButton} onClick={() => toast({ title: 'Chức năng đang phát triển' })}>
-            <PlusIcon className={styles.plusIcon} />
-            Loại mới
-          </Button>
-        </div>
-      </div>
-
-      <div className={styles.tableContainer}>
-        {loading ? (
-          <div className={styles.placeholder}>Đang tải dữ liệu...</div>
-        ) : error ? (
-          <div className={styles.placeholder}>{error}</div>
-        ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>STT</th>
-                  <th>Tên loại thanh toán</th>
-                  <th>Mô tả</th>
-                  <th>Trạng thái</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedItems.length === 0 ? (
-                  <tr><td colSpan={5} className={styles.emptyState}>Không tìm thấy kết quả.</td></tr>
-                ) : (
-                  paginatedItems.map((item, index) => {
-                    const stt = (currentPage - 1) * pageSize + index + 1;
-                    return (
-                      <tr key={item.id}>
-                        <td>{stt}</td>
-                        <td className={styles.nameCell}>{item.name}</td>
-                        <td>{item.description}</td>
-                        <td>
-                          <span className={`${styles.statusBadge} ${item.isActive ? styles.statusActive : styles.statusInactive}`}>
-                            {item.isActive ? 'Hoạt động' : 'Tạm dừng'}
-                          </span>
-                        </td>
-                        <td>
-                          <div className={styles.actions}>
-                            <Button variant="outline" size="sm" className={styles.editButton} onClick={() => toast({ title: 'Chức năng đang phát triển' })}>
-                              <EditIcon />
-                            </Button>
-                            <Button variant="outline" size="sm" className={styles.deleteButton} onClick={() => toast({ title: 'Chức năng đang phát triển' })}>
-                              <TrashIcon />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {!loading && !error && filteredItems.length > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            totalItems={filteredItems.length}
-            onPageChange={(page) => setCurrentPage(page)}
-            pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
-            onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
-            showResultCount={true}
+  const controlPanel = (
+    <div className={styles.controls}>
+      <div className={styles.controlsLeft}>
+        <div className={styles.searchWrapper}>
+          <MagnifyingGlassIcon className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Tìm kiếm loại thanh toán..."
+            className={styles.searchInput}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-      )}
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.filterButton}>
+              <MixerHorizontalIcon className={styles.filterIcon} />
+              {selectedSortLabel}
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent}>
+            {SORT_OPTIONS.map((opt) => (
+              <DropdownMenuItem key={opt.value}
+                className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
+                onClick={() => setSortKey(opt.value)}>
+                {opt.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <div className={styles.controlsRight}>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.exportButton}>
+              <Download size={16} className={styles.exportIcon} />
+              Nhập/Xuất
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent} align="end">
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+              <Upload size={16} className={styles.itemIcon} />
+              Nhập từ Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+              <Download size={16} className={styles.itemIcon} />
+              Xuất ra Excel
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.statusButton}>
+              {selectedStatusLabel}
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent}>
+            {STATUS_OPTIONS.map((opt) => (
+              <DropdownMenuItem key={opt.value}
+                className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`}
+                onClick={() => setStatusFilter(opt.value)}>
+                {opt.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Button variant="primary" size="sm" className={styles.createButton} onClick={() => toast({ title: 'Chức năng đang phát triển' })}>
+          <PlusIcon className={styles.plusIcon} />
+          Loại mới
+        </Button>
+      </div>
     </div>
+  );
+
+  const pagination = !loading && !error && filteredItems.length > 0 && totalPages > 0 ? (
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      pageSize={pageSize}
+      totalItems={filteredItems.length}
+      onPageChange={(page) => { setCurrentPage(page); }}
+      pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
+      onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
+      showResultCount={true}
+    />
+  ) : null;
+
+  return (
+    <AdminPageLayout
+      controlPanel={controlPanel}
+      pagination={pagination}
+    >
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th style={{ width: '50px' }}>STT</th>
+              <th>Tên loại thanh toán</th>
+              <th>Mô tả</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={5} className={styles.placeholder}>Đang tải dữ liệu...</td></tr>
+            ) : error ? (
+              <tr><td colSpan={5} className={styles.placeholder}>{error}</td></tr>
+            ) : paginatedItems.length === 0 ? (
+              <tr><td colSpan={5} className={styles.emptyState}>Không tìm thấy kết quả.</td></tr>
+            ) : (
+              paginatedItems.map((item, index) => {
+                const stt = (currentPage - 1) * pageSize + index + 1;
+                return (
+                  <tr key={item.id}>
+                    <td><span className={styles.sttCell}>{stt}</span></td>
+                    <td className={styles.nameCell}>{item.name}</td>
+                    <td>{item.description}</td>
+                    <td>
+                      <span className={`${styles.statusBadge} ${item.isActive ? styles.statusActive : styles.statusInactive}`}>
+                        {item.isActive ? 'Hoạt động' : 'Tạm dừng'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.actions}>
+                        <div className={styles.tooltipWrapper}>
+                          <Button variant="outline" size="sm" className={styles.editButton} onClick={() => toast({ title: 'Chức năng đang phát triển' })}>
+                            <EditIcon />
+                          </Button>
+                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                        </div>
+                        <div className={styles.tooltipWrapper}>
+                          <Button variant="outline" size="sm" className={styles.deleteButton} onClick={() => toast({ title: 'Chức năng đang phát triển' })}>
+                            <TrashIcon />
+                          </Button>
+                          <span className={styles.tooltip}>Xóa</span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </AdminPageLayout>
   );
 }

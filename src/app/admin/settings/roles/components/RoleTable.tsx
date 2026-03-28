@@ -36,14 +36,9 @@ type Props = {
   onEdit?: (role: Role) => void;
   onDelete?: (role: Role) => void;
   deletingId?: number | null;
-  pagination?: {
+  pagination: {
     currentPage: number;
-    totalPages: number;
     pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
-    pageSizeOptions?: number[];
-    onPageSizeChange?: (size: number) => void;
   };
 };
 
@@ -63,19 +58,18 @@ const formatDate = (dateString?: string) => {
 
 export function RoleTable({ roles, onEdit, onDelete, deletingId, pagination }: Props) {
   return (
-    <div className={styles.container}>
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th title="So thu tu">STT</th>
-              <th>Ten vai tro</th>
-              <th>Mo ta</th>
-              <th>Cap nhat</th>
-              <th>Thao tac</th>
-            </tr>
-          </thead>
-          <tbody>
+    <div className={styles.tableWrapper}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th className={styles.stickySttCol} title="Số thứ tự">STT</th>
+            <th>Tên vai trò</th>
+            <th>Mô tả</th>
+            <th>Cập nhật</th>
+            <th className={styles.stickyActionsCol}>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
             {roles.length === 0 ? (
               <tr>
                 <td colSpan={5} className={styles.emptyState}>
@@ -90,8 +84,8 @@ export function RoleTable({ roles, onEdit, onDelete, deletingId, pagination }: P
 
                 return (
                   <tr key={role.id} className={styles.tableRow}>
-                    <td>
-                      <span className={styles.sttCell} title={`ID goc: ${role.id}`}>
+                    <td className={styles.stickySttCol}>
+                      <span className={styles.sttCell} title={`ID gốc: ${role.id}`}>
                         {stt}
                       </span>
                     </td>
@@ -102,7 +96,7 @@ export function RoleTable({ roles, onEdit, onDelete, deletingId, pagination }: P
                       {role.description || '-'}
                     </td>
                     <td>{formatDate(role.updatedAt)}</td>
-                    <td>
+                    <td className={styles.stickyActionsCol}>
                       <div className={styles.actions}>
                         <div className={styles.tooltipWrapper}>
                           <Button
@@ -110,11 +104,11 @@ export function RoleTable({ roles, onEdit, onDelete, deletingId, pagination }: P
                             size="sm"
                             className={`${styles.editButton} btn-icon btn-sm`}
                             onClick={() => onEdit?.(role)}
-                            aria-label={`Chinh sua ${role.roleName}`}
+                            aria-label={`Chỉnh sửa ${role.roleName}`}
                           >
                             <Edit2OutlineIcon fill="#A47BC8" size={16} />
                           </Button>
-                          <span className={styles.tooltip}>Chinh sua</span>
+                          <span className={styles.tooltip}>Chỉnh sửa</span>
                         </div>
                         <div className={styles.tooltipWrapper}>
                           <Button
@@ -122,12 +116,12 @@ export function RoleTable({ roles, onEdit, onDelete, deletingId, pagination }: P
                             size="sm"
                             className={`${styles.deleteButton} btn-icon btn-sm`}
                             onClick={() => onDelete?.(role)}
-                            aria-label={`Xoa ${role.roleName}`}
+                            aria-label={`Xóa ${role.roleName}`}
                             disabled={deletingId === role.id}
                           >
                             <Trash2OutlineIcon fill="#FD6161" size={16} />
                           </Button>
-                          <span className={styles.tooltip}>Xoa</span>
+                          <span className={styles.tooltip}>Xóa</span>
                         </div>
                       </div>
                     </td>
@@ -138,21 +132,5 @@ export function RoleTable({ roles, onEdit, onDelete, deletingId, pagination }: P
           </tbody>
         </table>
       </div>
-
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
-    </div>
   );
 }

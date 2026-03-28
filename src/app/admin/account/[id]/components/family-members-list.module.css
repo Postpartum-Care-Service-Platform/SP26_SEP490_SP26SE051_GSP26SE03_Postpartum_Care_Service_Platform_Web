@@ -1,0 +1,580 @@
+.flowWrapper {
+  width: 100%;
+  height: 600px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+}
+
+.loadingArea {
+  width: 100%;
+  height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* ── Custom Flow Node ── */
+.flowNode {
+  background-color: #fff;
+  border: 2px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 12px;
+  width: 220px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.flowNode:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  border-color: #fa8314;
+}
+
+.flowNodeHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 8px;
+}
+
+.flowNodeAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid #f1f5f9;
+}
+
+.flowNodeIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.flowNodeInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.flowNodeType {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.flowNodeName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.flowNodeBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.flowNodeDetail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: #64748b;
+}
+
+.flowNodeDetail svg {
+  color: #94a3b8;
+}
+
+/* ── Context Menu ── */
+.contextMenu {
+  position: fixed;
+  z-index: 1000;
+  background-color: #fff;
+  border: 1px solid #e5e9f0;
+  border-radius: 4px;
+  padding: 8px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+  min-width: 220px;
+}
+
+.contextMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  font-size: 13.5px;
+  color: #475569;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.contextMenuItem:hover {
+  background-color: #f8fafc;
+  color: #6d28d9;
+}
+
+/* ── Shared Handle ── */
+.multiHandle {
+  width: 6px !important;
+  height: 6px !important;
+  background-color: #cbd5e1 !important;
+  border: 2px solid #fff !important;
+  opacity: 0.4;
+  transition: all 0.2s;
+}
+
+/* ── NEW SIDEBAR LAYOUT MODAL (NO SCROLL, PURE WHITE) ── */
+.sidebarModalContent {
+  background-color: #fff;
+  width: 820px;
+  max-width: 95vw;
+  height: 520px;
+  border-radius: 4px;
+  display: flex;
+  overflow: visible;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.modalSidebar {
+  width: 240px;
+  background-color: #fff;
+  /* Changed to Pure White */
+  border-right: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  flex-shrink: 0;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  overflow: visible;
+}
+
+.modalMainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background-color: #fff;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  overflow: visible;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 30px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.avatarSidebarSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.avatarSidebarCircle {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px dashed #e2e8f0;
+  background-color: #fcfcfc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s;
+}
+
+.avatarSidebarCircle:hover {
+  border-color: #fa8314;
+  background-color: #fff7ed;
+}
+
+.avatarSidebarCircle.isDragging {
+  border-color: #fa8314;
+  background-color: #fff7ed;
+  transform: scale(1.02);
+}
+
+.avatarPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.avatarPlaceholder span {
+  font-size: 10px;
+  font-weight: 600;
+  max-width: 80px;
+}
+
+.avatarPreviewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.avatarSidebarCircle.hasPreview:hover .avatarOverlay {
+  opacity: 1;
+}
+
+.sidebarInfo {
+  text-align: center;
+}
+
+.sidebarNamePreview {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 190px;
+}
+
+.sidebarRoleBadge {
+  display: inline-flex;
+  padding: 4px 12px;
+  background-color: #f5f3ff;
+  color: #6d28d9;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 20px;
+  border: 1px solid #ede9fe;
+}
+
+.sidebarStatusNote {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: #f8fafc;
+  color: #94a3b8;
+  border: 1px solid #f1f5f9;
+}
+
+.requiredAsterisk {
+  color: #ef4444;
+  margin-left: 2px;
+  font-weight: bold;
+}
+
+/* ── Form Areas ── */
+.modalStaticHeader {
+  padding: 16px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modalStaticHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.createFormBase {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.formGroupFull {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.formGroup label,
+.formGroupLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.inputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 0 12px;
+  height: 40px;
+  transition: all 0.2s;
+}
+
+.inputWrapper:focus-within {
+  border-color: #fa8314;
+}
+
+.inputWrapper input {
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.inputWrapper svg {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+/* ── Custom Select Dropdown ── */
+.customSelectOuter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+}
+
+.customSelectHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 0 12px;
+  height: 40px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.customSelectHeader:hover {
+  border-color: #cbd5e1;
+}
+
+.customSelectHeader.open {
+  border-color: #fa8314;
+}
+
+.selectSelectedInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.customSelectOptions {
+  position: absolute;
+  top: 104%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  z-index: 5000;
+  padding: 4px;
+}
+
+.customSelectOption {
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #475569;
+}
+
+.customSelectOption:hover {
+  background-color: #f8fafc;
+  color: #fa8314;
+}
+
+.customSelectOption.active {
+  background-color: #fff7ed;
+  color: #fa8314;
+  font-weight: 700;
+}
+
+/* ── Shared Date Picker Popup ── */
+.sharedDatePickerWrapper {
+  position: absolute;
+  top: 104%;
+  left: 0;
+  z-index: 6000;
+}
+
+/* ── Form Actions ── */
+.formActionsFixed {
+  margin-top: auto;
+  padding-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancelBtn {
+  padding: 0 20px;
+  height: 40px;
+  border-radius: 4px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.submitBtn {
+  padding: 0 24px;
+  height: 40px;
+  background-color: #fa8314;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modalCloseIconBtn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.modalCloseIconBtn:hover {
+  background-color: #f1f5f9;
+  color: #ef4444;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Global DatePicker Overrides */
+.sharedDatePickerWrapper :global([class*="datePickerPopup"]) {
+  position: relative !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 4px !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+.sharedDatePickerWrapper :global([class*="closeBtn"]),
+.sharedDatePickerWrapper :global([class*="title"]),
+.sharedDatePickerWrapper :global([class*="inputWrapper"]) {
+  display: none !important;
+}

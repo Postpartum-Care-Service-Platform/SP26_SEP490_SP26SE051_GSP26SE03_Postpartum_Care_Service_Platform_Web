@@ -1,256 +1,199 @@
-.listContainer {
-  display: flex;
-  flex-direction: column;
-  height: auto;
-  min-height: fit-content;
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-
-.listHeader {
-  padding: 16px;
-  border-bottom: 1px solid var(--color-border-default);
-}
-
-.listTitle {
-  font-family: var(--font-body);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0;
-}
-
-/* scroll ngang nằm ngay trên pagination */
 .tableWrapper {
   background-color: #fff;
-  overflow-x: auto;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  max-height: calc(100vh - 297px);
+  flex: 1;
+  min-height: 0;
 }
 
 .table {
   width: max-content;
   min-width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
 }
 
-.table thead {
-  background-color: #f8f9fa;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-}
-
-.table th {
+.table thead th {
   padding: 12px 16px;
   text-align: left;
-  font-family: var(--font-body);
+  font-family: inherit;
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-text-primary);
-  border-bottom: 1px solid var(--color-border-default);
+  color: #343a40;
+  border-bottom: 2px solid #f1f1f1;
   white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 250;
+  background-color: #f8f9fa;
 }
 
-.table tbody tr {
-  border-bottom: 1px solid var(--color-border-default);
-  cursor: pointer;
-  transition: background-color 0.2s;
-  background-color: #fff !important;
-}
 
-.table tbody tr:last-child,
-.table tbody tr:last-child td {
-  border-bottom: none !important;
+
+.table td {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #495057;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f1f1;
 }
 
 .table tbody tr:hover {
-  background-color: rgba(250, 131, 20, 0.05) !important;
-  position: relative;
-  z-index: 25;
+  background-color: #f8f9fa;
 }
 
-.tableRowActive {
-  background-color: rgba(250, 131, 20, 0.1) !important;
+.stickyActionsCol {
+  position: sticky;
+  right: 0;
+  background-color: #ffffff;
+  width: 140px;
+  text-align: center;
+  z-index: 10;
 }
 
-.table td {
-  padding: 12px 16px;
-  font-family: var(--font-body);
+
+.table thead th.stickyActionsCol {
+  top: 0;
+  z-index: 300;
+  background-color: #f8f9fa;
+}
+
+
+
+.table tbody tr:hover .stickyActionsCol {
+  background-color: #f8f9fa;
+  z-index: 200;
+}
+
+
+.stickySTTCol {
+  width: 60px;
+  text-align: center !important;
+}
+
+
+.table thead th.stickySTTCol {
+  top: 0;
+  z-index: 300;
+  background-color: #f8f9fa;
+}
+
+
+
+.table tbody tr:hover .stickySTTCol {
+  background-color: #f8f9fa;
+}
+
+.sttCell {
+  color: #555;
+  font-weight: 600;
   font-size: 13px;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-  vertical-align: middle;
-}
-
-.dateCol {
-  min-width: 110px;
-}
-
-.fileCol {
-  min-width: 110px;
-}
-
-.statusCol {
-  min-width: 140px;
 }
 
 .contractCode {
   font-weight: 600;
   color: var(--color-brand-accent);
-  white-space: nowrap;
-  min-width: 140px;
 }
 
 .bookingId {
   font-size: 12px;
-  font-weight: 600;
-  color: #6c757d;
-  white-space: nowrap;
-  min-width: 100px;
+  color: #6b7280;
 }
 
-.sttCell {
-  cursor: help;
-  border-bottom: 1px dashed #aaa;
-  display: inline-block;
-  line-height: 1.4;
-}
-
-/* Khách hàng: cho phép wrap dọc */
 .customerInfo {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 180px;
-  white-space: normal;
 }
 
 .customerName {
-  font-weight: 500;
-  color: var(--color-text-primary);
-  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
 }
 
-.customerEmail {
+.customerEmail, .customerPhone {
   font-size: 12px;
-  color: rgba(0, 0, 0, 0.55);
+  color: #6b7280;
 }
 
-.customerPhone {
-  font-size: 12px;
-  color: rgba(0, 0, 0, 0.45);
-}
-
-/* File link */
-/* File link Card Style */
 .fileLink {
   background-color: #ffffff;
   border: 1px solid #eef0f2;
-  border-radius: 8px;
-  padding: 8px 12px;
+  border-radius: 6px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
-  min-width: 180px;
-  font-family: inherit;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  min-width: 160px;
+  font-size: 12px;
 }
 
 .fileLink:hover {
-  border-color: #fa8314;
-  box-shadow: 0 4px 12px rgba(250, 131, 20, 0.08);
+  border-color: var(--color-brand-accent);
   background-color: #fffcf9;
 }
 
 .fileIcon {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
 }
 
-.fileInfo {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1;
-}
-
-.fileName {
-  font-size: 13px;
-  font-weight: 600;
-  color: #343a40;
-  display: block;
-}
-
-
-.noFile {
-  color: #adb5bd;
-  font-size: 13px;
-}
-
-/* Status badges */
 .statusBadge {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  border-radius: 4px;
   padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-body);
   font-size: 11px;
   font-weight: 600;
-  white-space: nowrap;
-  min-width: 110px;
+  min-width: 100px;
+  justify-content: center;
 }
 
-.statusSent {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
+.statusSent { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.statusSigned { background-color: rgba(16, 185, 129, 0.1); color: #10b981; }
+.statusCancelled { background-color: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.statusExpired { background-color: rgba(107, 114, 128, 0.1); color: #6b7280; }
+.statusDraft { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 
-.statusSigned {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.statusCancelled {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-.statusExpired {
-  background-color: #f3f4f6;
-  color: #374151;
-}
-
-.statusDraft {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.emptyState {
-  text-align: center;
-  padding: 40px;
-  color: rgba(0, 0, 0, 0.6);
-  font-family: var(--font-body);
-  font-size: 14px;
-}
-
-/* Actions */
 .actions {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 
-/* ── Tooltip cho nút thao tác ── */
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.viewButton { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.viewButton:hover { background-color: #3b82f6; color: #fff; }
+
+.editButton { background-color: rgba(164, 123, 200, 0.1); color: #a47bc8; }
+.editButton:hover { background-color: #a47bc8; color: #fff; }
+
+.deleteButton { background-color: rgba(253, 97, 97, 0.1); color: #fd6161; }
+.deleteButton:hover { background-color: #fd6161; color: #fff; }
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  color: #9ca3af;
+}
+
+/* Tooltip */
 .tooltipWrapper {
   position: relative;
   display: inline-flex;
@@ -258,29 +201,22 @@
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  top: calc(100% + 8px);
+  bottom: calc(100% + 8px);
   left: 50%;
-  transform: translateX(-50%) scale(0.85);
-  background-color: #343a40;
+  transform: translateX(-50%) scale(0.9);
+  background-color: #333;
   color: #fff;
   font-size: 11px;
-  white-space: nowrap;
-  padding: 4px 8px;
-  border-radius: 5px;
+  white-space: normal;
+  max-width: 300px;
+  width: max-content;
+  padding: 6px 10px;
+  border-radius: 4px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 9999;
-}
-
-.tooltipWrapper .tooltip::after {
-  content: '';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-bottom-color: #343a40;
+  transition: all 0.2s ease;
+  z-index: 1000;
+  line-height: 1.4;
 }
 
 .tooltipWrapper:hover .tooltip {
@@ -288,72 +224,12 @@
   transform: translateX(-50%) scale(1);
 }
 
-.viewButton,
-.editButton,
-.deleteButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  flex-shrink: 0;
-  background-color: transparent;
+.table td:has(.tooltipWrapper:hover) {
+  z-index: 2000 !important;
+  position: relative;
 }
 
-.viewButton {
-  color: #3b82f6;
-}
-
-.viewButton:hover {
-  background-color: rgba(59, 130, 246, 0.1);
-}
-
-.editButton {
-  color: #a855f7;
-}
-
-.editButton:hover {
-  background-color: rgba(168, 85, 247, 0.1);
-}
-
-.deleteButton {
-  color: #ef4444;
-}
-
-.deleteButton:hover {
-  background-color: rgba(239, 68, 68, 0.1);
-}
-
-.editButton svg,
-.deleteButton svg {
-  width: 16px;
-  height: 16px;
-}
-
-/* ── Sticky cột Thao tác ── */
-.stickyActionsCol {
+.table td[class*="sticky"]:has(.tooltipWrapper:hover) {
   position: sticky;
-  right: 0;
-  background-color: #ffffff !important;
-  z-index: 10;
-  min-width: 140px;
-  border-left: none !important; /* Remove vertical border */
-}
-
-.table thead .stickyActionsCol {
-  background-color: #f8f9fa !important;
-  z-index: 15; /* Header sticky must be higher than body sticky */
-}
-
-.tableRowActive .stickyActionsCol {
-  background-color: #fff8f0 !important;
-}
-
-.table tbody tr:hover .stickyActionsCol {
-  background-color: #fffcf9 !important;
+  z-index: 2000 !important;
 }

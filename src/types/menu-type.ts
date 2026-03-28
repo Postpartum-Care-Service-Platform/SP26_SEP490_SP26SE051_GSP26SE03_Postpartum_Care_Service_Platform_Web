@@ -7,12 +7,12 @@ export interface MenuType {
 }
 
 export interface CreateMenuTypeRequest {
-  menuTypeName: string;
+  name: string;
   isActive?: boolean;
 }
 
 export interface UpdateMenuTypeRequest {
-  menuTypeName?: string;
+  name?: string;
   isActive?: boolean;
 }
 

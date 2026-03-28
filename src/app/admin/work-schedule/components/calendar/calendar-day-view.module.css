@@ -21,7 +21,7 @@
   background: #fff;
   position: sticky;
   top: 0;
-  z-index: 3;
+  z-index: 100;
 }
 
 .headerTop {
@@ -121,43 +121,49 @@
 
 .eventChip {
   position: absolute;
-  left: 2px;
-  right: 2px;
-  padding: 4px 6px;
+  left: 4px;
+  right: 4px;
+  padding: 8px 12px;
   border-radius: 4px;
-  font-size: 11px;
-  cursor: pointer;
+  background-color: #FFF1E6; /* Light orange background */
+  border: 1px dashed #FF7A00; /* Dashed orange border */
+  border-left: 4px solid #FF7A00; /* Solid orange accent */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
   overflow: hidden;
-  border-left: 3px solid;
-  border-left-color: rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  min-height: 24px;
+  z-index: 5;
+  transition: opacity 0.1s;
 }
 
 .eventChip:hover {
   opacity: 0.9;
+  z-index: 20;
+}
+
+.eventContent {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
+  overflow: hidden;
 }
 
 .eventTime {
-  display: block;
-  font-weight: 600;
-  color: #172b4d;
-  font-size: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #FF7A00;
+  flex-shrink: 0;
 }
 
 .eventTitle {
-  display: block;
+  font-size: 13px;
+  font-weight: 600;
   color: #172b4d;
-  font-weight: 500;
+  line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.eventCustomer {
-  display: block;
-  color: #5e6c84;
-  font-size: 10px;
 }
 
 .tooltipContent {

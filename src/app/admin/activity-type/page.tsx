@@ -17,7 +17,7 @@ import activityTypeService from '@/services/activity-type.service';
 import type { ActivityType } from '@/types/activity-type';
 
 import styles from './activity-type.module.css';
-import { ActivityTypeModal } from './components';
+import { ActivityTypeModal, ActivityTypeListHeader } from './components';
 
 /* ── SVG icons ── */
 const EditIcon = () => (
@@ -46,9 +46,9 @@ const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 type SortKey = 'id-asc' | 'id-desc' | 'name-asc' | 'name-desc';
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: 'id-desc',   label: 'STT: giảm dần' },
-  { value: 'id-asc',    label: 'STT: tăng dần' },
-  { value: 'name-asc',  label: 'Tên A → Z' },
+  { value: 'id-desc', label: 'STT: giảm dần' },
+  { value: 'id-asc', label: 'STT: tăng dần' },
+  { value: 'name-asc', label: 'Tên A → Z' },
   { value: 'name-desc', label: 'Tên Z → A' },
 ];
 
@@ -63,24 +63,28 @@ const getErrorMessage = (error: unknown, fallback: string) => {
 const sortItems = (items: ActivityType[], key: SortKey) => {
   const arr = [...items];
   switch (key) {
-    case 'id-asc':    return arr.sort((a, b) => a.id - b.id);
-    case 'id-desc':   return arr.sort((a, b) => b.id - a.id);
-    case 'name-asc':  return arr.sort((a, b) => a.name.localeCompare(b.name));
+    case 'id-asc': return arr.sort((a, b) => a.id - b.id);
+    case 'id-desc': return arr.sort((a, b) => b.id - a.id);
+    case 'name-asc': return arr.sort((a, b) => a.name.localeCompare(b.name));
     case 'name-desc': return arr.sort((a, b) => b.name.localeCompare(a.name));
     default: return arr;
   }
 };
 
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+// ActivityType doesn't seem to have a separate header component, so we'll make one or just use Breadcrumbs directly if needed. 
+// But let's check if there's any header in components/index.ts
+
 export default function AdminActivityTypePage() {
-  const [items, setItems]           = useState<ActivityType[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState<string | null>(null);
+  const [items, setItems] = useState<ActivityType[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortKey, setSortKey]         = useState<SortKey>('id-desc');
+  const [sortKey, setSortKey] = useState<SortKey>('id-desc');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize]       = useState(DEFAULT_PAGE_SIZE);
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ActivityType | null>(null);
@@ -124,7 +128,7 @@ export default function AdminActivityTypePage() {
   const totalPages = Math.ceil(filteredItems.length / pageSize);
 
   const handleOpenCreate = () => { setEditingItem(null); setIsModalOpen(true); };
-  const handleOpenEdit   = (item: ActivityType) => { setEditingItem(item); setIsModalOpen(true); };
+  const handleOpenEdit = (item: ActivityType) => { setEditingItem(item); setIsModalOpen(true); };
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingItem(null); };
 
   const handleDelete = async (item: ActivityType) => {
@@ -142,149 +146,148 @@ export default function AdminActivityTypePage() {
 
   const selectedSortLabel = SORT_OPTIONS.find((o) => o.value === sortKey)?.label ?? 'Sắp xếp';
 
+  const controlPanel = (
+    <div className={styles.controls}>
+      <div className={styles.controlsLeft}>
+        <div className={styles.searchWrapper}>
+          <MagnifyingGlassIcon className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Tìm kiếm loại hoạt động..."
+            className={styles.searchInput}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.filterButton}>
+              <MixerHorizontalIcon className={styles.filterIcon} />
+              {selectedSortLabel}
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent}>
+            {SORT_OPTIONS.map((opt) => (
+              <DropdownMenuItem key={opt.value}
+                className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
+                onClick={() => setSortKey(opt.value)}>
+                {opt.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <div className={styles.controlsRight}>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.exportButton}>
+              <Download size={16} className={styles.exportIcon} />
+              Nhập/Xuất
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent} align="end">
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+              <Upload size={16} className={styles.itemIcon} />
+              Nhập từ Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+              <Download size={16} className={styles.itemIcon} />
+              Xuất ra Excel
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Button variant="primary" size="sm" className={styles.createButton} onClick={handleOpenCreate}>
+          <PlusIcon className={styles.plusIcon} />
+          Loại mới
+        </Button>
+      </div>
+    </div>
+  );
+
+  const pagination = !loading && !error && filteredItems.length > 0 && totalPages > 0 ? (
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      pageSize={pageSize}
+      totalItems={filteredItems.length}
+      onPageChange={(page) => { setCurrentPage(page); }}
+      pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
+      onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
+      showResultCount={true}
+    />
+  ) : null;
+
   return (
-    <div className={styles.pageContainer}>
-      {/* Controls */}
-      <div className={styles.controls}>
-        <div className={styles.controlsLeft}>
-          <div className={styles.searchWrapper}>
-            <MagnifyingGlassIcon className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Tìm kiếm loại hoạt động..."
-              className={styles.searchInput}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={styles.filterButton}>
-                <MixerHorizontalIcon className={styles.filterIcon} />
-                {selectedSortLabel}
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {SORT_OPTIONS.map((opt) => (
-                <DropdownMenuItem key={opt.value}
-                  className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setSortKey(opt.value)}>
-                  {opt.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className={styles.controlsRight}>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={styles.exportButton}>
-                <Download size={16} className={styles.exportIcon} />
-                Nhập/Xuất
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent} align="end">
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
-                <Upload size={16} className={styles.itemIcon} />
-                Nhập từ Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
-                <Download size={16} className={styles.itemIcon} />
-                Xuất ra Excel
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button variant="primary" size="sm" className={styles.createButton} onClick={handleOpenCreate}>
-            <PlusIcon className={styles.plusIcon} />
-            Loại mới
-          </Button>
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className={styles.tableContainer}>
-        {loading ? (
-          <div className={styles.placeholder}>Đang tải dữ liệu...</div>
-        ) : error ? (
-          <div className={styles.placeholder}>{error}</div>
-        ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th title="Số thứ tự">STT</th>
-                  <th>Tên loại hoạt động</th>
-                  <th>Mô tả</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedItems.length === 0 ? (
-                  <tr><td colSpan={4} className={styles.emptyState}>
-                    {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có loại hoạt động nào.'}
-                  </td></tr>
-                ) : (
-                  paginatedItems.map((item, index) => {
-                    const stt = (currentPage - 1) * pageSize + index + 1;
-                    return (
-                      <tr key={item.id}>
-                        <td><span className={styles.sttCell} title={`ID gốc: ${item.id}`}>{stt}</span></td>
-                        <td className={styles.nameCell}>{item.name}</td>
-                        <td className={styles.descCell} title={item.description}>{item.description || '—'}</td>
-                        <td>
-                          <div className={styles.actions}>
-                            <div className={styles.tooltipWrapper}>
-                              <Button variant="outline" size="sm" className={styles.editButton}
-                                onClick={() => handleOpenEdit(item)}>
-                                <EditIcon />
-                              </Button>
-                              <span className={styles.tooltip}>Chỉnh sửa</span>
-                            </div>
-                            <div className={styles.tooltipWrapper}>
-                              <Button variant="outline" size="sm" className={styles.deleteButton}
-                                onClick={() => handleDelete(item)} disabled={deletingId === item.id}>
-                                <TrashIcon />
-                              </Button>
-                              <span className={styles.tooltip}>Xóa</span>
-                            </div>
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <AdminPageLayout
+        header={<ActivityTypeListHeader />}
+        controlPanel={controlPanel}
+        pagination={pagination}
+      >
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th style={{ width: '50px' }}>STT</th>
+                <th>Tên loại hoạt động</th>
+                <th>Mô tả</th>
+                <th className={styles.stickyActionsCol}>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={4} className={styles.emptyState}>Đang tải dữ liệu...</td></tr>
+              ) : error ? (
+                <tr><td colSpan={4} className={styles.emptyState}>{error}</td></tr>
+              ) : paginatedItems.length === 0 ? (
+                <tr><td colSpan={4} className={styles.emptyState}>
+                  {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có loại hoạt động nào.'}
+                </td></tr>
+              ) : (
+                paginatedItems.map((item, index) => {
+                  const stt = (currentPage - 1) * pageSize + index + 1;
+                  return (
+                    <tr key={item.id}>
+                      <td><span className={styles.sttCell}>{stt}</span></td>
+                      <td className={styles.nameCell}>{item.name}</td>
+                      <td className={styles.descCell} title={item.description}>{item.description || '—'}</td>
+                      <td className={styles.stickyActionsCol}>
+                        <div className={styles.actions}>
+                          <div className={styles.tooltipWrapper}>
+                            <Button variant="outline" size="sm" className={styles.editButton}
+                              onClick={() => handleOpenEdit(item)}>
+                              <EditIcon />
+                            </Button>
+                            <span className={styles.tooltip}>Chỉnh sửa</span>
                           </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                          <div className={styles.tooltipWrapper}>
+                            <Button variant="outline" size="sm" className={styles.deleteButton}
+                              onClick={() => handleDelete(item)} disabled={deletingId === item.id}>
+                              <TrashIcon />
+                            </Button>
+                            <span className={styles.tooltip}>Xóa</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
-        {!loading && !error && filteredItems.length > 0 && totalPages > 0 && (
-          <div className={styles.paginationWrapper}>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              pageSize={pageSize}
-              totalItems={filteredItems.length}
-              onPageChange={(page) => { setCurrentPage(page); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
-              onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
-              showResultCount={true}
-            />
-          </div>
-        )}
-      </div>
-
-
-
-      <ActivityTypeModal
-        open={isModalOpen}
-        onOpenChange={handleModalClose}
-        item={editingItem}
-        onSuccess={fetchData}
-      />
+        <ActivityTypeModal
+          open={isModalOpen}
+          onOpenChange={handleModalClose}
+          item={editingItem}
+          onSuccess={fetchData}
+        />
+      </AdminPageLayout>
     </div>
   );
 }
+

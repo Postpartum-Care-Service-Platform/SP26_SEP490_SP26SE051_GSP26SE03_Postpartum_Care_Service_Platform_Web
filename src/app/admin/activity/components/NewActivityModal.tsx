@@ -5,7 +5,9 @@ import { forwardRef, useEffect, useRef, useState } from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import activityService from '@/services/activity.service';
+import activityTypeService from '@/services/activity-type.service';
 import type { Activity, CreateActivityRequest, UpdateActivityRequest } from '@/types/activity';
+import type { ActivityType } from '@/types/activity-type';
 
 import styles from './new-activity-modal.module.css';
 
@@ -20,16 +22,27 @@ const INITIAL_FORM_DATA: CreateActivityRequest = {
   name: '',
   description: '',
   price: null,
-  target: 'Mom',
+  target: 0,
   activityTypeId: undefined,
   duration: undefined,
-  status: 'Active',
+  status: 0,
 };
 
 type FormErrors = {
   name?: string;
   description?: string;
   duration?: string;
+};
+
+const TARGET_MAP: Record<string | number, number> = {
+  'Mom': 0,
+  'Baby': 1,
+  'Both': 2,
+};
+
+const STATUS_MAP: Record<string | number, number> = {
+  'Active': 0,
+  'Inactive': 1,
 };
 
 const CustomInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
@@ -114,6 +127,19 @@ export function NewActivityModal({ open, onOpenChange, onSuccess, activityToEdit
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const isEditMode = !!activityToEdit;
+  const [activityTypes, setActivityTypes] = useState<ActivityType[]>([]);
+
+  useEffect(() => {
+    const fetchActivityTypes = async () => {
+      try {
+        const data = await activityTypeService.getAllActivityTypes();
+        setActivityTypes(data);
+      } catch (err) {
+        console.error('Lỗi khi tải loại hoạt động:', err);
+      }
+    };
+    fetchActivityTypes();
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -122,10 +148,10 @@ export function NewActivityModal({ open, onOpenChange, onSuccess, activityToEdit
           name: activityToEdit.name || '',
           description: activityToEdit.description || '',
           price: activityToEdit.price ?? null,
-          target: activityToEdit.target || 'Mom',
+          target: typeof activityToEdit.target === 'string' ? (TARGET_MAP[activityToEdit.target] ?? 0) : (activityToEdit.target ?? 0),
           activityTypeId: activityToEdit.activityTypeId,
           duration: activityToEdit.duration,
-          status: activityToEdit.status || 'Active',
+          status: typeof activityToEdit.status === 'string' ? (STATUS_MAP[activityToEdit.status] ?? 0) : (activityToEdit.status ?? 0),
         });
       } else {
         setFormData(INITIAL_FORM_DATA);
@@ -224,23 +250,98 @@ export function NewActivityModal({ open, onOpenChange, onSuccess, activityToEdit
         </div>
         <form onSubmit={handleSubmit}>
           <div className={styles.modalBody}>
-            {/* Tên hoạt động */}
-            <div className={styles.formGroup}>
-              <label htmlFor="activity-name">
-                Tên hoạt động <span className={styles.required}>*</span>
-              </label>
-              <CustomInput
-                id="activity-name"
-                placeholder="Nhập tên hoạt động"
-                value={formData.name || ''}
-                onChange={(e) => handleFieldChange('name', e.target.value)}
-                className={errors.name ? styles.invalid : ''}
-                required
-              />
-              {errors.name && <p className={styles.errorMessage}>{errors.name}</p>}
+            {/* Row 1: Name & Price */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="activity-name">
+                  Tên hoạt động <span className={styles.required}>*</span>
+                </label>
+                <CustomInput
+                  id="activity-name"
+                  placeholder="Nhập tên hoạt động"
+                  value={formData.name || ''}
+                  onChange={(e) => handleFieldChange('name', e.target.value)}
+                  className={errors.name ? styles.invalid : ''}
+                  required
+                />
+                {errors.name && <p className={styles.errorMessage}>{errors.name}</p>}
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="activity-price">Giá (VND)</label>
+                <CustomInput
+                  id="activity-price"
+                  type="number"
+                  min={0}
+                  placeholder="Nhập giá hoạt động"
+                  value={formData.price ?? ''}
+                  onChange={(e) => handleFieldChange('price', e.target.value ? Number(e.target.value) : null)}
+                />
+              </div>
             </div>
 
-            {/* Mô tả */}
+            {/* Row 2: Type & Target */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="activity-type">Loại hoạt động</label>
+                <CustomDropdown
+                  id="activity-type"
+                  value={formData.activityTypeId !== undefined ? String(formData.activityTypeId) : ''}
+                  onChange={(val) => handleFieldChange('activityTypeId', val ? Number(val) : undefined)}
+                  options={activityTypes.map((type) => ({
+                    value: String(type.id),
+                    label: type.name,
+                  }))}
+                  placeholder="Chọn loại hoạt động"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="activity-target">Đối tượng</label>
+                <CustomDropdown
+                  id="activity-target"
+                  value={String(formData.target ?? 0)}
+                  onChange={(val) => handleFieldChange('target', Number(val))}
+                  options={[
+                    { value: '0', label: 'Mẹ' },
+                    { value: '1', label: 'Bé' },
+                    { value: '2', label: 'Cả hai' },
+                  ]}
+                />
+              </div>
+            </div>
+
+            {/* Row 3: Duration & Status */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label htmlFor="activity-duration">Thời lượng (phút)</label>
+                <CustomInput
+                  id="activity-duration"
+                  type="number"
+                  min={1}
+                  placeholder="Nhập thời lượng"
+                  value={formData.duration ?? ''}
+                  onChange={(e) => handleFieldChange('duration', e.target.value ? Number(e.target.value) : undefined)}
+                  className={errors.duration ? styles.invalid : ''}
+                />
+                {errors.duration && <p className={styles.errorMessage}>{errors.duration}</p>}
+              </div>
+
+              <div className={styles.formGroup}>
+                <label htmlFor="activity-status">Trạng thái</label>
+                <CustomDropdown
+                  id="activity-status"
+                  value={String(formData.status ?? 0)}
+                  onChange={(val) => handleFieldChange('status', Number(val))}
+                  options={[
+                    { value: '0', label: 'Hoạt động' },
+                    { value: '1', label: 'Tạm dừng' },
+                  ]}
+                />
+              </div>
+            </div>
+
+            {/* Bottom: Description */}
             <div className={styles.formGroup}>
               <label htmlFor="activity-description">Mô tả</label>
               <CustomTextarea
@@ -252,50 +353,6 @@ export function NewActivityModal({ open, onOpenChange, onSuccess, activityToEdit
                 rows={4}
               />
               {errors.description && <p className={styles.errorMessage}>{errors.description}</p>}
-            </div>
-
-            {/* Đối tượng */}
-            <div className={styles.formGroup}>
-              <label htmlFor="activity-target">Đối tượng</label>
-              <CustomDropdown
-                id="activity-target"
-                value={formData.target || 'Mom'}
-                onChange={(val) => handleFieldChange('target', val)}
-                options={[
-                  { value: 'Mom', label: 'Mẹ' },
-                  { value: 'Baby', label: 'Bé' },
-                  { value: 'Both', label: 'Cả hai' },
-                ]}
-              />
-            </div>
-
-            {/* Thời lượng */}
-            <div className={styles.formGroup}>
-              <label htmlFor="activity-duration">Thời lượng (phút)</label>
-              <CustomInput
-                id="activity-duration"
-                type="number"
-                min={1}
-                placeholder="Nhập thời lượng"
-                value={formData.duration ?? ''}
-                onChange={(e) => handleFieldChange('duration', e.target.value ? Number(e.target.value) : undefined)}
-                className={errors.duration ? styles.invalid : ''}
-              />
-              {errors.duration && <p className={styles.errorMessage}>{errors.duration}</p>}
-            </div>
-
-            {/* Trạng thái */}
-            <div className={styles.formGroup}>
-              <label htmlFor="activity-status">Trạng thái</label>
-              <CustomDropdown
-                id="activity-status"
-                value={formData.status || 'Active'}
-                onChange={(val) => handleFieldChange('status', val)}
-                options={[
-                  { value: 'Active', label: 'Hoạt động' },
-                  { value: 'Inactive', label: 'Tạm dừng' },
-                ]}
-              />
             </div>
           </div>
           <div className={styles.modalFooter}>

@@ -1,7 +1,8 @@
 'use client';
 
-import AccountOverviewPage from '@/app/admin/account-overview/page';
+import { redirect } from 'next/navigation';
 
-export default function ManagerAccountOverviewPage() {
-  return <AccountOverviewPage />;
+export default function ManagerAccountOverviewRedirectPage() {
+  redirect('/manager/customers');
+  return null;
 }

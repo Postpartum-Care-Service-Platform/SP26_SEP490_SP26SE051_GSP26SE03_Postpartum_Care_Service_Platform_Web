@@ -9,6 +9,7 @@ export type CarePlanDetail = {
   endTime: string;
   instruction: string;
   sortOrder: number;
+  homeServiceDate?: string | null;
 };
 
 export type CreateCarePlanDetailRequest = {

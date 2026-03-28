@@ -1,6 +1,6 @@
 'use client';
 
-import { format } from 'date-fns';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
 import React from 'react';
 
 import { BoardControlPanel } from './components/board/BoardControlPanel';
@@ -12,6 +12,7 @@ import { CalendarDayView } from './components/calendar/CalendarDayView';
 import { WorkScheduleList } from './components/list/WorkScheduleList';
 import { SummaryIcon, TimelineIcon, BoardIcon, CalendarIcon, ListIcon } from './components/TabIcons';
 import { TASK_TYPES, type TaskType } from './components/TaskTypePicker';
+import type { Assignee } from './components/shared/AssigneePicker';
 import { TimelineControlPanel } from './components/timeline/TimelineControlPanel';
 import { TimelineView } from './components/timeline/TimelineView';
 import { WorkScheduleControlPanel } from './components/WorkScheduleControlPanel';
@@ -40,6 +41,20 @@ export default function WorkSchedulePage() {
   const [viewMode, setViewMode] = React.useState<'list' | 'table'>('table');
   const [assigneeOnly, setAssigneeOnly] = React.useState(false);
   const [timelineAssigneeOnly, setTimelineAssigneeOnly] = React.useState(false);
+  const [selectedStaffId, setSelectedStaffId] = React.useState<string | null>(null);
+  const [selectedAssignee, setSelectedAssignee] = React.useState<Assignee | null>(null);
+
+  const handleSelectStaff = React.useCallback((staffId: string | null) => {
+    setSelectedStaffId(staffId);
+    setSelectedAssignee(null);
+    setActiveTab('calendar');
+  }, []);
+
+
+  const handleAssigneeChange = React.useCallback((assignee: Assignee | null) => {
+    setSelectedAssignee(assignee);
+    setSelectedStaffId(assignee?.id ?? null);
+  }, []);
 
   React.useEffect(() => {
     if (activeTab === 'list') {
@@ -56,36 +71,52 @@ export default function WorkSchedulePage() {
   });
   const [calendarSelectedDate, setCalendarSelectedDate] = React.useState<Date>(new Date());
   const [calendarViewMode, setCalendarViewMode] = React.useState<CalendarViewMode>('Month');
-  const [calendarStatus, setCalendarStatus] = React.useState<CalendarStatusType>('TO DO');
+  const [calendarDayCount, setCalendarDayCount] = React.useState(1);
+  const [calendarStatus, setCalendarStatus] = React.useState<CalendarStatusType>(null);
   const [calendarTaskType, setCalendarTaskType] = React.useState<TaskType | null>(TASK_TYPES[TASK_TYPES.length - 1]);
   const [schedules, setSchedules] = React.useState<StaffSchedule[]>([]);
 
-  // Fetch schedules when calendarMonth changes
-  React.useEffect(() => {
-    const fetchSchedules = async () => {
-      try {
+  const fetchSchedules = React.useCallback(async () => {
+    try {
+      let from, to;
+      if (calendarViewMode === 'Month') {
         const year = calendarMonth.getFullYear();
         const month = calendarMonth.getMonth();
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
-        
-        const from = format(firstDay, 'yyyy-MM-dd');
-        const to = format(lastDay, 'yyyy-MM-dd');
-        
-        // TODO: Replace with actual staffId
-        const staffId = '40bbcefe-8a22-47c0-aa3e-9147db0e5a01';
-        
-        const data = await staffScheduleService.getStaffSchedule({ staffId, from, to });
-        setSchedules(data);
-      } catch (error) {
-        console.error('Failed to fetch schedules:', error);
+        from = format(firstDay, 'yyyy-MM-dd');
+        to = format(lastDay, 'yyyy-MM-dd');
+      } else if (calendarViewMode === 'Week') {
+        const weekStart = startOfWeek(calendarSelectedDate, { weekStartsOn: 0 });
+        const weekEnd = endOfWeek(calendarSelectedDate, { weekStartsOn: 0 });
+        from = format(weekStart, 'yyyy-MM-dd');
+        to = format(weekEnd, 'yyyy-MM-dd');
+      } else {
+        from = format(calendarSelectedDate, 'yyyy-MM-dd');
+        const toDate = new Date(calendarSelectedDate);
+        if (calendarDayCount > 1) {
+          toDate.setDate(toDate.getDate() + calendarDayCount - 1);
+        }
+        to = format(toDate, 'yyyy-MM-dd');
       }
-    };
-    
+      
+      const data = await staffScheduleService.getStaffSchedule({ 
+        staffId: selectedStaffId || undefined, 
+        from, 
+        to 
+      });
+      setSchedules(data);
+    } catch (error) {
+      console.error('Failed to fetch schedules:', error);
+    }
+  }, [calendarMonth, calendarSelectedDate, calendarViewMode, calendarDayCount, selectedStaffId]);
+
+  // Fetch schedules when relevant state changes
+  React.useEffect(() => {
     if (activeTab === 'calendar') {
       fetchSchedules();
     }
-  }, [calendarMonth, activeTab]);
+  }, [activeTab, selectedStaffId, calendarViewMode, calendarDayCount, calendarSelectedDate, calendarMonth, fetchSchedules]);
 
   const handleTodayClick = React.useCallback(() => {
     const today = new Date();
@@ -105,115 +136,139 @@ export default function WorkSchedulePage() {
     setCalendarMonth(month);
   }, []);
 
+  const filteredSchedules = React.useMemo(() => {
+    if (!calendarStatus) return schedules;
+    return schedules.filter(
+      (schedule) => schedule.familyScheduleResponse.status === calendarStatus
+    );
+  }, [schedules, calendarStatus]);
+
   return (
-    <div>
-      <WorkScheduleHeader
-        title="Lịch làm việc"
-        breadcrumbs={[
-          { label: 'Lịch làm việc' },
-        ]}
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-      />
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <div className="flex-shrink-0">
+        <WorkScheduleHeader
+          breadcrumbs={[
+            { label: 'Lịch làm việc' },
+          ]}
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+      </div>
 
-      {activeTab === 'summary' && (
-        <>
-          <WorkScheduleOverview />
-          <WorkScheduleStatusOverview />
-        </>
-      )}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {activeTab === 'summary' && (
+          <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
+            <WorkScheduleOverview />
+            <WorkScheduleStatusOverview />
+          </div>
+        )}
 
-      {activeTab === 'list' && (
-        <>
-          <WorkScheduleControlPanel 
-            searchValue={searchQuery}
-            onSearchChange={setSearchQuery}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            assigneeOnly={assigneeOnly}
-            onAssigneeOnlyChange={setAssigneeOnly}
-          />
-          {viewMode === 'table' ? <WorkScheduleList /> : <WorkScheduleDetailView />}
-        </>
-      )}
+        {activeTab === 'list' && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <WorkScheduleControlPanel 
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
+              viewMode={viewMode}
+              onViewModeChange={setViewMode}
+              assigneeOnly={assigneeOnly}
+              onAssigneeOnlyChange={setAssigneeOnly}
+            />
+            <div style={{ flex: 1, overflow: 'auto' }}>
+              {viewMode === 'table' ? (
+                <WorkScheduleList onSelectStaff={handleSelectStaff} />
+              ) : (
+                <WorkScheduleDetailView />
+              )}
+            </div>
+          </div>
+        )}
 
-      {activeTab === 'timeline' && (
-        <>
-          <TimelineControlPanel 
-            searchValue={searchQuery}
-            onSearchChange={setSearchQuery}
-            assigneeOnly={timelineAssigneeOnly}
-            onAssigneeOnlyChange={setTimelineAssigneeOnly}
-          />
-          <TimelineView />
-        </>
-      )}
+        {activeTab === 'timeline' && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <TimelineControlPanel 
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
+              assigneeOnly={timelineAssigneeOnly}
+              onAssigneeOnlyChange={setTimelineAssigneeOnly}
+            />
+            <div style={{ flex: 1, overflow: 'auto' }}>
+              <TimelineView />
+            </div>
+          </div>
+        )}
 
-      {activeTab === 'board' && (
-        <>
-          <BoardControlPanel 
-            searchValue={searchQuery}
-            onSearchChange={setSearchQuery}
-          />
-          <BoardView />
-        </>
-      )}
+        {activeTab === 'board' && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <BoardControlPanel 
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
+            />
+            <div style={{ flex: 1, overflow: 'auto' }}>
+              <BoardView />
+            </div>
+          </div>
+        )}
 
-      {activeTab === 'calendar' && (
-        <>
-          <CalendarControlPanel 
-            monthCursor={calendarMonth}
-            onMonthCursorChange={setCalendarMonth}
-            viewMode={calendarViewMode}
-            onViewModeChange={setCalendarViewMode}
-            statusValue={calendarStatus}
-            onStatusChange={setCalendarStatus}
-            taskType={calendarTaskType}
-            onTaskTypeChange={setCalendarTaskType}
-            onTodayClick={handleTodayClick}
-          />
-          {calendarViewMode === 'Month' ? (
-            <CalendarMonthView 
-              monthCursor={calendarMonth} 
+        {activeTab === 'calendar' && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <CalendarControlPanel 
+              monthCursor={calendarMonth}
+              onMonthCursorChange={setCalendarMonth}
+              viewMode={calendarViewMode}
+              dayCount={calendarDayCount}
+              onViewModeChange={(mode, days) => {
+                setCalendarViewMode(mode);
+                if (days) setCalendarDayCount(days);
+              }}
+              statusValue={calendarStatus}
+              onStatusChange={setCalendarStatus}
+              assigneeValue={selectedAssignee}
+              onAssigneeChange={handleAssigneeChange}
+              taskType={calendarTaskType}
+              onTaskTypeChange={setCalendarTaskType}
+              onTodayClick={handleTodayClick}
               selectedDate={calendarSelectedDate}
               onSelectedDateChange={handleSelectedDateChange}
-              schedules={schedules}
             />
-          ) : calendarViewMode === 'Week' ? (
-            <CalendarWeekView 
-              monthCursor={calendarMonth} 
-              schedules={schedules}
-              onEventCreated={() => {
-                // Refresh schedules after creating new event
-                const fetchSchedules = async () => {
-                  const year = calendarMonth.getFullYear();
-                  const month = calendarMonth.getMonth();
-                  const firstDay = new Date(year, month, 1);
-                  const lastDay = new Date(year, month + 1, 0);
-                  
-                  const from = format(firstDay, 'yyyy-MM-dd');
-                  const to = format(lastDay, 'yyyy-MM-dd');
-                  
-                  const staffId = '40bbcefe-8a22-47c0-aa3e-9147db0e5a01';
-                  
-                  const data = await staffScheduleService.getStaffSchedule({ staffId, from, to });
-                  setSchedules(data);
-                };
-                fetchSchedules();
-              }}
-            />
-          ) : (
-            <CalendarDayView 
-              dayCursor={calendarSelectedDate}
-              onDayChange={handleSelectedDateChange}
-              monthCursor={calendarMonth} 
-              schedules={schedules}
-            />
-          )}
-        </>
-      )}
-
+            <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+              {calendarViewMode === 'Month' ? (
+                <div style={{ height: '100%', overflow: 'auto' }}>
+                  <CalendarMonthView 
+                    monthCursor={calendarMonth} 
+                    selectedDate={calendarSelectedDate}
+                    onSelectedDateChange={handleSelectedDateChange}
+                    schedules={filteredSchedules}
+                    selectedStaffId={selectedStaffId}
+                    onStaffSelect={handleSelectStaff}
+                  />
+                </div>
+              ) : calendarViewMode === 'Week' ? (
+                <CalendarWeekView 
+                  weekCursor={calendarSelectedDate} 
+                  schedules={filteredSchedules}
+                  onDateChange={handleSelectedDateChange}
+                  onEventCreated={() => {
+                    void fetchSchedules();
+                  }}
+                  selectedStaffId={selectedStaffId}
+                  onStaffSelect={handleSelectStaff}
+                />
+              ) : (
+                <CalendarDayView 
+                  dayCursor={calendarSelectedDate}
+                  dayCount={calendarDayCount}
+                  onDayChange={handleSelectedDateChange}
+                  monthCursor={calendarMonth} 
+                  schedules={filteredSchedules}
+                  selectedStaffId={selectedStaffId}
+                  onStaffSelect={handleSelectStaff}
+                />
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

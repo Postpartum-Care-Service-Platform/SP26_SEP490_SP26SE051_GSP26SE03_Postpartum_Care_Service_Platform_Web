@@ -1,13 +1,10 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Pagination } from '@/components/ui/pagination';
 import type { MenuRecord } from '@/types/menu-record';
-
 import styles from './menu-record-table.module.css';
 
-const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill={fill}>
+const Edit2OutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill="currentColor">
     <g data-name="Layer 2">
       <g data-name="edit-2">
         <rect width="24" height="24" opacity="0" />
@@ -18,8 +15,8 @@ const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size
   </svg>
 );
 
-const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill={fill}>
+const Trash2OutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill="currentColor">
     <g data-name="Layer 2">
       <g data-name="trash-2">
         <rect width="24" height="24" opacity="0" />
@@ -36,15 +33,8 @@ type Props = {
   onEdit?: (menuRecord: MenuRecord) => void;
   onDelete?: (menuRecord: MenuRecord) => void;
   deletingId?: number | null;
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
-    pageSizeOptions?: number[];
-    onPageSizeChange?: (size: number) => void;
-  };
+  currentPage: number;
+  pageSize: number;
 };
 
 const formatDate = (dateString?: string) => {
@@ -61,19 +51,19 @@ const formatDate = (dateString?: string) => {
   }
 };
 
-export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, pagination }: Props) {
+export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, currentPage, pageSize }: Props) {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th className={styles.sttHeaderCell}>STT</th>
+            <th className={styles.stickySTTCol}>STT</th>
             <th>Tên</th>
-            <th>Ngày</th>
+            <th>Ngày áp dụng</th>
             <th>Trạng thái</th>
             <th>Ngày tạo</th>
             <th>Cập nhật</th>
-            <th>Thao tác</th>
+            <th className={styles.stickyActionsCol}>Thao tác</th>
           </tr>
         </thead>
         <tbody>
@@ -84,84 +74,65 @@ export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, pag
               </td>
             </tr>
           ) : (
-            menuRecords.map((menuRecord, index) => (
-              <tr key={menuRecord.id} className={styles.tableRow}>
-                <td className={styles.sttDataCell}>
-                  <div className={styles.tooltipWrapper}>
-                    <span className={styles.sttCell}>
-                      {pagination
-                        ? (pagination.currentPage - 1) * pagination.pageSize + index + 1
-                        : index + 1}
+            menuRecords.map((menuRecord, index) => {
+              const stt = (currentPage - 1) * pageSize + index + 1;
+              return (
+                <tr key={menuRecord.id} className={styles.tableRow}>
+                  <td className={styles.stickySTTCol}>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.sttCell}>{stt}</span>
+                      <span className={styles.tooltip}>ID gốc: {menuRecord.id}</span>
+                    </div>
+                  </td>
+                  <td className={styles.name}>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.nameTruncate}>{menuRecord.name}</span>
+                      <span className={styles.tooltip}>{menuRecord.name}</span>
+                    </div>
+                  </td>
+                  <td className={styles.dateCell}>{formatDate(menuRecord.date)}</td>
+                  <td>
+                    <span
+                      className={`${styles.statusBadge} ${
+                        menuRecord.isActive ? styles.statusActive : styles.statusInactive
+                      }`}
+                    >
+                      {menuRecord.isActive ? 'Hoạt động' : 'Tạm dừng'}
                     </span>
-                    <span className={styles.tooltip}>ID gốc: {menuRecord.id}</span>
-                  </div>
-                </td>
-                <td className={styles.name}>{menuRecord.name}</td>
-                <td>{formatDate(menuRecord.date)}</td>
-                <td>
-                  <span
-                    className={`${styles.statusBadge} ${
-                      menuRecord.isActive ? styles.statusActive : styles.statusInactive
-                    }`}
-                  >
-                    {menuRecord.isActive ? 'Hoạt động' : 'Tạm dừng'}
-                  </span>
-                </td>
-                <td>{formatDate(menuRecord.createdAt)}</td>
-                <td>{formatDate(menuRecord.updatedAt)}</td>
-                <td>
-                  <div className={styles.actions}>
-                    {onEdit && (
+                  </td>
+                  <td className={styles.dateCell}>{formatDate(menuRecord.createdAt)}</td>
+                  <td className={styles.dateCell}>{formatDate(menuRecord.updatedAt)}</td>
+                  <td className={styles.stickyActionsCol}>
+                    <div className={styles.actions}>
                       <div className={styles.tooltipWrapper}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={`${styles.editButton} btn-icon btn-sm`}
-                          onClick={() => onEdit(menuRecord)}
+                        <button
+                          className={`${styles.actionButton} ${styles.editButton}`}
+                          onClick={() => onEdit?.(menuRecord)}
                           aria-label={`Chỉnh sửa ${menuRecord.name}`}
                         >
-                          <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                        </Button>
+                          <Edit2OutlineIcon size={16} />
+                        </button>
                         <span className={styles.tooltip}>Chỉnh sửa</span>
                       </div>
-                    )}
-                    {onDelete && (
                       <div className={styles.tooltipWrapper}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={`${styles.deleteButton} btn-icon btn-sm`}
-                          onClick={() => onDelete(menuRecord)}
-                          disabled={deletingId === menuRecord.id}
+                        <button
+                          className={`${styles.actionButton} ${styles.deleteButton}`}
+                          onClick={() => onDelete?.(menuRecord)}
                           aria-label={`Xóa ${menuRecord.name}`}
+                          disabled={deletingId === menuRecord.id}
                         >
-                          <Trash2OutlineIcon fill="#FD6161" size={16} />
-                        </Button>
+                          <Trash2OutlineIcon size={16} />
+                        </button>
                         <span className={styles.tooltip}>Xóa</span>
                       </div>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>
-
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
     </div>
   );
 }

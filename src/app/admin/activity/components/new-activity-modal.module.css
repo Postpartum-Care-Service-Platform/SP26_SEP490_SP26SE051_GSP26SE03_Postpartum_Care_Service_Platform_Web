@@ -12,8 +12,8 @@
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  width: 100%;
-  max-width: 500px;
+  width: 95%;
+  max-width: 820px;
   overflow: hidden;
 }
 
@@ -74,7 +74,13 @@
 }
 
 .formGroup {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
 }
 
 .formGroup label {

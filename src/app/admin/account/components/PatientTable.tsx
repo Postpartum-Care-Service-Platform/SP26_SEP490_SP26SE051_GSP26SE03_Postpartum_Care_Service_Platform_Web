@@ -28,48 +28,10 @@ type Props = {
   onViewProfile?: (patient: Patient) => void;
   onChat?: (patient: Patient) => void;
   onRoleUpdated?: () => void;
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
-    pageSizeOptions?: number[];
-    onPageSizeChange?: (size: number) => void;
-  };
+  currentPage?: number;
+  pageSize?: number;
 };
 
-// Map trạng thái email dựa trên isEmailVerified (true/false) và text status
-const getStatusClass = (status: string) => {
-  const normalized = status.toLowerCase().trim();
-
-  // Đã xác thực email
-  if (normalized === 'true' || normalized === 'stable') {
-    return styles.statusStable; // màu tím
-  }
-
-  // Chưa xác thực email
-  if (normalized === 'false' || normalized === 'under observation') {
-    return styles.statusCritical; // màu cam
-  }
-
-  return '';
-};
-
-// Nhãn hiển thị cho cột trạng thái email
-const getStatusLabel = (status: string) => {
-  const normalized = status.toLowerCase().trim();
-
-  if (normalized === 'true' || normalized === 'stable') {
-    return 'Đã xác thực';
-  }
-
-  if (normalized === 'false' || normalized === 'under observation') {
-    return 'Chưa xác thực';
-  }
-
-  return 'Không rõ';
-};
 
 const getRoleLabel = (role: string | null | undefined) => {
   const normalized = (role || '').toLowerCase().trim();
@@ -141,8 +103,14 @@ const getProfileGenderLabel = (gender: string | null | undefined) => {
   return 'Chưa cập nhật';
 };
 
-export function PatientTable({ patients, onViewProfile, onChat, onRoleUpdated, pagination }: Props) {
-  const showPagination = pagination && pagination.totalPages > 0;
+export function PatientTable({
+  patients,
+  onViewProfile,
+  onChat,
+  onRoleUpdated,
+  currentPage = 1,
+  pageSize = 10,
+}: Props) {
   const { toast } = useToast();
   const [roles, setRoles] = useState<Role[]>([]);
   const [updatingRoleByAccountId, setUpdatingRoleByAccountId] = useState<Record<string, boolean>>({});
@@ -232,7 +200,8 @@ export function PatientTable({ patients, onViewProfile, onChat, onRoleUpdated, p
           <thead>
             <tr>
               <th title="Số thứ tự">STT</th>
-              <th>Tên tài khoản</th>
+              <th className={styles.avatarHeader}></th>
+              <th>Họ và tên</th>
               <th>Tên đăng nhập</th>
               <th>Email</th>
               <th>Ngày sinh</th>
@@ -240,90 +209,86 @@ export function PatientTable({ patients, onViewProfile, onChat, onRoleUpdated, p
               <th>Số điện thoại</th>
               <th>Địa chỉ</th>
               <th>Vai trò</th>
-              <th>Trạng thái email</th>
-              <th>Trạng thái tài khoản</th>
+              <th>Trạng thái</th>
               <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {patients.map((patient, patientIndex) => {
-              const patientStt = pagination
-                ? (pagination.currentPage - 1) * pagination.pageSize + patientIndex + 1
-                : patientIndex + 1;
+              const patientStt = (currentPage - 1) * pageSize + patientIndex + 1;
 
               return (
                 <tr key={patient.id}>
                   <td>{patientStt}</td>
-                    <td>
-                      <div className={styles.patientName}>
-                        {patient.avatar ? (
-                          <Image
-                            src={patient.avatar}
-                            alt={patient.name}
-                            className={styles.avatarImage}
-                            width={40}
-                            height={40}
-                          />
-                        ) : (
-                          <div className={styles.avatar}>
-                            {patient.name.charAt(0)}
-                          </div>
-                        )}
-                        <span className={styles.patientNameText}>{patient.name}</span>
+                  <td className={styles.avatarCell}>
+                    {patient.avatar ? (
+                      <Image
+                        src={patient.avatar}
+                        alt={patient.name}
+                        className={styles.avatarImage}
+                        width={40}
+                        height={40}
+                      />
+                    ) : (
+                      <div className={styles.avatar}>
+                        {patient.name.charAt(0)}
                       </div>
-                    </td>
-                    <td>{patient.username}</td>
-                    <td>{patient.email}</td>
-                    <td>{patient.dateOfBirth ?? 'Chưa cập nhật'}</td>
-                    <td>{getGenderLabel(patient.gender)}</td>
-                    <td>{patient.contact}</td>
-                    <td title={patient.address} className={styles.truncateCell}>
-                      {truncateText(patient.address, 30)}
-                    </td>
-                    <td data-stop-row-click="true">
-                      <DropdownMenu modal={false}>
-                        <DropdownMenuTrigger asChild>
-                          <button
-                            type="button"
-                            className={`${styles.roleTrigger} ${getRoleBadgeClass(patient.role)}`}
-                            disabled={updatingRoleByAccountId[patient.accountId]}
+                    )}
+                  </td>
+                  <td className={styles.truncateCell} title={patient.name}>
+                    <span className={styles.patientNameText}>{patient.name}</span>
+                  </td>
+                  <td className={styles.truncateCell} title={patient.username}>
+                    {patient.username}
+                  </td>
+                  <td className={styles.truncateCell} title={patient.email}>
+                    {patient.email}
+                  </td>
+                  <td>{patient.dateOfBirth ?? 'Chưa cập nhật'}</td>
+                  <td>{getGenderLabel(patient.gender)}</td>
+                  <td>{patient.contact}</td>
+                  <td title={patient.address} className={styles.truncateCell}>
+                    {patient.address}
+                  </td>
+                  <td data-stop-row-click="true">
+                    <DropdownMenu modal={false}>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className={`${styles.roleTrigger} ${getRoleBadgeClass(patient.role)}`}
+                          disabled={updatingRoleByAccountId[patient.accountId]}
+                        >
+                          <span>{getRoleLabel(patient.role)}</span>
+                          <ChevronDownIcon width={14} height={14} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className={styles.roleMenu} align="start" sideOffset={4}>
+                        {roles.map((role) => (
+                          <DropdownMenuItem
+                            key={role.id}
+                            className={`${styles.roleMenuItem} ${patient.roleId === role.id ? styles.roleMenuItemActive : ''}`}
+                            onClick={() => handleSetRole(patient, role.id)}
                           >
-                            <span>{getRoleLabel(patient.role)}</span>
-                            <ChevronDownIcon width={14} height={14} />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className={styles.roleMenu} align="start" sideOffset={4}>
-                          {roles.map((role) => (
-                            <DropdownMenuItem
-                              key={role.id}
-                              className={`${styles.roleMenuItem} ${patient.roleId === role.id ? styles.roleMenuItemActive : ''}`}
-                              onClick={() => handleSetRole(patient, role.id)}
-                            >
-                              <span className={`${styles.roleOptionBadge} ${getRoleBadgeClass(role.roleName)}`}>
-                                {getRoleLabel(role.roleName)}
-                              </span>
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
-                    <td>
-                      <span className={`${styles.statusBadge} ${getStatusClass(patient.status)}`}>
-                        {getStatusLabel(patient.status)}
-                      </span>
-                    </td>
-                    <td data-stop-row-click="true">
+                            <span className={`${styles.roleOptionBadge} ${getRoleBadgeClass(role.roleName)}`}>
+                              {getRoleLabel(role.roleName)}
+                            </span>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </td>
+                  <td data-stop-row-click="true" className={styles.centerCell}>
+                    <div className={styles.tooltipWrapper}>
                       <DropdownMenu modal={false}>
                         <DropdownMenuTrigger asChild>
                           <button
                             type="button"
-                            className={`${styles.roleTrigger} ${
-                              patient.isActive ? styles.statusActive : styles.statusInactive
-                            }`}
+                            className={`${styles.plainTrigger} ${patient.isActive ? styles.statusActive : styles.statusInactive}`}
                             disabled={updatingStatusByAccountId[patient.accountId]}
                           >
-                            <span>{patient.isActive ? 'Đang hoạt động' : 'Đã khóa'}</span>
-                            <ChevronDownIcon width={14} height={14} />
+                            <div className={`${styles.statusIndicator} ${styles.statusAnimated}`}>
+                              <span className={styles.statusCircle}></span>
+                            </div>
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className={styles.roleMenu} align="start" sideOffset={4}>
@@ -341,56 +306,45 @@ export function PatientTable({ patients, onViewProfile, onChat, onRoleUpdated, p
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                    </td>
-                    <td>
-                      <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
-                        <div className={styles.tooltipWrapper}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className={styles.editButton}
-                            onClick={() => onViewProfile?.(patient)}
-                            aria-label={`Xem hồ sơ ${patient.name}`}
-                          >
-                            <Eye size={16} color="#3B82F6" />
-                          </Button>
-                          <span className={styles.tooltip}>Xem hồ sơ</span>
-                        </div>
-                        <div className={styles.tooltipWrapper}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className={styles.deleteButton}
-                            onClick={() => onChat?.(patient)}
-                            aria-label={`Chat với ${patient.name}`}
-                          >
-                            <MessageCircle size={16} color="#10B981" />
-                          </Button>
-                          <span className={styles.tooltip}>Chat</span>
-                        </div>
+                      <span className={styles.tooltip}>
+                        {patient.isActive ? 'Đã kích hoạt' : 'Chưa kích hoạt'}
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={styles.editButton}
+                          onClick={() => onViewProfile?.(patient)}
+                          aria-label={`Xem hồ sơ ${patient.name}`}
+                        >
+                          <Eye size={16} color="#3B82F6" />
+                        </Button>
+                        <span className={styles.tooltip}>Xem hồ sơ</span>
                       </div>
-                    </td>
-                  </tr>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={styles.deleteButton}
+                          onClick={() => onChat?.(patient)}
+                          aria-label={`Chat với ${patient.name}`}
+                        >
+                          <MessageCircle size={16} color="#10B981" />
+                        </Button>
+                        <span className={styles.tooltip}>Chat</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
               );
             })}
           </tbody>
         </table>
       </div>
-      {showPagination && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
-
     </div>
   );
 }

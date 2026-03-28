@@ -8,6 +8,7 @@
   display: flex;
   flex-direction: column;
   animation: fadeIn 150ms ease-out;
+  z-index: 10001;
 }
 
 @keyframes fadeIn {
@@ -152,15 +153,42 @@
 
 .customerAvatarSection {
   padding: 0 20px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+}
+
+.labelGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.infoLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6B7280;
+  font-weight: 600;
+  margin-bottom: 1px;
+}
+
+.staffRoleBadge {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6366F1;
+  background-color: #EEF2FF;
+  padding: 1px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 4px;
+  width: fit-content;
 }
 
 .avatarWrapper {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   overflow: hidden;
   background-color: #F3F4F6;
@@ -168,6 +196,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  border: 1px solid #F3F4F6;
 }
 
 .avatarImage {
@@ -179,7 +208,8 @@
 .customerMainInfo {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
+  flex: 1;
 }
 
 .customerNameText {
@@ -189,7 +219,7 @@
 }
 
 .targetBadgeWrapper {
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .targetBadge {

@@ -5,8 +5,7 @@
   gap: var(--spacing-sm);
   background-color: #fff;
   padding: 16px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid #f1f1f1;
 }
 
 .left {
@@ -153,7 +152,9 @@
   box-shadow: var(--shadow-md);
   padding: 4px;
   min-width: 200px;
+  z-index: 2000;
 }
+
 
 .dropdownItem {
   padding: 8px 12px;

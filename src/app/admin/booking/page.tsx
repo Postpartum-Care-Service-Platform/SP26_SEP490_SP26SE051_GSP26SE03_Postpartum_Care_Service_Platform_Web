@@ -9,6 +9,8 @@ import { BookingTable } from './components/BookingTable';
 import { BookingTableControls } from './components/BookingTableControls';
 
 import { useToast } from '@/components/ui/toast/use-toast';
+import { Pagination } from '@/components/ui/pagination';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import bookingService from '@/services/booking.service';
 import type { AdminBooking } from '@/types/admin-booking';
 
@@ -107,6 +109,10 @@ export default function AdminBookingPage() {
     return result;
   }, [bookings, searchQuery, statusFilter, sortKey]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, sortKey]);
+
   const paginatedBookings = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     const end = start + pageSize;
@@ -132,39 +138,38 @@ export default function AdminBookingPage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <BookingHeader />
-
-      <BookingTableControls
-        onSearch={setSearchQuery}
-        onStatusChange={setStatusFilter}
-        onSortChange={setSortKey}
-      />
-
-      {loading ? (
-        <div className={styles.content}>
-          <p>Đang tải dữ liệu...</p>
-        </div>
-      ) : error ? (
-        <div className={styles.content}>
-          <p>{error}</p>
-        </div>
-      ) : (
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <AdminPageLayout
+        header={<BookingHeader />}
+        controlPanel={
+          <BookingTableControls
+            onSearch={setSearchQuery}
+            onStatusChange={setStatusFilter}
+            onSortChange={setSortKey}
+          />
+        }
+        pagination={
+          totalPages > 0 ? (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={filteredAndSortedBookings.length}
+              onPageChange={handlePageChange}
+              pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
+              onPageSizeChange={handlePageSizeChange}
+              showResultCount={true}
+            />
+          ) : null
+        }
+      >
         <BookingTable
           bookings={paginatedBookings}
-          pagination={{
-            currentPage,
-            totalPages,
-            pageSize,
-            totalItems: filteredAndSortedBookings.length,
-            onPageChange: handlePageChange,
-            pageSizeOptions: [...PAGE_SIZE_OPTIONS],
-            onPageSizeChange: handlePageSizeChange,
-          }}
           onViewBooking={handleViewBooking}
+          loading={loading}
+          error={error}
         />
-      )}
+      </AdminPageLayout>
     </div>
   );
 }
-

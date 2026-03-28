@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
 import apiClient from '@/services/apiClient';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 
 import styles from './placeholder-manager.module.css';
 
@@ -111,14 +112,13 @@ export default function PlaceholderManagerPage() {
   }, [fetchPlaceholders]);
 
   const filteredPlaceholders = placeholders.filter((p) => {
-    const matchesActive = p.isActive === true;
     const matchesType = filterType === 'all' || p.templateType === parseInt(filterType, 10);
     const matchesSearch =
       !searchTerm ||
       p.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.table.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesActive && matchesType && matchesSearch;
+    return matchesType && matchesSearch;
   });
 
   useEffect(() => {
@@ -213,171 +213,172 @@ export default function PlaceholderManagerPage() {
     return type === 1 ? 'Hợp đồng' : 'Email';
   };
 
+  const header = <Breadcrumbs items={[{ label: 'Placeholder' }]} homeHref="/admin" />;
+
+  const controlPanel = (
+    <div className={styles.controls}>
+      <div className={styles.left}>
+        <div className={styles.searchWrapper}>
+          <MagnifyingGlassIcon className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Tìm kiếm placeholder..."
+            className={styles.searchInput}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <div className={styles.typeFilters}>
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className={styles.filterButton}>
+                {filterTypeOptions.find((opt) => opt.value === filterType)?.label || 'Tất cả'}
+                <ChevronDownIcon className={styles.chevronIcon} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className={styles.dropdownContent}>
+              {filterTypeOptions.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  className={`${styles.dropdownItem} ${filterType === option.value ? styles.dropdownItemActive : ''}`}
+                  onClick={() => setFilterType(option.value)}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      <div className={styles.right}>
+        <Button variant="primary" size="sm" className={styles.addButton} onClick={() => handleOpenModal()}>
+          <PlusIcon className={styles.plusIcon} />
+          Placeholder mới
+        </Button>
+      </div>
+    </div>
+  );
+
+  const pagination = (
+    <div className={styles.paginationWrapper}>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalItems={filteredPlaceholders.length}
+        onPageChange={handlePageChange}
+        pageSizeOptions={PAGE_SIZE_OPTIONS}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+        showResultCount={true}
+      />
+    </div>
+  );
+
   return (
-    <div className={styles.pageContainer}>
-      <div className={styles.header}>
-        <div className={styles.titleBlock}>
-          <h4 className={styles.title}>Danh sách placeholder</h4>
-        </div>
-        <Breadcrumbs items={[{ label: 'Placeholder' }]} homeHref="/admin" />
-      </div>
-
-      <div className={styles.controls}>
-        <div className={styles.left}>
-          <div className={styles.searchWrapper}>
-            <MagnifyingGlassIcon className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Tìm kiếm placeholder..."
-              className={styles.searchInput}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          <div className={styles.typeFilters}>
-            <DropdownMenu modal={false}>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className={styles.filterButton}>
-                  {filterTypeOptions.find(opt => opt.value === filterType)?.label || 'Tất cả'}
-                  <ChevronDownIcon className={styles.chevronIcon} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className={styles.dropdownContent}>
-                {filterTypeOptions.map((option) => (
-                  <DropdownMenuItem
-                    key={option.value}
-                    className={`${styles.dropdownItem} ${filterType === option.value ? styles.dropdownItemActive : ''}`}
-                    onClick={() => setFilterType(option.value)}
-                  >
-                    {option.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        <div className={styles.right}>
-          <Button variant="primary" size="sm" className={styles.addButton} onClick={() => handleOpenModal()}>
-            <PlusIcon className={styles.plusIcon} />
-            Placeholder mới
-          </Button>
-        </div>
-      </div>
-
-      <div className={styles.tableContainer}>
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
+    <AdminPageLayout header={header} controlPanel={controlPanel} pagination={pagination}>
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th className={styles.sttCol} style={{ width: '60px' }}>STT</th>
+              <th style={{ width: '200px' }}>Key</th>
+              <th>Label</th>
+              <th>Bảng</th>
+              <th style={{ width: '120px' }}>Loại</th>
+              <th style={{ textAlign: 'center', width: '80px' }}>Thứ tự</th>
+              <th style={{ textAlign: 'center', width: '150px' }}>Trạng thái</th>
+              <th className={styles.stickyActionsCol} style={{ width: '120px' }}>
+                Thao tác
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
               <tr>
-                <th>Key</th>
-                <th>Label</th>
-                <th>Bảng</th>
-                <th>Loại</th>
-                <th style={{ textAlign: 'center' }}>Thứ tự</th>
-                <th style={{ textAlign: 'center' }}>Trạng thái</th>
-                <th style={{ textAlign: 'right' }}>Thao tác</th>
+                <td colSpan={7} className={styles.emptyState}>
+                  Đang tải...
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={7} className={styles.emptyState}>
-                    Đang tải...
+            ) : filteredPlaceholders.length === 0 ? (
+              <tr>
+                <td colSpan={7} className={styles.emptyState}>
+                  Không có dữ liệu
+                </td>
+              </tr>
+            ) : (
+              paginatedPlaceholders.map((item, index) => (
+                <tr key={item.id}>
+                  <td className={styles.sttCol}>
+                    <span className={styles.sttCell}>
+                      {(currentPage - 1) * pageSize + index + 1}
+                    </span>
                   </td>
-                </tr>
-              ) : filteredPlaceholders.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className={styles.emptyState}>
-                    Không có dữ liệu
+                  <td>
+                    <code className={styles.codeTag}>{`{{${item.key}}}`}</code>
                   </td>
-                </tr>
-              ) : (
-                paginatedPlaceholders.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <code className={styles.codeTag}>{`{{${item.key}}}`}</code>
-                    </td>
-                    <td>{item.label}</td>
-                    <td>{item.table}</td>
-                    <td>
-                      <span
-                        className={`${styles.typeBadge} ${item.templateType === 1 ? styles.typeContract : styles.typeEmail}`}
-                      >
-                        {getTemplateTypeLabel(item.templateType)}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: 'center' }}>{item.displayOrder || '-'}</td>
-                    <td style={{ textAlign: 'center' }}>
-                      <button
-                        type="button"
-                        onClick={() => handleToggleActive(item)}
-                        className={`${styles.statusButton} ${item.isActive ? styles.statusActive : styles.statusInactive}`}
-                      >
-                        {item.isActive ? 'Hoạt động' : 'Không hoạt động'}
-                      </button>
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        <div className={styles.tooltipWrapper}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className={styles.editButton}
-                            onClick={() => handleOpenModal(item)}
-                            aria-label={`Chỉnh sửa ${item.key}`}
-                          >
-                            <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                          </Button>
-                          <span className={styles.tooltip}>Chỉnh sửa</span>
-                        </div>
-                        <div className={styles.tooltipWrapper}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className={styles.deleteButton}
-                            onClick={() => handleDelete(item.id)}
-                            aria-label={`Xóa ${item.key}`}
-                          >
-                            <Trash2OutlineIcon fill="#FD6161" size={16} />
-                          </Button>
-                          <span className={styles.tooltip}>Xóa</span>
-                        </div>
+                  <td>{item.label}</td>
+                  <td>{item.table}</td>
+                  <td>
+                    <span
+                      className={`${styles.typeBadge} ${item.templateType === 1 ? styles.typeContract : styles.typeEmail}`}
+                    >
+                      {getTemplateTypeLabel(item.templateType)}
+                    </span>
+                  </td>
+                  <td style={{ textAlign: 'center' }}>{item.displayOrder || '-'}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleActive(item)}
+                      className={`${styles.statusButton} ${item.isActive ? styles.statusActive : styles.statusInactive}`}
+                    >
+                      {item.isActive ? 'Hoạt động' : 'Không hoạt động'}
+                    </button>
+                  </td>
+                  <td className={styles.stickyActionsCol}>
+                    <div className={styles.actions}>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={styles.editButton}
+                          onClick={() => handleOpenModal(item)}
+                          aria-label={`Chỉnh sửa ${item.key}`}
+                        >
+                          <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Chỉnh sửa</span>
                       </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredPlaceholders.length > 0 && totalPages > 1 && (
-          <div className={styles.paginationWrapper}>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              pageSize={pageSize}
-              totalItems={filteredPlaceholders.length}
-              onPageChange={handlePageChange}
-              pageSizeOptions={PAGE_SIZE_OPTIONS}
-              onPageSizeChange={(size) => {
-                setPageSize(size);
-                setCurrentPage(1);
-              }}
-              showResultCount={true}
-            />
-          </div>
-        )}
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={styles.deleteButton}
+                          onClick={() => handleDelete(item.id)}
+                          aria-label={`Xóa ${item.key}`}
+                        >
+                          <Trash2OutlineIcon fill="#FD6161" size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Xóa</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
 
       {showModal && (
         <div className={styles.modalOverlay} onClick={handleCloseModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <h2 className={styles.modalTitle}>
-              {editingItem ? 'Sửa placeholder' : 'Thêm placeholder mới'}
-            </h2>
+            <h2 className={styles.modalTitle}>{editingItem ? 'Sửa placeholder' : 'Thêm placeholder mới'}</h2>
             <form onSubmit={handleSubmit}>
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Key</label>
@@ -432,9 +433,7 @@ export default function PlaceholderManagerPage() {
                   <label className={styles.formLabel}>Loại</label>
                   <select
                     value={formData.templateType}
-                    onChange={(e) =>
-                      setFormData({ ...formData, templateType: parseInt(e.target.value, 10) })
-                    }
+                    onChange={(e) => setFormData({ ...formData, templateType: parseInt(e.target.value, 10) })}
                     className={styles.formSelect}
                   >
                     <option value={1}>Hợp đồng</option>
@@ -478,6 +477,6 @@ export default function PlaceholderManagerPage() {
           </div>
         </div>
       )}
-    </div>
+    </AdminPageLayout>
   );
 }

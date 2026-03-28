@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronDownIcon, MagnifyingGlassIcon, MixerHorizontalIcon } from '@radix-ui/react-icons';
 import { Download, Upload, Eye } from 'lucide-react';
@@ -16,23 +17,24 @@ import { Pagination } from '@/components/ui/pagination';
 import { useToast } from '@/components/ui/toast/use-toast';
 import feedbackService from '@/services/feedback.service';
 import type { Feedback } from '@/types/feedback';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 
 import styles from './feedback.module.css';
 import { FeedbackDetailModal } from './FeedbackDetailModal';
 
 /* ── SVG icons ── */
-const EyeIcon = ({ size = 16, color = '#3B82F6' }: { size?: number; color?: string }) => (
-  <Eye size={size} color={color} />
+const EyeIcon = ({ size = 16 }: { size?: number }) => (
+  <Eye size={size} />
 );
 
-const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill={fill}>
+const Trash2OutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill="currentColor">
     <g data-name="Layer 2"><g data-name="trash-2"><rect width="24" height="24" opacity="0"/><path d="M21 6h-5V4.33A2.42 2.42 0 0 0 13.5 1.98h-3c-1.2 0-2.4 1.08-2.4 2.35V6H3a1 1 0 0 0 0 2h1v11a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V8h1a1 1 0 0 0 0-2zM10 4.33c0-.16.21-.33.5-.33h3c.29 0 .5.17.5.33V6h-4zM18 19a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V8h12z"/><path d="M9 17a1 1 0 0 0 1-1v-4a1 1 0 0 0-2 0v4a1 1 0 0 0 1 1z"/><path d="M15 17a1 1 0 0 0 1-1v-4a1 1 0 0 0-2 0v4a1 1 0 0 0 1 1z"/></g></g>
   </svg>
 );
 
-const UndoOutlineIcon = ({ fill = '#15803d', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-undo-outline" fill={fill}>
+const UndoOutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-undo-outline" fill="currentColor">
     <g data-name="Layer 2"><g data-name="undo"><rect width="24" height="24" opacity="0"/><path d="M19 19a1 1 0 0 1-1-1 7 7 0 1 0-7 7 1 1 0 0 1 0 2 9 9 0 1 1 9-9 1 1 0 0 1-1 1z"/><path d="M8.21 11.21L5.41 8.41l2.8-2.8a1 1 0 1 0-1.42-1.42l-3.5 3.5a1 1 0 0 0 0 1.42l3.5 3.5a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.4z"/></g></g>
   </svg>
 );
@@ -75,9 +77,6 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
 
 const getErrorMessage = (error: unknown, fallback: string) => {
   if (error instanceof Error && error.message) return error.message;
-  if (typeof error === 'object' && error !== null && 'message' in error &&
-    typeof (error as { message?: unknown }).message === 'string')
-    return (error as { message: string }).message;
   return fallback;
 };
 
@@ -114,6 +113,7 @@ const renderStars = (rating: number) => {
 };
 
 export default function AdminFeedbackPage() {
+  const pathname = usePathname();
   const [items, setItems] = useState<Feedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -169,7 +169,7 @@ export default function AdminFeedbackPage() {
     return filteredItems.slice(start, start + pageSize);
   }, [filteredItems, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredItems.length / pageSize);
+  const totalPages = Math.ceil(filteredItems.length / pageSize) || 1;
 
   const handleView = (item: Feedback) => { setViewingItem(item); setIsModalOpen(true); };
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setViewingItem(null); };
@@ -205,89 +205,109 @@ export default function AdminFeedbackPage() {
   const selectedStatusLabel = STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? 'Tất cả';
 
   return (
-    <div className={styles.pageContainer}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h4 className={styles.title}>Quản lý phản hồi</h4>
-        <Breadcrumbs items={[{ label: 'Phản hồi' }]} homeHref="/admin" />
-      </div>
-
-      {/* Controls */}
-      <div className={styles.controls}>
-        <div className={styles.controlsLeft}>
-          <div className={styles.searchWrapper}>
-            <MagnifyingGlassIcon className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Tìm kiếm tiêu đề, khách hàng, loại..."
-              className={styles.searchInput}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+    <AdminPageLayout
+      header={
+        <div className={styles.header}>
+          <Breadcrumbs 
+            items={[{ label: 'Phản hồi' }]} 
+            homeHref={pathname?.startsWith('/manager') ? '/manager' : '/admin'} 
+          />
+        </div>
+      }
+      controlPanel={
+        <div className={styles.controls}>
+          <div className={styles.controlsLeft}>
+            <div className={styles.searchWrapper}>
+              <MagnifyingGlassIcon className={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Tìm kiếm tiêu đề, khách hàng, loại..."
+                className={styles.searchInput}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className={styles.filterButton}>
+                  <MixerHorizontalIcon className={styles.filterIcon} />
+                  {selectedSortLabel}
+                  <ChevronDownIcon className={styles.chevronIcon} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className={styles.dropdownContent}>
+                {SORT_OPTIONS.map((opt) => (
+                  <DropdownMenuItem key={opt.value}
+                    className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
+                    onClick={() => setSortKey(opt.value)}>
+                    {opt.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={styles.filterButton}>
-                <MixerHorizontalIcon className={styles.filterIcon} />
-                {selectedSortLabel}
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {SORT_OPTIONS.map((opt) => (
-                <DropdownMenuItem key={opt.value}
-                  className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setSortKey(opt.value)}>
-                  {opt.label}
+
+          <div className={styles.controlsRight}>
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className={styles.exportButton}>
+                  <Download size={16} className={styles.exportIcon} />
+                  Nhập/Xuất
+                  <ChevronDownIcon className={styles.chevronIcon} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className={styles.dropdownContent} align="end">
+                <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+                  <Upload size={16} className={styles.itemIcon} />
+                  Nhập từ Excel
                 </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div className={styles.controlsRight}>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={styles.exportButton}>
-                <Download size={16} className={styles.exportIcon} />
-                Nhập/Xuất
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent} align="end">
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
-                <Upload size={16} className={styles.itemIcon} />
-                Nhập từ Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
-                <Download size={16} className={styles.itemIcon} />
-                Xuất ra Excel
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={styles.statusButton}>
-                {selectedStatusLabel}
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {STATUS_OPTIONS.map((opt) => (
-                <DropdownMenuItem key={opt.value}
-                  className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setStatusFilter(opt.value)}>
-                  {opt.label}
+                <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+                  <Download size={16} className={styles.itemIcon} />
+                  Xuất ra Excel
                 </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-      {/* Table */}
-      <div className={styles.tableContainer}>
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className={styles.statusButton}>
+                  {selectedStatusLabel}
+                  <ChevronDownIcon className={styles.chevronIcon} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className={styles.dropdownContent}>
+                {STATUS_OPTIONS.map((opt) => (
+                  <DropdownMenuItem key={opt.value}
+                    className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`}
+                    onClick={() => setStatusFilter(opt.value)}>
+                    {opt.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      }
+      pagination={
+        filteredItems.length > 0 ? (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalItems={filteredItems.length}
+            onPageChange={(page) => { 
+              setCurrentPage(page); 
+              const scrollArea = document.querySelector(`.${styles.pageContainer}`)?.closest('[class*="scrollArea"]');
+              scrollArea?.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
+            onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
+            showResultCount={true}
+          />
+        ) : null
+      }
+    >
+      <div className={styles.pageContainer}>
         {loading ? (
           <div className={styles.placeholder}>Đang tải dữ liệu...</div>
         ) : error ? (
@@ -297,7 +317,7 @@ export default function AdminFeedbackPage() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th title="Số thứ tự">STT</th>
+                  <th className={styles.stickySTTCol}>STT</th>
                   <th>Khách hàng</th>
                   <th>Loại phản hồi</th>
                   <th>Tiêu đề</th>
@@ -306,12 +326,12 @@ export default function AdminFeedbackPage() {
                   <th>Hình ảnh</th>
                   <th>Ngày tạo</th>
                   <th>Trạng thái</th>
-                  <th>Thao tác</th>
+                  <th className={styles.stickyActionsCol}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedItems.length === 0 ? (
-                  <tr><td colSpan={8} className={styles.emptyState}>
+                  <tr><td colSpan={10} className={styles.emptyState}>
                     {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có phản hồi nào.'}
                   </td></tr>
                 ) : (
@@ -322,7 +342,7 @@ export default function AdminFeedbackPage() {
                       : '—';
                     return (
                       <tr key={item.id}>
-                        <td><span className={styles.sttCell} title={`ID gốc: ${item.id}`}>{stt}</span></td>
+                        <td className={styles.stickySTTCol}><span className={styles.sttCell} title={`ID gốc: ${item.id}`}>{stt}</span></td>
                         <td>{item.customerName || '—'}</td>
                         <td>{item.feedbackTypeName || '—'}</td>
                         <td className={styles.nameCell}>{item.title || '—'}</td>
@@ -359,29 +379,29 @@ export default function AdminFeedbackPage() {
                             {item.isDeleted ? 'Đã ẩn' : 'Hiển thị'}
                           </span>
                         </td>
-                        <td>
+                        <td className={styles.stickyActionsCol}>
                           <div className={styles.actions}>
                             <div className={styles.tooltipWrapper}>
-                            <Button variant="outline" size="sm" className={styles.viewButton}
+                              <button className={`${styles.actionButton} ${styles.viewButton}`}
                                 onClick={() => handleView(item)}>
-                              <EyeIcon size={16} color="#3B82F6" />
-                            </Button>
-                              <span className={styles.tooltip}>Xem chi tiết</span>
+                                <EyeIcon size={16} />
+                              </button>
+                                <span className={styles.tooltip}>Xem chi tiết</span>
                             </div>
                             {!item.isDeleted ? (
                               <div className={styles.tooltipWrapper}>
-                              <Button variant="outline" size="sm" className={styles.deleteButton}
-                                  onClick={() => handleDelete(item)} disabled={actionId === item.id}>
-                                <Trash2OutlineIcon fill="#FD6161" size={16} />
-                              </Button>
+                                <button className={`${styles.actionButton} ${styles.deleteButton}`}
+                                    onClick={() => handleDelete(item)} disabled={actionId === item.id}>
+                                  <Trash2OutlineIcon size={16} />
+                                </button>
                                 <span className={styles.tooltip}>Ẩn</span>
                               </div>
                             ) : (
                               <div className={styles.tooltipWrapper}>
-                              <Button variant="outline" size="sm" className={styles.restoreButton}
-                                  onClick={() => handleRestore(item)} disabled={actionId === item.id}>
-                                <UndoOutlineIcon fill="#15803d" size={16} />
-                              </Button>
+                                <button className={`${styles.actionButton} ${styles.restoreButton}`}
+                                    onClick={() => handleRestore(item)} disabled={actionId === item.id}>
+                                  <UndoOutlineIcon size={16} />
+                                </button>
                                 <span className={styles.tooltip}>Khôi phục</span>
                               </div>
                             )}
@@ -395,31 +415,13 @@ export default function AdminFeedbackPage() {
             </table>
           </div>
         )}
-
-        {/* Pagination */}
-        {!loading && !error && filteredItems.length > 0 && totalPages > 0 && (
-          <div className={styles.paginationWrapper}>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              pageSize={pageSize}
-              totalItems={filteredItems.length}
-              onPageChange={(page) => { setCurrentPage(page); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
-              onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
-              showResultCount={true}
-            />
-          </div>
-        )}
       </div>
-
-
 
       <FeedbackDetailModal
         open={isModalOpen}
         onOpenChange={handleModalClose}
         feedback={viewingItem}
       />
-    </div>
+    </AdminPageLayout>
   );
 }

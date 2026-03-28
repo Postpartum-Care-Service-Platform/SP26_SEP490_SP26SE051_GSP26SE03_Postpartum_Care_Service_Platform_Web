@@ -20,9 +20,13 @@ const familyProfileService = {
     return apiClient.get(`/FamilyProfile/GetByCustomerId/${customerId}`);
   },
 
+  getFamilyProfilesByAccountId: (accountId: string): Promise<FamilyProfile[]> => {
+    return apiClient.get(`/FamilyProfile/GetByAccountId/${accountId}`);
+  },
+
   createFamilyProfile: (payload: CreateFamilyProfileRequest): Promise<FamilyProfile> => {
     const formData = buildFamilyProfileFormData(payload);
-    return apiClient.post('/FamilyProfile/Create', formData, {
+    return apiClient.post('/FamilyProfile/CreateForCustomer', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
@@ -32,6 +36,10 @@ const familyProfileService = {
     return apiClient.put(`/FamilyProfile/Update/${id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
+  },
+
+  deleteFamilyProfile: (id: number): Promise<void> => {
+    return apiClient.delete(`/FamilyProfile/Delete/${id}`);
   },
 };
 

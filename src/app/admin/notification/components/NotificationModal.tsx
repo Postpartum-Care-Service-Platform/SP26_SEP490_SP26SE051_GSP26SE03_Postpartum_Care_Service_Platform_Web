@@ -1,20 +1,20 @@
 'use client';
-import { ChevronDownIcon, Cross1Icon, CheckIcon } from '@radix-ui/react-icons';
 import { useEffect, useRef, useState } from 'react';
 
+import * as Checkbox from '@radix-ui/react-checkbox';
+import { CheckIcon, ChevronDownIcon, Cross1Icon } from '@radix-ui/react-icons';
+
+import { CustomDropdown } from '@/components/ui/custom-dropdown';
 import { useToast } from '@/components/ui/toast/use-toast';
+import { cn } from '@/lib/utils';
 import notificationService from '@/services/notification.service';
 import userService from '@/services/user.service';
-import amenityTicketService from '@/services/amenity-ticket.service';
 import type { Account } from '@/types/account';
-import type { AmenityTicket } from '@/types/amenity-ticket';
-import type { Notification, CreateNotificationRequest, UpdateNotificationRequest } from '@/types/notification';
+import type { CreateNotificationRequest, Notification, UpdateNotificationRequest } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
 
-import * as Checkbox from '@radix-ui/react-checkbox';
 import { translateNotificationTypeName } from '../utils/notificationTypeTranslations';
-import { CustomDropdown } from '@/components/ui/custom-dropdown';
-import { cn } from '@/lib/utils';
+
 import styles from './notification-modal.module.css';
 
 type Props = {
@@ -30,7 +30,6 @@ type FormErrors = {
   content?: string;
   notificationTypeId?: string;
   receiverIds?: string;
-  amenityTicketId?: string;
 };
 
 // --- Move constants and helper functions to the top ---
@@ -38,7 +37,6 @@ const INITIAL_FORM = {
   title: '',
   content: '',
   notificationTypeId: '',
-  amenityTicketId: 0,
   receiverIds: [] as string[],
   status: 'Unread' as 'Unread' | 'Read',
 };
@@ -202,7 +200,6 @@ function UserMultiSelect({
                       <CheckIcon style={{ width: '8px', height: '8px' }} />
                     </Checkbox.Indicator>
                   </Checkbox.Root>
-                  <div style={{ width: '32px' }} /> {/* Avatar placeholder for alignment */}
                   <span className="text-sm font-medium text-slate-600">Chọn tất cả ({filteredUsers.length})</span>
                 </label>
                 {filteredUsers.map((user: Account) => (
@@ -243,20 +240,8 @@ export function NotificationModal({ open, onOpenChange, notification, notificati
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isFetchingAccounts, setIsFetchingAccounts] = useState(false);
-  const [amenityTickets, setAmenityTickets] = useState<AmenityTicket[]>([]);
   const isEditMode = !!notification;
 
-  useEffect(() => {
-    const fetchAmenityTickets = async () => {
-      try {
-        const data = await amenityTicketService.getAllAmenityTickets();
-        setAmenityTickets(data);
-      } catch (error) {
-        console.error('Error fetching amenity tickets:', error);
-      }
-    };
-    fetchAmenityTickets();
-  }, []);
 
   useEffect(() => {
     const fetchAccounts = async () => {
@@ -284,7 +269,6 @@ export function NotificationModal({ open, onOpenChange, notification, notificati
           title: notification.title || '',
           content: notification.content || '',
           notificationTypeId: notification.notificationTypeId ? String(notification.notificationTypeId) : '',
-          amenityTicketId: notification.amenityTicketId || 0,
           receiverIds: notification.receiverId ? [notification.receiverId] : [],
           status: notification.status,
         });
@@ -320,9 +304,6 @@ export function NotificationModal({ open, onOpenChange, notification, notificati
     if (!isEditMode && formData.receiverIds.length === 0) {
       newErrors.receiverIds = 'Vui lòng chọn ít nhất một người nhận.';
     }
-    if (!isEditMode && (!formData.amenityTicketId || formData.amenityTicketId === 0)) {
-      newErrors.amenityTicketId = 'Vui lòng chọn phiếu tiện nghi.';
-    }
     return newErrors;
   };
 
@@ -350,7 +331,6 @@ export function NotificationModal({ open, onOpenChange, notification, notificati
           title: formData.title.trim(),
           content: formData.content.trim(),
           notificationTypeId: Number(formData.notificationTypeId),
-          amenityTicketId: formData.amenityTicketId,
           receiverIds: formData.receiverIds,
         };
         await notificationService.createNotification(payload);
@@ -443,24 +423,6 @@ export function NotificationModal({ open, onOpenChange, notification, notificati
               )}
             </div>
 
-            {!isEditMode && (
-              <div className={styles.formGroup}>
-                <label htmlFor="notification-amenityTicketId">
-                  Phiếu Tiện Nghi <span className={styles.required}>*</span>
-                </label>
-                <CustomDropdown
-                  options={amenityTickets.map((t) => ({
-                    value: String(t.id),
-                    label: `Phiếu #${t.id} - ${t.status}`,
-                  }))}
-                  value={formData.amenityTicketId ? String(formData.amenityTicketId) : ''}
-                  onChange={(val) => handleFieldChange('amenityTicketId', Number(val))}
-                  placeholder="Chọn phiếu tiện nghi"
-                  triggerClassName={`${errors.amenityTicketId ? styles.invalid : ''} bg-white`}
-                />
-                {errors.amenityTicketId && <p className={styles.errorMessage}>{errors.amenityTicketId}</p>}
-              </div>
-            )}
 
             <div className={styles.formGroup}>
               <label htmlFor="notification-content">

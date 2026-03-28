@@ -1,14 +1,9 @@
-/* Dùng chung CSS từ member-types style */
-.pageContainer { display: flex; flex-direction: column; padding: 16px; }
+.pageContainer { display: flex; flex-direction: column; padding: 0; }
 
 .sttCell { cursor: help; border-bottom: 1px dashed #aaa; display: inline-block; line-height: 1.4; }
 
 
-.controls {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: var(--spacing-sm); background-color: #fff; padding: 16px;
-  border-radius: var(--radius-md); box-shadow: var(--shadow-sm);
-}
+.controls { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-sm); background-color: #fff; padding: 16px; border-bottom: 1px solid #f1f1f1; }
 
 .controlsLeft { display: flex; align-items: center; gap: var(--spacing-sm); flex: 1; }
 .controlsRight { display: flex; align-items: center; gap: var(--spacing-sm); }
@@ -80,6 +75,7 @@
 .dropdownContent {
   background-color: #fff; border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm); box-shadow: var(--shadow-md); padding: 4px; min-width: 180px;
+  z-index: 9999;
 }
 .dropdownItem {
   padding: 8px 12px; font-family: var(--font-body); font-size: 14px;
@@ -89,7 +85,7 @@
 .dropdownItemActive { color: var(--color-brand-accent); background-color: rgba(250, 131, 20, 0.1); }
 
 /* Table */
-.tableContainer { background-color: #fff; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
+.tableContainer { background-color: transparent; border-radius: 0; box-shadow: none; }
 .tableWrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .table { width: 100%; border-collapse: collapse; table-layout: auto; }
 .table thead { background-color: rgba(242, 242, 244, 0.5); }
@@ -99,17 +95,95 @@
   border-bottom: 1px solid var(--color-border-default); white-space: nowrap;
 }
 .table tbody tr { background-color: #fff !important; border-bottom: 1px solid var(--color-border-default); transition: background-color 0.2s ease; }
-.table tbody tr:hover { background-color: rgba(0, 0, 0, 0.02) !important; }
+.table tbody tr:nth-child(even) { background-color: #fafafa !important; }
+.table tbody tr:hover { background-color: #f8f9fa !important; }
 .table tbody tr:last-child { border-bottom: none; }
-.table td { padding: var(--spacing-sm) 14px; font-family: var(--font-body); font-size: 14px; color: var(--color-text-primary); }
+.table td { padding: 8px 14px; font-family: var(--font-body); font-size: 14px; color: var(--color-text-primary); }
 
 .nameCell { font-weight: 500; min-width: 160px; }
 .emptyState { text-align: center; padding: var(--spacing-xl) !important; color: var(--color-admin-text-muted); }
 
 /* Status */
-.statusBadge { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
-.statusActive  { background-color: rgba(21, 128, 61, 0.1); color: #15803d; }
-.statusInactive { background-color: rgba(185, 28, 28, 0.1); color: #b91c1c; }
+.plainTrigger {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4px;
+  width: 100%;
+}
+
+/* ── Single Animated Status Dot ── */
+.statusIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 8px;
+  height: 8px;
+}
+
+.statusCircle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+}
+
+.statusAnimated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: inherit;
+  z-index: 1;
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  70% { transform: scale(2.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.statusActive { background: transparent; }
+.statusActive .statusCircle { background-color: #10B981; }
+.statusActive .statusIndicator.statusAnimated::after { background-color: #10B981; }
+
+.statusInactive { background: transparent; }
+.statusInactive .statusCircle { background-color: #EF4444; }
+.statusInactive .statusIndicator.statusAnimated::after { background-color: #EF4444; }
+
+.statusMenu {
+  min-width: 160px;
+  padding: 6px 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  z-index: 100;
+}
+
+.statusMenuItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: #343a40;
+}
+
+.statusMenuItem:hover { background: rgba(0, 0, 0, 0.05); }
+
 
 /* Actions */
 .actions { display: flex; align-items: center; gap: 8px; }
@@ -121,7 +195,10 @@
 }
 
 .tooltipWrapper .tooltip {
-  position: fixed;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
   background-color: #343a40;
   color: #fff;
   font-size: 11px;
@@ -130,17 +207,31 @@
   border-radius: 5px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.18s ease;
-  z-index: 99999;
-  transform: translate(-50%, -100%);
-  margin-top: -8px;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 20;
+}
+
+.tooltipWrapper .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #343a40;
 }
 
 .tooltipWrapper:hover .tooltip {
   opacity: 1;
+  transform: translateX(-50%) scale(1);
 }
 
-.paginationWrapper { padding: 0 16px 16px; }
+.tooltipWrapper:hover {
+  z-index: 100 !important;
+}
+
+
+.paginationWrapper { padding: 0; background-color: transparent; }
 .paginationWrapper :global(.container) { margin-top: 0; }
 .paginationWrapper :global(.infoGroup) { flex-wrap: nowrap; }
 
@@ -170,6 +261,10 @@
 
 .placeholder { font-family: var(--font-body); font-size: 14px; color: rgba(0,0,0,0.55); padding: 32px 16px; text-align: center; }
 
+
+.pageContainer :global([data-radix-popper-content-wrapper]) {
+  z-index: 9999 !important;
+}
 
 @media (max-width: 768px) {
   .controls { flex-direction: column; align-items: stretch; }

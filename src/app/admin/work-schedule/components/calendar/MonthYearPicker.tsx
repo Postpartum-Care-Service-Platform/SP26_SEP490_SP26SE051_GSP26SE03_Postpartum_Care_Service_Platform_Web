@@ -9,6 +9,7 @@ import styles from './month-year-picker.module.css';
 type Props = {
   value: Date;
   onChange: (date: Date) => void;
+  viewMode?: 'Month' | 'Week' | 'Day';
 };
 
 const MONTHS = [
@@ -16,6 +17,22 @@ const MONTHS = [
   'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8',
   'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12',
 ];
+
+const WEEKDAYS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+import { 
+  addMonths, 
+  subMonths, 
+  startOfMonth, 
+  endOfMonth, 
+  startOfWeek, 
+  endOfWeek, 
+  eachDayOfInterval, 
+  isSameDay, 
+  isSameMonth,
+  addDays,
+  isWithinInterval
+} from 'date-fns';
 
 function ChevronUpIcon() {
   return (
@@ -33,31 +50,41 @@ function ChevronDownIcon() {
   );
 }
 
-export function MonthYearPicker({ value, onChange }: Props) {
+export function MonthYearPicker({ value, onChange, viewMode = 'Month' }: Props) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [view, setView] = React.useState<'month' | 'year'>('month');
+  const [rightView, setRightView] = React.useState<'month' | 'year'>('month');
+  const [hoveredDate, setHoveredDate] = React.useState<Date | null>(null);
+  
+  // We use a internal cursor for what's being SHOWN in the picker, 
+  // while `value` is what's actually selected.
+  const [cursor, setCursor] = React.useState(() => startOfMonth(value));
+  
   const [yearRange, setYearRange] = React.useState(() => {
     const currentYear = value.getFullYear();
     const start = Math.floor(currentYear / 12) * 12;
     return { start, end: start + 11 };
   });
 
-  const currentMonth = value.getMonth();
-  const currentYear = value.getFullYear();
+  const currentMonth = cursor.getMonth();
+  const currentYear = cursor.getFullYear();
+
+  const handleDateSelect = (date: Date) => {
+    onChange(date);
+    setIsOpen(false);
+  };
 
   const handleMonthSelect = (monthIndex: number) => {
-    const newDate = new Date(value);
+    const newDate = new Date(cursor);
     newDate.setMonth(monthIndex);
-    onChange(newDate);
-    setIsOpen(false);
-    setView('month');
+    setCursor(newDate);
+    // If we want it to close on month select, we could. But usually we want to see the days update.
   };
 
   const handleYearSelect = (year: number) => {
-    const newDate = new Date(value);
+    const newDate = new Date(cursor);
     newDate.setFullYear(year);
-    onChange(newDate);
-    setView('month');
+    setCursor(newDate);
+    setRightView('month');
   };
 
   const handlePrevYearRange = () => {
@@ -68,7 +95,72 @@ export function MonthYearPicker({ value, onChange }: Props) {
     setYearRange(prev => ({ start: prev.start + 12, end: prev.end + 12 }));
   };
 
-  const displayText = `Tháng ${currentMonth + 1} ${currentYear}`;
+  const monthNamesVi = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+  const leftHeaderText = `${monthNamesVi[currentMonth]} ${currentYear}`;
+
+  const weeks = React.useMemo(() => {
+    const monthStart = startOfMonth(cursor);
+    const monthEnd = endOfMonth(monthStart);
+    const calStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+    const calEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+    const days = eachDayOfInterval({ start: calStart, end: calEnd });
+    
+    const weekGroups = [];
+    for (let i = 0; i < days.length; i += 7) {
+      weekGroups.push(days.slice(i, i + 7));
+    }
+    return weekGroups;
+  }, [cursor]);
+
+  const isHighlighted = (day: Date) => {
+    if (!hoveredDate) return false;
+
+    if (viewMode === 'Week' || viewMode === 'Day') {
+      const weekStart = startOfWeek(hoveredDate, { weekStartsOn: 0 });
+      const weekEnd = endOfWeek(hoveredDate, { weekStartsOn: 0 });
+      return isWithinInterval(day, { start: weekStart, end: weekEnd });
+    }
+
+    return isSameDay(day, hoveredDate);
+  };
+
+  const getDayRangeClasses = (day: Date) => {
+    if (!hoveredDate || !isHighlighted(day)) return '';
+
+    let isStart = false;
+    let isEnd = false;
+
+    if (viewMode === 'Week' || viewMode === 'Day') {
+      const weekStart = startOfWeek(hoveredDate, { weekStartsOn: 0 });
+      const weekEnd = endOfWeek(hoveredDate, { weekStartsOn: 0 });
+      isStart = isSameDay(day, weekStart);
+      isEnd = isSameDay(day, weekEnd);
+    } else {
+      isStart = true;
+      isEnd = true;
+    }
+
+    return `${styles.hovered} ${isStart ? styles.rangeStart : ''} ${isEnd ? styles.rangeEnd : ''}`;
+  };
+
+  const getDaySelectedRangeClasses = (day: Date) => {
+    let isStart = false;
+    let isEnd = false;
+
+    if (viewMode === 'Week' || viewMode === 'Day') {
+      const weekStart = startOfWeek(value, { weekStartsOn: 0 });
+      const weekEnd = endOfWeek(value, { weekStartsOn: 0 });
+      if (!isWithinInterval(day, { start: weekStart, end: weekEnd })) return '';
+      isStart = isSameDay(day, weekStart);
+      isEnd = isSameDay(day, weekEnd);
+    } else {
+      if (!isSameDay(day, value)) return '';
+      isStart = true;
+      isEnd = true;
+    }
+
+    return `${styles.selectedRange} ${isStart ? styles.rangeStart : ''} ${isEnd ? styles.rangeEnd : ''}`;
+  };
 
   const years = React.useMemo(() => {
     const arr: number[] = [];
@@ -78,134 +170,139 @@ export function MonthYearPicker({ value, onChange }: Props) {
     return arr;
   }, [yearRange]);
 
+  const handleTodayClick = () => {
+    const today = new Date();
+    onChange(today);
+    setCursor(startOfMonth(today));
+    setIsOpen(false);
+  };
+
   return (
     <Tooltip.Provider delayDuration={350}>
     <Popover.Root open={isOpen} onOpenChange={(open) => {
       setIsOpen(open);
-      if (!open) {
-        setView('month');
-        const start = Math.floor(currentYear / 12) * 12;
+      if (open) {
+        setCursor(startOfMonth(value));
+        const start = Math.floor(value.getFullYear() / 12) * 12;
         setYearRange({ start, end: start + 11 });
+      } else {
+        setRightView('month');
       }
     }}>
       <Popover.Trigger asChild>
         <button type="button" className={styles.trigger}>
-          {displayText}
+          Tháng {value.getMonth() + 1} {value.getFullYear()}
         </button>
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content className={styles.content} sideOffset={4} align="center">
-          {view === 'month' ? (
-            <div className={styles.monthView}>
-              <div className={styles.monthHeader}>
-                <span className={styles.yearText} onClick={() => setView('year')}>
-                  {currentYear}
-                </span>
+          <div className={styles.dualPane}>
+            {/* Left Pane: Days */}
+            <div className={styles.leftPane}>
+              <div className={styles.paneHeader}>
+                <span className={styles.headerTitle}>{leftHeaderText}</span>
                 <div className={styles.arrows}>
-                  <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
-                      <button 
-                        type="button" 
-                        className={styles.arrowBtn} 
-                        onClick={() => {
-                          const newDate = new Date(value);
-                          newDate.setFullYear(currentYear - 1);
-                          onChange(newDate);
-                        }}
-                      >
-                        <ChevronUpIcon />
-                      </button>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content className={styles.tooltip} sideOffset={5}>
-                        Năm trước
-                        <Tooltip.Arrow className={styles.tooltipArrow} />
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                  <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
-                      <button 
-                        type="button" 
-                        className={styles.arrowBtn} 
-                        onClick={() => {
-                          const newDate = new Date(value);
-                          newDate.setFullYear(currentYear + 1);
-                          onChange(newDate);
-                        }}
-                      >
-                        <ChevronDownIcon />
-                      </button>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content className={styles.tooltip} sideOffset={5}>
-                        Năm sau
-                        <Tooltip.Arrow className={styles.tooltipArrow} />
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
+                  <button type="button" className={styles.arrowBtn} onClick={() => setCursor(subMonths(cursor, 1))}>
+                    <ChevronUpIcon />
+                  </button>
+                  <button type="button" className={styles.arrowBtn} onClick={() => setCursor(addMonths(cursor, 1))}>
+                    <ChevronDownIcon />
+                  </button>
                 </div>
               </div>
-              <div className={styles.monthGrid}>
-                {MONTHS.map((month, index) => (
-                  <button
-                    key={month}
-                    type="button"
-                    className={`${styles.monthCell} ${index === currentMonth ? styles.selected : ''}`}
-                    onClick={() => handleMonthSelect(index)}
-                  >
-                    {month}
-                  </button>
+              <div className={styles.daysGrid}>
+                {WEEKDAYS.map(d => <div key={d} className={styles.weekday}>{d}</div>)}
+                {weeks.map((week, widx) => (
+                  <React.Fragment key={widx}>
+                    {week.map(day => {
+                      const isCurrent = isSameMonth(day, cursor);
+                      const isSelected = isSameDay(day, value);
+                      return (
+                        <button
+                          key={day.toISOString()}
+                          type="button"
+                          className={`${styles.dayCell} ${!isCurrent ? styles.outside : ''} ${getDaySelectedRangeClasses(day)} ${getDayRangeClasses(day)}`}
+                          onClick={() => handleDateSelect(day)}
+                          onMouseEnter={() => setHoveredDate(day)}
+                          onMouseLeave={() => setHoveredDate(null)}
+                        >
+                          <span className={`${styles.dayNumber} ${isSelected ? styles.selected : ''}`}>
+                            {day.getDate()}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </React.Fragment>
                 ))}
               </div>
             </div>
-          ) : (
-            <div className={styles.yearView}>
-              <div className={styles.yearHeader}>
-                <span className={styles.rangeText}>{yearRange.start} - {yearRange.end}</span>
-                <div className={styles.arrows}>
-                  <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
+
+            <div className={styles.divider} />
+
+            {/* Right Pane: Month/Year */}
+            <div className={styles.rightPane}>
+              {rightView === 'month' ? (
+                <>
+                  <div className={styles.paneHeader}>
+                    <span className={styles.headerTitle} style={{ cursor: 'pointer' }} onClick={() => setRightView('year')}>
+                      {currentYear}
+                    </span>
+                    <div className={styles.arrows}>
+                      <button type="button" className={styles.arrowBtn} onClick={() => setCursor(new Date(currentYear - 1, currentMonth, 1))}>
+                        <ChevronUpIcon />
+                      </button>
+                      <button type="button" className={styles.arrowBtn} onClick={() => setCursor(new Date(currentYear + 1, currentMonth, 1))}>
+                        <ChevronDownIcon />
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.monthGrid}>
+                    {MONTHS.map((m, i) => (
+                      <button
+                        key={m}
+                        type="button"
+                        className={`${styles.monthCell} ${i === currentMonth ? styles.selected : ''}`}
+                        onClick={() => handleMonthSelect(i)}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={styles.paneHeader}>
+                    <span className={styles.headerTitle}>{yearRange.start} - {yearRange.end}</span>
+                    <div className={styles.arrows}>
                       <button type="button" className={styles.arrowBtn} onClick={handlePrevYearRange}>
                         <ChevronUpIcon />
                       </button>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content className={styles.tooltip} sideOffset={5}>
-                        12 năm trước
-                        <Tooltip.Arrow className={styles.tooltipArrow} />
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                  <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
                       <button type="button" className={styles.arrowBtn} onClick={handleNextYearRange}>
                         <ChevronDownIcon />
                       </button>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content className={styles.tooltip} sideOffset={5}>
-                        12 năm sau
-                        <Tooltip.Arrow className={styles.tooltipArrow} />
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                </div>
-              </div>
-              <div className={styles.yearGrid}>
-                {years.map((year) => (
-                  <button
-                    key={year}
-                    type="button"
-                    className={`${styles.yearCell} ${year === currentYear ? styles.selected : ''}`}
-                    onClick={() => handleYearSelect(year)}
-                  >
-                    {year}
-                  </button>
-                ))}
+                    </div>
+                  </div>
+                  <div className={styles.yearGrid}>
+                    {years.map(y => (
+                      <button
+                        key={y}
+                        type="button"
+                        className={`${styles.yearCell} ${y === currentYear ? styles.selected : ''}`}
+                        onClick={() => handleYearSelect(y)}
+                      >
+                        {y}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+              <div className={styles.paneFooter}>
+                <button type="button" className={styles.todayBtn} onClick={handleTodayClick}>
+                  Hôm nay
+                </button>
               </div>
             </div>
-          )}
+          </div>
           <Popover.Arrow className={styles.arrow} />
         </Popover.Content>
       </Popover.Portal>

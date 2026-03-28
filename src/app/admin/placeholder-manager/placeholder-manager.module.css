@@ -1,47 +1,24 @@
 .pageContainer {
-  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: var(--spacing-md);
+  flex-shrink: 0;
 }
 
-.titleBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
 
-.title {
-  font-family: var(--font-admin-title);
-  font-size: 15px;
-  font-weight: 500;
-  text-transform: capitalize;
-  line-height: 1.2;
-  color: var(--color-admin-text-primary);
-  margin: 0;
-}
-
-.subtitle {
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--color-admin-text-muted);
-  margin: 0;
-}
 
 .controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #eae9eb;
   gap: var(--spacing-sm);
-  background-color: #fff;
-  padding: 16px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f1f1;
+  flex-wrap: wrap;
 }
 
 .left {
@@ -49,7 +26,6 @@
   align-items: center;
   gap: var(--spacing-sm);
   flex: 1;
-  flex-wrap: wrap;
 }
 
 .searchWrapper {
@@ -142,15 +118,14 @@
 }
 
 .tableContainer {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-md);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .paginationWrapper {
-  padding: 0 16px 16px;
-  background-color: #fff;
+  padding: 0;
 }
 
 .paginationWrapper :global(.container) {
@@ -162,22 +137,25 @@
 }
 
 .tableWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   overflow-x: auto;
+  min-height: 0;
   -webkit-overflow-scrolling: touch;
 }
 
 .table {
   width: 100%;
-  min-width: 1100px;
   border-collapse: collapse;
   table-layout: auto;
 }
 
-.table thead {
-  background-color: rgba(242, 242, 244, 0.5);
-}
-
 .table th {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: #f2f2f4;
   padding: 10px 14px;
   text-align: left;
   font-family: var(--font-body);
@@ -186,7 +164,6 @@
   color: #343a40;
   border-bottom: 1px solid var(--color-border-default);
   white-space: nowrap;
-  text-transform: uppercase;
 }
 
 .table tbody tr {
@@ -200,15 +177,16 @@
 }
 
 .table tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.03) !important;
+  position: relative;
+  z-index: 20;
 }
 
 .table td {
-  padding: var(--spacing-sm);
+  padding: 8px 14px;
   font-family: var(--font-body);
   font-size: 14px;
   color: var(--color-text-primary);
-  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .emptyState {
@@ -266,11 +244,45 @@
   color: #721c24;
 }
 
+.sttCol {
+  position: sticky;
+  left: 0;
+  background-color: #fff !important;
+  z-index: 5;
+  text-align: center !important;
+}
+
+.table thead th.sttCol {
+  z-index: 60;
+  background-color: #f2f2f4 !important;
+}
+
+.table tbody tr:hover .sttCol {
+  background-color: #f8f9fa !important;
+  z-index: 30;
+}
+
 .actions {
   display: flex;
   align-items: center;
   gap: 8px;
-  justify-content: flex-end;
+}
+
+.stickyActionsCol {
+  position: sticky;
+  right: 0;
+  background-color: #fff !important;
+  z-index: 5;
+}
+
+.table thead th.stickyActionsCol {
+  z-index: 60;
+  background-color: #f2f2f4 !important;
+}
+
+.table tbody tr:hover .stickyActionsCol {
+  background-color: #f8f9fa !important;
+  z-index: 30;
 }
 
 /* ── Tooltip cho nút thao tác ── */

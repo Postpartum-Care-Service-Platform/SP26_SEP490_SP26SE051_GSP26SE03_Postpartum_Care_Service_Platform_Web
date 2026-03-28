@@ -1,20 +1,15 @@
 .wrapper {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #eae9eb;
+  border-bottom: 1px solid #f1f1f1;
   gap: var(--spacing-sm);
-  background-color: #fff;
   padding: 16px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  background-color: #fff;
 }
 
 .left {

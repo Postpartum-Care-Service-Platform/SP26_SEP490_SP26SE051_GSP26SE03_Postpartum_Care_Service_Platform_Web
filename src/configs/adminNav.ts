@@ -16,14 +16,17 @@ import {
   Settings2,
   UserCircle,
   Users,
+  Sparkles,
+  Ticket,
+  SquarePen,
+  Hash,
+  Soup,
+  BookOpen,
+  History,
   Utensils,
   CreditCard,
   Settings,
   Shield,
-  Palette,
-  Sparkles,
-  Ticket,
-  Building2,
 } from 'lucide-react';
 
 export type AdminNavItem = {
@@ -31,7 +34,12 @@ export type AdminNavItem = {
   label: string;
   href?: string;
   icon?: React.ComponentType<{ size?: number | string; className?: string }>;
-  children?: Array<{ key: string; label: string; href: string }>;
+  children?: Array<{ 
+    key: string; 
+    label: string; 
+    href: string;
+    icon?: React.ComponentType<{ size?: number | string; className?: string }>;
+  }>;
 };
 
 export type AdminNavSection = {
@@ -50,12 +58,6 @@ export const adminNav: AdminNavSection[] = [
         label: 'Bảng điều khiển',
         href: '/admin',
         icon: LayoutDashboard,
-      },
-      {
-        key: 'account-overview',
-        label: 'Tổng quan tài khoản',
-        href: '/admin/account-overview',
-        icon: UserCircle,
       },
       {
         key: 'patients',
@@ -105,16 +107,11 @@ export const adminNav: AdminNavSection[] = [
         href: '/admin/contract',
         icon: FileText,
       },
+
       {
-        key: 'medical-record',
-        label: 'Hồ sơ y tế',
-        href: '/admin/medical-record',
-        icon: FileHeart,
-      },
-      {
-        key: 'care-plan-detail',
-        label: 'Chi tiết kế hoạch chăm sóc',
-        href: '/admin/care-plan-detail',
+        key: 'package-activities',
+        label: 'Hoạt động gói dịch vụ',
+        href: '/admin/package-activities',
         icon: ClipboardCheck,
       },
       {
@@ -125,18 +122,7 @@ export const adminNav: AdminNavSection[] = [
       },
     ],
   },
-  {
-    key: 'facilities',
-    label: 'Cơ sở vật chất',
-    items: [
-      {
-        key: 'room-visualizer',
-        label: 'Sơ đồ tòa nhà',
-        href: '/admin/room-visualizer',
-        icon: Building2,
-      },
-    ],
-  },
+
   {
     key: 'management',
     label: 'Quản lý',
@@ -150,16 +136,19 @@ export const adminNav: AdminNavSection[] = [
             key: 'food',
             label: 'Món ăn',
             href: '/admin/food',
+            icon: Soup,
           },
           {
             key: 'menu',
             label: 'Thực đơn',
             href: '/admin/menu',
+            icon: BookOpen,
           },
           {
             key: 'menu-record',
             label: 'Bản ghi thực đơn',
             href: '/admin/menu-record',
+            icon: History,
           },
         ],
       },
@@ -208,11 +197,13 @@ export const adminNav: AdminNavSection[] = [
             key: 'templates-editor',
             label: 'Soạn thảo mẫu',
             href: '/admin/templates',
+            icon: SquarePen,
           },
           {
             key: 'placeholder-manager',
             label: 'Quản lý placeholder',
             href: '/admin/placeholder-manager',
+            icon: Hash,
           },
         ],
       },
@@ -240,13 +231,8 @@ export const adminNav: AdminNavSection[] = [
         href: '/admin/settings/roles',
         icon: Shield,
       },
-      {
-        key: 'appearance',
-        label: 'Giao diện',
-        href: '/admin/settings/appearance',
-        icon: Palette,
-      },
     ],
   },
 ];
+
 

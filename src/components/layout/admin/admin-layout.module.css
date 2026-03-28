@@ -1,8 +1,9 @@
 .container {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   background-color: var(--color-bg-primary);
   position: relative;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -108,15 +109,56 @@
   display: none;
 }
 
+.section {
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s ease;
+  margin-bottom: 4px;
+}
+
+.sectionHeader:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
 .sectionLabel {
   font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 500;
-  color: rgba(30, 30, 30, 0.6);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(30, 30, 30, 0.5);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: var(--spacing-sm);
-  margin-bottom: var(--spacing-xs);
+  letter-spacing: 0.8px;
+  text-align: left;
+}
+
+.sectionChevron {
+  color: rgba(30, 30, 30, 0.4);
+  display: flex;
+  align-items: center;
+}
+
+.sectionItems {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
+  padding: 0 4px;
+}
+
+.sectionItemsOpen {
+  max-height: 2000px;
+  transition: max-height 1s ease-in-out;
+  margin-bottom: var(--spacing-sm);
 }
 
 .item {
@@ -178,7 +220,7 @@
   padding: 6px 10px;
   border-radius: 6px;
   z-index: 99999;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   pointer-events: none;
 }
 
@@ -248,11 +290,7 @@
   transition: max-height 1.6s ease;
 }
 
-.submenuLineContainer {
-}
 
-.submenuLineVertical {
-}
 
 .submenuItem {
   display: flex;
@@ -262,8 +300,10 @@
 }
 
 .subitem {
-  display: block;
-  padding: var(--spacing-sm);
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
   font-family: "Lexend Deca", sans-serif;
   font-size: 13.3px;
   font-weight: 400;
@@ -273,7 +313,13 @@
   transition: background-color 0.2s ease, color 0.2s ease;
   flex: 1;
   letter-spacing: 0.0125rem;
-  padding-left: calc(var(--spacing-sm) + 5px);
+  padding-left: 20px;
+}
+
+.subItemIcon {
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0.7;
 }
 
 .subitem:hover {
@@ -295,7 +341,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  height: 100vh;
+  overflow: hidden;
   margin-left: 263.99px;
   transition: margin-left 0.2s ease;
   width: calc(100% - 263.99px);
@@ -304,7 +351,8 @@
 .mainCollapsed {
   margin-left: 76px;
   width: calc(100% - 76px);
-  overflow: visible;
+  overflow: hidden;
+  height: 100vh;
 }
 
 .header {
@@ -329,7 +377,17 @@
 .headerLeft {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
+}
+
+.pageTitle {
+  font-family: var(--font-admin-title);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-admin-text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .headerToggleBtn {
@@ -454,12 +512,22 @@
 
 .content {
   flex: 1;
-  padding: 16px;
-  overflow-x: auto;
-  overflow-y: visible;
+  padding: 16px 16px 0; /* Clear bottom padding for sticky footer */
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+
+.content::-webkit-scrollbar {
+  width: 0;
+}
+
+
+
+
 
 .controlDropdownContent {
   /* Mở rộng khung tổng thể để hạn chế item bị xuống dòng, vẫn responsive */
@@ -491,6 +559,7 @@
     opacity: 0;
     transform: translateY(-6px) scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);

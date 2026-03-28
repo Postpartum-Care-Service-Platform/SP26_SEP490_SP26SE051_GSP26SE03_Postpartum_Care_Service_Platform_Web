@@ -12,13 +12,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
 import { Pagination } from '@/components/ui/pagination';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import amenityTicketService from '@/services/amenity-ticket.service';
 import amenityServiceService from '@/services/amenity-service.service';
 import userService from '@/services/user.service';
 import type { AmenityTicket } from '@/types/amenity-ticket';
 import type { AmenityService } from '@/types/amenity-service';
 import type { Account } from '@/types/account';
-
 import { AmenityTicketListHeader } from './components/AmenityTicketListHeader';
 import styles from './amenity-ticket.module.css';
 
@@ -151,119 +151,139 @@ export default function AdminAmenityTicketPage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <AmenityTicketListHeader />
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <AdminPageLayout
+        header={<AmenityTicketListHeader />}
+        controlPanel={
+          <div className={styles.controls}>
+            <div className={styles.left}>
+              <div className={styles.searchWrapper}>
+                <Search className={styles.searchIcon} size={18} />
+                <input
+                  type="text"
+                  placeholder="Tìm theo khách hàng, dịch vụ..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={styles.searchInput}
+                />
+              </div>
 
-      <div className={styles.controls}>
-        <div className={styles.left}>
-          <div className={styles.searchWrapper}>
-            <Search className={styles.searchIcon} size={18} />
-            <input
-              type="text"
-              placeholder="Tìm theo khách hàng, dịch vụ..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <button type="button" className={styles.filterButton}>
+                    <span>{STATUS_OPTIONS.find(opt => opt.value === statusFilter)?.label || 'Trạng thái'}</span>
+                    <ChevronDownIcon className={styles.chevronIcon} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className={styles.dropdownContent}>
+                  {STATUS_OPTIONS.map((option) => (
+                    <DropdownMenuItem
+                      key={option.value}
+                      className={`${styles.dropdownItem} ${statusFilter === option.value ? styles.dropdownItemActive : ''}`}
+                      onClick={() => setStatusFilter(option.value)}
+                    >
+                      {option.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <button type="button" className={styles.filterButton}>
+                    <span>{SORT_OPTIONS.find(opt => opt.value === sortKey)?.label || 'Sắp xếp'}</span>
+                    <ChevronDownIcon className={styles.chevronIcon} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className={styles.dropdownContent}>
+                  {SORT_OPTIONS.map((option) => (
+                    <DropdownMenuItem
+                      key={option.value}
+                      className={`${styles.dropdownItem} ${sortKey === option.value ? styles.dropdownItemActive : ''}`}
+                      onClick={() => setSortKey(option.value)}
+                    >
+                      {option.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <div className={styles.right}>
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <button className={styles.exportButton}>
+                    <Download className={styles.exportIcon} />
+                    Nhập/Xuất
+                    <ChevronDownIcon className={styles.chevronIcon} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className={styles.dropdownContent} align="end">
+                  <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+                    <Upload size={16} className={styles.itemIcon} />
+                    Nhập từ Excel
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+                    <Download size={16} className={styles.itemIcon} />
+                    Xuất ra Excel
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
-
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <button type="button" className={styles.filterButton}>
-                <span>{STATUS_OPTIONS.find(opt => opt.value === statusFilter)?.label || 'Trạng thái'}</span>
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {STATUS_OPTIONS.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  className={`${styles.dropdownItem} ${statusFilter === option.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setStatusFilter(option.value)}
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <button type="button" className={styles.filterButton}>
-                <span>{SORT_OPTIONS.find(opt => opt.value === sortKey)?.label || 'Sắp xếp'}</span>
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {SORT_OPTIONS.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  className={`${styles.dropdownItem} ${sortKey === option.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setSortKey(option.value)}
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div className={styles.right}>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <button className={styles.exportButton}>
-                <Download className={styles.exportIcon} />
-                Nhập/Xuất
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent} align="end">
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
-                <Upload size={16} className={styles.itemIcon} />
-                Nhập từ Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
-                <Download size={16} className={styles.itemIcon} />
-                Xuất ra Excel
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </div>
-
-      <div className={styles.tableWrapper}>
-        <div className={styles.tableScrollArea}>
+        }
+        pagination={
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalItems={filteredTickets.length}
+            onPageChange={handlePageChange}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            onPageSizeChange={(size: number) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+            showResultCount={true}
+          />
+        }
+      >
+        <div className={styles.tableWrapper}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>STT</th>
-                <th>Mã Ticket</th>
+                <th className={styles.sttCol}>STT</th>
+                <th className={styles.codeCol}>Mã Ticket</th>
                 <th>Khách hàng</th>
                 <th>Tên tiện ích</th>
-                <th>Thời gian bắt đầu</th>
-                <th>Thời gian kết thúc</th>
-                <th>Trạng thái</th>
-                <th>Thao tác</th>
+                <th className={styles.dateCol}>Bắt đầu</th>
+                <th className={styles.dateCol}>Kết thúc</th>
+                <th className={styles.statusCol}>Trạng thái</th>
+                <th className={styles.stickyActionsCol}>Thao tác</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className={styles.content}>Đang tải dữ liệu...</td>
+                  <td colSpan={8} className={styles.loadingCell}>Đang tải dữ liệu...</td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={8} className={styles.content}>{error}</td>
+                  <td colSpan={8} className={styles.errorCell}>{error}</td>
                 </tr>
               ) : paginatedTickets.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className={styles.emptyRow}>Không có dữ liệu khớp với tìm kiếm</td>
+                  <td colSpan={8} className={styles.emptyRow}>
+                    <div className={styles.emptyState}>
+                      <p>Không có dữ liệu khớp với tìm kiếm</p>
+                    </div>
+                  </td>
                 </tr>
               ) : (
                 paginatedTickets.map((ticket, index) => (
                   <tr key={ticket.id}>
-                    <td>{(currentPage - 1) * pageSize + index + 1}</td>
-                    <td><b>#{ticket.id}</b></td>
+                    <td className={styles.sttCol}>{(currentPage - 1) * pageSize + index + 1}</td>
+                    <td className={styles.codeCol}><b>#{ticket.id}</b></td>
                     <td>
                       <div className={styles.tooltipWrapper}>
                         <span className={styles.textTruncate}>{getCustomerName(ticket.customerId)}</span>
@@ -276,14 +296,14 @@ export default function AdminAmenityTicketPage() {
                         <span className={styles.tooltip}>{getServiceName(ticket.amenityServiceId)}</span>
                       </div>
                     </td>
-                    <td>{formatDateTime(ticket.startTime)}</td>
-                    <td>{formatDateTime(ticket.endTime)}</td>
-                    <td>
+                    <td className={styles.dateCol}>{formatDateTime(ticket.startTime)}</td>
+                    <td className={styles.dateCol}>{formatDateTime(ticket.endTime)}</td>
+                    <td className={styles.statusCol}>
                       <span className={`${styles.statusBadge} ${styles[`status-${ticket.status}`]}`}>
                         {STATUS_OPTIONS.find(opt => opt.value === ticket.status)?.label || ticket.status}
                       </span>
                     </td>
-                    <td>
+                    <td className={styles.stickyActionsCol}>
                       <div className={styles.actions}>
                         <div className={styles.tooltipWrapper}>
                           <button className={`${styles.actionButton} ${styles.viewButton}`} type="button">
@@ -299,25 +319,7 @@ export default function AdminAmenityTicketPage() {
             </tbody>
           </table>
         </div>
-      </div>
-
-      {!loading && totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            totalItems={filteredTickets.length}
-            onPageChange={handlePageChange}
-            pageSizeOptions={PAGE_SIZE_OPTIONS}
-            onPageSizeChange={(size) => {
-              setPageSize(size);
-              setCurrentPage(1);
-            }}
-            showResultCount={true}
-          />
-        </div>
-      )}
+      </AdminPageLayout>
     </div>
   );
 }

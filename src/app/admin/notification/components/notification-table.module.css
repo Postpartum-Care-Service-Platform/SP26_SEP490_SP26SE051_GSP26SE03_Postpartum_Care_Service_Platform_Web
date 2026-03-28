@@ -1,55 +1,35 @@
 .container {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-md);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .tableWrapper {
-  overflow-x: auto;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  margin-bottom: var(--spacing-md);
-  max-height: calc(100vh - 300px);
-  scrollbar-width: thin;
-  scrollbar-color: #fbb96a #f1f3f5;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-.tableWrapper::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.tableWrapper::-webkit-scrollbar-track {
-  background: #f1f3f5;
-  border-radius: 0;
-}
-
-.tableWrapper::-webkit-scrollbar-thumb {
-  background: #fbb96a;
-  border-radius: 0;
-}
-
-.tableWrapper::-webkit-scrollbar-thumb:hover {
-  background: #fa8314;
-}
 
 .table {
   width: 100%;
-  min-width: 1100px;
+  min-width: 1400px; /* Force overflow to trigger layout scrollbar */
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
 }
 
 .table thead {
   background-color: #f2f2f4;
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 250;
 }
 
+
+
 .table thead th {
-  background-color: #f2f2f4;
+  background-color: inherit;
 }
 
 .table th {
@@ -61,17 +41,33 @@
   color: #343a40;
   border-bottom: 1px solid var(--color-border-default);
   white-space: nowrap;
+  background-color: inherit;
 }
 
+.table th:nth-child(1) { width: 50px; } /* STT */
+.table th:nth-child(2) { width: 15%; } /* Tiêu đề */
+.table th:nth-child(3) { width: 25%; } /* Nội dung */
+.table th:nth-child(4) { width: 10%; } /* Loại thông báo */
+.table th:nth-child(5) { width: 10%; } /* Người gửi */
+.table th:nth-child(6) { width: 10%; } /* Người nhận */
+.table th:nth-child(7) { width: 100px; } /* Trạng thái */
+.table th:nth-child(8) { width: 100px; } /* Ngày tạo */
+.table th:nth-child(9) { width: 100px; } /* Ngày cập nhật */
+.table th:nth-child(10) { width: 100px; } /* Thao tác */
+
+
 .table tbody tr {
-  background-color: #fff !important;
+  background-color: #fff;
   border-bottom: 1px solid var(--color-border-default);
   transition: background-color 0.2s ease;
 }
 
 .table tbody tr:hover {
-  background-color: #f8f9fa !important;
+  background-color: #f8f9fa;
+  position: relative;
+  z-index: 100;
 }
+
 
 .table td {
   padding: 6px 12px;
@@ -83,6 +79,7 @@
 
 .truncateCell {
   max-width: 200px;
+  overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: help;
@@ -96,17 +93,28 @@
 .titleCell {
   font-weight: 500;
   min-width: 150px;
-  max-width: 250px;
-  white-space: nowrap;
+  max-width: 200px;
+  overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .contentCell {
   min-width: 200px;
-  max-width: 350px;
-  white-space: nowrap;
+  max-width: 300px;
+  overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
+.typeCell, .staffCell, .receiverCell {
+  min-width: 100px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 
 .statusBadge {
   display: inline-block;
@@ -184,11 +192,12 @@
 
 .sttHeaderCell {
   text-align: center !important;
-  width: 60px;
+  width: 50px;
 }
 
 .sttDataCell {
   text-align: center !important;
+  width: 50px;
 }
 
 .tooltipWrapper {
@@ -198,19 +207,22 @@
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%) scale(0.85);
   background-color: #343a40;
   color: #fff;
   font-size: 11px;
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 300px;
+  width: max-content;
   padding: 4px 8px;
   border-radius: 5px;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
+  z-index: 1000;
+  line-height: 1.4;
 }
 
 .tooltipWrapper .tooltip::after {
@@ -223,9 +235,20 @@
   border-top-color: #343a40;
 }
 
-.tooltipWrapper:hover {
-  z-index: 100 !important;
+.table:has(.tooltipWrapper:hover) thead th {
+  z-index: 1 !important;
 }
+
+.table td:has(.tooltipWrapper:hover) {
+  z-index: 2000 !important;
+  position: relative;
+}
+
+.table td[class*="sticky"]:has(.tooltipWrapper:hover) {
+  position: sticky;
+  z-index: 2000 !important;
+}
+
 
 .tooltipWrapper:hover .tooltip {
   opacity: 1;
@@ -236,21 +259,27 @@
 .stickyActionsCol {
   position: sticky;
   right: 0;
-  background-color: #ffffff !important;
-  z-index: 5;
-  min-width: 100px;
-  border-left: none !important;
-  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  z-index: 10;
+  width: 120px;
+  min-width: 120px;
+  padding-right: 15px !important;
 }
+
 
 .table thead th.stickyActionsCol {
-  z-index: 15;
-  background-color: #f2f2f4 !important;
+  z-index: 300;
+  background-color: #f2f2f4;
 }
 
+
+
 .table tbody tr:hover .stickyActionsCol {
-  background-color: #f8f9fa !important;
+  background-color: #f8f9fa;
+  z-index: 200;
 }
+
+
 
 .emptyState {
   text-align: center;

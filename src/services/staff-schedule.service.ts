@@ -19,7 +19,9 @@ export interface CreateFamilyScheduleRequest {
 const staffScheduleService = {
   getStaffSchedule: (params: GetStaffScheduleParams): Promise<StaffSchedule[]> => {
     const { staffId, from, to } = params;
-    return apiClient.get(`/StaffSchedule/${staffId}`, {
+    // If staffId is provided, fetch for that specific staff. Otherwise, fetch all.
+    const url = staffId ? `/StaffSchedule/${staffId}` : '/StaffSchedule';
+    return apiClient.get(url, {
       params: { from, to },
     });
   },

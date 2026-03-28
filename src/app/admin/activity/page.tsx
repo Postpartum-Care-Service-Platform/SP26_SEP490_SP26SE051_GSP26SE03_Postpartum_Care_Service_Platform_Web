@@ -1,17 +1,16 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-
 import { useToast } from '@/components/ui/toast/use-toast';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { Pagination } from '@/components/ui/pagination';
 import activityService from '@/services/activity.service';
 import type { Activity } from '@/types/activity';
-
 import styles from './activity.module.css';
 import { ActivityListHeader, ActivityTable, ActivityTableControls, NewActivityModal } from './components';
 
-
 const DEFAULT_PAGE_SIZE = 10;
-const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
+const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
 const sortActivities = (items: Activity[], sort: string) => {
   const arr = [...items];
@@ -78,7 +77,7 @@ export default function AdminActivityPage() {
 
     if (statusFilter !== 'all') {
       filtered = filtered.filter((a) =>
-        statusFilter === 'active' ? a.status === 'Active' : a.status !== 'Active'
+        statusFilter === 'active' ? (a.status === 0 || a.status === 'Active') : (a.status === 1 || a.status === 'Inactive')
       );
     }
 
@@ -135,46 +134,51 @@ export default function AdminActivityPage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <ActivityListHeader />
-      {loading ? (
-        <div className={styles.content}>
-          <p>Đang tải dữ liệu...</p>
-        </div>
-      ) : error ? (
-        <div className={styles.content}>
-          <p>{error}</p>
-        </div>
-      ) : (
-        <>
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <AdminPageLayout
+        header={<ActivityListHeader />}
+        controlPanel={
           <ActivityTableControls
             onSearch={(q) => setSearchQuery(q)}
             onSortChange={(sort) => setSortKey(sort)}
             onStatusChange={(status) => setStatusFilter(status)}
             onNewActivity={() => setIsModalOpen(true)}
           />
-
+        }
+        pagination={
+          totalPages > 0 ? (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={filteredActivities.length}
+              onPageChange={handlePageChange}
+              pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
+              onPageSizeChange={handlePageSizeChange}
+              showResultCount={true}
+            />
+          ) : null
+        }
+      >
+        {loading ? (
+          <div className={styles.loadingState}>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        ) : error ? (
+          <div className={styles.errorState}>
+            <p>{error}</p>
+          </div>
+        ) : (
           <ActivityTable
             activities={paginatedActivities}
             onEdit={handleEdit}
             onDelete={handleDelete}
             deletingId={deletingId}
-            pagination={
-              totalPages > 0
-                ? {
-                    currentPage,
-                    totalPages,
-                    pageSize,
-                    totalItems: filteredActivities.length,
-                    onPageChange: handlePageChange,
-                    pageSizeOptions: [...PAGE_SIZE_OPTIONS],
-                    onPageSizeChange: handlePageSizeChange,
-                  }
-                : undefined
-            }
+            currentPage={currentPage}
+            pageSize={pageSize}
           />
-        </>
-      )}
+        )}
+      </AdminPageLayout>
 
       <NewActivityModal
         open={isModalOpen}

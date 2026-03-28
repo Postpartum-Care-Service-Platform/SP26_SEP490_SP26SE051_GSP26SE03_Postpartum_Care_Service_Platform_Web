@@ -1,0 +1,258 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  flex: 1;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1d23;
+  margin: 0;
+}
+
+.count {
+  font-size: 13px;
+  color: #8a92a4;
+  font-weight: 500;
+}
+
+.packagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.packageCard {
+  background-color: #fff;
+  border: 1px solid #f1f3f5;
+  border-radius: 6px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.packageCard:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border-color: #e2e8f0;
+  transform: translateY(-2px);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.nameSection {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.packageName {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1d23;
+  margin: 0;
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  width: fit-content;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.active .statusBadge {
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+
+.completed .statusBadge {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.pending .statusBadge {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1d23;
+}
+
+.description {
+  font-size: 13px;
+  color: #8a92a4;
+  line-height: 1.5;
+  margin: 4px 0;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid #f1f3f5;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statIcon {
+  color: #8a92a4;
+}
+
+.statInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #adb5bd;
+}
+
+.statValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1d23;
+}
+
+.progressBarWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progressLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 500;
+  color: #8a92a4;
+}
+
+.progressBar {
+  height: 8px;
+  background-color: #f1f3f5;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #fa8314;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  transition: width 0.3s ease-out;
+}
+
+.detailsButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.detailsButton:hover {
+  background-color: #fa8314;
+  color: #fff;
+  border-color: #fa8314;
+}
+
+/* ── Empty State ── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  background-color: #fff;
+  border: 1px dashed #e2e8f0;
+  border-radius: 6px;
+  text-align: center;
+  flex: 1;
+}
+
+.emptyIcon {
+  width: 72px;
+  height: 72px;
+  background-color: #fff7ed;
+  color: #fa8314;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.emptyText {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 10px 0;
+}
+
+.emptySubtext {
+  font-size: 14px;
+  color: #64748b;
+  max-width: 320px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.registerButton {
+  padding: 10px 24px;
+  background-color: #fa8314;
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.registerButton:hover {
+  background-color: #e67300;
+  transform: translateY(-1px);
+}

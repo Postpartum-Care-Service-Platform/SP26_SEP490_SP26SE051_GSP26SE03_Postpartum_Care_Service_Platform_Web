@@ -1,22 +1,36 @@
+.container {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .tableWrapper {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-md);
-  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .table {
   width: 100%;
+  min-width: 1200px;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .table thead {
-  background-color: rgba(242, 242, 244, 0.5);
+  background-color: #f2f2f4;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.table thead th {
+  background-color: inherit;
 }
 
 .table th {
-  padding: 10px 14px;
+  padding: 8px 12px;
   text-align: left;
   font-family: 'Funnel Sans', sans-serif;
   font-size: 13px;
@@ -24,152 +38,168 @@
   color: #343a40;
   border-bottom: 1px solid var(--color-border-default);
   white-space: nowrap;
+  background-color: inherit;
 }
 
+/* Column widths */
+.table th:nth-child(1) { width: 60px; }  /* STT */
+.table th:nth-child(2) { width: auto; }  /* Name */
+.table th:nth-child(3) { width: 140px; } /* Status */
+.table th:nth-child(4) { width: 140px; } /* Created At */
+.table th:nth-child(5) { width: 120px; } /* Actions */
+
 .table tbody tr {
-  background-color: #fff !important;
+  background-color: #fff;
   border-bottom: 1px solid var(--color-border-default);
   transition: background-color 0.2s ease;
 }
 
+.table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
 .table tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.03) !important;
+  background-color: #f8f9fa;
+  position: relative;
+  z-index: 100;
 }
 
 .table td {
-  padding: var(--spacing-sm);
+  padding: 8px 12px;
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-primary);
+  white-space: nowrap;
 }
 
-.name {
+.nameCell {
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.inlineNameInput {
-  width: 100%;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  padding: 4px 6px;
-  font-family: var(--font-body);
-  font-size: 14px;
-  color: var(--color-text-primary);
-  background-color: transparent;
-}
-
-.inlineNameInput:focus {
-  outline: none;
-  border-color: var(--color-brand-accent);
-  background-color: #f8f9fa;
-}
-
-.statusBadge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
-  font-family: var(--font-body);
-}
-
-.statusActive {
-  background-color: rgba(21, 128, 61, 0.1);
-  color: #15803d;
-}
-
-.statusInactive {
-  background-color: rgba(185, 28, 28, 0.1);
-  color: #b91c1c;
-}
-
-/* Dropdown-style status pill (2 trạng thái: Hoạt động / Tạm dừng) */
-.statusTrigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
+/* Status Dot Styles */
+.plainTrigger {
+  background: transparent;
   border: none;
   cursor: pointer;
-  font-family: 'Funnel Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #172b4d;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4px;
+  width: 100%;
 }
 
-.statusTriggerActive {
-  background-color: rgba(21, 128, 61, 0.18);
-  color: #15803d;
-}
-
-.statusTriggerInactive {
-  background-color: rgba(185, 28, 28, 0.16);
-  color: #b91c1c;
-}
-
-.statusTrigger:disabled {
-  opacity: 0.7;
-  cursor: default;
-}
-
-.statusCaret {
+.statusIndicator {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.85;
+  position: relative;
+  width: 8px;
+  height: 8px;
 }
 
+.statusCircle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+}
+
+.statusAnimated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: inherit;
+  z-index: 1;
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  70% { transform: scale(2.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.statusActive .statusCircle { background-color: #10B981; }
+.statusActive .statusIndicator.statusAnimated::after { background-color: #10B981; }
+.statusInactive .statusCircle { background-color: #EF4444; }
+.statusInactive .statusIndicator.statusAnimated::after { background-color: #EF4444; }
+
 .statusMenu {
-  min-width: 180px;
+  min-width: 160px;
   padding: 6px 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 6px;
   background: #fff;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  z-index: 1000;
 }
 
-.statusItem {
+.statusMenuItem {
   width: 100%;
   display: flex;
   align-items: center;
-  padding: 6px 10px;
-  font-family: 'Funnel Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: #172b4d;
+  padding: 8px 12px;
   cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: #343a40;
 }
 
-.statusItem:hover {
-  background: rgba(9, 30, 66, 0.06);
-}
+.statusMenuItem:hover { background: rgba(0, 0, 0, 0.05); }
 
-.statusPill {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.statusPillActive {
-  background-color: rgba(21, 128, 61, 0.12);
-  color: #15803d;
-}
-
-.statusPillInactive {
-  background-color: rgba(185, 28, 28, 0.12);
-  color: #b91c1c;
-}
-
+/* Actions Column */
 .actions {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* ── Tooltip cho nút thao tác ── */
+.editButton {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: rgba(164, 123, 200, 0.15) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  color: #a47bc8 !important;
+}
+
+.editButton:hover {
+  background-color: #a379c7 !important;
+  color: #fff !important;
+}
+
+.deleteButton {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: rgba(253, 97, 97, 0.15) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  color: #fd6161 !important;
+}
+
+.deleteButton:hover {
+  background-color: #fc6060 !important;
+  color: #fff !important;
+}
+
+/* Tooltip */
 .tooltipWrapper {
   position: relative;
   display: inline-flex;
@@ -189,17 +219,7 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
-}
-
-.tooltipWrapper .tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: #343a40;
+  z-index: 2000;
 }
 
 .tooltipWrapper:hover .tooltip {
@@ -207,73 +227,43 @@
   transform: translateX(-50%) scale(1);
 }
 
-.editButton {
-  width: calc(16px + 0.5rem + 4px) !important;
-  height: calc(16px + 0.5rem + 4px) !important;
-  font-size: 0.8rem !important;
-  padding: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(164, 123, 200, 0.15) !important;
-  border-color: transparent !important;
-  border-radius: 3.6px !important;
+/* Sticky Actions */
+.stickyActionsCol {
+  position: sticky;
+  right: 0;
+  background-color: #ffffff;
+  z-index: 20;
+  width: 120px;
+  min-width: 120px;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
 }
 
-.editButton:hover {
-  background-color: #a379c7 !important;
+.table thead th.stickyActionsCol {
+  z-index: 60;
+  background-color: #f2f2f4;
 }
 
-.editButton:hover svg {
-  fill: #ffffff !important;
+.table tbody tr:hover .stickyActionsCol {
+  background-color: #f8f9fa;
 }
 
-.deleteButton {
-  width: calc(16px + 0.5rem + 4px) !important;
-  height: calc(16px + 0.5rem + 4px) !important;
-  font-size: 0.8rem !important;
-  padding: 0.5rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(253, 97, 97, 0.15) !important;
-  border-color: transparent !important;
-  border-radius: 3.6px !important;
+.table tbody tr:nth-child(even) .stickyActionsCol {
+  background-color: #fafafa;
 }
 
-.deleteButton:hover {
-  background-color: #fc6060 !important;
-}
-
-.deleteButton:hover svg {
-  fill: #ffffff !important;
+.table tbody tr:nth-child(even):hover .stickyActionsCol {
+  background-color: #f8f9fa;
 }
 
 .emptyState {
   text-align: center;
-  padding: var(--spacing-xl) !important;
-  color: var(--color-admin-text-muted);
+  padding: 32px !important;
+  color: #6c757d;
   font-family: var(--font-body);
 }
 
-
-
-.paginationWrapper :global(.container) {
-  width: 100%;
-  max-width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin: 0;
-  padding: 0;
-}
-
-.paginationWrapper :global(.resultCount) {
-  margin: 0;
-  flex-shrink: 0;
-}
-
-.paginationWrapper :global(.pagination) {
-  margin: 0;
-  flex-shrink: 0;
+.sttCell {
+  color: #555;
+  font-weight: 600;
+  font-size: 12px;
 }

@@ -1,9 +1,11 @@
 'use client';
 
+import { ChevronDownIcon } from '@radix-ui/react-icons';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import React from 'react';
-
+ 
 import LogoSymbol from '@/assets/images/Symbol-Orange-180x180.png';
 import { useAuth } from '@/contexts/AuthContext';
 import { ROUTES } from '@/routes/routes';
@@ -13,7 +15,13 @@ import '@/styles/header.css';
 
 const MENU_ITEMS = [
   { label: 'The Joyful Experience', href: '/the-joyful-experience' },
-  { label: 'Phòng Nghỉ', href: '/phong-nghi' },
+  { 
+    label: 'Phòng Nghỉ', 
+    href: '/phong-nghi',
+    children: [
+      { label: 'Gói', href: '/phong-nghi/goi' }
+    ]
+  },
   { label: 'Ẩm Thực', href: '/am-thuc' },
   { label: 'Sức Khỏe', href: '/suc-khoe' },
   { label: 'Tiện Ích', href: '/tien-ich' },
@@ -23,6 +31,7 @@ const MENU_ITEMS = [
 
 export function Header() {
   const { isAuthenticated } = useAuth();
+  const pathname = usePathname();
 
   return (
     <header className="tjn-header" aria-label="Site header">
@@ -30,18 +39,48 @@ export function Header() {
         <div className="tjn-header__inner">
           {/* Logo */}
           <Link className="tjn-header__brand" href="/" aria-label="The Joyful Nest">
-            <Image className="tjn-header__logo" src={LogoSymbol} alt="The Joyful Nest" priority />
-            <span className="tjn-header__brandText">The Joyful Nest</span>
+            <Image
+              className="tjn-header__logo"
+              src="/thejoyfulnest/food/Logo-Orange.svg"
+              alt="The Joyful Nest"
+              width={220}
+              height={45}
+              style={{ height: 'auto', width: 'auto', minWidth: '180px' }}
+              priority
+            />
           </Link>
 
-          {/* Menu */}
           <nav className="tjn-header__nav" aria-label="Primary">
             <div className="row-menu-inner">
-              {MENU_ITEMS.map((item) => (
-                <a key={item.label} className="tjn-header__link" href={item.href}>
-                  {item.label}
-                </a>
-              ))}
+              {MENU_ITEMS.map((item) => {
+                const hasChildren = item.children && item.children.length > 0;
+                
+                return (
+                  <div key={item.label} className={`tjn-header__nav-item ${hasChildren ? 'has-dropdown' : ''}`}>
+                    <Link
+                      className={`tjn-header__link ${pathname === item.href ? 'is-active' : ''}`}
+                      href={item.href}
+                    >
+                      {item.label}
+                      {hasChildren && <ChevronDownIcon className="dropdown-icon" />}
+                    </Link>
+                    
+                    {hasChildren && (
+                      <div className="tjn-header__submenu">
+                        {item.children?.map((child) => (
+                          <Link
+                            key={child.label}
+                            href={child.href}
+                            className="tjn-header__submenu-link"
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </nav>
 
@@ -51,12 +90,12 @@ export function Header() {
               <UserNav />
             ) : (
               <>
-                <a className="tjn-header__login" href={ROUTES.login}>
+                <Link className="tjn-header__login" href={ROUTES.login}>
                   Đăng nhập
-                </a>
-                <a className="tjn-header__quote" href="/bao-gia">
+                </Link>
+                <Link className="tjn-header__quote" href="/bao-gia">
                   Yêu cầu báo giá
-                </a>
+                </Link>
               </>
             )}
           </div>

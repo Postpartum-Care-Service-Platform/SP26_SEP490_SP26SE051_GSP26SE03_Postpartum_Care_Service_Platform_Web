@@ -1,31 +1,81 @@
 .container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
   min-height: 0;
+  height: 100%;
 }
 
 .header {
   flex-shrink: 0;
+  padding: 0 16px 16px;
 }
+
+.contentCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  box-shadow: var(--shadow-sm);
+  min-height: 0;
+  position: relative;
+}
+
 
 .controlPanel {
   flex-shrink: 0;
+  position: relative;
+  z-index: 500;
 }
 
+
 .scrollArea {
-  flex: 1;
+  flex-shrink: 1;
+  flex-grow: 1;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: auto;
+  overflow: auto;
+  background-color: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.noScroll {
+  overflow: hidden !important;
+}
+
+
+.scrollArea::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.scrollArea::-webkit-scrollbar-track {
+  background: #f1f3f5;
+}
+
+.scrollArea::-webkit-scrollbar-thumb {
+  background-color: #fb923c;
+}
+
+
+.scrollArea::-webkit-scrollbar-thumb:hover {
+  background-color: #f97316;
 }
 
 .tableContainer {
   min-width: 100%;
-  overflow-x: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
 .pagination {
   flex-shrink: 0;
   background-color: #fff;
+  border-top: 1px solid #e2e8f0;
+  padding: 8px 16px;
+  z-index: 5;
+  /* Lowered */
 }

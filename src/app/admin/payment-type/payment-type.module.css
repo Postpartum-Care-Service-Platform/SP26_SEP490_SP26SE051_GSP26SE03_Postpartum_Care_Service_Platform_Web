@@ -1,18 +1,12 @@
-/* ── Page layout ── */
 .pageContainer {
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 16px;
+  padding: 0;
 }
 
 /* ── STT cell với tooltip ── */
-.sttCell {
-  cursor: help;
-  border-bottom: 1px dashed #aaa;
-  display: inline-block;
-  line-height: 1.4;
-}
+.sttCell { cursor: help; display: inline-block; line-height: 1.4; }
 
 /* ── Controls bar ── */
 .controls {
@@ -22,8 +16,7 @@
   gap: var(--spacing-sm);
   background-color: #fff;
   padding: 16px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid #f1f1f1;
 }
 
 .controlsLeft {
@@ -185,9 +178,9 @@
 
 /* ── Table ── */
 .tableContainer {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .tableWrapper {
@@ -216,8 +209,17 @@
   border-bottom: 1px solid var(--color-border-default);
 }
 
+.table tr {
+  background-color: #fff !important;
+  transition: background-color 0.2s ease;
+}
+
+.table tr:nth-child(even) {
+  background-color: #fafafa !important;
+}
+
 .table tr:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+  background-color: #f8f9fa !important;
 }
 
 .nameCell {
@@ -308,5 +310,5 @@
 
 /* Pagination */
 .paginationWrapper {
-  padding: 16px;
+  padding: 0;
 }

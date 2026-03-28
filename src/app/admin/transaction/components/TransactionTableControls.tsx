@@ -82,59 +82,61 @@ export function TransactionTableControls({
         />
       </div>
 
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className={styles.filterButton}>
-            <MixerHorizontalIcon className={styles.filterIcon} />
-            {getFilterLabel()}
-            <ChevronDownIcon className={styles.chevronIcon} />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className={styles.dropdownContent}>
-          <DropdownMenuLabel className={styles.dropdownLabel}>Trạng thái</DropdownMenuLabel>
-          {STATUS_OPTIONS.map((option) => (
-            <DropdownMenuItem
-              key={option.value}
-              className={`${styles.dropdownItem} ${statusFilter === option.value ? styles.dropdownItemActive : ''}`}
-              onClick={() => onStatusChange(option.value)}
-            >
-              {option.label}
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator className={styles.separator} />
-          <DropdownMenuLabel className={styles.dropdownLabel}>Loại</DropdownMenuLabel>
-          {TYPE_OPTIONS.map((option) => (
-            <DropdownMenuItem
-              key={option.value}
-              className={`${styles.dropdownItem} ${typeFilter === option.value ? styles.dropdownItemActive : ''}`}
-              onClick={() => onTypeChange(option.value)}
-            >
-              {option.label}
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator className={styles.separator} />
-          <DropdownMenuLabel className={styles.dropdownLabel}>Sắp xếp</DropdownMenuLabel>
-          {SORT_OPTIONS.map((option) => (
-            <DropdownMenuItem
-              key={option.value}
-              className={`${styles.dropdownItem} ${sortKey === option.value ? styles.dropdownItemActive : ''}`}
-              onClick={() => onSortChange(option.value)}
-            >
-              {option.label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className={styles.controlsRight}>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.filterButton}>
+              <MixerHorizontalIcon className={styles.filterIcon} />
+              {getFilterLabel()}
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent} align="end">
+            <DropdownMenuLabel className={styles.dropdownLabel}>Trạng thái</DropdownMenuLabel>
+            {STATUS_OPTIONS.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                className={`${styles.dropdownItem} ${statusFilter === option.value ? styles.dropdownItemActive : ''}`}
+                onClick={() => onStatusChange(option.value)}
+              >
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator className={styles.separator} />
+            <DropdownMenuLabel className={styles.dropdownLabel}>Loại</DropdownMenuLabel>
+            {TYPE_OPTIONS.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                className={`${styles.dropdownItem} ${typeFilter === option.value ? styles.dropdownItemActive : ''}`}
+                onClick={() => onTypeChange(option.value)}
+              >
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+            <DropdownMenuSeparator className={styles.separator} />
+            <DropdownMenuLabel className={styles.dropdownLabel}>Sắp xếp</DropdownMenuLabel>
+            {SORT_OPTIONS.map((option) => (
+              <DropdownMenuItem
+                key={option.value}
+                className={`${styles.dropdownItem} ${sortKey === option.value ? styles.dropdownItemActive : ''}`}
+                onClick={() => onSortChange(option.value)}
+              >
+                {option.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-      <Button
-        variant="outline"
-        size="sm"
-        className={styles.exportButton}
-        onClick={() => console.log('Export Transaction')}
-      >
-        <Download size={16} className={styles.exportIcon} />
-        Xuất file
-      </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className={styles.exportButton}
+          onClick={() => console.log('Export Transaction')}
+        >
+          <Download size={16} className={styles.exportIcon} />
+          Xuất file
+        </Button>
+      </div>
     </div>
   );
 }

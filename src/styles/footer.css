@@ -3,6 +3,7 @@
   color: #111;
   width: 100%;
   padding: 64px 0 32px;
+  font-family: 'ES Rebond Grotesque', var(--font-body);
 }
 
 .footer__container {
@@ -28,6 +29,7 @@
   font-weight: 500;
   font-size: 16px;
   margin-bottom: 20px;
+  font-family: 'ES Rebond Grotesque', var(--font-body);
 }
 
 .footer__list {
@@ -41,7 +43,8 @@
 .footer__link {
   color: #111;
   text-decoration: none;
-  font-size: 15px;
+  font-size: 14px;
+  font-family: 'ES Rebond Grotesque', var(--font-body);
 }
 
 .footer__link:hover {
@@ -66,6 +69,7 @@
   color: #111;
   min-width: 0;
   outline: none;
+  font-family: 'ES Rebond Grotesque', var(--font-body);
 }
 
 .footer__input:focus {
@@ -85,6 +89,7 @@
   font-size: 14px;
   color: #111;
   padding: 0 24px;
+  font-family: 'ES Rebond Grotesque', var(--font-body);
 }
 
 .footer__submit:hover,

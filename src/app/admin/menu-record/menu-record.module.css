@@ -1,9 +1,24 @@
 .pageContainer {
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.loading,
+.error {
+  padding: 40px;
+  text-align: center;
+  font-family: inherit;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.error {
+  color: #dc2626;
 }
 
 .content {
-  padding: var(--spacing-md);
-  background-color: #fff;
-  border-radius: var(--radius-md);
+  padding: 0px;
 }

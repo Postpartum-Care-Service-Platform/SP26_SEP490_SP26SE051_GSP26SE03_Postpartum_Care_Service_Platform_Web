@@ -113,7 +113,7 @@ function PriorityMark() {
   return <span className={styles.priorityMark} />;
 }
 
-export function WorkScheduleList() {
+export function WorkScheduleList({ onSelectStaff }: { onSelectStaff: (id: string) => void }) {
   const [rows, setRows] = React.useState<Row[]>(demoRows);
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
   const [isCreating, setIsCreating] = React.useState(false);
@@ -445,8 +445,15 @@ export function WorkScheduleList() {
                     <span className={styles.workIconImg}>
                       <Epic16Icon />
                     </span>
-                    <a href="#" className={styles.workCode}>{r.workCode}</a>
-                    <span className={styles.workTitle} title={r.workTitle}>{r.workTitle}</span>
+                    <a href="#" className={styles.workCode} onClick={(e) => { e.preventDefault(); onSelectStaff(r.id); }}>{r.workCode}</a>
+                    <span 
+                      className={styles.workTitle} 
+                      title={r.workTitle}
+                      onClick={() => onSelectStaff(r.id)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {r.workTitle}
+                    </span>
                   </div>
                 </td>
                 <td className={styles.td} style={{ width: colWidths.assignee, minWidth: MIN_COL_WIDTH.assignee, padding: 0 }}>

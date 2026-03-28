@@ -84,12 +84,26 @@ const buildFloorsFromRooms = (rooms: Room[]): Floor[] => {
     }));
 };
 
+export const MOCK_ROOM_DATA: RoomApiDto[] = [
+  { id: 1, roomTypeId: 1, roomTypeName: 'Phòng VIP', name: '101', floor: 1, status: 'Available', isActive: true, createdAt: '', updatedAt: '' },
+  { id: 2, roomTypeId: 1, roomTypeName: 'Phòng VIP', name: '102', floor: 1, status: 'Occupied', isActive: true, createdAt: '', updatedAt: '' },
+  { id: 3, roomTypeId: 2, roomTypeName: 'Phòng Thường', name: '103', floor: 1, status: 'Maintain', isActive: true, createdAt: '', updatedAt: '' },
+  { id: 4, roomTypeId: 2, roomTypeName: 'Phòng Thường', name: '201', floor: 2, status: 'Available', isActive: true, createdAt: '', updatedAt: '' },
+];
+
 export const roomMapService = {
   getFloors: async (): Promise<Floor[]> => {
-    const response = await apiClient.get<RoomApiDto[]>('/Room');
-    const dtos = response.data ?? [];
-    const rooms = dtos.map(mapDtoToRoom);
-    return buildFloorsFromRooms(rooms);
+    try {
+      const response = await apiClient.get<RoomApiDto[]>('/Room');
+      const dtos = response.data ?? [];
+      console.log('Room API Response:', dtos);
+      
+      const rooms = dtos.length > 0 ? dtos.map(mapDtoToRoom) : [];
+      return buildFloorsFromRooms(rooms);
+    } catch (error) {
+      console.error('Lỗi khi gọi API /Room:', error);
+      return [];
+    }
   },
 
   getRoomsByFloor: async (floorNumber: number): Promise<Room[]> => {

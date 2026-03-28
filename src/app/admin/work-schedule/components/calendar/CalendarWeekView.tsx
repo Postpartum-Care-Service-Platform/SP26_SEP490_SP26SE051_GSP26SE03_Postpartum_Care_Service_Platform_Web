@@ -10,18 +10,25 @@ import type { StaffSchedule } from '@/types/staff-schedule';
 
 import styles from './calendar-week-view.module.css';
 import { MiniCalendar } from './MiniCalendar';
+import { ScheduleDetailPopover } from '../shared/ScheduleDetailPopover';
+import { CalendarSidebarExtra } from './CalendarSidebarExtra';
+
 
 // Generate hours - each slot represents 1 hour
 const HOURS = Array.from({ length: 24 }, (_, i) => i); // 24 slots: 12 AM - 11 PM
 const START_HOUR = 0; // Schedule starts at 12 AM
 const TIME_SLOT_STEP = 1; // Each slot represents 1 hour
 
-// Color mapping for target
-const TARGET_COLORS = {
-  Mom: '#FFB6C1',
-  Baby: '#87CEEB',
-  Both: '#DDA0DD',
-} as const;
+const STATUS_COLORS: Record<string, string> = {
+  Scheduled: '#DDEBFF',
+  Done: '#CDEFE1',
+  Missed: '#FBE2E4',
+  Cancelled: '#FBE2E4',
+};
+
+function getStatusColor(status: string): string {
+  return STATUS_COLORS[status] || '#E9EDF5';
+}
 
 function formatTimeSlot(slotIndex: number): string {
   const hour = START_HOUR + slotIndex * TIME_SLOT_STEP;
@@ -36,6 +43,11 @@ function formatEventTime(time: string): string {
   const hour = hours % 12 || 12;
   const ampm = hours >= 12 ? 'PM' : 'AM';
   return `${hour}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+}
+
+function formatTime(time: string): string {
+  const [hours, minutes] = time.split(':');
+  return `${hours}:${minutes}`;
 }
 
 function getEventsForDate(date: Date, events: StaffSchedule[]): StaffSchedule[] {
@@ -53,6 +65,15 @@ function getEventPosition(startTime: string): number {
   return (totalHours - START_HOUR) * 96; // Each hour is 96px
 }
 
+function getEventHeight(startTime: string, endTime: string): number {
+  const [startH, startM] = startTime.split(':').map(Number);
+  const [endH, endM] = endTime.split(':').map(Number);
+  const startTotal = startH + startM / 60;
+  const endTotal = endH + endM / 60;
+  const duration = Math.max(0.5, endTotal - startTotal); // Min 30 mins
+  return duration * 96;
+}
+
 function getCurrentTimePosition(): number {
   const now = new Date();
   const hours = now.getHours(); // Local time - no offset needed
@@ -62,22 +83,34 @@ function getCurrentTimePosition(): number {
   return (hours - START_HOUR) * 96 + (minutes / 60) * 96;
 }
 
-export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: { 
-  monthCursor: Date; 
+export function CalendarWeekView({ 
+  weekCursor, 
+  schedules, 
+  onEventCreated, 
+  onDateChange,
+  selectedStaffId,
+  onStaffSelect,
+}: { 
+  weekCursor: Date; 
   schedules: StaffSchedule[];
   onEventCreated?: () => void;
+  onDateChange?: (date: Date) => void;
+  selectedStaffId: string | null;
+  onStaffSelect: (staffId: string | null) => void;
 }) {
-  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
   const [selectedDateTime, setSelectedDateTime] = React.useState<{
     date: Date;
     hour: number;
     anchorRect: DOMRect;
   } | null>(null);
+  const [selectedSchedule, setSelectedSchedule] = React.useState<StaffSchedule | null>(null);
+  const [scheduleAnchorRect, setScheduleAnchorRect] = React.useState<DOMRect | null>(null);
+  const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 
-  // Start from Monday of the week containing monthCursor
+  // Start from Sunday of the week containing weekCursor
   const weekStart = React.useMemo(() => {
-    return startOfWeek(monthCursor, { weekStartsOn: 1 });
-  }, [monthCursor]);
+    return startOfWeek(weekCursor, { weekStartsOn: 0 });
+  }, [weekCursor]);
 
   // Generate Mon-Sun (7 days)
   const days = React.useMemo(() => {
@@ -98,14 +131,27 @@ export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: {
     });
   };
 
+  const handleEventClick = (schedule: StaffSchedule, event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    const rect = event.currentTarget.getBoundingClientRect();
+    setScheduleAnchorRect(rect);
+    setSelectedSchedule(schedule);
+    setIsPopoverOpen(true);
+  };
+
   return (
     <Tooltip.Provider delayDuration={350}>
       <div style={{ display: 'flex', gap: '16px' }}>
-        <div style={{ flexShrink: 0 }}>
+        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', width: '220px', overflowY: 'auto', overflowX: 'hidden' }}>
           <MiniCalendar 
-            selectedDate={selectedDate} 
-            onDateSelect={setSelectedDate}
-            currentMonth={monthCursor}
+            selectedDate={weekCursor} 
+            onDateSelect={onDateChange}
+            currentMonth={weekCursor}
+            viewMode="Week"
+          />
+          <CalendarSidebarExtra 
+            selectedDate={weekCursor}
+            schedules={schedules}
           />
         </div>
 
@@ -158,7 +204,6 @@ export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: {
             {/* Day columns */}
             {days.map((d) => {
               const isTodayDate = isToday(d);
-              const isPast = isBefore(d, startOfDay(new Date()));
               const dayEvents = getEventsForDate(d, schedules);
               const dayKey = d.toISOString();
               
@@ -186,38 +231,40 @@ export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: {
                       }}
                     />
                   )}
-                  {/* Past time line - dashed, lighter color */}
-                  {isPast && (
+                  {/* Dashed current time line for other days */}
+                  {!isTodayDate && currentTimePosition >= 0 && (
                     <div 
-                      className={styles.pastTimeLine}
+                      className={styles.currentTimeLineDashed}
                       style={{ top: `${currentTimePosition}px` }}
                     />
                   )}
                   {/* Events */}
                   {dayEvents.map((schedule) => {
                     const { familyScheduleResponse: fs } = schedule;
-                    const eventColor = TARGET_COLORS[fs.target] || TARGET_COLORS.Baby;
                     const topPosition = getEventPosition(fs.startTime);
+                    const height = getEventHeight(fs.startTime, fs.endTime);
                     
                     return (
                       <Tooltip.Root key={schedule.id}>
                         <Tooltip.Trigger asChild>
                           <div
                             className={styles.eventChip}
+                            onClick={(e) => handleEventClick(schedule, e)}
                             style={{ 
-                              backgroundColor: eventColor,
                               top: `${topPosition}px`,
+                              height: `${height}px`,
+                              cursor: 'pointer',
+                              backgroundColor: getStatusColor(fs.status),
                             }}
                           >
-                            <span className={styles.eventTime}>
-                              {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
-                            </span>
-                            <span className={styles.eventTitle}>
-                              {fs.activity}
-                            </span>
-                            <span className={styles.eventCustomer}>
-                              {fs.customerName}
-                            </span>
+                            <div className={styles.eventContent}>
+                              <span className={styles.eventTime} style={{ color: '#ff7a00' }}>
+                                {formatTime(fs.startTime)}
+                              </span>
+                              <span className={styles.eventTitle}>
+                                {fs.activity}
+                              </span>
+                            </div>
                           </div>
                         </Tooltip.Trigger>
                         <Tooltip.Portal>
@@ -228,6 +275,7 @@ export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: {
                               {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
                             </div>
                             <div className={styles.tooltipCode}>{fs.packageName}</div>
+                            {fs.note && <div className={styles.tooltipNote}>{fs.note}</div>}
                             <Tooltip.Arrow className={styles.tooltipArrow} />
                           </Tooltip.Content>
                         </Tooltip.Portal>
@@ -253,6 +301,14 @@ export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: {
             }}
           />
         )}
+
+        {/* Schedule Detail Popover */}
+        <ScheduleDetailPopover
+          open={isPopoverOpen}
+          onOpenChange={setIsPopoverOpen}
+          schedule={selectedSchedule}
+          anchorRect={scheduleAnchorRect || undefined}
+        />
       </div>
     </Tooltip.Provider>
   );
@@ -361,7 +417,15 @@ function CalendarQuickCreateWrapper({
                 type="button" 
                 onClick={handleCreate}
                 disabled={!summary.trim() || loading}
-                style={{ padding: '6px 12px', borderRadius: '4px', border: 'none', background: '#0052cc', color: '#fff', cursor: summary.trim() && !loading ? 'pointer' : 'not-allowed', opacity: summary.trim() && !loading ? 1 : 0.5 }}
+                style={{ 
+                  padding: '6px 12px', 
+                  borderRadius: '4px', 
+                  border: 'none', 
+                  background: '#ff7a00', 
+                  color: '#fff', 
+                  cursor: summary.trim() && !loading ? 'pointer' : 'not-allowed', 
+                  opacity: summary.trim() && !loading ? 1 : 0.5 
+                }}
               >
                 {loading ? 'Đang tạo...' : 'Tạo'}
               </button>

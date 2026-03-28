@@ -1,13 +1,10 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Pagination } from '@/components/ui/pagination';
 import type { Menu } from '@/types/menu';
-
 import styles from './menu-table.module.css';
 
-const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill={fill}>
+const Edit2OutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill="currentColor">
     <g data-name="Layer 2">
       <g data-name="edit-2">
         <rect width="24" height="24" opacity="0" />
@@ -18,8 +15,8 @@ const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size
   </svg>
 );
 
-const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill={fill}>
+const Trash2OutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill="currentColor">
     <g data-name="Layer 2">
       <g data-name="trash-2">
         <rect width="24" height="24" opacity="0" />
@@ -36,15 +33,8 @@ type Props = {
   onEdit?: (menu: Menu) => void;
   onDelete?: (menu: Menu) => void;
   deletingId?: number | null;
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
-    pageSizeOptions?: number[];
-    onPageSizeChange?: (size: number) => void;
-  };
+  currentPage: number;
+  pageSize: number;
 };
 
 const formatDate = (dateString?: string) => {
@@ -61,20 +51,20 @@ const formatDate = (dateString?: string) => {
   }
 };
 
-export function MenuTable({ menus, onEdit, onDelete, deletingId, pagination }: Props) {
+export function MenuTable({ menus, onEdit, onDelete, deletingId, currentPage, pageSize }: Props) {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th className={styles.sttHeaderCell}>STT</th>
+            <th className={styles.stickySTTCol}>STT</th>
             <th>Tên thực đơn</th>
             <th>Loại thực đơn</th>
             <th>Mô tả</th>
             <th>Số món ăn</th>
             <th>Trạng thái</th>
             <th>Cập nhật</th>
-            <th>Thao tác</th>
+            <th className={styles.stickyActionsCol}>Thao tác</th>
           </tr>
         </thead>
         <tbody>
@@ -85,99 +75,79 @@ export function MenuTable({ menus, onEdit, onDelete, deletingId, pagination }: P
               </td>
             </tr>
           ) : (
-            menus.map((menu, index) => (
-              <tr key={menu.id} className={styles.tableRow}>
-                <td className={styles.sttDataCell}>
-                  <div className={styles.tooltipWrapper}>
-                    <span className={styles.sttCell}>
-                      {pagination
-                        ? (pagination.currentPage - 1) * pagination.pageSize + index + 1
-                        : index + 1}
+            menus.map((menu, index) => {
+              const stt = (currentPage - 1) * pageSize + index + 1;
+              return (
+                <tr key={menu.id} className={styles.tableRow}>
+                  <td className={styles.stickySTTCol}>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.sttCell}>{stt}</span>
+                      <span className={styles.tooltip}>ID gốc: {menu.id}</span>
+                    </div>
+                  </td>
+                  <td className={styles.name}>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.nameTruncate}>{menu.menuName}</span>
+                      <span className={styles.tooltip}>{menu.menuName}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span className={styles.menuType}>{menu.menuTypeName}</span>
+                  </td>
+                  <td className={styles.instructionCell}>
+                    {menu.description ? (
+                      <div className={styles.tooltipWrapper}>
+                        <span className={styles.truncateCell}>{menu.description}</span>
+                        <span className={styles.tooltip}>{menu.description}</span>
+                      </div>
+                    ) : (
+                      '-'
+                    )}
+                  </td>
+                  <td>
+                    <span className={styles.foodCount}>{menu.foods?.length || 0} món</span>
+                  </td>
+                  <td>
+                    <span
+                      className={`${styles.statusBadge} ${
+                        menu.isActive ? styles.statusActive : styles.statusInactive
+                      }`}
+                    >
+                      {menu.isActive ? 'Hoạt động' : 'Tạm dừng'}
                     </span>
-                    <span className={styles.tooltip}>ID gốc: {menu.id}</span>
-                  </div>
-                </td>
-                <td className={styles.name}>
-                  <div className={styles.tooltipWrapper}>
-                    <span className={styles.textTruncate}>{menu.menuName}</span>
-                    <span className={styles.tooltip}>{menu.menuName}</span>
-                  </div>
-                </td>
-                <td>
-                  <span className={styles.menuType}>{menu.menuTypeName}</span>
-                </td>
-                <td className={styles.truncateCell}>
-                  {menu.description ? (
-                    <div className={styles.tooltipWrapper}>
-                      <span className={styles.textTruncate}>{menu.description}</span>
-                      <span className={styles.tooltip}>{menu.description}</span>
+                  </td>
+                  <td className={styles.dateCell}>{formatDate(menu.updatedAt)}</td>
+                  <td className={styles.stickyActionsCol}>
+                    <div className={styles.actions}>
+                      <div className={styles.tooltipWrapper}>
+                        <button
+                          className={`${styles.actionButton} ${styles.editButton}`}
+                          onClick={() => onEdit?.(menu)}
+                          aria-label={`Chỉnh sửa ${menu.menuName}`}
+                        >
+                          <Edit2OutlineIcon size={16} />
+                        </button>
+                        <span className={styles.tooltip}>Chỉnh sửa</span>
+                      </div>
+                      <div className={styles.tooltipWrapper}>
+                        <button
+                          className={`${styles.actionButton} ${styles.deleteButton}`}
+                          onClick={() => onDelete?.(menu)}
+                          aria-label={`Xóa ${menu.menuName}`}
+                          disabled={deletingId === menu.id}
+                        >
+                          <Trash2OutlineIcon size={16} />
+                        </button>
+                        <span className={styles.tooltip}>Xóa</span>
+                      </div>
                     </div>
-                  ) : (
-                    '-'
-                  )}
-                </td>
-                <td>
-                  <span className={styles.foodCount}>{menu.foods?.length || 0} món</span>
-                </td>
-                <td>
-                  <span
-                    className={`${styles.statusBadge} ${
-                      menu.isActive ? styles.statusActive : styles.statusInactive
-                    }`}
-                  >
-                    {menu.isActive ? 'Hoạt động' : 'Tạm dừng'}
-                  </span>
-                </td>
-                <td>{formatDate(menu.updatedAt)}</td>
-                <td>
-                  <div className={styles.actions}>
-                    <div className={styles.tooltipWrapper}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.editButton} btn-icon btn-sm`}
-                        onClick={() => onEdit?.(menu)}
-                        aria-label={`Chỉnh sửa ${menu.menuName}`}
-                      >
-                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                      </Button>
-                      <span className={styles.tooltip}>Chỉnh sửa</span>
-                    </div>
-                    <div className={styles.tooltipWrapper}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.deleteButton} btn-icon btn-sm`}
-                        onClick={() => onDelete?.(menu)}
-                        aria-label={`Xóa ${menu.menuName}`}
-                        disabled={deletingId === menu.id}
-                      >
-                        <Trash2OutlineIcon fill="#FD6161" size={16} />
-                      </Button>
-                      <span className={styles.tooltip}>Xóa</span>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            ))
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>
-
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
     </div>
   );
 }

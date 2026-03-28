@@ -1,14 +1,15 @@
 .container {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .tableWrapper {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  margin-bottom: var(--spacing-md);
+  /* Removed overflow-x: auto to let AdminPageLayout handle vertical scroll, 
+     but table still expands horizontally. 
+     Actually, tableWrapper should probably be min-content width */
+  margin-bottom: 0;
 }
 
 .table {
@@ -18,34 +19,42 @@
   table-layout: auto;
 }
 
-.table thead {
-  background-color: #f2f2f4;
-  /* Đổi thành màu solid để không bị trong suốt khi scroll */
+/* Header sticky standardize */
+.table thead th {
   position: sticky;
   top: 0;
-  z-index: 10;
-}
-
-.table th {
+  z-index: 250;
+  background-color: #f2f2f4;
   padding: 8px 12px;
   text-align: left;
   font-family: "Funnel Sans", sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: #343A40;
+  color: #343a40;
   border-bottom: 1px solid var(--color-border-default);
   white-space: nowrap;
 }
 
-/* Thao tác header sticky */
-.table th:last-child {
-  position: sticky;
-  right: 0;
-  z-index: 11;
+/* STT Header sticky - sticks to both top and left */
+.sttHeaderCell {
+  position: sticky !important;
+  top: 0;
+  left: 0;
+  z-index: 260; /* Higher than normal header */
   background-color: #f2f2f4;
-  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
-  border-left: none !important;
+  text-align: center !important;
+  width: 60px;
 }
+
+/* Thao tác header sticky - sticks to both top and right */
+.table th:last-child {
+  position: sticky !important;
+  top: 0;
+  right: 0;
+  z-index: 260;
+  background-color: #f2f2f4;
+}
+
 
 .table tbody tr {
   background-color: #fff !important;
@@ -72,20 +81,61 @@
 }
 
 /* Thao tác cell sticky */
+/* STT Data Cell sticky */
+.sttDataCell {
+  position: sticky;
+  left: 0;
+  z-index: 100;
+  background-color: #fff;
+  text-align: center !important;
+}
+
+/* Thao tác cell sticky */
 .table td:last-child {
   position: sticky;
   right: 0;
-  z-index: 5;
+  z-index: 100;
   background-color: #fff;
-  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
-  border-left: none !important;
 }
 
-/* Thao tác cell sticky hover */
-.table tbody tr:hover td:last-child {
-  background-color: #f8f9fa;
-  z-index: 30;
+/* Standardize row hover */
+.table tbody tr:hover td {
+  background-color: #f8f9fa !important;
 }
+
+/* Promotion on hover for tooltip to avoid being covered by sticky headers/rows */
+.table:has(.tooltipWrapper:hover) thead th {
+  z-index: 1 !important;
+}
+
+/* Uplift the whole row first so it's above other rows */
+.table tbody tr:has(.tooltipWrapper:hover) {
+  z-index: 2000 !important;
+  position: relative;
+}
+
+.table td:has(.tooltipWrapper:hover) {
+  z-index: 2001 !important;
+  position: relative;
+}
+
+/* Force sticky columns to retain stickiness while rising */
+.table td[class*="DataCell"]:has(.tooltipWrapper:hover),
+.table td:last-child:has(.tooltipWrapper:hover) {
+  z-index: 2002 !important;
+  position: sticky !important;
+}
+
+/* Specifically uplift the Actions column if it has the hovered tooltip */
+.table td:last-child:has(.tooltipWrapper:hover) {
+  background-color: #f8f9fa !important; /* Match hover color */
+}
+
+/* Ensure tooltips also rise when directly hovered if they overflow the td */
+.tooltipWrapper:hover {
+  z-index: 2500 !important;
+}
+
 
 .sttCell {
   color: #555;
@@ -164,32 +214,58 @@
   align-items: center;
 }
 
+/* FIRST 3 ROWS: Pointer tooltips DOWN to avoid the sticky header */
+.table tbody tr:nth-child(-n+3) .tooltipWrapper .tooltip {
+  top: calc(100% + 8px) !important;
+  bottom: auto !important;
+}
+
+.table tbody tr:nth-child(-n+3) .tooltipWrapper .tooltip::after {
+  bottom: 100% !important;
+  top: auto !important;
+  border-bottom-color: #343a40 !important;
+  border-top-color: transparent !important;
+}
+
+/* OTHER ROWS: Point tooltips UP to avoid the pagination boundary */
+.table tbody tr:nth-child(n+4) .tooltipWrapper .tooltip {
+  bottom: calc(100% + 8px) !important;
+  top: auto !important;
+}
+
+.table tbody tr:nth-child(n+4) .tooltipWrapper .tooltip::after {
+  top: 100% !important;
+  bottom: auto !important;
+  border-top-color: #343a40 !important;
+  border-bottom-color: transparent !important;
+}
+
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%) scale(0.85);
   background-color: #343a40;
   color: #fff;
   font-size: 11px;
   font-family: var(--font-body);
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 300px;
+  width: max-content;
   padding: 4px 8px;
   border-radius: 5px;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
+  z-index: 1000;
+  line-height: 1.4;
 }
 
 .tooltipWrapper .tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #343a40;
 }
 
 .tooltipWrapper:hover .tooltip {
@@ -197,9 +273,6 @@
   transform: translateX(-50%) scale(1);
 }
 
-.tooltipWrapper:hover {
-  z-index: 100 !important;
-}
 
 .editButton {
   width: calc(16px + 0.5rem + 4px) !important;

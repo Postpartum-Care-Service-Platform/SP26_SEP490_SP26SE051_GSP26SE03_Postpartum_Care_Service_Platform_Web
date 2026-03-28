@@ -1,21 +1,5 @@
-.pageContainer { display: flex; flex-direction: column; gap: 0; }
+.header { display: flex; justify-content: flex-start; align-items: center; padding-bottom: 16px; }
 
-/* Header */
-.header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; }
-.title {
-  font-family: var(--font-admin-title);
-  font-size: 15px;
-  font-weight: 500;
-  text-transform: capitalize;
-  line-height: 1.2;
-  color: var(--color-admin-text-primary);
-  margin: 0;
-  padding: 0;
-  letter-spacing: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-}
 .sttCell { cursor: help; display: inline-block; line-height: 1.4; }
 
 /* Controls */
@@ -82,11 +66,97 @@
 .nameCell { font-weight: 500; min-width: 120px; }
 .emptyState { text-align: center; padding: var(--spacing-xl) !important; color: var(--color-admin-text-muted); }
 
-/* Badges */
+/* Badges & Status */
 .statusBadge { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
-.activeBadge { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 600; }
-.activeOn  { background-color: rgba(21, 128, 61, 0.1); color: #15803d; }
-.activeOff { background-color: rgba(185, 28, 28, 0.1); color: #b91c1c; }
+
+.statusActiveTrigger,
+.statusInactiveTrigger {
+  width: 22px;
+  height: 22px;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  padding: 0;
+}
+
+.statusActiveTrigger {
+  background-color: #dcfce7 !important;
+}
+
+.statusInactiveTrigger {
+  background-color: #fee2e2 !important;
+}
+
+.statusActiveTrigger:hover,
+.statusInactiveTrigger:hover {
+  transform: scale(1.1);
+}
+
+/* ── Single Animated Status Dot ── */
+.statusIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 8px;
+  height: 8px;
+}
+
+.statusCircle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50% !important;
+  position: relative;
+  z-index: 2;
+}
+
+.statusAnimated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50% !important;
+  background-color: inherit;
+  z-index: 1;
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  70% { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.statusActiveTrigger .statusCircle {
+  background-color: #10B981 !important;
+}
+
+.statusInactiveTrigger .statusCircle {
+  background-color: #EF4444 !important;
+}
+
+.statusActiveTrigger .statusIndicator::after {
+  background-color: #10B981 !important;
+}
+
+.statusInactiveTrigger .statusIndicator::after {
+  background-color: #EF4444 !important;
+}
+
+/* Tooltip Container */
+.tooltipContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
 
 /* Actions */
 .actions { display: flex; align-items: center; gap: 8px; }

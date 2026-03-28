@@ -140,7 +140,9 @@
   box-shadow: var(--shadow-md);
   padding: 4px;
   min-width: 200px;
+  z-index: 2000;
 }
+
 
 .dropdownItem {
   padding: 8px 12px;

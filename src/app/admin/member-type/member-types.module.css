@@ -1,9 +1,8 @@
-/* ── Page layout ── */
 .pageContainer {
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 16px;
+  padding: 0;
 }
 
 /* ── STT cell với tooltip ── */
@@ -21,8 +20,7 @@
   gap: var(--spacing-sm);
   background-color: #fff;
   padding: 16px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid #f1f1f1;
 }
 
 .controlsLeft {
@@ -193,6 +191,7 @@
   box-shadow: var(--shadow-md);
   padding: 4px;
   min-width: 180px;
+  z-index: 9999;
 }
 
 .dropdownItem {
@@ -215,25 +214,115 @@
 }
 
 /* Status badges */
-.statusBadge {
+.plainTrigger {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4px;
+  width: 100%;
+}
+
+/* ── Single Animated Status Dot ── */
+.statusIndicator {
   display: inline-flex;
   align-items: center;
-  border-radius: 999px;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  font-family: var(--font-body);
+  justify-content: center;
+  position: relative;
+  width: 8px;
+  height: 8px;
+}
+
+.statusCircle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+}
+
+.statusAnimated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: inherit;
+  z-index: 1;
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  70% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
 }
 
 .statusActive {
-  background-color: rgba(21, 128, 61, 0.1);
-  color: #15803d;
+  background: transparent;
+}
+
+.statusActive .statusCircle {
+  background-color: #10B981;
+}
+
+.statusActive .statusIndicator.statusAnimated::after {
+  background-color: #10B981;
 }
 
 .statusInactive {
-  background-color: rgba(185, 28, 28, 0.1);
-  color: #b91c1c;
+  background: transparent;
 }
+
+.statusInactive .statusCircle {
+  background-color: #EF4444;
+}
+
+.statusInactive .statusIndicator.statusAnimated::after {
+  background-color: #EF4444;
+}
+
+.statusMenu {
+  min-width: 160px;
+  padding: 6px 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  z-index: 100;
+}
+
+.statusMenuItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: #343a40;
+}
+
+.statusMenuItem:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
 
 .roleBadge {
   display: inline-flex;
@@ -249,9 +338,9 @@
 
 /* ── Table ── */
 .tableContainer {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  background-color: transparent;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .tableWrapper {
@@ -286,8 +375,12 @@
   transition: background-color 0.2s ease;
 }
 
+.table tbody tr:nth-child(even) {
+  background-color: #fafafa !important;
+}
+
 .table tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.02) !important;
+  background-color: #f8f9fa !important;
 }
 
 .table tbody tr:last-child {
@@ -295,7 +388,7 @@
 }
 
 .table td {
-  padding: 6px 14px;
+  padding: 8px 14px;
   font-family: var(--font-body);
   font-size: 14px;
   color: var(--color-text-primary);
@@ -366,6 +459,11 @@
   transform: translateX(-50%) scale(1);
 }
 
+.tooltipWrapper:hover {
+  z-index: 100 !important;
+}
+
+
 .editButton {
   width: calc(14px + 1rem + 4px) !important;
   height: calc(14px + 1rem + 4px) !important;
@@ -413,7 +511,8 @@
 
 /* ── Pagination ── */
 .paginationWrapper {
-  padding: 0 16px 16px;
+  padding: 0;
+  background-color: transparent;
 }
 
 .paginationWrapper :global(.container) {
@@ -422,6 +521,10 @@
 
 .paginationWrapper :global(.infoGroup) {
   flex-wrap: nowrap;
+}
+
+.pageContainer :global([data-radix-popper-content-wrapper]) {
+  z-index: 9999 !important;
 }
 
 /* ── Responsive ── */

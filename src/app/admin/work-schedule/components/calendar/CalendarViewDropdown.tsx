@@ -5,77 +5,131 @@ import React from 'react';
 
 import styles from './calendar-view-dropdown.module.css';
 
-type ViewMode = 'Month' | 'Week' | 'Day';
+export type CalendarViewMode = 'Month' | 'Week' | 'Day';
 
-function ChevronDownIcon() {
+interface Props {
+  value: CalendarViewMode;
+  dayCount?: number;
+  onChange: (view: CalendarViewMode, days?: number) => void;
+}
+
+function DayIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path d="M4.18179 6.18181C4.35753 6.00608 4.64245 6.00608 4.81819 6.18181L7.99999 9.36362L11.1818 6.18181C11.3575 6.00608 11.6424 6.00608 11.8182 6.18181C11.9939 6.35755 11.9939 6.64247 11.8182 6.81821L8.35355 10.2828C8.15829 10.4781 7.84171 10.4781 7.64645 10.2828L4.18179 6.81821C4.00605 6.64247 4.00605 6.35755 4.18179 6.18181Z" fill="currentColor" />
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+      <line x1="16" y1="2" x2="16" y2="6"></line>
+      <line x1="8" y1="2" x2="8" y2="6"></line>
+      <line x1="3" y1="10" x2="21" y2="10"></line>
+      <path d="M8 14h.01"></path>
+      <path d="M12 14h.01"></path>
+      <path d="M16 14h.01"></path>
+      <path d="M8 18h.01"></path>
+      <path d="M12 18h.01"></path>
+      <path d="M16 18h.01"></path>
     </svg>
   );
 }
 
-const OPTIONS: { value: ViewMode; label: string }[] = [
-  { value: 'Month', label: 'Tháng' },
-  { value: 'Week', label: 'Tuần' },
-  { value: 'Day', label: 'Ngày' },
-];
-
-const VIEW_LABELS: Record<ViewMode, string> = {
-  Month: 'Tháng',
-  Week: 'Tuần',
-  Day: 'Ngày',
-};
-
-export function CalendarViewDropdown({
-  value,
-  onChange,
-}: {
-  value: ViewMode;
-  onChange?: (value: ViewMode) => void;
-}) {
-  const [open, setOpen] = React.useState(false);
-
+function WorkWeekIcon() {
   return (
-    <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger asChild>
-        <button type="button" className={styles.trigger}>
-          <span>{VIEW_LABELS[value]}</span>
-          <span className={styles.caret} aria-hidden="true">
-            <ChevronDownIcon />
-          </span>
-        </button>
-      </Popover.Trigger>
-
-      <Popover.Portal>
-        <Popover.Content
-          className={styles.menu}
-          align="start"
-          side="bottom"
-          sideOffset={6}
-          collisionPadding={12}
-          onOpenAutoFocus={(e) => e.preventDefault()}
-        >
-          {OPTIONS.map((opt) => {
-            const selected = opt.value === value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                className={`${styles.item} ${selected ? styles.itemSelected : ''}`}
-                onClick={() => {
-                  onChange?.(opt.value);
-                  setOpen(false);
-                }}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+      <line x1="16" y1="2" x2="16" y2="6"></line>
+      <line x1="8" y1="2" x2="8" y2="6"></line>
+      <line x1="3" y1="10" x2="21" y2="10"></line>
+    </svg>
   );
 }
 
-export type { ViewMode as CalendarViewMode };
+function WeekIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 3h18v18H3zM21 9H3M21 15H3M9 3v18M15 3v18"></path>
+    </svg>
+  );
+}
+
+function MonthIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+      <line x1="16" y1="2" x2="16" y2="6"></line>
+      <line x1="8" y1="2" x2="8" y2="6"></line>
+      <line x1="3" y1="10" x2="21" y2="10"></line>
+      <path d="M10 14h.01"></path>
+      <path d="M14 14h.01"></path>
+      <path d="M18 14h.01"></path>
+      <path d="M10 18h.01"></path>
+      <path d="M14 18h.01"></path>
+      <path d="M18 18h.01"></path>
+    </svg>
+  );
+}
+
+export function CalendarViewDropdown({ value, dayCount = 1, onChange }: Props) {
+  const [dayDropdownOpen, setDayDropdownOpen] = React.useState(false);
+
+  return (
+    <div className={styles.group}>
+      {/* Day Dropdown */}
+      <Popover.Root open={dayDropdownOpen} onOpenChange={setDayDropdownOpen}>
+        <Popover.Trigger asChild>
+          <button 
+            type="button" 
+            className={`${styles.viewBtn} ${value === 'Day' ? styles.active : ''}`}
+            onClick={(e) => {
+              if (value === 'Day') {
+                // Keep open to choose days
+              } else {
+                onChange('Day', dayCount);
+              }
+            }}
+          >
+            <DayIcon />
+            <span>Ngày</span>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 9l6 6 6-6"></path>
+            </svg>
+          </button>
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Content className={styles.menu} sideOffset={4} align="start">
+            {[1, 2, 3, 4, 5, 6, 7].map(n => (
+              <button
+                key={n}
+                type="button"
+                className={`${styles.menuItem} ${value === 'Day' && dayCount === n ? styles.itemActive : ''}`}
+                onClick={() => {
+                  onChange('Day', n);
+                  setDayDropdownOpen(false);
+                }}
+              >
+                {n} {n === 1 ? 'ngày' : 'ngày'}
+              </button>
+            ))}
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover.Root>
+
+      <button
+        type="button"
+        className={`${styles.viewBtn} ${value === 'Week' ? styles.active : ''}`}
+        onClick={() => onChange('Week')}
+      >
+        <WeekIcon />
+        <span>Tuần</span>
+      </button>
+
+      <button
+        type="button"
+        className={`${styles.viewBtn} ${value === 'Month' ? styles.active : ''}`}
+        onClick={() => onChange('Month')}
+      >
+        <MonthIcon />
+        <span>Tháng</span>
+      </button>
+    </div>
+  );
+}
+
+

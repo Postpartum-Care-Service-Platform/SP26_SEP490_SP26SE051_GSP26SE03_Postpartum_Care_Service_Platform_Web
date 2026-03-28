@@ -108,7 +108,7 @@ export function Pagination({
 
         {showResultCount && (
           <div className={styles.resultCount}>
-            Hiển thị <strong>{startItem} - {endItem}</strong> trên tổng <strong>{totalItems}</strong> kết quả
+            Hiển thị <span className={styles.highlight}>{startItem} - {endItem}</span> trên tổng <span className={styles.highlight}>{totalItems}</span> kết quả
           </div>
         )}
       </div>

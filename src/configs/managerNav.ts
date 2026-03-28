@@ -1,20 +1,26 @@
+import React from 'react';
 import { 
-  LayoutDashboard, 
-  CalendarDays, 
-  Calendar, 
-  Users, 
-  FileText, 
   Activity,
-  MessageCircle,
   BedDouble,
-  MessageSquare,
+  BookOpen,
+  Calendar,
+  CalendarDays,
   ClipboardCheck,
-  Utensils,
+  CreditCard,
+  FileText,
+  History,
+  LayoutDashboard,
+  MessageCircle,
+  MessageSquare,
   Package,
+  Settings,
+  Settings2,
+  ShieldCheck,
   Sparkles,
   Ticket,
-  CreditCard,
-  UserCircle
+  UserCircle,
+  Users,
+  Utensils
 } from 'lucide-react';
 
 export type ManagerNavItem = {
@@ -22,7 +28,12 @@ export type ManagerNavItem = {
   label: string;
   href?: string;
   icon?: React.ComponentType<{ size?: number | string; className?: string }>;
-  children?: Array<{ key: string; label: string; href: string }>;
+  children?: Array<{ 
+    key: string; 
+    label: string; 
+    href: string;
+    icon?: React.ComponentType<{ size?: number | string; className?: string }>;
+  }>;
 };
 
 export type ManagerNavSection = {
@@ -41,12 +52,6 @@ export const managerNav: ManagerNavSection[] = [
         label: 'Bảng điều khiển',
         href: '/manager',
         icon: LayoutDashboard,
-      },
-      {
-        key: 'account-overview',
-        label: 'Tổng quan tài khoản',
-        href: '/manager/account-overview',
-        icon: UserCircle,
       },
       {
         key: 'patients',
@@ -91,9 +96,9 @@ export const managerNav: ManagerNavSection[] = [
         icon: FileText,
       },
       {
-        key: 'care-plan-detail',
-        label: 'Chi tiết kế hoạch chăm sóc',
-        href: '/manager/care-plan-detail',
+        key: 'package-activities',
+        label: 'Hoạt động gói dịch vụ',
+        href: '/manager/package-activities',
         icon: ClipboardCheck,
       },
       {
@@ -129,11 +134,13 @@ export const managerNav: ManagerNavSection[] = [
             key: 'menu',
             label: 'Thực đơn',
             href: '/manager/menu',
+            icon: BookOpen,
           },
           {
             key: 'menu-record',
             label: 'Bản ghi thực đơn',
             href: '/manager/menu-record',
+            icon: History,
           },
         ],
       },
@@ -166,6 +173,30 @@ export const managerNav: ManagerNavSection[] = [
         label: 'Lịch làm việc',
         href: '/manager/work-schedule',
         icon: CalendarDays,
+      },
+    ],
+  },
+  {
+    key: 'settings',
+    label: 'Cài đặt',
+    items: [
+      {
+        key: 'types-config',
+        label: 'Cấu hình danh mục',
+        href: '/manager/types-config',
+        icon: Settings2,
+      },
+      {
+        key: 'system-settings',
+        label: 'Cài đặt hệ thống',
+        href: '/manager/settings/system',
+        icon: Settings,
+      },
+      {
+        key: 'roles-privileges',
+        label: 'Vai trò & Quyền',
+        href: '/manager/settings/roles',
+        icon: ShieldCheck,
       },
     ],
   },

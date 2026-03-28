@@ -108,6 +108,8 @@ screenshots/
 .cursorrules
 .antigravity/
 .react-doctor/ 
+.claude/
+.cursor/
 
 # IDE and editor files
 .vscode/

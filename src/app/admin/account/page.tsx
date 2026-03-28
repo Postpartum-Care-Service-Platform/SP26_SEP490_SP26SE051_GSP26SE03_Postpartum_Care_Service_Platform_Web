@@ -133,10 +133,14 @@ export default function AdminPatientsPage() {
   };
 
   const handleViewProfile = (patient: Patient) => {
-    if (patient.customerId) {
-      router.push(`/admin/account-overview?customId=${patient.customerId}`);
+    // Ưu tiên dùng customerId để xem hồ sơ gia đình, nếu không có thì dùng accountId
+    const targetId = patient.customerId || patient.accountId;
+    if (targetId) {
+      const currentPath = window.location.pathname;
+      const baseRoute = currentPath.includes('/manager') ? '/manager/customers' : '/admin/account';
+      router.push(`${baseRoute}/${targetId}`);
     } else {
-    console.log('View profile overview:', patient);
+      console.warn('Không tìm thấy ID hợp lệ để xem hồ sơ:', patient);
     }
   };
 
@@ -199,13 +203,21 @@ export default function AdminPatientsPage() {
           onNewPatient={handleNewPatient}
         />
       }
+      pagination={
+        paginationConfig ? (
+          <div style={{ padding: '0 16px' }}>
+            <Pagination {...paginationConfig} />
+          </div>
+        ) : undefined
+      }
     >
       <PatientTable
         patients={paginatedPatients}
         onViewProfile={handleViewProfile}
         onChat={handleChat}
         onRoleUpdated={fetchPatients}
-        pagination={paginationConfig}
+        currentPage={currentPage}
+        pageSize={pageSize}
       />
       <NewAccountModal
         open={isNewAccountOpen}

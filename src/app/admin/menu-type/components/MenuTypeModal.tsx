@@ -42,11 +42,11 @@ export function MenuTypeModal({ open, onOpenChange, item, onSuccess }: Props) {
     try {
       setIsSubmitting(true);
       if (isEditMode && item) {
-        const payload: UpdateMenuTypeRequest = { menuTypeName: name.trim(), isActive: item.isActive };
+        const payload: UpdateMenuTypeRequest = { name: name.trim(), isActive: item.isActive };
         await menuTypeService.updateMenuType(item.id, payload);
         toast({ title: 'Cập nhật loại thực đơn thành công', variant: 'success' });
       } else {
-        const payload: CreateMenuTypeRequest = { menuTypeName: name.trim() };
+        const payload: CreateMenuTypeRequest = { name: name.trim() };
         await menuTypeService.createMenuType(payload);
         toast({ title: 'Tạo loại thực đơn thành công', variant: 'success' });
       }

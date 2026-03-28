@@ -14,6 +14,7 @@ interface ScheduleDetailPopoverProps {
   onOpenChange: (open: boolean) => void;
   schedule: StaffSchedule | null;
   anchorRect?: DOMRect;
+  sideOffset?: number;
 }
 
 function formatTime(time: string): string {
@@ -27,16 +28,22 @@ function formatDateVN(dateStr: string): string {
 }
 
 const STATUS_LABELS = {
+  Scheduled: 'Đã lên lịch',
+  Done: 'Đã hoàn thành',
+  Missed: 'Đã bỏ lỡ',
+  Cancelled: 'Đã hủy',
   Pending: 'Chờ xử lý',
   Completed: 'Hoàn thành',
-  Missed: 'Đã bỏ lỡ',
   InProgress: 'Đang thực hiện',
 } as const;
 
 const STATUS_COLORS = {
+  Scheduled: { bg: '#DBEAFE', text: '#1E40AF' }, // Blue
+  Done: { bg: '#D1FAE5', text: '#065F46' },      // Green
+  Missed: { bg: '#FEE2E2', text: '#991B1B' },    // Existing Red/Pink
+  Cancelled: { bg: '#FEE2E2', text: '#B91C1C' }, // Strong Red
   Pending: { bg: '#FEF3C7', text: '#92400E' },
   Completed: { bg: '#D1FAE5', text: '#065F46' },
-  Missed: { bg: '#FEE2E2', text: '#991B1B' },
   InProgress: { bg: '#DBEAFE', text: '#1E40AF' },
 } as const;
 
@@ -46,7 +53,13 @@ const TARGET_LABELS = {
   Both: 'Mẹ & Em bé',
 } as const;
 
-export function ScheduleDetailPopover({ open, onOpenChange, schedule, anchorRect }: ScheduleDetailPopoverProps) {
+export function ScheduleDetailPopover({ 
+  open, 
+  onOpenChange, 
+  schedule, 
+  anchorRect,
+  sideOffset = 12
+}: ScheduleDetailPopoverProps) {
   return (
     <Popover.Root open={open} onOpenChange={onOpenChange}>
       {anchorRect && (
@@ -67,7 +80,7 @@ export function ScheduleDetailPopover({ open, onOpenChange, schedule, anchorRect
           className={styles.content}
           side="right"
           align="center"
-          sideOffset={12}
+          sideOffset={sideOffset}
           collisionPadding={16}
           onOpenAutoFocus={(e) => e.preventDefault()}
         >
@@ -87,7 +100,9 @@ export function ScheduleDetailPopover({ open, onOpenChange, schedule, anchorRect
 
 function ScheduleContent({ schedule }: { schedule: StaffSchedule }) {
   const { familyScheduleResponse: fs } = schedule;
-  const statusStyle = STATUS_COLORS[fs.status];
+  const statusKey = (fs.status || 'Pending') as keyof typeof STATUS_COLORS;
+  const statusLabelsKey = (fs.status || 'Pending') as keyof typeof STATUS_LABELS;
+  const statusStyle = STATUS_COLORS[statusKey] || STATUS_COLORS.Pending;
 
   return (
     <div className={styles.container}>
@@ -101,10 +116,10 @@ function ScheduleContent({ schedule }: { schedule: StaffSchedule }) {
               </h2>
             </Tooltip.Trigger>
             <Tooltip.Portal>
-              <Tooltip.Content 
-                className={styles.titleTooltip} 
-                side="top" 
-                align="start" 
+              <Tooltip.Content
+                className={styles.titleTooltip}
+                side="top"
+                align="start"
                 sideOffset={5}
               >
                 {fs.activity}
@@ -148,7 +163,7 @@ function ScheduleContent({ schedule }: { schedule: StaffSchedule }) {
           <div className={styles.iconWrapper}>
             <MapPin size={15} />
           </div>
-          <span>Phòng Oxford - Tầng G - Toà FT1</span>
+          <span>{schedule.roomName || 'Chưa gán phòng'}</span>
         </div>
       </div>
 
@@ -157,19 +172,50 @@ function ScheduleContent({ schedule }: { schedule: StaffSchedule }) {
       {/* Customer Avatar and Info */}
       <div className={styles.customerAvatarSection}>
         <div className={styles.avatarWrapper}>
-          <img 
-            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${fs.customerName}`} 
-            alt={fs.customerName} 
+          <img
+            src={fs.customerAvatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${fs.customerName}`}
+            alt={fs.customerName}
             className={styles.avatarImage}
           />
         </div>
         <div className={styles.customerMainInfo}>
-          <span className={styles.customerNameText}>{fs.customerName}</span>
+          <div className={styles.labelGroup}>
+            <span className={styles.infoLabel}>Khách hàng</span>
+            <span className={styles.customerNameText}>{fs.customerName}</span>
+          </div>
           <div className={styles.targetBadgeWrapper}>
             <span className={styles.targetBadge}>
-              {TARGET_LABELS[fs.target]}
+              {TARGET_LABELS[fs.target as keyof typeof TARGET_LABELS] || fs.target}
             </span>
           </div>
+        </div>
+      </div>
+
+      <div className={styles.divider} />
+
+      {/* Staff Avatar and Info */}
+      <div className={styles.customerAvatarSection}>
+        <div className={styles.avatarWrapper} style={{ backgroundColor: '#EEF2FF' }}>
+          {schedule.staffAvatar ? (
+            <img
+              src={schedule.staffAvatar}
+              alt={schedule.staffName}
+              className={styles.avatarImage}
+            />
+          ) : (
+            <div style={{ color: '#6366F1' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+          )}
+        </div>
+        <div className={styles.customerMainInfo}>
+          <div className={styles.labelGroup}>
+            <span className={styles.infoLabel} style={{ color: '#6366F1' }}>Nhân viên thực hiện</span>
+            <span className={styles.customerNameText}>{schedule.staffName || 'Chưa phân công'}</span>
+          </div>
+          <span className={styles.staffRoleBadge}>Nhân viên kỹ thuật</span>
         </div>
       </div>
 
@@ -198,12 +244,12 @@ function ScheduleContent({ schedule }: { schedule: StaffSchedule }) {
           </span>
           <div className={styles.completionInfo}>
             <div className={styles.iconWrapper} style={{ color: '#6B7280' }}>
-               <svg width="14" height="14" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="14" height="14" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M7.5 1.5C4.18629 1.5 1.5 4.18629 1.5 7.5C1.5 10.8137 4.18629 13.5 7.5 13.5C10.8137 13.5 13.5 10.8137 13.5 7.5C13.5 4.18629 10.8137 1.5 7.5 1.5ZM0.5 7.5C0.5 3.63401 3.63401 0.5 7.5 0.5C11.366 0.5 14.5 3.63401 14.5 7.5C14.5 11.366 11.366 14.5 7.5 14.5C3.63401 14.5 0.5 11.366 0.5 7.5ZM7.5 4C7.77614 4 8 4.22386 8 4.5V7.5C8 7.63261 7.46739 7.75979 7.35355 7.85355L5.35355 9.85355C5.15829 10.0488 4.84171 10.0488 4.64645 9.85355C4.45118 9.65829 4.45118 9.34171 4.64645 9.14645L6.5 7.29289V4.5C6.5 4.22386 6.72386 4 7 4Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd" />
-               </svg>
+              </svg>
             </div>
             <span className={styles.completionText}>
-              {schedule.isChecked && schedule.checkedAt 
+              {schedule.isChecked && schedule.checkedAt
                 ? `Hoàn thành lúc: ${formatTime(schedule.checkedAt.split('T')[1]?.substring(0, 5) || '')}`
                 : 'Chưa được check'}
             </span>

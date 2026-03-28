@@ -15,7 +15,12 @@ type NavItem = {
   label: string;
   href?: string;
   icon?: React.ComponentType<{ size?: number | string; className?: string }>;
-  children?: Array<{ key: string; label: string; href: string }>;
+  children?: Array<{ 
+    key: string; 
+    label: string; 
+    href: string;
+    icon?: React.ComponentType<{ size?: number | string; className?: string }>;
+  }>;
 };
 
 type NavSection = {
@@ -34,6 +39,12 @@ type Props = {
 export function AdminSidebar({ collapsed, onToggleCollapsed, navSections, brandText }: Props) {
   const pathname = usePathname();
   const [openKeys, setOpenKeys] = useState<Record<string, boolean>>({ dashboard: true });
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    main: true,
+    operation: true,
+    management: true,
+    settings: true,
+  });
   const [tooltipPos, setTooltipPos] = useState<{ top: number; label: string } | null>(null);
 
   // Auto-expand groups that have active children
@@ -57,6 +68,10 @@ export function AdminSidebar({ collapsed, onToggleCollapsed, navSections, brandT
       setOpenKeys(newOpenKeys);
     }
   }, [pathname, openKeys, navSections]);
+
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
   const toggleGroup = (key: string) => {
     setOpenKeys((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -102,73 +117,89 @@ export function AdminSidebar({ collapsed, onToggleCollapsed, navSections, brandT
       </div>
 
       <nav className={styles.nav}>
-        {navSections.map((section) => (
-          <div key={section.key}>
-            {section.label ? (
-              <div className={collapsed ? styles.collapsedHide : styles.sectionLabel}>{section.label}</div>
-            ) : null}
+        {navSections.map((section) => {
+          const isSectionOpen = !!openSections[section.key];
 
-            <div style={{ display: 'grid', gap: 6 }}>
-              {section.items.map((item) => {
-                const Icon = item.icon;
-                const isActive = isItemActive(item);
-                const isOpen = !!openKeys[item.key];
+          return (
+            <div key={section.key} className={styles.section}>
+              {section.label ? (
+                <button
+                  type="button"
+                  className={`${styles.sectionHeader} ${collapsed ? styles.collapsedHide : ''}`}
+                  onClick={() => toggleSection(section.key)}
+                >
+                  <span className={styles.sectionLabel}>{section.label}</span>
+                  <span className={styles.sectionChevron}>
+                    {isSectionOpen ? <Minus size={14} /> : <Plus size={14} />}
+                  </span>
+                </button>
+              ) : null}
 
-                return (
-                  <div key={item.key}>
-                    {item.children && item.children.length > 0 ? (
-                      <button
-                        type="button"
-                        className={`${styles.item} ${isActive ? styles.itemActive : ''} ${styles.itemWithChildren}`}
-                        onClick={() => toggleGroup(item.key)}
-                        onMouseEnter={(e) => handleMouseEnter(e, item.label)}
-                        onMouseLeave={handleMouseLeave}
-                        title={collapsed ? item.label : undefined}
-                      >
-                        {Icon ? <Icon className={styles.itemIcon} size={18} /> : null}
-                        <span className={collapsed ? styles.collapsedHide : ''}>{item.label}</span>
-                        {!collapsed ? (
-                          <span className={styles.itemChevron}>
-                            {isOpen ? <Minus size={16} /> : <Plus size={16} />}
-                          </span>
+              <div className={`${styles.sectionItems} ${isSectionOpen || collapsed ? styles.sectionItemsOpen : ''}`}>
+                <div style={{ display: 'grid', gap: 6 }}>
+                  {section.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = isItemActive(item);
+                    const isOpen = !!openKeys[item.key];
+
+                    return (
+                      <div key={item.key}>
+                        {item.children && item.children.length > 0 ? (
+                          <button
+                            type="button"
+                            className={`${styles.item} ${isActive ? styles.itemActive : ''} ${styles.itemWithChildren}`}
+                            onClick={() => toggleGroup(item.key)}
+                            onMouseEnter={(e) => handleMouseEnter(e, item.label)}
+                            onMouseLeave={handleMouseLeave}
+                            title={collapsed ? item.label : undefined}
+                          >
+                            {Icon ? <Icon className={styles.itemIcon} size={18} /> : null}
+                            <span className={collapsed ? styles.collapsedHide : ''}>{item.label}</span>
+                            {!collapsed ? (
+                              <span className={styles.itemChevron}>
+                                {isOpen ? <Minus size={16} /> : <Plus size={16} />}
+                              </span>
+                            ) : null}
+                          </button>
+                        ) : item.href ? (
+                          <Link
+                            href={item.href}
+                            className={`${styles.item} ${isActive ? styles.itemActive : ''}`}
+                            onMouseEnter={(e) => handleMouseEnter(e, item.label)}
+                            onMouseLeave={handleMouseLeave}
+                            title={collapsed ? item.label : undefined}
+                          >
+                            {Icon ? <Icon className={styles.itemIcon} size={18} /> : null}
+                            <span className={collapsed ? styles.collapsedHide : ''}>{item.label}</span>
+                          </Link>
                         ) : null}
-                      </button>
-                    ) : item.href ? (
-                      <Link
-                        href={item.href}
-                        className={`${styles.item} ${isActive ? styles.itemActive : ''}`}
-                        onMouseEnter={(e) => handleMouseEnter(e, item.label)}
-                        onMouseLeave={handleMouseLeave}
-                        title={collapsed ? item.label : undefined}
-                      >
-                        {Icon ? <Icon className={styles.itemIcon} size={18} /> : null}
-                        <span className={collapsed ? styles.collapsedHide : ''}>{item.label}</span>
-                      </Link>
-                    ) : null}
 
-                    {item.children?.length && !collapsed ? (
-                      <div className={`${styles.submenu} ${isOpen ? styles.submenuOpen : ''}`}>
-                        {item.children.map((child) => {
-                          const childActive = pathname === child.href;
-                          return (
-                            <div key={child.key} className={styles.submenuItem}>
-                              <Link
-                                href={child.href}
-                                className={`${styles.subitem} ${childActive ? styles.subitemActive : ''}`}
-                              >
-                                {child.label}
-                              </Link>
-                            </div>
-                          );
-                        })}
+                        {item.children?.length && !collapsed ? (
+                          <div className={`${styles.submenu} ${isOpen ? styles.submenuOpen : ''}`}>
+                            {item.children.map((child) => {
+                              const childActive = pathname === child.href;
+                              return (
+                                <div key={child.key} className={styles.submenuItem}>
+                                  <Link
+                                    href={child.href}
+                                    className={`${styles.subitem} ${childActive ? styles.subitemActive : ''}`}
+                                  >
+                                    {child.icon && <child.icon size={14} className={styles.subItemIcon} />}
+                                    <span>{child.label}</span>
+                                  </Link>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : null}
                       </div>
-                    ) : null}
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </nav>
 
       {/* Custom Tooltip */}

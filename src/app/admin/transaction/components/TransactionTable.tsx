@@ -95,25 +95,18 @@ const getTypeLabel = (type: string) => {
 type Props = {
   transactions: Transaction[];
   onView?: (transaction: Transaction) => void;
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
-    pageSizeOptions?: number[];
-    onPageSizeChange?: (size: number) => void;
-  };
+  currentPage?: number;
+  pageSize?: number;
 };
 
-export function TransactionTable({ transactions, onView, pagination }: Props) {
+export function TransactionTable({ transactions, onView, currentPage = 1, pageSize = 10 }: Props) {
   return (
     <div className={styles.tableWrapper}>
       <div className={styles.scrollContainer}>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th title="Số thứ tự">STT</th>
+              <th className={styles.stickyColHeader} style={{ width: '60px' }}>STT</th>
               <th>Khách hàng</th>
               <th>Số tiền</th>
               <th>Loại</th>
@@ -121,7 +114,7 @@ export function TransactionTable({ transactions, onView, pagination }: Props) {
               <th>Phương thức</th>
               <th>Ngày giao dịch</th>
               <th>Trạng thái</th>
-              <th>Thao tác</th>
+              <th className={styles.stickyColHeader}>Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -134,9 +127,9 @@ export function TransactionTable({ transactions, onView, pagination }: Props) {
             ) : (
               transactions.map((transaction, index) => (
                 <tr key={transaction.id} className={styles.tableRow}>
-                  <td>
+                  <td className={styles.sttCol}>
                     <span className={styles.sttCell} title={`ID: ${transaction.id}\nBooking ID: ${transaction.bookingId}`}>
-                      {((pagination?.currentPage ?? 1) - 1) * (pagination?.pageSize ?? 10) + index + 1}
+                      {(currentPage - 1) * pageSize + index + 1}
                     </span>
                   </td>
                   <td>
@@ -163,7 +156,7 @@ export function TransactionTable({ transactions, onView, pagination }: Props) {
                       {getStatusLabel(transaction.status)}
                     </span>
                   </td>
-                  <td>
+                  <td className={styles.stickyActionsCol}>
                     <div className={styles.actions}>
                       <div className={styles.tooltipWrapper}>
                         <Button
@@ -186,20 +179,6 @@ export function TransactionTable({ transactions, onView, pagination }: Props) {
         </table>
       </div>
 
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
     </div>
   );
 }

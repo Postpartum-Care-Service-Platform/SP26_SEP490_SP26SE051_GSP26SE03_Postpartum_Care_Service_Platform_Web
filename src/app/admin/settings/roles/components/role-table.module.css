@@ -1,8 +1,5 @@
 .container {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-md);
+  display: contents; /* Rely on AdminPageLayout container */
 }
 
 .tableWrapper {
@@ -48,7 +45,7 @@
 }
 
 .table td {
-  padding: var(--spacing-sm);
+  padding: 8px 14px;
   font-family: var(--font-body);
   font-size: 14px;
   color: var(--color-text-primary);
@@ -57,7 +54,6 @@
 
 .sttCell {
   cursor: help;
-  border-bottom: 1px dashed #aaa;
   display: inline-block;
   line-height: 1.4;
 }
@@ -169,9 +165,28 @@
   fill: #ffffff !important;
 }
 
-.paginationWrapper {
-  padding: 16px;
-  border-top: 1px solid #eae9eb;
-  display: flex;
-  justify-content: flex-end;
+.stickySttCol {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background-color: inherit;
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.02);
+}
+
+thead th.stickySttCol {
+  z-index: 25;
+  background-color: #f8f9fa !important;
+}
+
+.stickyActionsCol {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  background-color: inherit;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.02);
+}
+
+thead th.stickyActionsCol {
+  z-index: 25;
+  background-color: #f8f9fa !important;
 }

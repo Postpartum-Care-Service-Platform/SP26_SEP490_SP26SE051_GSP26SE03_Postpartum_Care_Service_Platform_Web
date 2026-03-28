@@ -7,10 +7,9 @@ import styles from './notification-list-header.module.css';
 export function NotificationListHeader() {
   return (
     <div className={styles.header}>
-      <h4 className={styles.title}>Danh sách thông báo</h4>
       <Breadcrumbs
         items={[
-          { label: 'Thông báo' },
+          { label: 'Danh sách thông báo' },
         ]}
         homeHref="/admin"
       />

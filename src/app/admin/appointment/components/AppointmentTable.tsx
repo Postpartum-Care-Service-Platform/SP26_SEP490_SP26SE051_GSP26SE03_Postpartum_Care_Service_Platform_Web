@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import React from 'react';
+import { Calendar } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
@@ -39,15 +40,8 @@ type Props = {
   onEdit?: (appointment: Appointment) => void;
   onDelete?: (appointment: Appointment) => void;
   onCreated?: () => void;
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
-    pageSizeOptions?: number[];
-    onPageSizeChange?: (size: number) => void;
-  };
+  currentPage: number;
+  pageSize: number;
   quickCreateComponent?: React.ReactNode;
 };
 
@@ -85,12 +79,21 @@ const getStatusLabel = (status: Appointment['status']) => {
   }
 };
 
-export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pagination, quickCreateComponent }: Props) {
+export function AppointmentTable({ 
+  appointments, 
+  onEdit, 
+  onDelete, 
+  onCreated, 
+  currentPage,
+  pageSize,
+  quickCreateComponent 
+}: Props) {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
         <thead>
           <tr>
+            <th style={{ width: '50px' }}>STT</th>
             <th>Mã lịch hẹn</th>
             <th>Tên lịch hẹn</th>
             <th>Khách hàng</th>
@@ -98,80 +101,94 @@ export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pa
             <th>Ngày</th>
             <th>Thời gian</th>
             <th>Trạng thái</th>
-            <th>Thao tác</th>
+            <th className={`${styles.stickyActionsCol} text-center`}>Thao tác</th>
+
           </tr>
         </thead>
         <tbody>
-          {appointments.map((appointment) => (
-            <tr key={appointment.id}>
-              <td className={styles.appointmentId}>{appointment.id}</td>
-              <td className={styles.appointmentName}>
-                {appointment.name ? (
-                  <div className={styles.tooltipWrapper}>
-                    <span className={styles.textTruncate}>{appointment.name}</span>
-                    <span className={styles.tooltip}>{appointment.name}</span>
-                  </div>
-                ) : '-'}
-              </td>
-              <td>
-                <div className={styles.patientName}>
-                  {appointment.patientAvatar ? (
-                    <Image
-                      src={appointment.patientAvatar}
-                      alt={appointment.patientName}
-                      width={32}
-                      height={32}
-                      className={styles.avatarImage}
-                    />
-                  ) : (
-                    <div className={styles.avatar}>
-                      {appointment.patientName.charAt(0)}
+          {appointments.length > 0 ? (
+            appointments.map((appointment, index) => (
+              <tr key={appointment.id}>
+                <td>{(currentPage - 1) * pageSize + index + 1}</td>
+                <td className={styles.appointmentId}>{appointment.id}</td>
+                <td className={styles.appointmentName}>
+                  {appointment.name ? (
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.textTruncate}>{appointment.name}</span>
+                      <span className={styles.tooltip}>{appointment.name}</span>
                     </div>
-                  )}
-                  <div className={styles.tooltipWrapper}>
-                    <span className={styles.patientNameText}>{appointment.patientName}</span>
-                    <span className={styles.tooltip}>{appointment.patientName}</span>
+                  ) : '-'}
+                </td>
+                <td>
+                  <div className={styles.patientName}>
+                    {appointment.patientAvatar ? (
+                      <Image
+                        src={appointment.patientAvatar}
+                        alt={appointment.patientName}
+                        width={32}
+                        height={32}
+                        className={styles.avatarImage}
+                      />
+                    ) : (
+                      <div className={styles.avatar}>
+                        {appointment.patientName.charAt(0)}
+                      </div>
+                    )}
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.patientNameText}>{appointment.patientName}</span>
+                      <span className={styles.tooltip}>{appointment.patientName}</span>
+                    </div>
                   </div>
-                </div>
-              </td>
-              <td>{appointment.department}</td>
-              <td>{appointment.date}</td>
-              <td>{appointment.time}</td>
-              <td>
-                <span className={`${styles.statusBadge} ${getStatusClass(appointment.status)}`}>
-                  {getStatusLabel(appointment.status)}
-                </span>
-              </td>
-              <td>
-                <div className={styles.actions}>
-                  <div className={styles.tooltipWrapper}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.editButton} btn-icon btn-sm`}
-                      onClick={() => onEdit?.(appointment)}
-                      aria-label={`Chỉnh sửa ${appointment.id}`}
-                    >
-                      <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                    </Button>
-                    <span className={styles.tooltip}>Chỉnh sửa</span>
+                </td>
+                <td>{appointment.department}</td>
+                <td>{appointment.date}</td>
+                <td>{appointment.time}</td>
+                <td>
+                  <span className={`${styles.statusBadge} ${getStatusClass(appointment.status)}`}>
+                    {getStatusLabel(appointment.status)}
+                  </span>
+                </td>
+                <td className={styles.stickyActionsCol}>
+
+                  <div className={styles.actions}>
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.editButton} btn-icon btn-sm`}
+                        onClick={() => onEdit?.(appointment)}
+                        aria-label={`Chỉnh sửa ${appointment.id}`}
+                      >
+                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                      </Button>
+                      <span className={styles.tooltip}>Chỉnh sửa</span>
+                    </div>
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={`${styles.deleteButton} btn-icon btn-sm`}
+                        onClick={() => onDelete?.(appointment)}
+                        aria-label={`Xóa ${appointment.id}`}
+                      >
+                        <Trash2OutlineIcon fill="#FD6161" size={16} />
+                      </Button>
+                      <span className={styles.tooltip}>Xóa</span>
+                    </div>
                   </div>
-                  <div className={styles.tooltipWrapper}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={`${styles.deleteButton} btn-icon btn-sm`}
-                      onClick={() => onDelete?.(appointment)}
-                      aria-label={`Xóa ${appointment.id}`}
-                    >
-                      <Trash2OutlineIcon fill="#FD6161" size={16} />
-                    </Button>
-                    <span className={styles.tooltip}>Xóa</span>
-                  </div>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={9}>
+                <div className={styles.emptyState}>
+                  <Calendar size={48} className={styles.emptyIcon} />
+                  <p className={styles.emptyText}>Chưa có lịch hẹn nào</p>
                 </div>
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
 
@@ -180,22 +197,8 @@ export function AppointmentTable({ appointments, onEdit, onDelete, onCreated, pa
           {quickCreateComponent}
         </div>
       )}
-
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
     </div>
   );
 }
+
 

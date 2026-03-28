@@ -11,15 +11,9 @@ import styles from './calendar-control-panel.module.css';
 import { CalendarStatusDropdown, type CalendarStatusType } from './CalendarStatusDropdown';
 import { CalendarViewDropdown, type CalendarViewMode } from './CalendarViewDropdown';
 import { MonthYearPicker } from './MonthYearPicker';
+import type { Assignee } from '../shared/AssigneePicker';
 
-type Assignee = {
-  id: string;
-  name: string;
-  email?: string;
-  initials?: string;
-  color?: string;
-  type: 'unassigned' | 'automatic' | 'user';
-};
+// Assignee type imported above from shared/AssigneePicker
 
 function ChevronDownIcon() {
   return (
@@ -95,29 +89,38 @@ type Props = {
   onSearchChange?: (value: string) => void;
   statusValue?: CalendarStatusType;
   onStatusChange?: (value: CalendarStatusType) => void;
+  assigneeValue?: Assignee | null;
+  onAssigneeChange?: (value: Assignee | null) => void;
   viewMode?: CalendarViewMode;
-  onViewModeChange?: (value: CalendarViewMode) => void;
+  onViewModeChange?: (value: CalendarViewMode, days?: number) => void;
+  dayCount?: number;
   monthCursor?: Date;
   onMonthCursorChange?: (value: Date) => void;
   taskType?: TaskType | null;
   onTaskTypeChange?: (value: TaskType | null) => void;
   onTodayClick?: () => void;
+  selectedDate?: Date;
+  onSelectedDateChange?: (date: Date) => void;
 };
 
 export function CalendarControlPanel({
   searchValue = '',
   onSearchChange,
-  statusValue = 'TO DO',
+  statusValue = null,
   onStatusChange,
+  assigneeValue = null,
+  onAssigneeChange,
   viewMode = 'Month',
   onViewModeChange,
+  dayCount = 1,
   monthCursor,
   onMonthCursorChange,
   taskType,
   onTaskTypeChange,
   onTodayClick,
+  selectedDate,
+  onSelectedDateChange,
 }: Props) {
-  const [assignee, setAssignee] = React.useState<Assignee | null>(null);
   const [isAssigneeOpen, setIsAssigneeIdOpen] = React.useState(false);
 
   const [isTaskTypeOpen, setIsTaskTypeOpen] = React.useState(false);
@@ -143,90 +146,115 @@ export function CalendarControlPanel({
     }
   };
 
+  const getInitials = (name: string) => {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
   return (
-    <div className={styles.wrap}>
-      <div className={styles.left}>
-        <div className={styles.search}>
-          <span className={styles.searchIcon}><SearchIcon /></span>
-          <input
-            className={styles.searchInput}
-            placeholder="Tìm kiếm lịch"
-            value={searchValue}
-            onChange={(e) => onSearchChange?.(e.target.value)}
-          />
+    <Tooltip.Provider delayDuration={350}>
+      <div className={styles.wrap}>
+        <div className={styles.left}>
+          <div className={styles.search}>
+            <span className={styles.searchIcon}><SearchIcon /></span>
+            <input
+              className={styles.searchInput}
+              placeholder="Tìm kiếm lịch"
+              value={searchValue}
+              onChange={(e) => onSearchChange?.(e.target.value)}
+            />
+          </div>
+
+          <Popover.Root open={isAssigneeOpen} onOpenChange={setIsAssigneeIdOpen}>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <Popover.Trigger asChild>
+                  <button type="button" className={styles.filterBtn}>
+                    {assigneeValue && (
+                      <div className={styles.avatarCircle}>
+                        {assigneeValue.avatarUrl ? (
+                          <img src={assigneeValue.avatarUrl} alt="" className={styles.avatarImg} />
+                        ) : (
+                          getInitials(assigneeValue.name)
+                        )}
+                      </div>
+                    )}
+                    <span>{assigneeValue ? assigneeValue.name : 'Người phụ trách'}</span>
+                    <ChevronDownIcon />
+                  </button>
+                </Popover.Trigger>
+              </Tooltip.Trigger>
+              {assigneeValue && (
+                <Tooltip.Portal>
+                  <Tooltip.Content className={styles.tooltip} side="bottom" align="center" sideOffset={6}>
+                    {assigneeValue.name}
+                    <Tooltip.Arrow className={styles.tooltipArrow} />
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              )}
+            </Tooltip.Root>
+            <Popover.Portal>
+              <Popover.Content
+                className={styles.popoverContent}
+                side="bottom"
+                align="start"
+                sideOffset={6}
+                collisionPadding={12}
+                onOpenAutoFocus={(e) => e.preventDefault()}
+              >
+                <AssigneePicker
+                  value={assigneeValue}
+                  onChange={(a) => {
+                    onAssigneeChange?.(a);
+                    setIsAssigneeIdOpen(false);
+                  }}
+                  onClose={() => setIsAssigneeIdOpen(false)}
+                />
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
+
+          <Popover.Root open={isTaskTypeOpen} onOpenChange={setIsTaskTypeOpen}>
+            <Popover.Trigger asChild>
+              <button type="button" className={styles.filterBtn}>
+                <span>{selectedTaskType ? selectedTaskType.label : 'Loại'}</span>
+                <ChevronDownIcon />
+              </button>
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content
+                className={styles.popoverContent}
+                side="bottom"
+                align="start"
+                sideOffset={6}
+                collisionPadding={12}
+                onOpenAutoFocus={(e) => e.preventDefault()}
+              >
+                <TaskTypePicker
+                  selectedId={selectedTaskType?.id ?? ''}
+                  onSelect={(t) => {
+                    onTaskTypeChange?.(t);
+                    setIsTaskTypeOpen(false);
+                  }}
+                />
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
+
+          <CalendarStatusDropdown value={statusValue} onChange={onStatusChange}>
+            <button type="button" className={styles.filterBtn}>
+              <span>Trạng thái</span>
+              <ChevronDownIcon />
+            </button>
+          </CalendarStatusDropdown>
+
         </div>
 
-        <Popover.Root open={isAssigneeOpen} onOpenChange={setIsAssigneeIdOpen}>
-          <Popover.Trigger asChild>
-            <button type="button" className={styles.filterBtn}>
-              <span>{assignee ? assignee.name : 'Người phụ trách'}</span>
-              <ChevronDownIcon />
-            </button>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content
-              className={styles.popoverContent}
-              side="bottom"
-              align="start"
-              sideOffset={6}
-              collisionPadding={12}
-              onOpenAutoFocus={(e) => e.preventDefault()}
-            >
-              <AssigneePicker
-                value={assignee}
-                onChange={(a) => {
-                  setAssignee(a);
-                  setIsAssigneeIdOpen(false);
-                }}
-                onClose={() => setIsAssigneeIdOpen(false)}
-              />
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
-        <Popover.Root open={isTaskTypeOpen} onOpenChange={setIsTaskTypeOpen}>
-          <Popover.Trigger asChild>
-            <button type="button" className={styles.filterBtn}>
-              <span>{selectedTaskType ? selectedTaskType.label : 'Loại'}</span>
-              <ChevronDownIcon />
-            </button>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content
-              className={styles.popoverContent}
-              side="bottom"
-              align="start"
-              sideOffset={6}
-              collisionPadding={12}
-              onOpenAutoFocus={(e) => e.preventDefault()}
-            >
-              <TaskTypePicker
-                selectedId={selectedTaskType?.id ?? ''}
-                onSelect={(t) => {
-                  onTaskTypeChange?.(t);
-                  setIsTaskTypeOpen(false);
-                }}
-              />
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
+        <div className={styles.right}>
+          <button type="button" className={styles.todayBtn} onClick={onTodayClick}>Hôm nay</button>
 
-        <CalendarStatusDropdown value={statusValue} onChange={onStatusChange}>
-          <button type="button" className={styles.filterBtn}>
-            <span>Trạng thái</span>
-            <ChevronDownIcon />
-          </button>
-        </CalendarStatusDropdown>
-
-        <button type="button" className={styles.filterBtn}>
-          <span>Lọc thêm</span>
-          <ChevronDownIcon />
-        </button>
-      </div>
-
-      <div className={styles.right}>
-        <button type="button" className={styles.todayBtn} onClick={onTodayClick}>Hôm nay</button>
-
-        <Tooltip.Provider delayDuration={350}>
           <div className={styles.monthNav} aria-label="Month navigation">
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
@@ -247,7 +275,14 @@ export function CalendarControlPanel({
               </Tooltip.Portal>
             </Tooltip.Root>
 
-            <MonthYearPicker value={monthCursor || new Date()} onChange={(date) => onMonthCursorChange?.(date)} />
+            <MonthYearPicker
+              value={monthCursor || selectedDate || new Date()}
+              viewMode={viewMode}
+              onChange={(date) => {
+                onMonthCursorChange?.(date);
+                onSelectedDateChange?.(date);
+              }}
+            />
 
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
@@ -268,17 +303,18 @@ export function CalendarControlPanel({
               </Tooltip.Portal>
             </Tooltip.Root>
           </div>
-        </Tooltip.Provider>
 
-        <CalendarViewDropdown value={viewMode} onChange={onViewModeChange} />
+          <CalendarViewDropdown
+            value={viewMode}
+            dayCount={dayCount}
+            onChange={onViewModeChange || (() => { })}
+          />
 
-        <button type="button" className={styles.iconBtn} aria-label="Create">
-          <CalendarPlusIcon />
-        </button>
-        <button type="button" className={styles.iconBtn} aria-label="Controls">
-          <SlidersIcon />
-        </button>
+          <button type="button" className={styles.iconBtn} aria-label="Tạo lịch mới" title="Tạo lịch mới">
+            <CalendarPlusIcon />
+          </button>
+        </div>
       </div>
-    </div>
+    </Tooltip.Provider>
   );
 }

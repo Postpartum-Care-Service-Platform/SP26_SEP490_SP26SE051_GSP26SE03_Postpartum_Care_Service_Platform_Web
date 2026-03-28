@@ -1,18 +1,22 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 import styles from './contract-list-header.module.css';
 
 export function ContractListHeader() {
+  const pathname = usePathname();
+  const isManager = pathname?.startsWith('/manager');
+  const homeHref = isManager ? '/manager' : '/admin';
+
   return (
     <div className={styles.header}>
-      <h4 className={styles.title}>Hợp đồng</h4>
       <Breadcrumbs
         items={[
           { label: 'Hợp đồng' },
         ]}
-        homeHref="/admin"
+        homeHref={homeHref}
       />
     </div>
   );

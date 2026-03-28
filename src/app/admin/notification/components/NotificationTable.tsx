@@ -42,10 +42,10 @@ type Props = {
   onMarkAsRead?: (notification: Notification) => void;
   pagination?: {
     currentPage: number;
-    totalPages: number;
     pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
+    totalPages?: number;
+    totalItems?: number;
+    onPageChange?: (page: number) => void;
     pageSizeOptions?: number[];
     onPageSizeChange?: (size: number) => void;
   };
@@ -112,7 +112,7 @@ export function NotificationTable({
             {notifications.length === 0 ? (
               <tr>
                 <td colSpan={10} className={styles.emptyState}>
-                  Chưa có thông báo nào
+                   Chưa có thông báo nào
                 </td>
               </tr>
             ) : (
@@ -132,9 +132,15 @@ export function NotificationTable({
                     <td className={styles.contentCell} title={notification.content || ''}>
                       {notification.content || '-'}
                     </td>
-                    <td>{translateNotificationTypeName(notification.notificationTypeName || '')}</td>
-                    <td>{notification.staffName || 'Hệ thống'}</td>
-                    <td>{notification.receiverName || '-'}</td>
+                    <td className={styles.typeCell} title={translateNotificationTypeName(notification.notificationTypeName || '')}>
+                      {translateNotificationTypeName(notification.notificationTypeName || '')}
+                    </td>
+                    <td className={styles.staffCell} title={notification.staffName || 'Hệ thống'}>
+                      {notification.staffName || 'Hệ thống'}
+                    </td>
+                    <td className={styles.receiverCell} title={notification.receiverName || '-'}>
+                      {notification.receiverName || '-'}
+                    </td>
                     <td>
                       <span
                         className={`${styles.statusBadge} ${
@@ -164,7 +170,8 @@ export function NotificationTable({
                           <Button
                             variant="outline"
                             size="sm"
-                            className={`${styles.deleteButton} btn-icon btn-sm`}
+                            className={`${styles.editButton} btn-icon btn-sm bg-red-soft hover:bg-red-soft`}
+                            style={{ color: '#FD6161' }}
                             onClick={() => onDelete?.(notification)}
                             aria-label={`Xóa ${notification.title || notification.id}`}
                           >
@@ -182,20 +189,9 @@ export function NotificationTable({
         </table>
       </div>
 
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
+
     </div>
   );
 }
+
+

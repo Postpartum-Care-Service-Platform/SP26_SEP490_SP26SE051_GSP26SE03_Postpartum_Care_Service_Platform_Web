@@ -1,26 +1,31 @@
 'use client';
 
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { format, isSameDay, getHours } from 'date-fns';
+import { format, isSameDay, addDays } from 'date-fns';
 import React from 'react';
 
 import type { StaffSchedule } from '@/types/staff-schedule';
 
 import styles from './calendar-day-view.module.css';
-import { CalendarQuickCreate } from './CalendarQuickCreate';
 import { MiniCalendar } from './MiniCalendar';
 import { ScheduleDetailPopover } from '../shared/ScheduleDetailPopover';
+import { CalendarSidebarExtra } from './CalendarSidebarExtra';
+
 
 // Generate hours from 12 AM to 11 PM
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const START_HOUR = 0;
 
-// Color mapping for target
-const TARGET_COLORS = {
-  Mom: '#FFB6C1',
-  Baby: '#87CEEB',
-  Both: '#DDA0DD',
-} as const;
+const STATUS_COLORS: Record<string, string> = {
+  Scheduled: '#DDEBFF',
+  Done: '#CDEFE1',
+  Missed: '#FBE2E4',
+  Cancelled: '#FBE2E4',
+};
+
+function getStatusColor(status: string): string {
+  return STATUS_COLORS[status] || '#E9EDF5';
+}
 
 function formatTimeSlot(slotIndex: number): number | string {
   const hour = START_HOUR + slotIndex;
@@ -37,11 +42,16 @@ function formatEventTime(time: string): string {
   return `${hour}:${minutes.toString().padStart(2, '0')} ${ampm}`;
 }
 
+function formatTime(time: string): string {
+  const [hours, minutes] = time.split(':');
+  return `${hours}:${minutes}`;
+}
+
 function getEventsForDate(date: Date, events: StaffSchedule[]): StaffSchedule[] {
   const dateStr = format(date, 'yyyy-MM-dd');
-  return events.filter(event => 
+  return events.filter(event =>
     event.familyScheduleResponse.workDate === dateStr
-  ).sort((a, b) => 
+  ).sort((a, b) =>
     a.familyScheduleResponse.startTime.localeCompare(b.familyScheduleResponse.startTime)
   );
 }
@@ -49,6 +59,15 @@ function getEventsForDate(date: Date, events: StaffSchedule[]): StaffSchedule[] 
 function getEventPosition(startTime: string): number {
   const [hours, minutes] = startTime.split(':').map(Number);
   return (hours - START_HOUR) + (minutes / 60);
+}
+
+function getEventHeight(startTime: string, endTime: string): number {
+  const [startH, startM] = startTime.split(':').map(Number);
+  const [endH, endM] = endTime.split(':').map(Number);
+  const startTotal = startH + startM / 60;
+  const endTotal = endH + endM / 60;
+  const duration = Math.max(0.5, endTotal - startTotal); // Min 30 mins
+  return duration * 96;
 }
 
 function getCurrentTimePosition(): number {
@@ -59,30 +78,34 @@ function getCurrentTimePosition(): number {
   return (hours - START_HOUR) * 96 + (minutes / 60) * 96;
 }
 
-export function CalendarDayView({ dayCursor, schedules, onDayChange, monthCursor }: { 
-  dayCursor: Date; 
+export function CalendarDayView({ 
+  dayCursor, 
+  schedules, 
+  onDayChange, 
+  monthCursor, 
+  dayCount = 1,
+  selectedStaffId,
+  onStaffSelect,
+}: {
+  dayCursor: Date;
   schedules: StaffSchedule[];
   onDayChange?: (date: Date) => void;
   monthCursor: Date;
+  dayCount?: number;
+  selectedStaffId: string | null;
+  onStaffSelect: (staffId: string | null) => void;
 }) {
-  const [openDayKey, setOpenDayKey] = React.useState<string | null>(null);
   const [selectedSchedule, setSelectedSchedule] = React.useState<StaffSchedule | null>(null);
   const [anchorRect, setAnchorRect] = React.useState<DOMRect | null>(null);
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 
-  // Use dayCursor as the day to display
-  const day = dayCursor;
+  // Support multi-day view
+  const days = React.useMemo(() => {
+    return Array.from({ length: dayCount }, (_, i) => addDays(dayCursor, i));
+  }, [dayCursor, dayCount]);
 
-  const dayLabels = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'] as const;
-  const dayOfWeek = day.getDay();
-  const dayLabel = dayLabels[dayOfWeek];
-
-  const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
-  const monthYear = `${monthNames[day.getMonth()]} ${day.getFullYear()}`;
-
+  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
   const today = new Date();
-  const isToday = isSameDay(day, today);
-  const dayEvents = getEventsForDate(day, schedules);
   const currentTimePosition = getCurrentTimePosition();
 
   const handleEventClick = (schedule: StaffSchedule, event: React.MouseEvent<HTMLDivElement>) => {
@@ -95,26 +118,57 @@ export function CalendarDayView({ dayCursor, schedules, onDayChange, monthCursor
   return (
     <Tooltip.Provider delayDuration={350}>
       <div style={{ display: 'flex', gap: '16px' }}>
-        <div style={{ flexShrink: 0 }}>
-          <MiniCalendar 
-            selectedDate={dayCursor} 
+        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', width: '220px', overflowY: 'auto', overflowX: 'hidden' }}>
+          <MiniCalendar
+            selectedDate={dayCursor}
             onDateSelect={onDayChange}
             currentMonth={monthCursor}
+            viewMode="Day"
+          />
+          <CalendarSidebarExtra 
+            selectedDate={dayCursor}
+            schedules={schedules}
           />
         </div>
 
         <div className={styles.wrap} style={{ flex: 1, overflow: 'auto' }}>
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <span className={styles.dayNumberLarge}>{format(day, 'd')}</span>
-          <span className={styles.dayNameLarge}>{dayLabel}</span>
-        </div>
-        <div className={styles.monthYearSub}>{monthYear}</div>
-      </div>
+          {/* Header Row */}
+          <div className={styles.header} style={{ 
+            display: 'grid', 
+            gridTemplateColumns: `50px repeat(${dayCount}, 1fr)`,
+            padding: 0,
+            height: 'auto',
+            borderBottom: '1px solid rgba(9, 30, 66, 0.14)',
+            backgroundColor: '#fff',
+            position: 'sticky',
+            top: 0,
+            zIndex: 100
+          }}>
+            <div style={{ borderRight: '1px solid rgba(9, 30, 66, 0.14)' }} />
+            {days.map((d) => {
+              const isTodayDate = isSameDay(d, today);
+              return (
+                <div key={d.toISOString()} style={{ 
+                  padding: '12px 0', 
+                  textAlign: 'center', 
+                  borderRight: '1px solid rgba(9, 30, 66, 0.14)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center'
+                }}>
+                  <div className={styles.headerTop}>
+                    <span className={styles.dayNumberLarge} style={{ color: isTodayDate ? '#ff7a00' : '#42526e', fontSize: '24px' }}>{format(d, 'd')}</span>
+                    <span className={styles.dayNameLarge} style={{ fontSize: '14px' }}>{dayLabels[d.getDay()]}</span>
+                  </div>
+                  <div className={styles.monthYearSub} style={{ fontSize: '11px' }}>{format(d, 'MMM yyyy')}</div>
+                </div>
+              );
+            })}
+          </div>
 
-      <div className={styles.content}>
-            {/* Time column + Day column */}
-            <div className={styles.grid}>
+          <div className={styles.content}>
+            {/* Grid with Time column + Day columns */}
+            <div className={styles.grid} style={{ display: 'grid', gridTemplateColumns: `50px repeat(${dayCount}, 1fr)` }}>
               {/* Time column */}
               <div className={styles.timeColumn}>
                 {HOURS.map(hour => (
@@ -122,13 +176,14 @@ export function CalendarDayView({ dayCursor, schedules, onDayChange, monthCursor
                     {formatTimeSlot(hour)}
                   </div>
                 ))}
+                
                 {/* Current time indicator - dot with tooltip */}
                 {currentTimePosition >= 0 && (
                   <Tooltip.Root>
                     <Tooltip.Trigger asChild>
-                      <div 
+                      <div
                         className={styles.currentTimeDot}
-                        style={{ 
+                        style={{
                           top: `${currentTimePosition}px`,
                           backgroundColor: '#FF6B00',
                           cursor: 'help'
@@ -145,79 +200,89 @@ export function CalendarDayView({ dayCursor, schedules, onDayChange, monthCursor
                 )}
               </div>
 
-              {/* Day column */}
-              <div className={`${styles.dayColumn} ${isToday ? styles.today : ''}`}>
-                {/* Hour grid lines */}
-                {HOURS.map(hour => (
-                  <div key={hour} className={styles.hourSlot} />
-                ))}
-                
-                {/* Current time line - only show on today */}
-                {isToday && currentTimePosition >= 0 && (
-                  <div 
-                    className={styles.currentTimeLine}
-                    style={{ 
-                      top: `${currentTimePosition}px`
-                    }}
-                  />
-                )}
-                
-                {/* Events */}
-                {dayEvents.map((schedule) => {
-                  const { familyScheduleResponse: fs } = schedule;
-                  const eventColor = TARGET_COLORS[fs.target] || TARGET_COLORS.Baby;
-                  const topPosition = getEventPosition(fs.startTime) * 96;
-                  
-                  return (
-                    <Tooltip.Root key={schedule.id}>
-                      <Tooltip.Trigger asChild>
-                        <div
-                          className={styles.eventChip}
-                          style={{ 
-                            backgroundColor: eventColor,
-                            top: `${topPosition}px`,
-                          }}
-                          onClick={(e) => handleEventClick(schedule, e)}
-                          role="button"
-                          tabIndex={0}
-                        >
-                          <span className={styles.eventTime}>
-                            {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
-                          </span>
-                          <span className={styles.eventTitle}>
-                            {fs.activity}
-                          </span>
-                          <span className={styles.eventCustomer}>
-                            {fs.customerName}
-                          </span>
-                        </div>
-                      </Tooltip.Trigger>
-                      <Tooltip.Portal>
-                        <Tooltip.Content className={styles.tooltipContent} sideOffset={5}>
-                          <div className={styles.tooltipTitle}>{fs.activity}</div>
-                          <div className={styles.tooltipCode}>{fs.customerName}</div>
-                          <div className={styles.tooltipTime}>
-                            {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
-                          </div>
-                          <div className={styles.tooltipCode}>{fs.packageName}</div>
-                          <Tooltip.Arrow className={styles.tooltipArrow} />
-                        </Tooltip.Content>
-                      </Tooltip.Portal>
-                    </Tooltip.Root>
-                  );
-                })}
-              </div>
+              {/* Day columns */}
+              {days.map((d) => {
+                const isTodayDate = isSameDay(d, today);
+                const dayEvents = getEventsForDate(d, schedules);
+                return (
+                  <div key={d.toISOString()} className={`${styles.dayColumn} ${isTodayDate ? styles.today : ''}`} style={{ borderRight: '1px solid rgba(9, 30, 66, 0.14)', position: 'relative' }}>
+                    {/* Hour grid lines */}
+                    {HOURS.map(hour => (
+                      <div key={hour} className={styles.hourSlot} />
+                    ))}
+
+                    {/* Current time line - only show on today */}
+                    {isTodayDate && currentTimePosition >= 0 && (
+                      <div
+                        className={styles.currentTimeLine}
+                        style={{
+                          top: `${currentTimePosition}px`
+                        }}
+                      />
+                    )}
+
+                    {/* Events */}
+                    {dayEvents.map((schedule) => {
+                      const { familyScheduleResponse: fs } = schedule;
+                      const topPosition = getEventPosition(fs.startTime) * 96;
+                      const height = getEventHeight(fs.startTime, fs.endTime);
+
+                      return (
+                        <Tooltip.Root key={schedule.id}>
+                          <Tooltip.Trigger asChild>
+                            <div
+                              className={styles.eventChip}
+                              style={{
+                                position: 'absolute',
+                                left: '4px',
+                                right: '4px',
+                                top: `${topPosition}px`,
+                                height: `${height}px`,
+                                cursor: 'pointer',
+                                backgroundColor: getStatusColor(fs.status),
+                              }}
+                              onClick={(e) => handleEventClick(schedule, e)}
+                            >
+                              <div className={styles.eventContent}>
+                                <span className={styles.eventTime} style={{ color: '#ff7a00' }}>
+                                  {formatTime(fs.startTime)}
+                                </span>
+                                <span className={styles.eventTitle}>
+                                  {fs.activity}
+                                </span>
+                              </div>
+                            </div>
+                          </Tooltip.Trigger>
+                          <Tooltip.Portal>
+                            <Tooltip.Content className={styles.tooltipContent} sideOffset={5}>
+                              <div className={styles.tooltipTitle}>{fs.activity}</div>
+                              <div className={styles.tooltipCode}>{fs.customerName}</div>
+                              <div className={styles.tooltipTime}>
+                                {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
+                              </div>
+                              <div className={styles.tooltipCode}>{fs.packageName}</div>
+                              {fs.note && <div className={styles.tooltipNote}>{fs.note}</div>}
+                              <Tooltip.Arrow className={styles.tooltipArrow} />
+                            </Tooltip.Content>
+                          </Tooltip.Portal>
+                        </Tooltip.Root>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
           </div>
-      </div>
+        </div>
 
         <ScheduleDetailPopover
           open={isPopoverOpen}
           onOpenChange={setIsPopoverOpen}
           schedule={selectedSchedule}
           anchorRect={anchorRect || undefined}
+          sideOffset={-400}
         />
-    </div>
+      </div>
     </Tooltip.Provider>
   );
 }

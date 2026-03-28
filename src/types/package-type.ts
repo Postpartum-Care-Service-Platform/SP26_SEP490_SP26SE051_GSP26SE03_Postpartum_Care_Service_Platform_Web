@@ -1,6 +1,6 @@
 export interface PackageType {
   id: number;
-  name: string;
+  typeName: string;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;

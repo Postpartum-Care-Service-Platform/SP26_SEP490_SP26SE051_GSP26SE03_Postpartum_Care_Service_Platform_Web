@@ -1,9 +1,14 @@
-.pageContainer {
-  padding: 16px;
+.loadingState,
+.errorState {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  color: #64748b;
+  font-family: var(--font-body);
 }
 
-.content {
-  padding: var(--spacing-md);
-  background-color: #fff;
-  border-radius: var(--radius-md);
+.errorState {
+  color: #ef4444;
 }

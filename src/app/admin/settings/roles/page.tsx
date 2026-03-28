@@ -6,6 +6,9 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import roleService from '@/services/role.service';
 import type { Role } from '@/types/role';
 
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { Pagination } from '@/components/ui/pagination';
+
 import { RoleListHeader, RoleModal, RoleTable, RoleTableControls } from './components';
 import styles from './roles.module.css';
 
@@ -134,59 +137,67 @@ export default function AdminRolesPage() {
     }
   };
 
-  return (
-    <div className={styles.pageContainer}>
-      <RoleListHeader />
+  const breadcrumbs = [
+    { label: 'Vai trò' },
+  ];
 
-      {loading ? (
-        <div className={styles.content}>
-          <p> Dang tai du lieu...</p>
-        </div>
-      ) : error ? (
-        <div className={styles.content}>
-          <p>{error}</p>
-        </div>
-      ) : (
-        <>
+  return (
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <AdminPageLayout
+        header={<RoleListHeader />}
+        controlPanel={
           <RoleTableControls
             onSearch={(q) => setSearchQuery(q)}
             onSortChange={(sort) => setSortKey(sort)}
             onNewRole={() => setIsModalOpen(true)}
           />
-
+        }
+        pagination={
+          totalPages > 0 ? (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={filteredRoles.length}
+              onPageChange={handlePageChange}
+              pageSizeOptions={PAGE_SIZE_OPTIONS}
+              onPageSizeChange={(size: number) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              showResultCount={true}
+            />
+          ) : null
+        }
+      >
+        {loading ? (
+          <div className={styles.loadingContainer}>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        ) : error ? (
+          <div className={styles.errorContainer}>
+            <p>{error}</p>
+          </div>
+        ) : (
           <RoleTable
             roles={paginatedRoles}
             onEdit={handleEdit}
             onDelete={handleDelete}
             deletingId={deletingId}
-            pagination={
-              totalPages > 0
-                ? {
-                    currentPage,
-                    totalPages,
-                    pageSize,
-                    totalItems: filteredRoles.length,
-                    onPageChange: handlePageChange,
-                    pageSizeOptions: PAGE_SIZE_OPTIONS,
-                    onPageSizeChange: (size) => {
-                      setPageSize(size);
-                      setCurrentPage(1);
-                    },
-                  }
-                : undefined
-            }
+            pagination={{
+              currentPage,
+              pageSize,
+            }}
           />
+        )}
 
-
-        </>
-      )}
-
-      <RoleModal
-        open={isModalOpen}
-        onOpenChange={handleModalClose}
-        onSuccess={fetchRoles}
-        roleToEdit={editingRole}
-      />
+        <RoleModal
+          open={isModalOpen}
+          onOpenChange={handleModalClose}
+          onSuccess={fetchRoles}
+          roleToEdit={editingRole}
+        />
+      </AdminPageLayout>
     </div>
   );
 }

@@ -13,7 +13,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   overflow: visible;
   font-family: "Atlassian Sans", ui-sans-serif, -apple-system, sans-serif;
 }
@@ -27,8 +27,9 @@
 }
 
 .modalTitle {
-  color: #343a40;
-  font-size: 13px;
+  font-family: "Lexend Deca", sans-serif;
+  color: #292a2e;
+  font-size: 14.5px;
   font-weight: 600;
   margin: 0;
 }
@@ -228,6 +229,7 @@
 
 .formRow > div {
   flex: 1;
+  min-width: 0;
   margin-bottom: 0;
 }
 

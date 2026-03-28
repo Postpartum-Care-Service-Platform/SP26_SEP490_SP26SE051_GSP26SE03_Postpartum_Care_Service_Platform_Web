@@ -1,13 +1,17 @@
 'use client';
 
-import { CreditCard, Briefcase, ShieldCheck, Monitor, Bot, Lock, User } from 'lucide-react';
+import { CreditCard, Briefcase, ShieldCheck, Monitor, Bot, Lock } from 'lucide-react';
+import { MagnifyingGlassIcon, PlusIcon } from '@radix-ui/react-icons';
+import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Breadcrumbs } from '@/components/ui/breadcrumbs';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { Button } from '@/components/ui/button';
+import { Pagination } from '@/components/ui/pagination';
 import { useToast } from '@/components/ui/toast/use-toast';
 import apiClient from '@/services/apiClient';
-import roleService from '@/services/role.service';
-import type { Role } from '@/types/role';
+
+import { WorkScheduleHeader } from '../../work-schedule/components/WorkScheduleHeader';
 
 import { SystemSettingsList, SystemSettingsModal } from './components';
 import styles from './system.module.css';
@@ -30,33 +34,33 @@ const tabs = [
   { key: 'App', label: 'Ứng dụng', icon: <Monitor size={16} /> },
   { key: 'AI', label: 'AI & trợ lý ảo', icon: <Bot size={16} /> },
   { key: 'Auth', label: 'Xác thực & bảo mật', icon: <Lock size={16} /> },
-  { key: 'Role', label: 'Vai trò', icon: <User size={16} /> },
 ];
 
 export default function AdminSystemSettingsPage() {
   const { toast } = useToast();
   const [settings, setSettings] = useState<SystemSetting[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>(tabs[0].key);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const PAGE_SIZE_OPTIONS = [10, 20, 50];
+
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSetting, setEditingSetting] = useState<SystemSetting | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const [settingsData, rolesData] = await Promise.all([
-        apiClient.get('/SystemSetting') as Promise<SystemSetting[]>,
-        roleService.getAllRoles(),
-      ]);
-      setSettings(settingsData);
-      setRoles(rolesData);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const settingsData = await apiClient.get('/SystemSetting') as any;
+      setSettings(settingsData as SystemSetting[]);
     } catch (_err) {
-      setError('Khong the tai cau hinh he thong.');
+      setError('Không thể tải cấu hình hệ thống.');
     } finally {
       setLoading(false);
     }
@@ -66,34 +70,37 @@ export default function AdminSystemSettingsPage() {
     fetchData();
   }, []);
 
-  const settingsByGroup = useMemo(() => {
-    const grouped: Record<string, SystemSetting[]> = {};
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, searchQuery]); // Reset page when tab or search changes
 
-    for (const item of settings) {
-      const group = item.group || 'Khac';
-      if (!grouped[group]) grouped[group] = [];
-      grouped[group].push(item);
+  const filteredSettings = useMemo(() => {
+    let filtered = settings.filter((s) => s.group === activeTab); // Assuming 'group' matches 'activeTab'
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      filtered = filtered.filter(
+        (s) =>
+          s.key.toLowerCase().includes(q) ||
+          (s.description || '').toLowerCase().includes(q)
+      );
     }
+    return filtered.sort((a, b) => a.key.localeCompare(b.key)); // Sort filtered settings
+  }, [settings, activeTab, searchQuery]);
 
-    grouped.Role = roles.map((role, idx) => ({
-      id: role.id,
-      key: `Role.${role.roleName}`,
-      value: role.roleName,
-      description: role.description || `Vai tro ${idx + 1}`,
-      group: 'Role',
-      dataType: 'string',
-      isEditable: true,
-      updatedAt: new Date().toISOString(),
-    }));
+  const totalPages = Math.ceil(filteredSettings.length / pageSize);
 
-    Object.keys(grouped).forEach((g) => grouped[g].sort((a, b) => a.key.localeCompare(b.key)));
-    return grouped;
-  }, [settings, roles]);
-
-  const currentSettings = settingsByGroup[activeTab] || [];
+  const paginatedSettings = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredSettings.slice(start, start + pageSize);
+  }, [filteredSettings, currentPage, pageSize]);
 
   const handleEdit = (setting: SystemSetting) => {
     setEditingSetting(setting);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenCreate = () => {
+    setEditingSetting(null); // Clear any previous editing state
     setIsModalOpen(true);
   };
 
@@ -104,74 +111,92 @@ export default function AdminSystemSettingsPage() {
     }
   };
 
-  const handleUpdateRole = async (role: Role, newRoleName: string) => {
-    try {
-      await roleService.updateRole(role.id, {
-        roleName: newRoleName,
-        description: role.description,
-      });
-      toast({ title: 'Cap nhat vai tro thanh cong', variant: 'success' });
-      await fetchData();
-    } catch (_err) {
-      toast({ title: 'Cap nhat vai tro that bai', variant: 'error' });
-    }
-  };
-
   const currentTab = tabs.find((t) => t.key === activeTab);
 
+  const pathname = usePathname();
+  const isManager = pathname?.startsWith('/manager');
+  const homeHref = isManager ? '/manager' : '/admin';
+
+  const breadcrumbs = [{ label: 'Cài đặt hệ thống' }];
+
+  const pagination = (
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      pageSize={pageSize}
+      totalItems={filteredSettings.length}
+      onPageChange={(page) => setCurrentPage(page)}
+      pageSizeOptions={PAGE_SIZE_OPTIONS}
+      onPageSizeChange={(size) => {
+        setPageSize(size);
+        setCurrentPage(1);
+      }}
+      showResultCount={true}
+    />
+  );
+
+  const controlPanel = (
+    <div className={styles.controls}>
+      <div className={styles.controlsLeft}>
+        <div className={styles.searchWrapper}>
+          <MagnifyingGlassIcon className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Tìm kiếm cài đặt..."
+            className={styles.searchInput}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+      <div className={styles.controlsRight}>
+        <Button variant="primary" size="sm" onClick={handleOpenCreate} className={styles.createButton}>
+          <PlusIcon className={styles.plusIcon} />
+          Cài đặt mới
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
-    <div className={styles.pageContainer}>
-      <div className={styles.header}>
-        <h4 className={styles.title}>Cài đặt hệ thống</h4>
-        <Breadcrumbs
-          items={[{ label: 'Cài đặt hệ thống' }]}
-          homeHref="/admin"
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <div className="flex-shrink-0">
+        <WorkScheduleHeader
+          breadcrumbs={breadcrumbs}
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
         />
       </div>
 
-      <div className={styles.tabs} role="tablist" aria-label="System settings tabs">
-        {tabs.map((tab) => {
-          const isActive = tab.key === activeTab;
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              className={`${styles.tab} ${isActive ? styles.tabActive : ''}`}
-              onClick={() => setActiveTab(tab.key)}
-            >
-              {tab.icon && <span className={styles.tabIcon}>{tab.icon}</span>}
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <AdminPageLayout
+        controlPanel={controlPanel}
+        pagination={pagination}
+      >
+        {loading ? (
+          <div className={styles.content}>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        ) : error ? (
+          <div className={styles.content}>
+            <p>{error}</p>
+          </div>
+        ) : (
+          <SystemSettingsList
+            settings={paginatedSettings}
+            onEdit={handleEdit}
+            currentPage={currentPage}
+            pageSize={pageSize}
+          />
+        )}
 
-      {loading ? (
-        <div className={styles.content}>
-          <p>Dang tai du lieu...</p>
-        </div>
-      ) : error ? (
-        <div className={styles.content}>
-          <p>{error}</p>
-        </div>
-      ) : (
-        <SystemSettingsList
-          settings={currentSettings}
-          groupDisplayName={currentTab?.label || activeTab}
-          onEdit={handleEdit}
-          onUpdateRole={handleUpdateRole}
-          roles={roles}
+        <SystemSettingsModal
+          open={isModalOpen}
+          onOpenChange={handleModalClose}
+          onSuccess={fetchData}
+          settingToEdit={editingSetting}
         />
-      )}
-
-      <SystemSettingsModal
-        open={isModalOpen}
-        onOpenChange={handleModalClose}
-        onSuccess={fetchData}
-        settingToEdit={editingSetting}
-      />
+      </AdminPageLayout>
     </div>
   );
 }

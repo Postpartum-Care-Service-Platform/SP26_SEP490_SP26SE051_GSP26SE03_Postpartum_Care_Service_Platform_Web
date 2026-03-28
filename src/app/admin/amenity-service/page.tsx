@@ -12,14 +12,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
 import { Pagination } from '@/components/ui/pagination';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import amenityServiceService from '@/services/amenity-service.service';
 import type { AmenityService } from '@/types/amenity-service';
-
 import { AmenityServiceListHeader } from './components/AmenityServiceListHeader';
 import styles from './amenity-service.module.css';
 
-const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill={fill}>
+
+const Edit2OutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill="currentColor">
     <g data-name="Layer 2">
       <g data-name="edit-2">
         <rect width="24" height="24" opacity="0" />
@@ -30,8 +31,8 @@ const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size
   </svg>
 );
 
-const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill={fill}>
+const Trash2OutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill="currentColor">
     <g data-name="Layer 2">
       <g data-name="trash-2">
         <rect width="24" height="24" opacity="0" />
@@ -161,205 +162,201 @@ export default function AdminAmenityServicePage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <AmenityServiceListHeader />
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <AdminPageLayout
+        header={<AmenityServiceListHeader />}
+        controlPanel={
+          <div className={styles.controls}>
+            <div className={styles.left}>
+              <div className={styles.searchWrapper}>
+                <svg className={styles.searchIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm tiện ích..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={styles.searchInput}
+                />
+              </div>
 
-      <div className={styles.controls}>
-        <div className={styles.left}>
-          <div className={styles.searchWrapper}>
-            <svg className={styles.searchIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Tìm kiếm tiện ích..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <button type="button" className={styles.filterButton}>
+                    <span>{STATUS_OPTIONS.find(opt => opt.value === statusFilter)?.label || 'Tất cả'}</span>
+                    <ChevronDownIcon className={styles.chevronIcon} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className={styles.dropdownContent}>
+                  {STATUS_OPTIONS.map((option) => (
+                    <DropdownMenuItem
+                      key={option.value}
+                      className={`${styles.dropdownItem} ${statusFilter === option.value ? styles.dropdownItemActive : ''}`}
+                      onClick={() => setStatusFilter(option.value)}
+                    >
+                      {option.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <button type="button" className={styles.filterButton}>
+                    <span>{SORT_OPTIONS.find(opt => opt.value === sortKey)?.label || 'Sắp xếp'}</span>
+                    <ChevronDownIcon className={styles.chevronIcon} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className={styles.dropdownContent}>
+                  {SORT_OPTIONS.map((option) => (
+                    <DropdownMenuItem
+                      key={option.value}
+                      className={`${styles.dropdownItem} ${sortKey === option.value ? styles.dropdownItemActive : ''}`}
+                      onClick={() => setSortKey(option.value)}
+                    >
+                      {option.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <div className={styles.right}>
+              <DropdownMenu modal={false}>
+                <DropdownMenuTrigger asChild>
+                  <button className={styles.exportButton}>
+                    <Download className={styles.exportIcon} />
+                    Nhập/Xuất
+                    <ChevronDownIcon className={styles.chevronIcon} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className={styles.dropdownContent} align="end">
+                  <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+                    <Upload size={16} className={styles.itemIcon} />
+                    Nhập từ Excel
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+                    <Download size={16} className={styles.itemIcon} />
+                    Xuất ra Excel
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <button type="button" className={styles.newButton}>
+                <Plus size={16} />
+                <span>Tạo mới</span>
+              </button>
+            </div>
           </div>
-
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <button type="button" className={styles.filterButton}>
-                <span>{STATUS_OPTIONS.find(opt => opt.value === statusFilter)?.label || 'Tất cả'}</span>
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {STATUS_OPTIONS.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  className={`${styles.dropdownItem} ${statusFilter === option.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setStatusFilter(option.value)}
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <button type="button" className={styles.filterButton}>
-                <span>{SORT_OPTIONS.find(opt => opt.value === sortKey)?.label || 'Sắp xếp'}</span>
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {SORT_OPTIONS.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  className={`${styles.dropdownItem} ${sortKey === option.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setSortKey(option.value)}
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div className={styles.right}>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <button className={styles.exportButton}>
-                <Download className={styles.exportIcon} />
-                Nhập/Xuất
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent} align="end">
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
-                <Upload size={16} className={styles.itemIcon} />
-                Nhập từ Excel
-              </DropdownMenuItem>
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
-                <Download size={16} className={styles.itemIcon} />
-                Xuất ra Excel
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <button type="button" className={styles.newButton}>
-            <Plus size={16} />
-            <span>Tạo mới</span>
-          </button>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className={styles.content}>
-          <p>Đang tải dữ liệu...</p>
-        </div>
-      ) : error ? (
-        <div className={styles.content}>
-          <p>{error}</p>
-        </div>
-      ) : (
-        <>
-          <div className={styles.tableWrapper}>
-            <div className={styles.tableScrollArea}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th className={styles.sttHeaderCell}>STT</th>
-                    <th>Hình ảnh</th>
-                    <th>Tên tiện ích</th>
-                    <th>Mô tả</th>
-                    <th>Thời lượng (phút)</th>
-                    <th>Ngày tạo</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
+        }
+        pagination={
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalItems={filteredAmenityServices.length}
+            onPageChange={handlePageChange}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            onPageSizeChange={(size: number) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+            showResultCount={true}
+          />
+        }
+      >
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.sttHeaderCell}>STT</th>
+                <th>Hình ảnh</th>
+                <th>Tên tiện ích</th>
+                <th>Mô tả</th>
+                <th>Thời lượng (phút)</th>
+                <th className={styles.dateCol}>Ngày tạo</th>
+                <th className={styles.statusCol}>Trạng thái</th>
+                <th className={styles.stickyActionsCol}>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                   <td colSpan={8} className={styles.loadingCell}>Đang tải dữ liệu...</td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={8} className={styles.errorCell}>{error}</td>
+                </tr>
+              ) : paginatedAmenityServices.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className={styles.emptyRow}>
+                    <div className={styles.emptyState}>
+                      <p>Không có dữ liệu khớp với tìm kiếm</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                paginatedAmenityServices.map((item, index) => (
+                  <tr key={item.id}>
+                    <td className={styles.sttDataCell}>
+                      <span className={styles.sttCell}>
+                        {(currentPage - 1) * pageSize + index + 1}
+                      </span>
+                    </td>
+                    <td>
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.name} className={styles.amenityImage} />
+                      ) : (
+                        <div className={styles.amenityImagePlaceholder}>-</div>
+                      )}
+                    </td>
+                    <td className={styles.nameCell}>
+                      <div className={styles.tooltipWrapper}>
+                        <span className={styles.textTruncate}>{item.name}</span>
+                        <span className={styles.tooltip}>{item.name}</span>
+                      </div>
+                    </td>
+                    <td className={styles.descriptionCell}>
+                      {item.description ? (
+                        <div className={styles.tooltipWrapper}>
+                          <span className={styles.textTruncate}>{item.description}</span>
+                          <span className={styles.tooltip}>{item.description}</span>
+                        </div>
+                      ) : '-'}
+                    </td>
+                    <td>{item.duration || '-'}</td>
+                    <td className={styles.dateCol}>{formatDate(item.createdAt)}</td>
+                    <td className={styles.statusCol}>
+                      <span className={`${styles.statusBadge} ${item.isActive ? styles.statusActive : styles.statusInactive}`}>
+                        {item.isActive ? 'Hoạt động' : 'Không hoạt động'}
+                      </span>
+                    </td>
+                    <td className={styles.stickyActionsCol}>
+                      <div className={styles.actions}>
+                        <div className={styles.tooltipWrapper}>
+                          <button className={`${styles.actionButton} ${styles.editButton}`} type="button">
+                            <Edit2OutlineIcon size={16} />
+                          </button>
+                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                        </div>
+                        <div className={styles.tooltipWrapper}>
+                          <button className={`${styles.actionButton} ${styles.deleteButton}`} type="button">
+                            <Trash2OutlineIcon size={16} />
+                          </button>
+                          <span className={styles.tooltip}>Xóa</span>
+                        </div>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {paginatedAmenityServices.length === 0 ? (
-                    <tr>
-                      <td colSpan={8} className={styles.emptyRow}>
-                        Không có dữ liệu
-                      </td>
-                    </tr>
-                  ) : (
-                    paginatedAmenityServices.map((item, index) => (
-                      <tr key={item.id}>
-                        <td className={styles.sttDataCell}>
-                          <span className={styles.sttCell}>
-                            {(currentPage - 1) * pageSize + index + 1}
-                          </span>
-                        </td>
-                        <td>
-                          {item.imageUrl ? (
-                            <img src={item.imageUrl} alt={item.name} className={styles.amenityImage} />
-                          ) : (
-                            <div className={styles.amenityImagePlaceholder}>-</div>
-                          )}
-                        </td>
-                        <td className={styles.nameCell}>
-                          <div className={styles.tooltipWrapper}>
-                            <span className={styles.textTruncate}>{item.name}</span>
-                            <span className={styles.tooltip}>{item.name}</span>
-                          </div>
-                        </td>
-                        <td className={styles.descriptionCell}>
-                          {item.description ? (
-                            <div className={styles.tooltipWrapper}>
-                              <span className={styles.textTruncate}>{item.description}</span>
-                              <span className={styles.tooltip}>{item.description}</span>
-                            </div>
-                          ) : '-'}
-                        </td>
-                        <td>{item.duration || '-'}</td>
-                        <td>{formatDate(item.createdAt)}</td>
-                        <td>
-                          <span className={`${styles.statusBadge} ${item.isActive ? styles.statusActive : styles.statusInactive}`}>
-                            {item.isActive ? 'Hoạt động' : 'Không hoạt động'}
-                          </span>
-                        </td>
-                        <td>
-                          <div className={styles.actions}>
-                            <div className={styles.tooltipWrapper}>
-                              <button className={`${styles.actionButton} ${styles.editButton}`} type="button">
-                                <Edit2OutlineIcon size={16} />
-                              </button>
-                              <span className={styles.tooltip}>Chỉnh sửa</span>
-                            </div>
-                            <div className={styles.tooltipWrapper}>
-                              <button className={`${styles.actionButton} ${styles.deleteButton}`} type="button">
-                                <Trash2OutlineIcon size={16} />
-                              </button>
-                              <span className={styles.tooltip}>Xóa</span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {totalPages > 0 && (
-            <div className={styles.paginationWrapper}>
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                totalItems={filteredAmenityServices.length}
-                onPageChange={handlePageChange}
-                pageSizeOptions={PAGE_SIZE_OPTIONS}
-                onPageSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
-                showResultCount={true}
-              />
-            </div>
-          )}
-        </>
-      )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </AdminPageLayout>
     </div>
   );
 }

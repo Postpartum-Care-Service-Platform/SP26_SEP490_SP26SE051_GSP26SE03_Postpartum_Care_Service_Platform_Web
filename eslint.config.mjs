@@ -1,3 +1,4 @@
+import importPlugin from "eslint-plugin-import";
 import nextPlugin from "@next/eslint-plugin-next";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
@@ -21,6 +22,7 @@ const config = [
     plugins: {
       next: nextPlugin,
       "@typescript-eslint": tsPlugin,
+      import: importPlugin,
     },
     rules: {
       ...prettierConfig.rules,

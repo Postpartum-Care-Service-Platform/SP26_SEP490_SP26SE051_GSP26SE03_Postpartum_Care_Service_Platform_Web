@@ -1,13 +1,12 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Pagination } from '@/components/ui/pagination';
+import { ClipboardList } from 'lucide-react';
 import type { CarePlanDetail } from '@/types/care-plan-detail';
 
 import styles from './care-plan-detail-table.module.css';
 
-const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill={fill}>
+const Edit2OutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill="currentColor">
     <g data-name="Layer 2">
       <g data-name="edit-2">
         <rect width="24" height="24" opacity="0" />
@@ -18,8 +17,8 @@ const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size
   </svg>
 );
 
-const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill={fill}>
+const Trash2OutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill="currentColor">
     <g data-name="Layer 2">
       <g data-name="trash-2">
         <rect width="24" height="24" opacity="0" />
@@ -36,130 +35,101 @@ type Props = {
   onEdit?: (carePlanDetail: CarePlanDetail) => void;
   onDelete?: (carePlanDetail: CarePlanDetail) => void;
   deletingId?: number | null;
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
-    pageSizeOptions?: number[];
-    onPageSizeChange?: (size: number) => void;
-  };
+  currentPage: number;
+  pageSize: number;
 };
 
-export function CarePlanDetailTable({ carePlanDetails, onEdit, onDelete, deletingId, pagination }: Props) {
+export function CarePlanDetailTable({ carePlanDetails, onEdit, onDelete, deletingId, currentPage, pageSize }: Props) {
   return (
     <div className={styles.tableWrapper}>
-      <div className={styles.tableContainer}>
-        <table className={styles.table}>
-          <thead>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th className={styles.stickySTTCol}>STT</th>
+            <th>Gói dịch vụ</th>
+            <th>Hoạt động</th>
+            <th>Ngày</th>
+            <th>Thời gian</th>
+            <th>Hướng dẫn</th>
+            <th className={styles.stickyActionsCol}>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {carePlanDetails.length === 0 ? (
             <tr>
-              <th>
-                <div className={styles.tooltipWrapper}>
-                  STT
-                  <span className={styles.tooltip}>Số thứ tự</span>
+              <td colSpan={7}>
+                <div className={styles.emptyState}>
+                  <ClipboardList size={48} className={styles.emptyIcon} />
+                  <p className={styles.emptyText}>Chưa có chi tiết kế hoạch chăm sóc nào</p>
                 </div>
-              </th>
-              <th>Gói dịch vụ</th>
-              <th>Hoạt động</th>
-              <th>Ngày</th>
-              <th>Thời gian</th>
-              <th>Hướng dẫn</th>
-              <th>Thao tác</th>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {carePlanDetails.length === 0 ? (
-              <tr>
-                <td colSpan={7} className={styles.emptyState}>
-                  Chưa có chi tiết kế hoạch chăm sóc nào
-                </td>
-              </tr>
-            ) : (
-              carePlanDetails.map((detail, index) => {
-                const stt = pagination
-                  ? (pagination.currentPage - 1) * pagination.pageSize + index + 1
-                  : index + 1;
-                
-                return (
-                  <tr key={detail.id} className={styles.tableRow}>
-                    <td>{stt}</td>
-                    <td className={styles.name}>
+          ) : (
+            carePlanDetails.map((detail, index) => {
+              const stt = (currentPage - 1) * pageSize + index + 1;
+
+              return (
+                <tr key={detail.id} className={styles.tableRow}>
+                  <td className={styles.stickySTTCol}>
+                    <span className={styles.sttCell}>{stt}</span>
+                  </td>
+                  <td className={styles.name}>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.nameTruncate}>{detail.packageName}</span>
+                      <span className={styles.tooltip}>{detail.packageName}</span>
+                    </div>
+                  </td>
+                  <td className={styles.name}>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.nameTruncate}>{detail.activityName}</span>
+                      <span className={styles.tooltip}>{detail.activityName}</span>
+                    </div>
+                  </td>
+                  <td className={styles.dayCell}>Ngày {detail.dayNo}</td>
+                  <td className={styles.timeCell}>
+                    {detail.startTime} - {detail.endTime}
+                  </td>
+                  <td className={styles.instructionCell}>
+                    {detail.instruction ? (
                       <div className={styles.tooltipWrapper}>
-                        <span className={styles.nameTruncate}>{detail.packageName}</span>
-                        <span className={styles.tooltip}>{detail.packageName}</span>
+                        <span className={styles.truncateCell}>{detail.instruction}</span>
+                        <span className={styles.tooltip}>{detail.instruction}</span>
                       </div>
-                    </td>
-                    <td className={styles.name}>
-                     <div className={styles.tooltipWrapper}>
-                        <span className={styles.nameTruncate}>{detail.activityName}</span>
-                        <span className={styles.tooltip}>{detail.activityName}</span>
+                    ) : (
+                      <span className={styles.emptyText}>-</span>
+                    )}
+                  </td>
+                  <td className={styles.stickyActionsCol}>
+                    <div className={styles.actions}>
+                      <div className={styles.tooltipWrapper}>
+                        <button
+                          className={`${styles.actionButton} ${styles.editButton}`}
+                          onClick={() => onEdit?.(detail)}
+                          aria-label={`Chỉnh sửa ${detail.packageName} - ${detail.activityName}`}
+                        >
+                          <Edit2OutlineIcon size={16} />
+                        </button>
+                        <span className={styles.tooltip}>Chỉnh sửa</span>
                       </div>
-                    </td>
-                    <td className={styles.dayCell}>Ngày {detail.dayNo}</td>
-                    <td className={styles.timeCell}>
-                      {detail.startTime} - {detail.endTime}
-                    </td>
-                    <td className={styles.instructionCell}>
-                      {detail.instruction ? (
-                        <div className={styles.tooltipWrapper}>
-                          <span className={styles.truncateCell}>{detail.instruction}</span>
-                          <span className={styles.tooltip}>{detail.instruction}</span>
-                        </div>
-                      ) : (
-                        <span className={styles.emptyText}>-</span>
-                      )}
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        <div className={styles.tooltipWrapper}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className={`${styles.editButton} btn-icon btn-sm`}
-                            onClick={() => onEdit?.(detail)}
-                            aria-label={`Chỉnh sửa ${detail.packageName} - ${detail.activityName}`}
-                          >
-                            <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                          </Button>
-                          <span className={styles.tooltip}>Chỉnh sửa</span>
-                        </div>
-                        <div className={styles.tooltipWrapper}>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className={`${styles.deleteButton} btn-icon btn-sm`}
-                            onClick={() => onDelete?.(detail)}
-                            aria-label={`Xóa ${detail.packageName} - ${detail.activityName}`}
-                            disabled={deletingId === detail.id}
-                          >
-                            <Trash2OutlineIcon fill="#FD6161" size={16} />
-                          </Button>
-                          <span className={styles.tooltip}>Xóa</span>
-                        </div>
+                      <div className={styles.tooltipWrapper}>
+                        <button
+                          className={`${styles.actionButton} ${styles.deleteButton}`}
+                          onClick={() => onDelete?.(detail)}
+                          aria-label={`Xóa ${detail.packageName} - ${detail.activityName}`}
+                          disabled={deletingId === detail.id}
+                        >
+                          <Trash2OutlineIcon size={16} />
+                        </button>
+                        <span className={styles.tooltip}>Xóa</span>
                       </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }

@@ -19,8 +19,6 @@ interface CustomDropdownProps {
   contentClassName?: string;
   itemClassName?: string;
   children?: ReactNode;
-  selectedColor?: string;
-  selectedBgColor?: string;
 }
 
 export function CustomDropdown({
@@ -31,8 +29,6 @@ export function CustomDropdown({
   triggerClassName,
   contentClassName,
   itemClassName,
-  selectedColor = 'var(--color-brand-accent)',
-  selectedBgColor = 'rgba(250,131,20,0.1)',
 }: CustomDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
