@@ -9,6 +9,15 @@ import roleService from '@/services/role.service';
 import userService from '@/services/user.service';
 import type { Role } from '@/types/role';
 
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown';
+import { useToast } from '@/components/ui/toast/use-toast';
+
 import styles from './patient-table.module.css';
 import type { Patient } from './patientTypes';
 

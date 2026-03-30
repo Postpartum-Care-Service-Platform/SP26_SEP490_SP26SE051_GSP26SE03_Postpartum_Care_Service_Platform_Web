@@ -21,7 +21,6 @@ import {
 import '@xyflow/react/dist/style.css';
 
 import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
 import {
   UserPlus,
   Heart,
@@ -29,7 +28,6 @@ import {
   Users,
   Phone,
   Calendar as CalendarIcon,
-  Edit,
   Trash2,
   Copy,
   PlusCircle,
@@ -43,7 +41,6 @@ import {
   Venus,
   Mars,
   Camera,
-  Info,
   CheckCircle2
 } from 'lucide-react';
 import Image from 'next/image';
@@ -284,14 +281,23 @@ const AvatarUpload = ({
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const previewRef = useRef<string | null>(null);
+
   useEffect(() => {
     if (!file) {
-      setPreview((prev) => (prev === null ? null : null));
+      if (previewRef.current !== null) {
+        setPreview(null);
+        previewRef.current = null;
+      }
       return;
     }
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
+    previewRef.current = objectUrl;
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+      previewRef.current = null;
+    };
   }, [file]);
 
   const handleDrag = (e: React.DragEvent) => {
@@ -700,7 +706,7 @@ const MindmapContent: React.FC<FamilyMembersListProps> = ({ familyProfiles, load
     ]);
   };
 
-  const handleAddDependent = (node: Node) => {
+  const handleAddDependent = (_node: Node) => {
     setIsCreateModalOpen(true);
   };
 
