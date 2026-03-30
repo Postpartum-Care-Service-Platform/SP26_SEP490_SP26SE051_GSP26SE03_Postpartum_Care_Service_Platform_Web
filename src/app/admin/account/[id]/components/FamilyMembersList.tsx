@@ -286,14 +286,18 @@ const AvatarUpload = ({
   useEffect(() => {
     if (!file) {
       if (previewRef.current !== null) {
-        setPreview(null);
-        previewRef.current = null;
+        queueMicrotask(() => {
+          setPreview(null);
+          previewRef.current = null;
+        });
       }
       return;
     }
     const objectUrl = URL.createObjectURL(file);
-    setPreview(objectUrl);
-    previewRef.current = objectUrl;
+    queueMicrotask(() => {
+      setPreview(objectUrl);
+      previewRef.current = objectUrl;
+    });
     return () => {
       URL.revokeObjectURL(objectUrl);
       previewRef.current = null;
