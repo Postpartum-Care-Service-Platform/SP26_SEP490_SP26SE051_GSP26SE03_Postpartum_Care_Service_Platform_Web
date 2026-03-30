@@ -2,7 +2,7 @@
 
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { AlertCircle, CheckCircle, Clock, FileText, Info, ShoppingCart, Users, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, FileText, Info, ShoppingCart, Users, XCircle } from 'lucide-react';
 import React from 'react';
 
 import notificationService from '@/services/notification.service';
@@ -90,6 +90,7 @@ export function NotificationSidebarList() {
             <div className={styles.content}>
               <div className={styles.title}>{notification.title}</div>
               {notification.content && <div className={styles.contentText}>{notification.content}</div>}
+              <div className={styles.time}>{formatTime(notification.createdAt)}</div>
             </div>
           </div>
         );
