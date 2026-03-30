@@ -15,11 +15,13 @@ import {
   Position,
   Node,
   BackgroundVariant,
-  useReactFlow,
-  ReactFlowProvider,
-  SelectionMode
+  SelectionMode,
+  ReactFlowProvider
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import {
   UserPlus,
   Heart,
@@ -44,15 +46,13 @@ import {
   Info,
   CheckCircle2
 } from 'lucide-react';
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { format } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 
-import type { FamilyProfile, CreateFamilyProfileRequest } from '@/types/family-profile';
-import familyProfileService from '@/services/family-profile.service';
 import { DatePicker } from '@/app/admin/work-schedule/components/DatePicker';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import familyProfileService from '@/services/family-profile.service';
+import type { FamilyProfile, CreateFamilyProfileRequest } from '@/types/family-profile';
 import { cn } from '@/lib/utils';
 
 import styles from './family-members-list.module.css';
@@ -98,7 +98,7 @@ const FamilyMemberNode = ({ data }: { data: { profile: FamilyProfile } }) => {
 
       <div className={styles.flowNodeHeader}>
         {avatarUrl ? (
-          <img src={avatarUrl} alt={fullName} className={styles.flowNodeAvatar} />
+          <Image src={avatarUrl} alt={fullName} width={40} height={40} className={styles.flowNodeAvatar} unoptimized />
         ) : (
           <div className={styles.flowNodeIcon} style={{ backgroundColor: `${color}15` }}>
             {getIcon()}
@@ -129,7 +129,7 @@ const nodeTypes = {
 };
 
 // ── Custom Dropdown Component ──
-const CustomSelect = ({
+const CustomSelect = <T extends string | number>({
   options,
   value,
   onChange,
@@ -138,9 +138,9 @@ const CustomSelect = ({
   className,
   required
 }: {
-  options: { value: any, label: string, icon?: React.ReactNode }[];
-  value: any;
-  onChange: (v: any) => void;
+  options: { value: T, label: string, icon?: React.ReactNode }[];
+  value: T;
+  onChange: (v: T) => void;
   label: string;
   icon?: React.ReactNode;
   className?: string;
@@ -151,7 +151,7 @@ const CustomSelect = ({
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as any)) {
+      if (containerRef.current && !containerRef.current.contains(e.target as HTMLElement)) {
         setIsOpen(false);
       }
     };
@@ -286,7 +286,7 @@ const AvatarUpload = ({
 
   useEffect(() => {
     if (!file) {
-      setPreview(null);
+      setPreview((prev) => (prev === null ? null : null));
       return;
     }
     const objectUrl = URL.createObjectURL(file);
@@ -326,7 +326,7 @@ const AvatarUpload = ({
         onClick={() => fileInputRef.current?.click()}
       >
         {preview ? (
-          <img src={preview} alt="Avatar Preview" className={styles.avatarPreviewImg} />
+          <Image src={preview} alt="Avatar Preview" width={100} height={100} className={styles.avatarPreviewImg} unoptimized />
         ) : (
           <div className={styles.avatarPlaceholder}>
             <Camera size={28} strokeWidth={1.5} />

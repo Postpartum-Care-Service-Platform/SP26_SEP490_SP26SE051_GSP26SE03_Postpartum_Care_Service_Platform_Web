@@ -9,6 +9,7 @@ import {
   MessageSquare,
   ExternalLink
 } from 'lucide-react';
+import Image from 'next/image';
 import React from 'react';
 
 import type { Account, CustomerDetail } from '@/types/account';
@@ -56,7 +57,7 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
       {/* Header section */}
       <div className={styles.profileHeader}>
         {avatarUrl ? (
-          <img src={avatarUrl} alt={name} className={styles.avatar} />
+          <Image src={avatarUrl} alt={name} width={64} height={64} className={styles.avatar} unoptimized />
         ) : (
           <div className={styles.placeholderAvatar}>{initials}</div>
         )}
@@ -115,7 +116,7 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
         {staff ? (
           <div className={styles.assignedStaff}>
             {staff.avatarUrl ? (
-              <img src={staff.avatarUrl} alt={staff.fullName} className={styles.staffAvatar} />
+              <Image src={staff.avatarUrl} alt={staff.fullName} width={32} height={32} className={styles.staffAvatar} unoptimized />
             ) : (
               <div className={styles.staffAvatarPlaceholder}>
                 <UserIcon size={14} />
