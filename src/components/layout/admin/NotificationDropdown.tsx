@@ -3,7 +3,7 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Bell, Clock, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
+import { Bell, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
 import React from 'react';
 
 import {
@@ -162,6 +162,7 @@ export function NotificationDropdown({ onViewAll, isSidebarOpen }: { onViewAll?:
                     {notification.content && (
                       <div className={styles.notificationContentText}>{notification.content}</div>
                     )}
+                    <div className={styles.notificationTime}>{formatTime(notification.createdAt)}</div>
                   </div>
                   {isUnread && <div className={styles.unreadDot} />}
                 </div>

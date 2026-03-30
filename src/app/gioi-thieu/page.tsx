@@ -1,16 +1,16 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import Image from 'next/image';
 import React from 'react';
 
-import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 import styles from './gioi-thieu.module.css';
 
 // Animation variants
-const fadeInUp: any = {
+const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: { 
     opacity: 1, 
@@ -137,9 +137,9 @@ export default function GioiThieuPage() {
             >
               <span className={styles.missionLabel}>Sứ mệnh</span>
               <h2 className={styles.missionQuote}>
-                "Với sự kết hợp tinh tế giữa không gian sang trọng và những liệu pháp chăm sóc sức khỏe cá nhân hóa toàn diện, 
+                &ldquo;Với sự kết hợp tinh tế giữa không gian sang trọng và những liệu pháp chăm sóc sức khỏe cá nhân hóa toàn diện, 
                 chúng tôi mong muốn kiến tạo một trải nghiệm hậu sản thật sự ý nghĩa và hạnh phúc, 
-                nơi mỗi người mẹ được chăm sóc và thấu hiểu."
+                nơi mỗi người mẹ được chăm sóc và thấu hiểu.&rdquo;
               </h2>
             </motion.div>
           </div>
@@ -157,10 +157,10 @@ export default function GioiThieuPage() {
             >
               <span className={styles.visionLabel}>Tầm nhìn</span>
               <h2 className={styles.visionQuote}>
-                "Chúng tôi hướng đến việc tiên phong trong lĩnh vực chăm sóc hậu sản cao cấp tại Việt Nam, 
+                &ldquo;Chúng tôi hướng đến việc tiên phong trong lĩnh vực chăm sóc hậu sản cao cấp tại Việt Nam, 
                 kiến tạo những tiêu chuẩn mới về sự hỗ trợ toàn diện và cá nhân hóa, trao quyền cho những người mẹ, 
                 nuôi dưỡng những mầm non khỏe mạnh và góp phần xây dựng những gia đình hạnh phúc, 
-                từ đó tạo dựng một tương lai tươi sáng và vững chắc cho cộng đồng."
+                từ đó tạo dựng một tương lai tươi sáng và vững chắc cho cộng đồng.&rdquo;
               </h2>
               <div className={styles.visionIconWrapper}>
                 <Image 

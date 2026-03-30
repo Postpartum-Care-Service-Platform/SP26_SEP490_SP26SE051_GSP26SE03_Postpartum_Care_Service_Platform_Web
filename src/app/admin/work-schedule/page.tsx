@@ -16,14 +16,13 @@ import React from 'react';
 
 import { BoardControlPanel } from './components/board/BoardControlPanel';
 import { BoardView } from './components/board/BoardView';
-import { CalendarControlPanel } from './components/calendar/CalendarControlPanel';
 import { CalendarMonthView } from './components/calendar/CalendarMonthView';
 import { CalendarWeekView } from './components/calendar/CalendarWeekView';
 import { CalendarDayView } from './components/calendar/CalendarDayView';
+import { CalendarControlPanel } from './components/calendar/CalendarControlPanel';
 import { WorkScheduleList } from './components/list/WorkScheduleList';
 import { SummaryIcon, TimelineIcon, BoardIcon, CalendarIcon, ListIcon } from './components/TabIcons';
-import { TASK_TYPES, type TaskType } from './components/TaskTypePicker';
-import type { Assignee } from './components/shared/AssigneePicker';
+import { TASK_TYPES } from './components/TaskTypePicker';
 import { TimelineControlPanel } from './components/timeline/TimelineControlPanel';
 import { TimelineView } from './components/timeline/TimelineView';
 import { WorkScheduleControlPanel } from './components/WorkScheduleControlPanel';
@@ -33,8 +32,11 @@ import { WorkScheduleOverview } from './components/WorkScheduleOverview';
 import { WorkScheduleStatusOverview } from './components/WorkScheduleStatusOverview';
 import { ScheduleModal } from './components/ScheduleModal';
 
+import type { TaskType } from './components/TaskTypePicker';
+import type { Assignee } from './components/shared/AssigneePicker';
 import type { CalendarStatusType } from './components/calendar/CalendarStatusDropdown';
 import type { CalendarViewMode } from './components/calendar/CalendarViewDropdown';
+
 import contractService, { type StaffSchedule as StaffListMember } from '@/services/contract.service';
 import staffScheduleService from '@/services/staff-schedule.service';
 import type { StaffSchedule, StaffScheduleAllResponse } from '@/types/staff-schedule';
