@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { ContractModalHeader } from './ContractModalHeader';
+import contractService from '@/services/contract.service';
 
 interface ContractPreviewModalProps {
   contract: {
+    id: number;
     code: string;
     fileUrl: string | null;
   };
@@ -13,6 +15,29 @@ interface ContractPreviewModalProps {
 
 export function ContractPreviewModal({ contract, onClose }: ContractPreviewModalProps) {
   const [zoom, setZoom] = useState(100);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    if (isDownloading) return;
+    try {
+      setIsDownloading(true);
+      const blob = await contractService.exportPdf(contract.id);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Contract_${contract.code}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error: any) {
+      console.error('Download error:', error);
+      const errorMessage = error.message || 'Không thể tải file hợp đồng. Vui lòng thử lại sau.';
+      alert(errorMessage);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -81,7 +106,8 @@ export function ContractPreviewModal({ contract, onClose }: ContractPreviewModal
         <ContractModalHeader 
           title={contract.code} 
           onClose={onClose} 
-          onDownload={() => contract.fileUrl && window.open(contract.fileUrl, '_blank')}
+          onDownload={handleDownload}
+          isDownloading={isDownloading}
         />
         <div 
           style={{ 

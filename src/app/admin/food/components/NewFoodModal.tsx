@@ -1,12 +1,13 @@
-'use client';
-
-import { Cross1Icon, ImageIcon } from '@radix-ui/react-icons';
+import { Cross1Icon } from '@radix-ui/react-icons';
 import { Upload } from 'lucide-react';
 import { forwardRef, useEffect, useRef, useState } from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import foodService from '@/services/food.service';
-import type { CreateFoodRequest, Food, UpdateFoodRequest } from '@/types/food';
+import foodTypeService from '@/services/food-type.service';
+import type { Food, CreateFoodRequest, UpdateFoodRequest } from '@/types/food';
+import type { FoodType } from '@/types/food-type';
+import { CustomDropdown } from '@/components/ui/select/CustomDropdown';
 
 import styles from './new-food-modal.module.css';
 
@@ -17,19 +18,29 @@ type Props = {
   foodToEdit?: Food | null;
 };
 
-const INITIAL_FORM_DATA: CreateFoodRequest = {
+interface FoodFormState {
+  name: string;
+  foodTypeId: number;
+  description: string;
+  image: File | null;
+  imageUrl: string | null;
+  isActive: boolean;
+}
+
+const INITIAL_FORM_DATA: FoodFormState = {
   name: '',
-  type: '',
+  foodTypeId: 0,
   description: '',
+  image: null,
   imageUrl: null,
   isActive: true,
 };
 
 type FormErrors = {
   name?: string;
-  type?: string;
+  foodTypeId?: string;
   description?: string;
-  imageUrl?: string;
+  image?: string;
 };
 
 const getErrorMessage = (error: unknown, fallbackMessage: string) => {
@@ -45,6 +56,8 @@ const CustomInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
 );
 CustomInput.displayName = 'CustomInput';
 
+
+
 const CustomTextarea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
   ({ className, ...props }, ref) => {
     return <textarea {...props} ref={ref} className={`${styles.formControl} ${className || ''}`} data-type="textarea" />;
@@ -54,7 +67,8 @@ CustomTextarea.displayName = 'CustomTextarea';
 
 export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Props) {
   const { toast } = useToast();
-  const [formData, setFormData] = useState<CreateFoodRequest>(INITIAL_FORM_DATA);
+  const [formData, setFormData] = useState<FoodFormState>(INITIAL_FORM_DATA);
+  const [foodTypes, setFoodTypes] = useState<FoodType[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isDragging, setIsDragging] = useState(false);
@@ -63,22 +77,38 @@ export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Prop
 
   useEffect(() => {
     if (open) {
+      // Fetch food types
+      foodTypeService.getAllFoodTypes()
+        .then(types => setFoodTypes(types.filter(t => t.isActive)))
+        .catch(() => toast({ title: 'Không thể tải danh sách loại món ăn', variant: 'error' }));
+
       if (foodToEdit) {
         setFormData({
           name: foodToEdit.name,
-          type: foodToEdit.type,
+          foodTypeId: foodToEdit.foodTypeId || 0,
           description: foodToEdit.description || '',
+          image: null,
           imageUrl: foodToEdit.imageUrl,
           isActive: foodToEdit.isActive,
         });
+
+        // Fallback: If foodTypeId is 0 or missing, try to find it by name from foodType string
+        if (!foodToEdit.foodTypeId && foodToEdit.foodType) {
+          foodTypeService.getAllFoodTypes().then(types => {
+            const matchedType = types.find(t => t.name === foodToEdit.foodType);
+            if (matchedType) {
+              setFormData(prev => ({ ...prev, foodTypeId: matchedType.id }));
+            }
+          });
+        }
       } else {
         setFormData(INITIAL_FORM_DATA);
       }
       setErrors({});
     }
-  }, [open, foodToEdit]);
+  }, [open, foodToEdit, toast]);
 
-  const handleFieldChange = <K extends keyof CreateFoodRequest>(field: K, value: CreateFoodRequest[K]) => {
+  const handleFieldChange = <K extends keyof FoodFormState>(field: K, value: FoodFormState[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -91,6 +121,7 @@ export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Prop
       return;
     }
 
+    handleFieldChange('image', file);
     const reader = new FileReader();
     reader.onload = (e) => {
       handleFieldChange('imageUrl', e.target?.result as string);
@@ -116,6 +147,7 @@ export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Prop
 
   const removeImage = (e: React.MouseEvent) => {
     e.stopPropagation();
+    handleFieldChange('image', null);
     handleFieldChange('imageUrl', null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
@@ -127,8 +159,8 @@ export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Prop
       newErrors.name = 'Tên món ăn không được để trống.';
     }
 
-    if (!formData.type.trim()) {
-      newErrors.type = 'Loại món ăn không được để trống.';
+    if (formData.foodTypeId === 0) {
+      newErrors.foodTypeId = 'Vui lòng chọn loại món ăn.';
     }
 
     return newErrors;
@@ -149,34 +181,34 @@ export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Prop
 
       if (isEditMode && foodToEdit) {
         const updatePayload: UpdateFoodRequest = {
-          name: formData.name,
-          type: formData.type,
-          description: formData.description,
-          imageUrl: formData.imageUrl,
-          isActive: formData.isActive,
+          Id: foodToEdit.id,
+          Name: formData.name,
+          FoodTypeId: formData.foodTypeId,
+          Description: formData.description,
+          Image: formData.image,
+          IsActive: formData.isActive,
         };
         await foodService.updateFood(foodToEdit.id, updatePayload);
         toast({ title: 'Cập nhật món ăn thành công', variant: 'success' });
       } else {
-        await foodService.createFood(formData);
+        const createPayload: CreateFoodRequest = {
+          Name: formData.name,
+          FoodTypeId: formData.foodTypeId,
+          Description: formData.description,
+          Image: formData.image,
+          IsActive: formData.isActive,
+        };
+        await foodService.createFood(createPayload);
         toast({ title: 'Tạo món ăn thành công', variant: 'success' });
       }
 
       onOpenChange(false);
       onSuccess?.();
-    } catch (error: unknown) {
-      const errorMessage = getErrorMessage(
-        error,
-        isEditMode ? 'Cập nhật món ăn thất bại' : 'Tạo món ăn thất bại',
-      );
+    } catch (error: any) {
+      const errorMessage = error.message || 'Có lỗi xảy ra';
 
-      if (
-        errorMessage.includes('tồn tại') ||
-        errorMessage.includes('đã tồn tại') ||
-        errorMessage.toLowerCase().includes('exists') ||
-        errorMessage.toLowerCase().includes('duplicate')
-      ) {
-        setErrors({ name: 'Tên món ăn đã tồn tại.' });
+      if (errorMessage.toLowerCase().includes('name')) {
+        setErrors({ name: 'Tên món ăn không hợp lệ hoặc đã tồn tại.' });
       } else {
         toast({ title: errorMessage, variant: 'error' });
       }
@@ -217,18 +249,17 @@ export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Prop
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="type">
+                <label htmlFor="foodTypeId">
                   Loại món ăn <span className={styles.required}>*</span>
                 </label>
-                <CustomInput
-                  id="type"
-                  placeholder="Ví dụ: Món chính, Món phụ"
-                  value={formData.type}
-                  onChange={(e) => handleFieldChange('type', e.target.value)}
-                  className={errors.type ? styles.invalid : ''}
-                  required
+                <CustomDropdown
+                  options={foodTypes.map((type) => ({ value: type.id, label: type.name }))}
+                  value={formData.foodTypeId}
+                  onChange={(val) => handleFieldChange('foodTypeId', Number(val))}
+                  placeholder="-- Chọn loại món ăn --"
+                  isInvalid={!!errors.foodTypeId}
                 />
-                {errors.type && <p className={styles.errorMessage}>{errors.type}</p>}
+                {errors.foodTypeId && <p className={styles.errorMessage}>{errors.foodTypeId}</p>}
               </div>
             </div>
 
@@ -266,7 +297,7 @@ export function NewFoodModal({ open, onOpenChange, onSuccess, foodToEdit }: Prop
                   </>
                 )}
               </div>
-              {errors.imageUrl && <p className={styles.errorMessage}>{errors.imageUrl}</p>}
+              {errors.image && <p className={styles.errorMessage}>{errors.image}</p>}
             </div>
 
             <div className={styles.formGroup}>

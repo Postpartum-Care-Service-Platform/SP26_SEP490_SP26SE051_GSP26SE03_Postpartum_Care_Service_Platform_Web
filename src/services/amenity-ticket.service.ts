@@ -26,6 +26,26 @@ const amenityTicketService = {
   getAmenityTicketsByUserId: (userId: string): Promise<AmenityTicket[]> => {
     return apiClient.get(`/AmenityTicket/user/${userId}`);
   },
+
+  // Chấp nhận ticket
+  acceptAmenityTicket: (id: number): Promise<void> => {
+    return apiClient.patch(`/AmenityTicket/accept/${id}`);
+  },
+
+  // Hủy ticket
+  cancelAmenityTicket: (id: number): Promise<void> => {
+    return apiClient.patch(`/AmenityTicket/cancel/${id}`);
+  },
+
+  // Hoàn thành ticket
+  completeAmenityTicket: (id: number): Promise<void> => {
+    return apiClient.patch(`/AmenityTicket/complete/${id}`);
+  },
+
+  // Lọc ticket theo ngày hoặc trạng thái
+  filterByDateOrStatus: (params: { date?: string; status?: string }): Promise<AmenityTicket[]> => {
+    return apiClient.get('/AmenityTicket/filter-by-date-or-status', { params });
+  },
 };
 
 export default amenityTicketService;

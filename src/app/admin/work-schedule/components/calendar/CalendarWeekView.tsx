@@ -269,13 +269,34 @@ export function CalendarWeekView({
                         </Tooltip.Trigger>
                         <Tooltip.Portal>
                           <Tooltip.Content className={styles.tooltipContent} sideOffset={5}>
-                            <div className={styles.tooltipTitle}>{fs.activity}</div>
+                            <div className={styles.tooltipHeader}>
+                              <div className={styles.tooltipTitle}>{fs.activity}</div>
+                              <div 
+                                className={styles.tooltipStatusBadge}
+                                style={{ 
+                                  backgroundColor: 
+                                    fs.status === 'Done' ? '#CDEFE1' : 
+                                    fs.status === 'Missed' ? '#FBE2E4' : 
+                                    fs.status === 'Cancelled' ? '#F4F5F7' : '#DDEBFF',
+                                  color: 
+                                    fs.status === 'Done' ? '#006644' : 
+                                    fs.status === 'Missed' ? '#AE2E24' : 
+                                    fs.status === 'Cancelled' ? '#42526E' : '#0052CC'
+                                }}
+                              >
+                                {fs.status === 'Done' ? 'Đã hoàn thành' : 
+                                 fs.status === 'Missed' ? 'Đã bỏ lỡ' : 
+                                 fs.status === 'Cancelled' ? 'Đã hủy' : 'Đã lên lịch'}
+                              </div>
+                            </div>
+
                             <div className={styles.tooltipCode}>{fs.customerName}</div>
                             <div className={styles.tooltipTime}>
                               {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
                             </div>
                             <div className={styles.tooltipCode}>{fs.packageName}</div>
-                            {fs.note && <div className={styles.tooltipNote}>{fs.note}</div>}
+                            {schedule.staffName && <div className={styles.tooltipCode}>{schedule.staffName}</div>}
+                            {fs.note && <div className={styles.tooltipCode}>{fs.note}</div>}
                             <Tooltip.Arrow className={styles.tooltipArrow} />
                           </Tooltip.Content>
                         </Tooltip.Portal>

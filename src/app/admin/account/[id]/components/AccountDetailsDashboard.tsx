@@ -4,9 +4,7 @@ import {
   Plus, 
   ChevronDown, 
   User, 
-  FileText, 
   Activity, 
-  Calendar,
 } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -16,8 +14,6 @@ import type { FamilyProfile } from '@/types/family-profile';
 import styles from './account-details-dashboard.module.css';
 
 import { FamilyMembersList } from './FamilyMembersList';
-import { ServicePackagesList } from './ServicePackagesList';
-import { AccountScheduleTab } from './AccountScheduleTab';
 
 interface AccountDetailsDashboardProps {
   familyProfiles: FamilyProfile[];
@@ -34,25 +30,9 @@ export const AccountDetailsDashboard: React.FC<AccountDetailsDashboardProps> = (
 
   const activeBooking = null; // Forced null as requested to show empty state
   
-  const mappedPackages: any[] = []; // Forced empty as requested to show empty state
-  
-  // const mappedPackages = customerDetail?.activeBookings.map(b => ({
-  //   id: String(b.id),
-  //   name: b.packageName,
-  //   status: b.bookingStatus.toLowerCase() === 'confirmed' ? 'active' as const : 'pending' as const,
-  //   price: 'N/A',
-  //   startDate: new Date(b.startDate).toLocaleDateString('vi-VN'),
-  //   endDate: new Date(b.endDate).toLocaleDateString('vi-VN'),
-  //   sessionsTotal: b.durationDays || 30,
-  //   sessionsUsed: 0,
-  //   description: `Gói dịch vụ tại ${b.roomName} (${b.roomTypeName})`
-  // })) || [];
-
   const tabs = [
     { id: 'profile', label: 'Người giám hộ', icon: User },
-    { id: 'resume', label: 'Gói dịch vụ', icon: FileText },
     { id: 'progress', label: 'Tiến trình chăm sóc', icon: Activity },
-    { id: 'schedule', label: 'Lịch hẹn', icon: Calendar },
   ];
 
   return (
@@ -72,10 +52,6 @@ export const AccountDetailsDashboard: React.FC<AccountDetailsDashboardProps> = (
       <div className={styles.contentArea} style={{ display: 'flex', flexDirection: 'column' }}>
         {activeTab === 'profile' && (
           <FamilyMembersList familyProfiles={familyProfiles} />
-        )}
-
-        {activeTab === 'resume' && (
-          <ServicePackagesList packages={mappedPackages} />
         )}
 
         {activeTab === 'progress' && activeBooking && (
@@ -159,11 +135,8 @@ export const AccountDetailsDashboard: React.FC<AccountDetailsDashboardProps> = (
             <p>Khách hàng này hiện chưa đăng ký gói dịch vụ nào hoặc gói dịch vụ chưa được kích hoạt.</p>
           </div>
         )}
-
-        {activeTab === 'schedule' && account && (
-          <AccountScheduleTab accountId={account.id} />
-        )}
       </div>
     </div>
+
   );
 };

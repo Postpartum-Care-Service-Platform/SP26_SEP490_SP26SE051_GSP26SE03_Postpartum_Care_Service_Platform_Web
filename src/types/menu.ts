@@ -17,7 +17,7 @@ export interface CreateMenuRequest {
   menuName: string;
   description: string;
   isActive?: boolean;
-  foodIds?: number[];
+  foodIds: number[];
 }
 
 export interface UpdateMenuRequest {
@@ -25,6 +25,6 @@ export interface UpdateMenuRequest {
   menuName?: string;
   description?: string;
   isActive?: boolean;
-  foodIds?: number[];
+  foodIds: number[];
 }
 

@@ -107,7 +107,8 @@ export default function AdminPackagePage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const scrollArea = document.querySelector('[class*="scrollArea"]');
+    scrollArea?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleEdit = (pkg: Package) => {
@@ -145,7 +146,7 @@ export default function AdminPackagePage() {
   };
 
   return (
-    <div className="flex flex-col flex-1 h-full min-h-0">
+    <>
       <AdminPageLayout
         header={<PackageListHeader />}
         controlPanel={
@@ -194,14 +195,14 @@ export default function AdminPackagePage() {
             } as any}
           />
         )}
-
-        <NewPackageModal
-          open={isModalOpen}
-          onOpenChange={handleModalClose}
-          onSuccess={fetchPackages}
-          packageToEdit={editingPackage}
-        />
       </AdminPageLayout>
-    </div>
+
+      <NewPackageModal
+        open={isModalOpen}
+        onOpenChange={handleModalClose}
+        onSuccess={fetchPackages}
+        packageToEdit={editingPackage}
+      />
+    </>
   );
 }

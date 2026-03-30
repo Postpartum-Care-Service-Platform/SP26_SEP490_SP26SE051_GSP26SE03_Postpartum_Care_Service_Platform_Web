@@ -31,11 +31,11 @@
 }
 
 .unread {
-  background-color: #f0f7ff;
+  background-color: rgba(250, 131, 20, 0.05);
 }
 
 .unread:hover {
-  background-color: #e6f0fa;
+  background-color: rgba(250, 131, 20, 0.08);
 }
 
 .iconWrapper {
@@ -50,7 +50,7 @@
 }
 
 .unread .iconWrapper {
-  background-color: rgba(0, 123, 255, 0.1);
+  background-color: rgba(250, 131, 20, 0.1);
 }
 
 .icon {
@@ -58,7 +58,7 @@
 }
 
 .unread .icon {
-  color: var(--color-brand-primary);
+  color: var(--color-brand-accent);
 }
 
 .content {
@@ -87,11 +87,3 @@
   word-break: break-word;
 }
 
-.time {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-body);
-  font-size: 12px;
-  color: var(--color-text-secondary);
-}

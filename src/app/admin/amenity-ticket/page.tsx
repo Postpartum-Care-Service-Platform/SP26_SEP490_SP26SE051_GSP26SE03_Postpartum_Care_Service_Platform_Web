@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Download, Eye, Search, Upload } from 'lucide-react';
+import { Download, Eye, Search, Upload, Check, CheckCircle, X } from 'lucide-react';
 import { ChevronDownIcon } from '@radix-ui/react-icons';
 
 import { useToast } from '@/components/ui/toast/use-toast';
@@ -75,6 +75,36 @@ export default function AdminAmenityTicketPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleAccept = async (id: number) => {
+    try {
+      await amenityTicketService.acceptAmenityTicket(id);
+      toast({ title: 'Thành công', description: 'Đã chấp nhận yêu cầu của khách hàng.', variant: 'success' });
+      fetchData();
+    } catch (error) {
+      toast({ title: 'Thất bại', description: 'Không thể chấp nhận yêu cầu.', variant: 'error' });
+    }
+  };
+
+  const handleCancel = async (id: number) => {
+    try {
+      await amenityTicketService.cancelAmenityTicket(id);
+      toast({ title: 'Thành công', description: 'Đã hủy yêu cầu thành công.', variant: 'success' });
+      fetchData();
+    } catch (error) {
+      toast({ title: 'Thất bại', description: 'Không thể hủy yêu cầu.', variant: 'error' });
+    }
+  };
+
+  const handleComplete = async (id: number) => {
+    try {
+      await amenityTicketService.completeAmenityTicket(id);
+      toast({ title: 'Thành công', description: 'Đã đánh dấu hoàn thành yêu cầu.', variant: 'success' });
+      fetchData();
+    } catch (error) {
+      toast({ title: 'Thất bại', description: 'Không thể đánh dấu hoàn thành.', variant: 'error' });
+    }
+  };
 
   const getServiceName = (id: number) => {
     return services.find(s => s.id === id)?.name || `Dịch vụ #${id}`;
@@ -254,7 +284,7 @@ export default function AdminAmenityTicketPage() {
               <tr>
                 <th className={styles.sttCol}>STT</th>
                 <th className={styles.codeCol}>Mã Ticket</th>
-                <th>Khách hàng</th>
+                <th className={styles.customerCol}>Khách hàng</th>
                 <th>Tên tiện ích</th>
                 <th className={styles.dateCol}>Bắt đầu</th>
                 <th className={styles.dateCol}>Kết thúc</th>
@@ -284,7 +314,7 @@ export default function AdminAmenityTicketPage() {
                   <tr key={ticket.id}>
                     <td className={styles.sttCol}>{(currentPage - 1) * pageSize + index + 1}</td>
                     <td className={styles.codeCol}><b>#{ticket.id}</b></td>
-                    <td>
+                    <td className={styles.customerCol}>
                       <div className={styles.tooltipWrapper}>
                         <span className={styles.textTruncate}>{getCustomerName(ticket.customerId)}</span>
                         <span className={styles.tooltip}>{getCustomerName(ticket.customerId)}</span>
@@ -311,6 +341,56 @@ export default function AdminAmenityTicketPage() {
                           </button>
                           <span className={styles.tooltip}>Xem chi tiết</span>
                         </div>
+
+                        {ticket.status === 'Booked' && (
+                          <>
+                            <div className={styles.tooltipWrapper}>
+                              <button 
+                                className={`${styles.actionButton} ${styles.acceptButton}`} 
+                                type="button"
+                                onClick={() => handleAccept(ticket.id)}
+                              >
+                                <Check size={16} />
+                              </button>
+                              <span className={styles.tooltip}>Chấp nhận</span>
+                            </div>
+                            <div className={styles.tooltipWrapper}>
+                              <button 
+                                className={`${styles.actionButton} ${styles.cancelButton}`} 
+                                type="button"
+                                onClick={() => handleCancel(ticket.id)}
+                              >
+                                <X size={16} />
+                              </button>
+                              <span className={styles.tooltip}>Hủy yêu cầu</span>
+                            </div>
+                          </>
+                        )}
+
+                        {ticket.status === 'Accepted' && (
+                          <>
+                            <div className={styles.tooltipWrapper}>
+                              <button 
+                                className={`${styles.actionButton} ${styles.completeButton}`} 
+                                type="button"
+                                onClick={() => handleComplete(ticket.id)}
+                              >
+                                <CheckCircle size={16} />
+                              </button>
+                              <span className={styles.tooltip}>Hoàn thành</span>
+                            </div>
+                            <div className={styles.tooltipWrapper}>
+                              <button 
+                                className={`${styles.actionButton} ${styles.cancelButton}`} 
+                                type="button"
+                                onClick={() => handleCancel(ticket.id)}
+                              >
+                                <X size={16} />
+                              </button>
+                              <span className={styles.tooltip}>Hủy yêu cầu</span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

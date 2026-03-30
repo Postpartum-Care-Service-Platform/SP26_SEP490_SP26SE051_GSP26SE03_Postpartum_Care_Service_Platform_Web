@@ -12,7 +12,7 @@ const menuRecordService = {
   },
 
   createMenuRecord: (data: CreateMenuRecordRequest): Promise<MenuRecord> => {
-    return apiClient.post('/MenuRecord', data);
+    return apiClient.post('/MenuRecord', [data]);
   },
 
   updateMenuRecord: (id: number, data: UpdateMenuRecordRequest): Promise<MenuRecord> => {

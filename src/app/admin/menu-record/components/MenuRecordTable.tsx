@@ -1,6 +1,8 @@
 'use client';
 
 import type { MenuRecord } from '@/types/menu-record';
+import type { Account } from '@/types/account';
+import type { Menu } from '@/types/menu';
 import styles from './menu-record-table.module.css';
 
 const Edit2OutlineIcon = ({ size = 16 }: { size?: number }) => (
@@ -30,6 +32,8 @@ const Trash2OutlineIcon = ({ size = 16 }: { size?: number }) => (
 
 type Props = {
   menuRecords: MenuRecord[];
+  accounts: Account[];
+  menus: Menu[];
   onEdit?: (menuRecord: MenuRecord) => void;
   onDelete?: (menuRecord: MenuRecord) => void;
   deletingId?: number | null;
@@ -51,17 +55,38 @@ const formatDate = (dateString?: string) => {
   }
 };
 
-export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, currentPage, pageSize }: Props) {
+export function MenuRecordTable({ 
+  menuRecords, 
+  accounts,
+  menus,
+  onEdit, 
+  onDelete, 
+  deletingId, 
+  currentPage, 
+  pageSize 
+}: Props) {
+  const getAccountName = (id?: string | null) => {
+    if (!id) return 'Hệ thống';
+    const acc = accounts.find(a => a.id === id);
+    return acc ? acc.username || acc.email : 'Ẩn danh';
+  };
+
+  const getMenuInfo = (id: number) => {
+    const menu = menus.find(m => m.id === id);
+    return menu ? { name: menu.menuName, type: menu.menuTypeName, foods: menu.foods || [] } : null;
+  };
+
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
         <thead>
           <tr>
             <th className={styles.stickySTTCol}>STT</th>
+            <th>Tài khoản</th>
             <th>Tên</th>
+            <th>Thực đơn</th>
             <th>Ngày áp dụng</th>
             <th>Trạng thái</th>
-            <th>Ngày tạo</th>
             <th>Cập nhật</th>
             <th className={styles.stickyActionsCol}>Thao tác</th>
           </tr>
@@ -69,13 +94,15 @@ export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, cur
         <tbody>
           {menuRecords.length === 0 ? (
             <tr>
-              <td colSpan={7} className={styles.emptyState}>
+              <td colSpan={8} className={styles.emptyState}>
                 Chưa có bản ghi thực đơn nào
               </td>
             </tr>
           ) : (
             menuRecords.map((menuRecord, index) => {
               const stt = (currentPage - 1) * pageSize + index + 1;
+              const menuInfo = getMenuInfo(menuRecord.menuId);
+              
               return (
                 <tr key={menuRecord.id} className={styles.tableRow}>
                   <td className={styles.stickySTTCol}>
@@ -84,11 +111,30 @@ export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, cur
                       <span className={styles.tooltip}>ID gốc: {menuRecord.id}</span>
                     </div>
                   </td>
+                  <td className={styles.accountCell}>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.truncateCell}>{getAccountName(menuRecord.accountId)}</span>
+                      <span className={styles.tooltip}>ID tài khoản: {menuRecord.accountId || 'N/A'}</span>
+                    </div>
+                  </td>
                   <td className={styles.name}>
                     <div className={styles.tooltipWrapper}>
-                      <span className={styles.nameTruncate}>{menuRecord.name}</span>
-                      <span className={styles.tooltip}>{menuRecord.name}</span>
+                      <span className={styles.nameTruncate}>{menuRecord.name || `Bản ghi thực đơn #${menuRecord.id}`}</span>
+                      <span className={styles.tooltip}>{menuRecord.name || 'Không có tên'}</span>
                     </div>
+                  </td>
+                  <td className={styles.menuCell}>
+                    {menuInfo ? (
+                      <div className={styles.tooltipWrapper}>
+                        <div className={styles.menuLabel}>
+                          <span className={styles.menuNameText}>{menuInfo.name}</span>
+                          <span className={styles.menuCountBadge}>{menuInfo.foods.length} món</span>
+                        </div>
+                        <span className={styles.tooltip}>
+                          {menuInfo.type}: {menuInfo.foods.map(f => f.name).join(', ')}
+                        </span>
+                      </div>
+                    ) : '-'}
                   </td>
                   <td className={styles.dateCell}>{formatDate(menuRecord.date)}</td>
                   <td>
@@ -100,7 +146,6 @@ export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, cur
                       {menuRecord.isActive ? 'Hoạt động' : 'Tạm dừng'}
                     </span>
                   </td>
-                  <td className={styles.dateCell}>{formatDate(menuRecord.createdAt)}</td>
                   <td className={styles.dateCell}>{formatDate(menuRecord.updatedAt)}</td>
                   <td className={styles.stickyActionsCol}>
                     <div className={styles.actions}>
@@ -108,7 +153,7 @@ export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, cur
                         <button
                           className={`${styles.actionButton} ${styles.editButton}`}
                           onClick={() => onEdit?.(menuRecord)}
-                          aria-label={`Chỉnh sửa ${menuRecord.name}`}
+                          aria-label={`Chỉnh sửa ${menuRecord.name || ''}`}
                         >
                           <Edit2OutlineIcon size={16} />
                         </button>
@@ -118,7 +163,7 @@ export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, cur
                         <button
                           className={`${styles.actionButton} ${styles.deleteButton}`}
                           onClick={() => onDelete?.(menuRecord)}
-                          aria-label={`Xóa ${menuRecord.name}`}
+                          aria-label={`Xóa ${menuRecord.name || ''}`}
                           disabled={deletingId === menuRecord.id}
                         >
                           <Trash2OutlineIcon size={16} />

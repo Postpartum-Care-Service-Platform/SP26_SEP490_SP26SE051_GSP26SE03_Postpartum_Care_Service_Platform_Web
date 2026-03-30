@@ -6,6 +6,7 @@ import React from 'react';
 
 import { AssigneePicker } from '../shared/AssigneePicker';
 import { TaskTypePicker, TASK_TYPES, type TaskType } from '../TaskTypePicker';
+import type { StaffSchedule as StaffListMember } from '@/services/contract.service';
 
 import styles from './calendar-control-panel.module.css';
 import { CalendarStatusDropdown, type CalendarStatusType } from './CalendarStatusDropdown';
@@ -101,6 +102,8 @@ type Props = {
   onTodayClick?: () => void;
   selectedDate?: Date;
   onSelectedDateChange?: (date: Date) => void;
+  onSchedule?: () => void;
+  staffList?: StaffListMember[];
 };
 
 export function CalendarControlPanel({
@@ -120,9 +123,9 @@ export function CalendarControlPanel({
   onTodayClick,
   selectedDate,
   onSelectedDateChange,
+  onSchedule,
+  staffList = [],
 }: Props) {
-  const [isAssigneeOpen, setIsAssigneeIdOpen] = React.useState(false);
-
   const [isTaskTypeOpen, setIsTaskTypeOpen] = React.useState(false);
   const selectedTaskType = taskType ?? TASK_TYPES[TASK_TYPES.length - 1];
 
@@ -153,6 +156,24 @@ export function CalendarControlPanel({
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
+  const [isStatusOpen, setIsStatusOpen] = React.useState(false);
+  const statusRef = React.useRef<HTMLDivElement>(null);
+  const [isAssigneeOpen, setIsAssigneeIdOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (statusRef.current && !statusRef.current.contains(event.target as Node)) {
+        setIsStatusOpen(false);
+      }
+    }
+    if (isStatusOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isStatusOpen]);
+
   return (
     <Tooltip.Provider delayDuration={350}>
       <div className={styles.wrap}>
@@ -167,13 +188,56 @@ export function CalendarControlPanel({
             />
           </div>
 
+          <div className={styles.assigneeFilter}>
+            {staffList.slice(0, 3).map((staff) => (
+              <button
+                key={staff.id}
+                type="button"
+                className={`${styles.avatarBtn} ${assigneeValue?.id === staff.id ? styles.avatarBtnActive : ''}`}
+                onClick={() => {
+                  if (assigneeValue?.id === staff.id) {
+                    onAssigneeChange?.(null);
+                  } else {
+                    onAssigneeChange?.({
+                      id: staff.id,
+                      name: staff.fullName,
+                      avatarUrl: staff.avatarUrl,
+                      type: 'user'
+                    });
+                  }
+                }}
+                title={staff.fullName}
+              >
+                <div 
+                  className={styles.avatarCircle} 
+                  style={{ 
+                    background: staff.avatarUrl ? 'transparent' : '#EBECF0', 
+                    color: '#42526E',
+                    border: assigneeValue?.id === staff.id ? '2px solid #fff' : '2px solid #fff'
+                  }}
+                >
+                  {staff.avatarUrl ? (
+                    <img src={staff.avatarUrl} alt="" className={styles.avatarImg} />
+                  ) : (
+                    getInitials(staff.fullName)
+                  )}
+                </div>
+              </button>
+            ))}
+            {staffList.length > 3 && (
+              <div className={styles.avatarMoreBadge}>
+                +{staffList.length - 3}
+              </div>
+            )}
+          </div>
+
           <Popover.Root open={isAssigneeOpen} onOpenChange={setIsAssigneeIdOpen}>
             <Tooltip.Root>
               <Tooltip.Trigger asChild>
                 <Popover.Trigger asChild>
                   <button type="button" className={styles.filterBtn}>
                     {assigneeValue && (
-                      <div className={styles.avatarCircle}>
+                      <div className={styles.avatarCircle} style={{ background: '#ff7a00', color: '#fff' }}>
                         {assigneeValue.avatarUrl ? (
                           <img src={assigneeValue.avatarUrl} alt="" className={styles.avatarImg} />
                         ) : (
@@ -181,7 +245,7 @@ export function CalendarControlPanel({
                         )}
                       </div>
                     )}
-                    <span>{assigneeValue ? assigneeValue.name : 'Người phụ trách'}</span>
+                    <span>{assigneeValue ? assigneeValue.name : 'Tất cả nhân viên'}</span>
                     <ChevronDownIcon />
                   </button>
                 </Popover.Trigger>
@@ -216,40 +280,60 @@ export function CalendarControlPanel({
             </Popover.Portal>
           </Popover.Root>
 
-          <Popover.Root open={isTaskTypeOpen} onOpenChange={setIsTaskTypeOpen}>
-            <Popover.Trigger asChild>
-              <button type="button" className={styles.filterBtn}>
-                <span>{selectedTaskType ? selectedTaskType.label : 'Loại'}</span>
-                <ChevronDownIcon />
-              </button>
-            </Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Content
-                className={styles.popoverContent}
-                side="bottom"
-                align="start"
-                sideOffset={6}
-                collisionPadding={12}
-                onOpenAutoFocus={(e) => e.preventDefault()}
-              >
-                <TaskTypePicker
-                  selectedId={selectedTaskType?.id ?? ''}
-                  onSelect={(t) => {
-                    onTaskTypeChange?.(t);
-                    setIsTaskTypeOpen(false);
-                  }}
-                />
-              </Popover.Content>
-            </Popover.Portal>
-          </Popover.Root>
+          <button type="button" className={styles.filterBtn}>
+            <span>Epic</span>
+            <ChevronDownIcon />
+          </button>
 
-          <CalendarStatusDropdown value={statusValue} onChange={onStatusChange}>
-            <button type="button" className={styles.filterBtn}>
+          <div className={styles.statusWrap} ref={statusRef}>
+            <button
+              type="button"
+              className={`${styles.filterBtn} ${isStatusOpen ? styles.filterBtnActive : ''}`}
+              onClick={() => setIsStatusOpen(!isStatusOpen)}
+            >
               <span>Trạng thái</span>
               <ChevronDownIcon />
             </button>
-          </CalendarStatusDropdown>
 
+            {isStatusOpen && (
+              <div className={styles.dropdown}>
+                <div className={styles.dropdownSearch}>
+                  <span className={styles.dropdownSearchIcon}><SearchIcon /></span>
+                  <input
+                    type="text"
+                    className={styles.dropdownInputFocus}
+                    placeholder="Tìm kiếm trạng thái"
+                    autoFocus
+                  />
+                </div>
+                <div className={styles.dropdownList}>
+                  <label className={styles.dropdownItem}>
+                    <input type="checkbox" defaultChecked />
+                    <span className={styles.checkText}>TẤT CẢ TRẠNG THÁI</span>
+                  </label>
+                  <label className={styles.dropdownItem}>
+                    <input type="checkbox" />
+                    <span className={`${styles.badge} ${styles.badgeScheduled}`}>ĐÃ LÊN LỊCH</span>
+                  </label>
+                  <label className={styles.dropdownItem}>
+                    <input type="checkbox" />
+                    <span className={`${styles.badge} ${styles.badgeCompleted}`}>HOÀN THÀNH</span>
+                  </label>
+                  <label className={styles.dropdownItem}>
+                    <input type="checkbox" />
+                    <span className={`${styles.badge} ${styles.badgeMissed}`}>ĐÃ BỎ LỠ</span>
+                  </label>
+                  <label className={styles.dropdownItem}>
+                    <input type="checkbox" />
+                    <span className={`${styles.badge} ${styles.badgeCancelled}`}>ĐÃ HỦY</span>
+                  </label>
+                </div>
+                <div className={styles.dropdownFooter}>
+                  5 trên 5
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className={styles.right}>
@@ -310,7 +394,7 @@ export function CalendarControlPanel({
             onChange={onViewModeChange || (() => { })}
           />
 
-          <button type="button" className={styles.iconBtn} aria-label="Tạo lịch mới" title="Tạo lịch mới">
+          <button type="button" className={styles.iconBtn} aria-label="Tạo lịch mới" title="Tạo lịch mới" onClick={onSchedule}>
             <CalendarPlusIcon />
           </button>
         </div>

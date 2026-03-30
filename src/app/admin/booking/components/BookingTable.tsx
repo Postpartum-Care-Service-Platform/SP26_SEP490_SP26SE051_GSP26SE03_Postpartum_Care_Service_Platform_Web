@@ -153,7 +153,7 @@ const getTransactionStatusLabel = (status: string) => {
 };
 
 export function BookingTable({ bookings, pagination, onViewBooking, loading, error }: Props) {
-  const [selectedContract, setSelectedContract] = useState<{ id: string; code: string; fileUrl: string | null } | null>(null);
+  const [selectedContract, setSelectedContract] = useState<{ id: number; code: string; fileUrl: string | null } | null>(null);
 
   if (loading) {
      return <div className={styles.statusCell}>Đang tải dữ liệu...</div>;
@@ -254,10 +254,10 @@ export function BookingTable({ bookings, pagination, onViewBooking, loading, err
                         <div className={styles.tooltipWrapper}>
                           <span
                             className={`${styles.textTruncate} ${styles.contractLink}`}
-                            onClick={() => setSelectedContract({
-                              id: booking.id.toString(),
-                              code: booking.contract?.contractCode || '',
-                              fileUrl: booking.contract?.fileUrl || null
+                            onClick={() => booking.contract && setSelectedContract({
+                              id: booking.contract.id,
+                              code: booking.contract.contractCode,
+                              fileUrl: booking.contract.fileUrl
                             })}
                           >
                             {booking.contract.contractCode}

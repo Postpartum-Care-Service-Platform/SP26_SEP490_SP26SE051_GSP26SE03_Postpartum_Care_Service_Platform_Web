@@ -11,7 +11,7 @@ const carePlanDetailService = {
     return apiClient.get(`/package-activities/${id}`);
   },
 
-  createCarePlanDetail: (payload: CreateCarePlanDetailRequest): Promise<CarePlanDetail> => {
+  createCarePlanDetail: (payload: CreateCarePlanDetailRequest[]): Promise<CarePlanDetail[]> => {
     return apiClient.post('/package-activities', payload);
   },
 

@@ -39,16 +39,16 @@
 
 .table tbody tr:hover {
   background-color: #f8f9fa;
+  position: relative;
+  z-index: 90;
 }
-
-
-
 
 .table td {
   padding: 10px 16px;
   font-size: 14px;
   color: #495057;
   vertical-align: middle;
+  overflow: visible !important;
 }
 
 .sttCell {
@@ -93,6 +93,7 @@
 
 .table tbody tr:hover .stickyActionsCol {
   background-color: #f8f9fa;
+  overflow: visible !important;
 }
 
 .actions {
@@ -109,7 +110,7 @@
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + 8px); /* Default: point UP */
   left: 50%;
   transform: translateX(-50%) scale(0.9);
   background-color: #333;
@@ -121,7 +122,7 @@
   pointer-events: none;
   opacity: 0;
   transition: all 0.2s ease;
-  z-index: 100;
+  z-index: 1000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -133,6 +134,19 @@
   transform: translateX(-50%);
   border: 5px solid transparent;
   border-top-color: #333;
+}
+
+/* SMART TOOLTIP: Switch direction for first 3 rows */
+.table tbody tr:nth-child(-n+3) .tooltipWrapper .tooltip {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+
+.table tbody tr:nth-child(-n+3) .tooltipWrapper .tooltip::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: #333;
 }
 
 .tooltipWrapper:hover .tooltip {

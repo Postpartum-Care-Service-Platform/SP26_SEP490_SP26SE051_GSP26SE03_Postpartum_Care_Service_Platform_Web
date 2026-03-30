@@ -16,6 +16,8 @@ import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import amenityServiceService from '@/services/amenity-service.service';
 import type { AmenityService } from '@/types/amenity-service';
 import { AmenityServiceListHeader } from './components/AmenityServiceListHeader';
+import { AmenityServiceModal } from './components/AmenityServiceModal';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './amenity-service.module.css';
 
 
@@ -92,6 +94,12 @@ export default function AdminAmenityServicePage() {
   const [pageSize, setPageSize] = useState(10);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<AmenityService | null>(null);
+
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+
   const fetchAmenityServices = async () => {
     try {
       setLoading(true);
@@ -159,6 +167,34 @@ export default function AdminAmenityServicePage() {
       month: '2-digit',
       year: 'numeric',
     });
+  };
+
+  const handleNew = () => {
+    setItemToEdit(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (item: AmenityService) => {
+    setItemToEdit(item);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = (id: number) => {
+    setDeleteId(id);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await amenityServiceService.deleteAmenityService(deleteId);
+      toast({ title: 'Xóa tiện ích thành công', variant: 'success' });
+      fetchAmenityServices();
+    } catch (err: any) {
+      toast({ title: 'Xóa thất bại: ' + (err.message || 'Lỗi hệ thống'), variant: 'error' });
+    } finally {
+      setDeleteId(null);
+    }
   };
 
   return (
@@ -244,7 +280,7 @@ export default function AdminAmenityServicePage() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <button type="button" className={styles.newButton}>
+              <button type="button" className={styles.newButton} onClick={handleNew}>
                 <Plus size={16} />
                 <span>Tạo mới</span>
               </button>
@@ -337,13 +373,21 @@ export default function AdminAmenityServicePage() {
                     <td className={styles.stickyActionsCol}>
                       <div className={styles.actions}>
                         <div className={styles.tooltipWrapper}>
-                          <button className={`${styles.actionButton} ${styles.editButton}`} type="button">
+                          <button 
+                            className={`${styles.actionButton} ${styles.editButton}`} 
+                            type="button"
+                            onClick={() => handleEdit(item)}
+                          >
                             <Edit2OutlineIcon size={16} />
                           </button>
                           <span className={styles.tooltip}>Chỉnh sửa</span>
                         </div>
                         <div className={styles.tooltipWrapper}>
-                          <button className={`${styles.actionButton} ${styles.deleteButton}`} type="button">
+                          <button 
+                            className={`${styles.actionButton} ${styles.deleteButton}`} 
+                            type="button"
+                            onClick={() => handleDelete(item.id)}
+                          >
                             <Trash2OutlineIcon size={16} />
                           </button>
                           <span className={styles.tooltip}>Xóa</span>
@@ -356,6 +400,24 @@ export default function AdminAmenityServicePage() {
             </tbody>
           </table>
         </div>
+
+        <AmenityServiceModal
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+          onSuccess={fetchAmenityServices}
+          itemToEdit={itemToEdit}
+        />
+
+        <ConfirmModal
+          isOpen={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Xác nhận xóa tiện ích"
+          message="Bạn có chắc chắn muốn xóa tiện ích này? Dữ liệu đã xóa sẽ không thể phục hồi."
+          confirmLabel="Xóa ngay"
+          cancelLabel="Suy nghĩ lại"
+          variant="danger"
+        />
       </AdminPageLayout>
     </div>
   );

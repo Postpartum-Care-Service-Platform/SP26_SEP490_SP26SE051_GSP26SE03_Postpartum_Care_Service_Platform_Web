@@ -10,6 +10,7 @@ import menuService from '@/services/menu.service';
 import type { Food } from '@/types/food';
 import type { Menu, CreateMenuRequest, UpdateMenuRequest } from '@/types/menu';
 import type { MenuType } from '@/types/menu-type';
+import { CustomDropdown } from '@/components/ui/select/CustomDropdown';
 
 import styles from './new-menu-modal.module.css';
 
@@ -69,19 +70,7 @@ const CustomTextarea = forwardRef<
 });
 CustomTextarea.displayName = 'CustomTextarea';
 
-const CustomSelect = forwardRef<
-  HTMLSelectElement,
-  React.SelectHTMLAttributes<HTMLSelectElement>
->(({ className, ...props }, ref) => {
-  return (
-    <select
-      {...props}
-      ref={ref}
-      className={`${styles.formControl} ${className || ''}`}
-    />
-  );
-});
-CustomSelect.displayName = 'CustomSelect';
+
 
 export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Props) {
   const { toast } = useToast();
@@ -239,26 +228,16 @@ export function NewMenuModal({ open, onOpenChange, onSuccess, menuToEdit }: Prop
                 <label htmlFor="menuTypeId">
                   Loại thực đơn <span className={styles.required}>*</span>
                 </label>
-                <CustomSelect
-                  id="menuTypeId"
+                <CustomDropdown
+                  options={menuTypes.map((type) => ({
+                    value: type.id,
+                    label: type.name,
+                  }))}
                   value={formData.menuTypeId}
-                  onChange={(e) =>
-                    handleFieldChange(
-                      'menuTypeId',
-                      parseInt(e.target.value, 10) || 0
-                    )
-                  }
-                  className={errors.menuTypeId ? styles.invalid : ''}
-                  required
-                  disabled={loadingOptions}
-                >
-                  <option value="0">Chọn loại thực đơn</option>
-                  {menuTypes.map((type) => (
-                    <option key={type.id} value={type.id}>
-                      {type.name}
-                    </option>
-                  ))}
-                </CustomSelect>
+                  onChange={(val) => handleFieldChange('menuTypeId', Number(val))}
+                  placeholder="Chọn loại thực đơn"
+                  isInvalid={!!errors.menuTypeId}
+                />
                 {errors.menuTypeId && (
                   <p className={styles.errorMessage}>{errors.menuTypeId}</p>
                 )}

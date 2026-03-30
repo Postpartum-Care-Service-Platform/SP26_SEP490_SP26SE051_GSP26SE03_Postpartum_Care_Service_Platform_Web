@@ -57,7 +57,7 @@ function formatDateVN(dateStr: string): string {
   return `${day}/${month}/${year}`;
 }
 
-function getUpcomingEventsForDate(date: Date, events: StaffSchedule[], maxEvents: number = 2): { 
+function getUpcomingEventsForDate(date: Date, events: StaffSchedule[], maxEvents: number = 3): { 
   displayEvents: StaffSchedule[]; 
   remainingCount: number;
 } {
@@ -217,7 +217,7 @@ export function CalendarMonthView({
               const label = inMonth ? format(d, 'd') : formatDateVietnamese(d, inMonth);
               const isToday = format(d, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
               const isSelected = isSameDay(d, currentSelectedDate);
-              const { displayEvents: dayEvents, remainingCount } = getUpcomingEventsForDate(d, schedules, 2);
+              const { displayEvents: dayEvents, remainingCount } = getUpcomingEventsForDate(d, schedules, 3);
 
               return (
                 <div

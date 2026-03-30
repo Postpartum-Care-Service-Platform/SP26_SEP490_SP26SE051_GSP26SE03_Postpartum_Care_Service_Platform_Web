@@ -71,22 +71,19 @@ export function NotificationDropdown({ onViewAll, isSidebarOpen }: { onViewAll?:
     }
   }, []);
 
-  // Chỉ fetch khi mở dropdown
+  // Fetch dữ liệu lần đầu khi mount và mỗi khi fetchData thay đổi
   React.useEffect(() => {
-    if (!isOpen) return;
     fetchData();
-  }, [isOpen, fetchData]);
+  }, [fetchData]);
 
-  // Auto-refresh chỉ khi dropdown đang mở
+  // Tự động làm mới thông báo sau mỗi 30 giây để cập nhật badge count
   React.useEffect(() => {
-    if (!isOpen) return;
-
     const interval = setInterval(() => {
       fetchData();
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [isOpen, fetchData]);
+  }, [fetchData]);
 
   const unreadCount = notifications.filter((n) => n.status === 'Unread').length;
   const displayCount = unreadCount > 0 ? (unreadCount > 9 ? '9+' : `${unreadCount}`) : null;
@@ -165,13 +162,8 @@ export function NotificationDropdown({ onViewAll, isSidebarOpen }: { onViewAll?:
                     {notification.content && (
                       <div className={styles.notificationContentText}>{notification.content}</div>
                     )}
-                    <div className={styles.notificationTime}>
-                      <Clock size={12} />
-                      <span>{formatTime(notification.createdAt)}</span>
-                    </div>
                   </div>
                   {isUnread && <div className={styles.unreadDot} />}
-                  <ChevronRight size={16} className={styles.notificationArrow} />
                 </div>
               );
             })

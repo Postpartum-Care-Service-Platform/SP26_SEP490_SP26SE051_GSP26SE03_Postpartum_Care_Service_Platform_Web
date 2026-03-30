@@ -7,6 +7,10 @@ import menuRecordService from '@/services/menu-record.service';
 import type { MenuRecord } from '@/types/menu-record';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import { Pagination } from '@/components/ui/pagination';
+import userService from '@/services/user.service';
+import menuService from '@/services/menu.service';
+import type { Account } from '@/types/account';
+import type { Menu } from '@/types/menu';
 
 import { NewMenuRecordModal, MenuRecordTable, MenuRecordTableControls } from './components';
 import { MenuRecordListHeader } from './components/MenuRecordListHeader';
@@ -25,9 +29,9 @@ const sortMenuRecords = (items: MenuRecord[], sort: string) => {
     case 'createdAt-desc':
       return arr.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     case 'name-asc':
-      return arr.sort((a, b) => a.name.localeCompare(b.name));
+      return arr.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     case 'name-desc':
-      return arr.sort((a, b) => b.name.localeCompare(a.name));
+      return arr.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
     case 'date-asc':
       return arr.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     case 'date-desc':
@@ -40,6 +44,8 @@ const sortMenuRecords = (items: MenuRecord[], sort: string) => {
 export default function AdminMenuRecordPage() {
   const { toast } = useToast();
   const [menuRecords, setMenuRecords] = useState<MenuRecord[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [menus, setMenus] = useState<Menu[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,8 +63,14 @@ export default function AdminMenuRecordPage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await menuRecordService.getAllMenuRecords();
-      setMenuRecords(data);
+      const [recordsData, accountsData, menusData] = await Promise.all([
+        menuRecordService.getAllMenuRecords(),
+        userService.getAllAccounts(),
+        menuService.getAllMenus(),
+      ]);
+      setMenuRecords(recordsData);
+      setAccounts(accountsData);
+      setMenus(menusData);
     } catch (error: unknown) {
       setError(getErrorMessage(error, 'Không thể tải danh sách bản ghi thực đơn'));
     } finally {
@@ -75,7 +87,7 @@ export default function AdminMenuRecordPage() {
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      filtered = filtered.filter((m) => m.name.toLowerCase().includes(q) || (m.accountId || '').toLowerCase().includes(q));
+      filtered = filtered.filter((m) => (m.name || '').toLowerCase().includes(q) || (m.accountId || '').toLowerCase().includes(q));
     }
 
     if (statusFilter !== 'all') {
@@ -172,6 +184,8 @@ export default function AdminMenuRecordPage() {
         ) : (
           <MenuRecordTable
             menuRecords={paginatedMenuRecords}
+            accounts={accounts}
+            menus={menus}
             onEdit={handleEdit}
             onDelete={handleDelete}
             deletingId={deletingId}

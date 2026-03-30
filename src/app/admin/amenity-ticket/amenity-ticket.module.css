@@ -194,7 +194,7 @@
   position: sticky;
   right: 0;
   background-color: #fff;
-  width: 100px;
+  width: 150px;
   text-align: center;
   z-index: 10;
   box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
@@ -216,6 +216,10 @@
   width: 120px;
 }
 
+.customerCol {
+  width: 200px;
+}
+
 .dateCol {
   width: 160px;
 }
@@ -235,23 +239,54 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   border: none;
   border-radius: 6px;
-  background-color: rgba(59, 130, 246, 0.1);
-  color: #3b82f6;
+  background-color: #f8f9fa;
+  color: #64748b;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.actionButton:hover {
+.viewButton {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.viewButton:hover {
   background-color: #3b82f6;
   color: #fff;
 }
 
-.viewButton {
-  color: #3b82f6;
+.acceptButton {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.acceptButton:hover {
+  background-color: #10b981;
+  color: #fff;
+}
+
+.completeButton {
+  background-color: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+}
+
+.completeButton:hover {
+  background-color: #4f46e5;
+  color: #fff;
+}
+
+.cancelButton {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.cancelButton:hover {
+  background-color: #ef4444;
+  color: #fff;
 }
 
 .loadingCell, .errorCell, .emptyRow {

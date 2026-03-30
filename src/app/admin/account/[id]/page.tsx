@@ -50,7 +50,7 @@ export default function AccountOverviewPage() {
           console.log('Customer Detail API response:', customerDetailData);
           console.log('Family Profiles API response:', familyProfilesData);
           console.log('Account API response:', accountData);
-          
+
           setData({
             familyProfiles: familyProfilesData || [],
             account: accountData,
@@ -91,23 +91,16 @@ export default function AccountOverviewPage() {
       </div>
 
       {/* Section 1: Billing History (Hóa đơn) */}
-      <div>
-        <TransactionHistory />
+      <div style={{ paddingBottom: '32px' }}>
+        <TransactionHistory customerId={id} />
       </div>
 
-      {/* Section 2: Work Schedule (Lịch trình) - ALWAYS RENDERED TO ENSURE UI IS VISIBLE */}
-      <div className={styles.sectionContainer} style={{ background: '#fff', borderRadius: '4px', padding: '24px' }}>
-        <div className={styles.sectionHeader} style={{ marginBottom: '20px' }}>
-          <h3 className={styles.sectionTitle} style={{ fontSize: '18px', fontWeight: 600, color: '#111827' }}>
-            Lịch trình chăm sóc chi tiết
-          </h3>
-          <p className={styles.sectionSubtitle} style={{ fontSize: '14px', color: '#6B7280' }}>
-            Theo dõi chi tiết thời gian và hạng mục công việc (Dữ liệu lịch trình liên quan đến tài khoản này)
-          </p>
+      {/* Section 2: Appointment Schedule (Lịch hẹn) */}
+      <div style={{ paddingBottom: '32px' }}>
+        <div style={{ padding: '0 24px 16px', borderBottom: '1px solid #dfe1e6', marginBottom: '16px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#172b4d' }}>Lịch hẹn & Tiến trình chăm sóc</h2>
         </div>
-        <div className={styles.calendarCard}>
-          <AccountScheduleTab accountId={id} />
-        </div>
+        <AccountScheduleTab accountId={id} />
       </div>
 
       {error && (

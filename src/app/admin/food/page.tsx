@@ -28,9 +28,9 @@ const sortFoods = (items: Food[], sort: string) => {
     case 'name-desc':
       return arr.sort((a, b) => b.name.localeCompare(a.name));
     case 'type-asc':
-      return arr.sort((a, b) => (a.foodType || a.type).localeCompare(b.foodType || b.type));
+      return arr.sort((a, b) => (a.foodType || '').localeCompare(b.foodType || ''));
     case 'type-desc':
-      return arr.sort((a, b) => (b.foodType || b.type).localeCompare(a.foodType || a.type));
+      return arr.sort((a, b) => (b.foodType || '').localeCompare(a.foodType || ''));
     default:
       return arr;
   }
@@ -75,7 +75,7 @@ export default function AdminFoodPage() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (f) => f.name.toLowerCase().includes(q) || (f.foodType || f.type).toLowerCase().includes(q) || (f.description || '').toLowerCase().includes(q),
+        (f) => f.name.toLowerCase().includes(q) || (f.foodType || '').toLowerCase().includes(q) || (f.description || '').toLowerCase().includes(q),
       );
     }
 

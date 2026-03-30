@@ -77,6 +77,8 @@ export function MenuTable({ menus, onEdit, onDelete, deletingId, currentPage, pa
           ) : (
             menus.map((menu, index) => {
               const stt = (currentPage - 1) * pageSize + index + 1;
+              const foodNames = menu.foods?.map(f => f.name).join(', ') || 'Chưa có món';
+              
               return (
                 <tr key={menu.id} className={styles.tableRow}>
                   <td className={styles.stickySTTCol}>
@@ -86,13 +88,24 @@ export function MenuTable({ menus, onEdit, onDelete, deletingId, currentPage, pa
                     </div>
                   </td>
                   <td className={styles.name}>
-                    <div className={styles.tooltipWrapper}>
-                      <span className={styles.nameTruncate}>{menu.menuName}</span>
-                      <span className={styles.tooltip}>{menu.menuName}</span>
+                    <div className={styles.nameContainer}>
+                       <span className={styles.menuNameText}>{menu.menuName}</span>
+                       <div className={styles.foodListSub}>
+                         {menu.foods && menu.foods.length > 0 ? (
+                           menu.foods.slice(0, 3).map(f => (
+                             <span key={f.id} className={styles.foodTag}>{f.name}</span>
+                           ))
+                         ) : null}
+                         {menu.foods && menu.foods.length > 3 && (
+                           <span className={styles.moreFoods}>+{menu.foods.length - 3}</span>
+                         )}
+                       </div>
                     </div>
                   </td>
                   <td>
-                    <span className={styles.menuType}>{menu.menuTypeName}</span>
+                    <span className={`${styles.menuTypeBadge} ${styles['type' + menu.menuTypeName]}`}>
+                      {menu.menuTypeName}
+                    </span>
                   </td>
                   <td className={styles.instructionCell}>
                     {menu.description ? (
@@ -105,7 +118,10 @@ export function MenuTable({ menus, onEdit, onDelete, deletingId, currentPage, pa
                     )}
                   </td>
                   <td>
-                    <span className={styles.foodCount}>{menu.foods?.length || 0} món</span>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.foodCount}>{menu.foods?.length || 0} món</span>
+                      <span className={styles.tooltip}>{foodNames}</span>
+                    </div>
                   </td>
                   <td>
                     <span

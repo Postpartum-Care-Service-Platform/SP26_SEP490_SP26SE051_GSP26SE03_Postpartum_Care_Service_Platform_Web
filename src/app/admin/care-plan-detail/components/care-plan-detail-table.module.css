@@ -39,7 +39,7 @@
 }
 
 .table tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: transparent; /* Remove hover effect */
 }
 
 .stickySTTCol {
@@ -57,7 +57,7 @@
 
 
 .table tbody tr:hover .stickySTTCol {
-  background-color: #f8f9fa;
+  background-color: inherit;
 }
 
 .stickyActionsCol {
@@ -79,7 +79,7 @@
 
 
 .table tbody tr:hover .stickyActionsCol {
-  background-color: #f8f9fa;
+  background-color: #fff; /* Stay white to match background */
   z-index: 200;
 }
 
@@ -207,7 +207,7 @@
 
 /* Keep the hovered row high enough to show tooltips but not block header if possible */
 .table tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: transparent;
 }
 
 .table td:hover {

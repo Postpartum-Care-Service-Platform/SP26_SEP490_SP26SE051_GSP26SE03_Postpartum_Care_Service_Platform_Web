@@ -11,16 +11,18 @@ import { TASK_TYPES, type TaskType } from '@/app/admin/work-schedule/components/
 
 import type { CalendarStatusType } from '@/app/admin/work-schedule/components/calendar/CalendarStatusDropdown';
 import type { CalendarViewMode } from '@/app/admin/work-schedule/components/calendar/CalendarViewDropdown';
-import staffScheduleService from '@/services/staff-schedule.service';
+import familyScheduleService from '@/services/family-schedule.service';
+import amenityTicketService from '@/services/amenity-ticket.service';
 import type { StaffSchedule } from '@/types/staff-schedule';
+import type { FamilyScheduleItem } from '@/types/family-schedule';
+import type { AmenityTicket } from '@/types/amenity-ticket';
 
 interface AccountScheduleTabProps {
   accountId: string;
-  staffId?: string; // Potential staff ID assigned to this account
 }
 
-export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountId, staffId }) => {
-  // Calendar State (copied from WorkSchedulePage logic)
+export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountId }) => {
+  // Calendar State
   const [calendarMonth, setCalendarMonth] = React.useState(() => {
     const d = new Date();
     d.setDate(1);
@@ -33,12 +35,9 @@ export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountI
   const [calendarStatus, setCalendarStatus] = React.useState<CalendarStatusType | null>(null);
   const [calendarTaskType, setCalendarTaskType] = React.useState<TaskType | null>(TASK_TYPES[TASK_TYPES.length - 1]);
   const [schedules, setSchedules] = React.useState<StaffSchedule[]>([]);
+  const [selectedStaffId, setSelectedStaffId] = React.useState<string | null>(null);
 
   const fetchSchedules = React.useCallback(async () => {
-    // If no staffId provided, we can't filter correctly yet, but for now we'll demo
-    // In real app, we might filter by both staffId AND customerId
-    const targetStaffId = staffId || 'maria-kelly-id'; // Fallback for demo
-
     try {
       let from, to;
       if (calendarViewMode === 'Month') {
@@ -62,26 +61,94 @@ export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountI
         to = format(toDate, 'yyyy-MM-dd');
       }
 
-      const data = await staffScheduleService.getStaffSchedule({
-        staffId: targetStaffId,
-        from,
-        to
+      // CALL NEW API
+      const data = await familyScheduleService.getAdminSchedulesByDateRange({
+        customerId: accountId,
+        dateFrom: from,
+        dateTo: to
       }).catch(err => {
         console.warn('API 404 or Error (Expected for new accounts):', err);
-        return []; // Return empty array so UI still renders
+        return [] as FamilyScheduleItem[];
       });
 
-      // Filter schedules to only show those belonging to THIS account
-      const filteredData = Array.isArray(data) ? data.filter(s =>
-        s.familyScheduleResponse && s.familyScheduleResponse.customerId === accountId
-      ) : [];
+      // Map FamilyScheduleItem[] to StaffSchedule[] to stay compatible with existing calendar views
+      const mappedSchedules: StaffSchedule[] = Array.isArray(data) ? data.map(item => ({
+        id: item.id,
+        staffId: item.staffSchedules?.[0]?.staffId || '',
+        staffName: item.staffSchedules?.[0]?.staffName || '',
+        staffAvatar: item.staffSchedules?.[0]?.staffAvatar || null,
+        roomId: item.roomId,
+        roomName: item.roomName,
+        managerId: '',
+        managerName: '',
+        familyScheduleId: item.id,
+        isChecked: item.staffSchedules?.[0]?.isChecked || false,
+        checkedAt: item.staffSchedules?.[0]?.checkedAt || null,
+        familyScheduleResponse: {
+          id: item.id,
+          customerId: item.customerId,
+          customerName: item.customerName,
+          customerAvatar: item.customerAvatar,
+          packageId: item.packageId,
+          packageName: item.packageName,
+          workDate: item.workDate,
+          startTime: item.startTime,
+          endTime: item.endTime,
+          dayNo: item.dayNo,
+          activity: item.activity,
+          target: item.target,
+          status: item.status,
+          note: item.note,
+          contractId: null
+        }
+      })) : [];
 
-      setSchedules(filteredData);
+      // FETCH AMENITY TICKETS (TIỆN ÍCH)
+      const amenityData = await amenityTicketService.getAmenityTicketsByCustomerId(accountId).catch(err => {
+        console.warn('Failed to fetch amenity tickets:', err);
+        return [] as AmenityTicket[];
+      });
+
+      // Map AmenityTicket[] to StaffSchedule[]
+      const mappedAmenities: StaffSchedule[] = amenityData
+        .filter(ticket => ticket.date >= from && ticket.date <= to)
+        .map(ticket => ({
+          id: -ticket.id, // Negative to avoid collision
+          staffId: '',
+          staffName: 'Tiện ích',
+          staffAvatar: null,
+          roomId: null,
+          roomName: null,
+          managerId: '',
+          managerName: '',
+          familyScheduleId: -ticket.id,
+          isChecked: ticket.status === 'Completed',
+          checkedAt: null,
+          familyScheduleResponse: {
+            id: -ticket.id,
+            customerId: ticket.customerId,
+            customerName: '',
+            customerAvatar: null,
+            packageId: 0,
+            packageName: 'Dịch vụ tiện ích',
+            workDate: ticket.date,
+            startTime: ticket.startTime,
+            endTime: ticket.endTime,
+            dayNo: 0,
+            activity: `Sử dụng tiện ích (${ticket.status})`,
+            target: 'Customer',
+            status: ticket.status === 'Booked' ? 'Scheduled' : ticket.status,
+            note: null,
+            contractId: null
+          }
+        }));
+
+      setSchedules([...mappedSchedules, ...mappedAmenities]);
     } catch (error) {
       console.error('Failed to fetch schedules:', error);
-      setSchedules([]); // Fallback to empty on any crash
+      setSchedules([]);
     }
-  }, [calendarMonth, calendarSelectedDate, calendarViewMode, calendarDayCount, staffId, accountId]);
+  }, [calendarMonth, calendarSelectedDate, calendarViewMode, calendarDayCount, accountId]);
 
   React.useEffect(() => {
     fetchSchedules();
@@ -141,6 +208,8 @@ export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountI
               selectedDate={calendarSelectedDate}
               onSelectedDateChange={handleSelectedDateChange}
               schedules={displaySchedules}
+              selectedStaffId={selectedStaffId}
+              onStaffSelect={setSelectedStaffId}
             />
           </div>
         ) : calendarViewMode === 'Week' ? (
@@ -151,6 +220,8 @@ export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountI
             onEventCreated={() => {
               void fetchSchedules();
             }}
+            selectedStaffId={selectedStaffId}
+            onStaffSelect={setSelectedStaffId}
           />
         ) : (
           <CalendarDayView
@@ -159,6 +230,8 @@ export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountI
             onDayChange={handleSelectedDateChange}
             monthCursor={calendarMonth}
             schedules={displaySchedules}
+            selectedStaffId={selectedStaffId}
+            onStaffSelect={setSelectedStaffId}
           />
         )}
       </div>

@@ -1,8 +1,8 @@
 export interface Food {
   id: number;
   name: string;
-  type: string;
-  foodType?: string; // API có thể trả về foodType thay vì type
+  foodTypeId: number;
+  foodType?: string;
   description: string;
   imageUrl: string | null;
   isActive: boolean;
@@ -11,18 +11,19 @@ export interface Food {
 }
 
 export interface CreateFoodRequest {
-  name: string;
-  type: string;
-  description: string;
-  imageUrl?: string | null;
-  isActive?: boolean;
+  Name: string;
+  FoodTypeId: number;
+  Description: string;
+  Image?: File | null;
+  IsActive?: boolean;
 }
 
 export interface UpdateFoodRequest {
-  name?: string;
-  type?: string;
-  description?: string;
-  imageUrl?: string | null;
-  isActive?: boolean;
+  Id: number;
+  Name?: string;
+  FoodTypeId?: number;
+  Description?: string;
+  Image?: File | null;
+  IsActive?: boolean;
 }
 

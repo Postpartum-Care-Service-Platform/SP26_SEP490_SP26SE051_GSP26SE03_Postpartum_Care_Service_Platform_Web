@@ -1,11 +1,21 @@
 'use client';
 
 import { Cross1Icon } from '@radix-ui/react-icons';
-import { useState, useEffect, forwardRef } from 'react';
+import { useState, useEffect, forwardRef, useMemo, useRef } from 'react';
+import React from 'react';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import menuRecordService from '@/services/menu-record.service';
+import userService from '@/services/user.service';
+import menuService from '@/services/menu.service';
 import type { CreateMenuRecordRequest, MenuRecord, UpdateMenuRecordRequest } from '@/types/menu-record';
+import type { Account } from '@/types/account';
+import type { Menu } from '@/types/menu';
+import { CustomDropdown } from '@/components/ui/select/CustomDropdown';
+import { DatePicker } from '@/app/admin/work-schedule/components/DatePicker';
+import { cn } from '@/lib/utils';
 
 import styles from './new-menu-record-modal.module.css';
 
@@ -15,7 +25,6 @@ const getErrorMessage = (error: unknown, fallbackMessage: string) => {
   return fallbackMessage;
 };
 
-
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -24,15 +33,12 @@ type Props = {
 };
 
 const INITIAL_FORM_DATA: CreateMenuRecordRequest = {
-  accountId: '',
   menuId: 0,
   name: '',
   date: '',
-  isActive: true,
 };
 
 type FormErrors = {
-  accountId?: string;
   menuId?: string;
   name?: string;
   date?: string;
@@ -45,22 +51,118 @@ const CustomInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
 );
 CustomInput.displayName = 'CustomInput';
 
+const CustomDatePicker = ({
+  label,
+  value,
+  onChange,
+  required,
+  isInvalid
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  required?: boolean;
+  isInvalid?: boolean;
+}) => {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [open]);
+
+  const dateValue = useMemo(() => {
+    if (!value) return null;
+    const [y, m, d] = value.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }, [value]);
+
+  const displayValue = useMemo(() => {
+    if (!dateValue) return 'Chọn ngày áp dụng...';
+    return format(dateValue, 'dd/MM/yyyy');
+  }, [dateValue]);
+
+  return (
+    <div className={styles.formGroup} ref={containerRef}>
+      <label>{label} {required && <span className={styles.required}>*</span>}</label>
+      <div className={styles.datePickerRelative}>
+        <div
+          className={cn(styles.dateTrigger, open && styles.dateTriggerOpen, isInvalid && styles.invalid)}
+          onClick={() => setOpen(!open)}
+        >
+          <CalendarIcon size={16} />
+          <span className={cn(styles.dateText, !value && styles.placeholder)}>
+            {displayValue}
+          </span>
+        </div>
+
+        {open && (
+          <div className={styles.sharedDatePickerWrapper}>
+            <DatePicker
+              value={dateValue}
+              title=""
+              side="bottom"
+              onChange={(d) => {
+                if (d) {
+                  const y = d.getFullYear();
+                  const m = String(d.getMonth() + 1).padStart(2, '0');
+                  const day = String(d.getDate()).padStart(2, '0');
+                  onChange(`${y}-${m}-${day}`);
+                } else {
+                  onChange('');
+                }
+                setOpen(false);
+              }}
+              onClose={() => setOpen(false)}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export function NewMenuRecordModal({ open, onOpenChange, onSuccess, menuRecordToEdit }: Props) {
   const { toast } = useToast();
   const [formData, setFormData] = useState<CreateMenuRecordRequest>(INITIAL_FORM_DATA);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [menus, setMenus] = useState<Menu[]>([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
   const isEditMode = !!menuRecordToEdit;
 
   useEffect(() => {
     if (open) {
+      const fetchOptions = async () => {
+        try {
+          setIsLoadingOptions(true);
+          const [accountsData, menusData] = await Promise.all([
+            userService.getAllAccounts(),
+            menuService.getAllMenus(),
+          ]);
+          setAccounts(accountsData);
+          setMenus(menusData);
+        } catch (error) {
+          toast({ title: 'Không thể tải danh sách tài khoản hoặc thực đơn', variant: 'error' });
+        } finally {
+          setIsLoadingOptions(false);
+        }
+      };
+
+      fetchOptions();
+
       if (menuRecordToEdit) {
         setFormData({
-          accountId: menuRecordToEdit.accountId,
           menuId: menuRecordToEdit.menuId,
-          name: menuRecordToEdit.name,
+          name: menuRecordToEdit.name || '',
           date: menuRecordToEdit.date,
-          isActive: menuRecordToEdit.isActive,
         });
       } else {
         const today = new Date().toISOString().split('T')[0];
@@ -71,7 +173,7 @@ export function NewMenuRecordModal({ open, onOpenChange, onSuccess, menuRecordTo
       }
       setErrors({});
     }
-  }, [open, menuRecordToEdit]);
+  }, [open, menuRecordToEdit, toast]);
 
   const handleFieldChange = <K extends keyof CreateMenuRecordRequest>(field: K, value: CreateMenuRecordRequest[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -83,19 +185,11 @@ export function NewMenuRecordModal({ open, onOpenChange, onSuccess, menuRecordTo
   const validateForm = (): FormErrors => {
     const newErrors: FormErrors = {};
 
-    if (!formData.accountId.trim()) {
-      newErrors.accountId = 'Account ID không được để trống.';
+    if (!formData.menuId) {
+      newErrors.menuId = 'Vui lòng chọn thực đơn.';
     }
 
-    if (!formData.menuId || formData.menuId <= 0) {
-      newErrors.menuId = 'Menu ID phải là số dương.';
-    }
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'Tên không được để trống.';
-    }
-
-    if (!formData.date.trim()) {
+    if (!formData.date?.trim()) {
       newErrors.date = 'Ngày không được để trống.';
     }
 
@@ -117,16 +211,17 @@ export function NewMenuRecordModal({ open, onOpenChange, onSuccess, menuRecordTo
 
       if (isEditMode && menuRecordToEdit) {
         const updatePayload: UpdateMenuRecordRequest = {
-          accountId: formData.accountId,
           menuId: formData.menuId,
-          name: formData.name,
+          name: formData.name || null,
           date: formData.date,
-          isActive: formData.isActive,
         };
         await menuRecordService.updateMenuRecord(menuRecordToEdit.id, updatePayload);
         toast({ title: 'Cập nhật bản ghi thực đơn thành công', variant: 'success' });
       } else {
-        await menuRecordService.createMenuRecord(formData);
+        await menuRecordService.createMenuRecord({
+          ...formData,
+          name: formData.name || null
+        });
         toast({ title: 'Tạo bản ghi thực đơn thành công', variant: 'success' });
       }
 
@@ -160,86 +255,56 @@ export function NewMenuRecordModal({ open, onOpenChange, onSuccess, menuRecordTo
         </div>
         <form onSubmit={handleSubmit}>
           <div className={styles.modalBody}>
-            <div className={styles.formGrid}>
-              <div className={styles.formGroup}>
-                <label htmlFor="accountId">
-                  Account ID <span className={styles.required}>*</span>
-                </label>
-                <CustomInput
-                  id="accountId"
-                  placeholder="Nhập Account ID"
-                  value={formData.accountId}
-                  onChange={(e) => handleFieldChange('accountId', e.target.value)}
-                  className={errors.accountId ? styles.invalid : ''}
-                  required
-                />
-                {errors.accountId && <p className={styles.errorMessage}>{errors.accountId}</p>}
-              </div>
-
-              <div className={styles.formGroup}>
+            <div className={styles.formGroup} style={{ marginBottom: '20px' }}>
                 <label htmlFor="menuId">
-                  Menu ID <span className={styles.required}>*</span>
+                  Menu <span className={styles.required}>*</span>
                 </label>
-                <CustomInput
-                  id="menuId"
-                  type="number"
-                  placeholder="Nhập Menu ID"
-                  value={formData.menuId || ''}
-                  onChange={(e) => handleFieldChange('menuId', parseInt(e.target.value, 10) || 0)}
-                  className={errors.menuId ? styles.invalid : ''}
-                  required
+                <CustomDropdown
+                  options={menus.map(m => ({ value: m.id, label: m.menuName }))}
+                  value={formData.menuId}
+                  onChange={(val) => handleFieldChange('menuId', Number(val))}
+                  placeholder="Chọn thực đơn"
+                  isInvalid={!!errors.menuId}
                 />
                 {errors.menuId && <p className={styles.errorMessage}>{errors.menuId}</p>}
-              </div>
             </div>
 
-            <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-              <label htmlFor="name">
-                Tên <span className={styles.required}>*</span>
-              </label>
+            <div className={`${styles.formGroup} ${styles.fullWidth}`} style={{ marginBottom: '20px' }}>
+              <label htmlFor="name">Tên</label>
               <CustomInput
                 id="name"
-                placeholder="Ví dụ: Buổi trưa vui vẻ"
-                value={formData.name}
+                placeholder="Ví dụ: Buổi trưa vui vẻ (Optional)"
+                value={formData.name || ''}
                 onChange={(e) => handleFieldChange('name', e.target.value)}
                 className={errors.name ? styles.invalid : ''}
-                required
               />
               {errors.name && <p className={styles.errorMessage}>{errors.name}</p>}
             </div>
 
-            <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-              <label htmlFor="date">
-                Ngày <span className={styles.required}>*</span>
-              </label>
-              <CustomInput
-                id="date"
-                type="date"
-                value={formData.date}
-                onChange={(e) => handleFieldChange('date', e.target.value)}
-                className={errors.date ? styles.invalid : ''}
-                required
-              />
-              {errors.date && <p className={styles.errorMessage}>{errors.date}</p>}
-            </div>
-
-            <div className={styles.formGroup}>
-              <label className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={formData.isActive}
-                  onChange={(e) => handleFieldChange('isActive', e.target.checked)}
-                  className={styles.checkbox}
-                />
-                <span>Hoạt động</span>
-              </label>
-            </div>
+            <CustomDatePicker
+              label="Ngày áp dụng"
+              required
+              value={formData.date}
+              onChange={(v) => handleFieldChange('date', v)}
+              isInvalid={!!errors.date}
+            />
+            {errors.date && <p className={styles.errorMessage}>{errors.date}</p>}
           </div>
+
           <div className={styles.modalFooter}>
-            <button type="button" className={`${styles.button} ${styles.buttonOutline}`} onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+            <button
+              type="button"
+              className={`${styles.button} ${styles.buttonOutline}`}
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Hủy
             </button>
-            <button type="submit" className={`${styles.button} ${styles.buttonPrimary}`} disabled={isSubmitting}>
+            <button
+              type="submit"
+              className={`${styles.button} ${styles.buttonPrimary}`}
+              disabled={isSubmitting || isLoadingOptions}
+            >
               {isSubmitting ? 'Đang xử lý...' : isEditMode ? 'Cập nhật' : 'Thêm mới'}
             </button>
           </div>

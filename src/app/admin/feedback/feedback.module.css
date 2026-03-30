@@ -353,6 +353,44 @@
   display: flex;
   position: relative;
   cursor: help;
+  width: max-content;
+}
+
+.textTooltipWrapper .tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #333;
+  color: #fff;
+  font-size: 13px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  width: 320px;
+  white-space: normal;
+  word-break: break-word;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 1000;
+  margin-top: 8px;
+  line-height: 1.6;
+}
+
+.textTooltipWrapper:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.textTooltipWrapper .tooltip::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 20px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: transparent transparent #333 transparent;
 }
 
 .placeholder, .emptyState {

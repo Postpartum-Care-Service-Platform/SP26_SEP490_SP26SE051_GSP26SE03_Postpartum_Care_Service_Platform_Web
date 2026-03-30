@@ -192,38 +192,40 @@ export default function AdminPatientsPage() {
     : undefined;
 
   return (
-    <AdminPageLayout
-      header={<PatientListHeader />}
-      controlPanel={
-        <PatientTableControls
-          onSearch={handleSearch}
-          onSortChange={handleSortChange}
-          onStatusChange={handleStatusChange}
-          onRoleChange={handleRoleChange}
-          onNewPatient={handleNewPatient}
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <AdminPageLayout
+        header={<PatientListHeader />}
+        controlPanel={
+          <PatientTableControls
+            onSearch={handleSearch}
+            onSortChange={handleSortChange}
+            onStatusChange={handleStatusChange}
+            onRoleChange={handleRoleChange}
+            onNewPatient={handleNewPatient}
+          />
+        }
+        pagination={
+          paginationConfig ? (
+            <div style={{ padding: '0 16px' }}>
+              <Pagination {...paginationConfig} />
+            </div>
+          ) : undefined
+        }
+      >
+        <PatientTable
+          patients={paginatedPatients}
+          onViewProfile={handleViewProfile}
+          onChat={handleChat}
+          onRoleUpdated={fetchPatients}
+          currentPage={currentPage}
+          pageSize={pageSize}
         />
-      }
-      pagination={
-        paginationConfig ? (
-          <div style={{ padding: '0 16px' }}>
-            <Pagination {...paginationConfig} />
-          </div>
-        ) : undefined
-      }
-    >
-      <PatientTable
-        patients={paginatedPatients}
-        onViewProfile={handleViewProfile}
-        onChat={handleChat}
-        onRoleUpdated={fetchPatients}
-        currentPage={currentPage}
-        pageSize={pageSize}
-      />
-      <NewAccountModal
-        open={isNewAccountOpen}
-        onOpenChange={setIsNewAccountOpen}
-        onSuccess={fetchPatients}
-      />
-    </AdminPageLayout>
+        <NewAccountModal
+          open={isNewAccountOpen}
+          onOpenChange={setIsNewAccountOpen}
+          onSuccess={fetchPatients}
+        />
+      </AdminPageLayout>
+    </div>
   );
 }

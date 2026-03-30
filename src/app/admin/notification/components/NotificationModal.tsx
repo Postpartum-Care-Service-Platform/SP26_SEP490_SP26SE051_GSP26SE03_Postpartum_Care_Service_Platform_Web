@@ -217,10 +217,22 @@ function UserMultiSelect({
                       </Checkbox.Indicator>
                     </Checkbox.Root>
                     <div className={styles.userAvatar} style={{ backgroundColor: getAvatarColor(user.username) }}>
-                      {(user.ownerProfile?.fullName || user.username).substring(0, 2).toUpperCase()}
+                      {user.avatarUrl ? (
+                        <img src={user.avatarUrl} alt={user.username} className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        (user.ownerProfile?.fullName || user.username).substring(0, 2).toUpperCase()
+                      )}
                     </div>
                     <div className={styles.userInfo}>
-                      <span className={styles.userName}>{user.ownerProfile?.fullName || user.username}</span>
+                      <div className="flex items-center gap-1">
+                        <span className={styles.userName}>{user.ownerProfile?.fullName || user.username}</span>
+                        <span className={styles.userRoleBadge}>
+                          {user.roleName.toLowerCase() === 'customer' ? 'Khách hàng' : 
+                           user.roleName.toLowerCase() === 'staff' ? 'Nhân viên' : 
+                           user.roleName.toLowerCase() === 'manager' ? 'Quản lý' : 
+                           user.roleName.toLowerCase() === 'admin' ? 'Quản trị viên' : user.roleName}
+                        </span>
+                      </div>
                       <span className={styles.userEmail}>{user.email}</span>
                     </div>
                   </label>
@@ -340,15 +352,38 @@ export function NotificationModal({ open, onOpenChange, notification, notificati
       onSuccess?.();
     } catch (err: unknown) {
       const fallbackMessage = isEditMode ? 'Cập nhật thông báo thất bại' : 'Tạo thông báo thất bại';
-      const message =
-        err instanceof Error
-          ? err.message
-          : typeof err === 'object' &&
-              err !== null &&
-              'message' in err &&
-              typeof (err as { message?: unknown }).message === 'string'
-            ? (err as { message: string }).message
-            : fallbackMessage;
+      let message = fallbackMessage;
+
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (
+        typeof err === 'object' &&
+        err !== null &&
+        'message' in err &&
+        typeof (err as { message?: unknown }).message === 'string'
+      ) {
+        message = (err as { message: string }).message;
+      }
+
+      // Xử lý mapping ID người dùng sang tên trong thông báo lỗi
+      const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+      const foundUuids = message.match(uuidRegex);
+
+      if (foundUuids) {
+        foundUuids.forEach((id) => {
+          const user = accounts.find((u) => u.id.toLowerCase() === id.toLowerCase());
+          if (user) {
+            const name = user.ownerProfile?.fullName || user.username;
+            message = message.replace(id, `"${name}"`);
+          }
+        });
+      }
+
+      // Việt hóa một số lỗi phổ biến từ backend
+      if (message.includes('These receivers are not admin')) {
+        message = message.replace('These receivers are not admin:', 'Người nhận sau không phải là quản trị viên:');
+      }
+
       toast({ title: message, variant: 'error' });
     } finally {
       setIsSubmitting(false);

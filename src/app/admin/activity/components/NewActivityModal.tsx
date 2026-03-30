@@ -32,6 +32,8 @@ type FormErrors = {
   name?: string;
   description?: string;
   duration?: string;
+  activityTypeId?: string;
+  price?: string;
 };
 
 const TARGET_MAP: Record<string | number, number> = {
@@ -174,6 +176,18 @@ export function NewActivityModal({ open, onOpenChange, onSuccess, activityToEdit
       newErrors.name = 'Tên hoạt động không được để trống.';
     }
 
+    if (formData.activityTypeId === undefined || formData.activityTypeId === null) {
+      newErrors.activityTypeId = 'Vui lòng chọn loại hoạt động.';
+    }
+
+    if (formData.duration === undefined || formData.duration === null || formData.duration <= 0) {
+      newErrors.duration = 'Thời lượng phải lớn hơn 0.';
+    }
+
+    if (formData.price !== null && formData.price !== undefined && formData.price < 0) {
+      newErrors.price = 'Giá không thể là số âm.';
+    }
+
     return newErrors;
   };
 
@@ -226,7 +240,13 @@ export function NewActivityModal({ open, onOpenChange, onSuccess, activityToEdit
         errorMessage.toLowerCase().includes('exists') ||
         errorMessage.toLowerCase().includes('duplicate')
       ) {
-        setErrors({ name: 'Tên hoạt động đã tồn tại.' });
+        setErrors({ name: 'Tên hoạt động đã tồn tại trong hệ thống.' });
+      } else if (errorMessage.includes('500') || errorMessage.toLowerCase().includes('entity changes')) {
+        toast({ 
+          title: 'Lỗi hệ thống (500)', 
+          description: 'Hệ thống gặp sự cố khi lưu dữ liệu. Vui lòng kiểm tra lại Loại hoạt động hoặc Tên hoạt động có thể đã bị trùng.',
+          variant: 'error' 
+        });
       } else {
         toast({ title: errorMessage, variant: 'error' });
       }
@@ -276,7 +296,9 @@ export function NewActivityModal({ open, onOpenChange, onSuccess, activityToEdit
                   placeholder="Nhập giá hoạt động"
                   value={formData.price ?? ''}
                   onChange={(e) => handleFieldChange('price', e.target.value ? Number(e.target.value) : null)}
+                  className={errors.price ? styles.invalid : ''}
                 />
+                {errors.price && <p className={styles.errorMessage}>{errors.price}</p>}
               </div>
             </div>
 
@@ -294,6 +316,7 @@ export function NewActivityModal({ open, onOpenChange, onSuccess, activityToEdit
                   }))}
                   placeholder="Chọn loại hoạt động"
                 />
+                {errors.activityTypeId && <p className={styles.errorMessage}>{errors.activityTypeId}</p>}
               </div>
 
               <div className={styles.formGroup}>

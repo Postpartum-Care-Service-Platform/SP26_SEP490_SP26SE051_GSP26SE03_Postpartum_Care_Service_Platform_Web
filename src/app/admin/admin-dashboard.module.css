@@ -2,6 +2,20 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 32px;
+  min-height: 0;
+
+  /* Ẩn thanh cuộn nhưng vẫn cho phép cuộn */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE và Edge */
+}
+
+/* Ẩn thanh cuộn cho Chrome, Safari và Opera */
+.pageContainer::-webkit-scrollbar {
+  display: none;
 }
 
 .loading {

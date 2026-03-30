@@ -1,10 +1,15 @@
 'use client';
 
 import { Cross1Icon } from '@radix-ui/react-icons';
-import { forwardRef, useEffect, useState } from 'react';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { forwardRef, useEffect, useState, useMemo } from 'react';
+import { format } from 'date-fns';
+import { vi } from 'date-fns/locale';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import { CustomDropdown } from '@/components/ui/custom-dropdown';
+import { DatePicker } from '@/app/admin/work-schedule/components/DatePicker';
+import { cn } from '@/lib/utils';
 import activityService from '@/services/activity.service';
 import carePlanDetailService from '@/services/care-plan-detail.service';
 import packageService from '@/services/package.service';
@@ -29,6 +34,7 @@ const INITIAL_FORM_DATA: CreateCarePlanDetailRequest = {
   endTime: '10:00',
   instruction: '',
   sortOrder: 0,
+  homeServiceDate: '',
 };
 
 type FormErrors = {
@@ -39,6 +45,7 @@ type FormErrors = {
   endTime?: string;
   instruction?: string;
   sortOrder?: string;
+  homeServiceDate?: string;
 };
 
 const CustomInput = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
@@ -61,6 +68,76 @@ const CustomSelect = forwardRef<HTMLSelectElement, React.SelectHTMLAttributes<HT
   }
 );
 CustomSelect.displayName = 'CustomSelect';
+
+const CustomDatePicker = ({
+  label,
+  value,
+  onChange,
+  required,
+  error
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  required?: boolean;
+  error?: string;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  const dateValue = useMemo(() => {
+    if (!value) return null;
+    const [y, m, d] = value.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }, [value]);
+
+  const displayValue = useMemo(() => {
+    if (!dateValue) return 'Chọn ngày...';
+    return format(dateValue, 'dd/MM/yyyy');
+  }, [dateValue]);
+
+  return (
+    <div className={styles.formGroup}>
+      <label>{label} {required && <span className={styles.required}>*</span>}</label>
+      <div className={styles.datePickerRelative}>
+        <div
+          className={cn(styles.dateTrigger, open && styles.dateTriggerOpen, error && styles.invalid)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen(!open);
+          }}
+        >
+          <CalendarIcon size={16} className={styles.dateIcon} />
+          <span className={cn(styles.dateText, !value && styles.placeholder)}>
+            {displayValue}
+          </span>
+        </div>
+
+        {open && (
+          <div className={styles.sharedDatePickerWrapper}>
+            <DatePicker
+              value={dateValue}
+              title=""
+              side="bottom"
+              onChange={(d) => {
+                if (d) {
+                  const y = d.getFullYear();
+                  const m = String(d.getMonth() + 1).padStart(2, '0');
+                  const day = String(d.getDate()).padStart(2, '0');
+                  onChange(`${y}-${m}-${day}`);
+                } else {
+                  onChange('');
+                }
+                setOpen(false);
+              }}
+              onClose={() => setOpen(false)}
+            />
+          </div>
+        )}
+      </div>
+      {error && <p className={styles.errorMessage}>{error}</p>}
+    </div>
+  );
+};
 
 export function NewCarePlanDetailModal({ open, onOpenChange, onSuccess, carePlanDetailToEdit }: Props) {
   const { toast } = useToast();
@@ -100,6 +177,7 @@ export function NewCarePlanDetailModal({ open, onOpenChange, onSuccess, carePlan
           endTime: carePlanDetailToEdit.endTime,
           instruction: carePlanDetailToEdit.instruction,
           sortOrder: carePlanDetailToEdit.sortOrder,
+          homeServiceDate: carePlanDetailToEdit.homeServiceDate || '',
         });
       } else {
         setFormData(INITIAL_FORM_DATA);
@@ -167,11 +245,12 @@ export function NewCarePlanDetailModal({ open, onOpenChange, onSuccess, carePlan
           endTime: formData.endTime,
           instruction: formData.instruction,
           sortOrder: formData.sortOrder,
+          homeServiceDate: formData.homeServiceDate || null,
         };
         await carePlanDetailService.updateCarePlanDetail(carePlanDetailToEdit.id, updatePayload);
         toast({ title: 'Cập nhật chi tiết kế hoạch chăm sóc thành công', variant: 'success' });
       } else {
-        await carePlanDetailService.createCarePlanDetail(formData);
+        await carePlanDetailService.createCarePlanDetail([formData]);
         toast({ title: 'Tạo chi tiết kế hoạch chăm sóc thành công', variant: 'success' });
       }
 
@@ -274,6 +353,13 @@ export function NewCarePlanDetailModal({ open, onOpenChange, onSuccess, carePlan
                 />
                 {errors.dayNo && <p className={styles.errorMessage}>{errors.dayNo}</p>}
               </div>
+
+                <CustomDatePicker
+                  label="Ngày thực hiện"
+                  value={formData.homeServiceDate || ''}
+                  onChange={(v) => handleFieldChange('homeServiceDate', v)}
+                  error={errors.homeServiceDate}
+                />
             </div>
 
             <div className={styles.formGrid}>

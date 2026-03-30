@@ -13,35 +13,55 @@
 }
 
 .search {
-  position: relative;
-  width: 200px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(9, 30, 66, 0.14);
+  border-radius: 4px;
+  padding: 6px 10px;
+  background: #fff;
+  width: 240px;
+}
+
+.search:focus-within {
+  border-color: #ed8936;
+  border-width: 2px;
+  padding: 5px 9px;
 }
 
 .searchIcon {
-  position: absolute;
-  left: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #626f86;
-  display: flex;
-  align-items: center;
+  color: #6b778c;
+  display: inline-flex;
 }
 
 .searchInput {
-  width: 100%;
-  height: 32px;
-  padding: 0 8px 0 32px;
-  border: 1px solid #dfe1e6;
-  border-radius: 3px;
-  font-size: 14px;
+  border: none;
   outline: none;
-  background: #fff;
+  font-size: 14px;
+  width: 100%;
   color: #172b4d;
+  background: transparent;
 }
 
 .searchInput:focus {
-  border-color: #4c9aff;
-  box-shadow: 0 0 0 1px #4c9aff;
+  outline: none;
+}
+
+.popoverContent {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #dfe1e6;
+  z-index: 1000;
+}
+
+.tooltip {
+  background: #172b4d;
+  color: #fff;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 12px;
+  z-index: 10001;
 }
 
 .avatars {
@@ -51,23 +71,79 @@
 }
 
 .avatar {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 2px solid #fff;
-  background: #ebecf0;
+  background: #EBECF0;
+  color: #42526E;
+  font-size: 11px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: 600;
-  color: #42526e;
-  margin-left: -6px;
   cursor: pointer;
+  padding: 0;
+  margin-left: -6px;
+  position: relative;
+  transition: transform 0.1s;
+  outline: none;
+}
+
+.avatar:focus {
+  outline: none;
 }
 
 .avatar:first-child {
   margin-left: 0;
+}
+
+.avatar:hover {
+  z-index: 10;
+}
+
+.avatarActive {
+  border-color: #fff !important;
+  box-shadow: 0 0 0 2px #ed8936;
+  z-index: 11;
+}
+
+.avatarCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  border: 1px solid #fff;
+  margin-right: 6px;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarMore {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f4f5f7;
+  color: #6b778c;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -6px;
+  border: 2px solid #fff;
+  z-index: 1;
 }
 
 .avatarVT {
@@ -75,10 +151,6 @@
   color: #fff;
 }
 
-.avatarActive {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #0c66e4;
-  z-index: 2;
-}
 
 .filterBtn {
   display: flex;
@@ -94,8 +166,113 @@
   cursor: pointer;
 }
 
-.filterBtn:hover {
+.statusWrap {
+  position: relative;
+}
+
+.filterBtnActive {
   background: #f4f5f7;
+  border-color: #ed8936 !important;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 280px;
+  background: #fff;
+  border: 1px solid #dfe1e6;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  padding: 12px 0;
+}
+
+.dropdownSearch {
+  padding: 0 12px 12px;
+  position: relative;
+}
+
+.dropdownInput {
+  width: 100%;
+  height: 36px;
+  padding: 0 8px 0 32px;
+  border: 2px solid #ed8936; /* Orange focus in image */
+  border-radius: 4px;
+  outline: none;
+  font-size: 14px;
+}
+
+.dropdownSearchIcon {
+  position: absolute;
+  left: 20px;
+  top: 10px;
+  color: #626f86;
+}
+
+.dropdownList {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdownItem:hover {
+  background: #f4f5f7;
+}
+
+.dropdownItem input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.checkText {
+  font-size: 13px;
+  font-weight: 700;
+  color: #172b4d;
+}
+
+.badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badgeScheduled {
+  background: #deebff;
+  color: #0747a6;
+}
+
+.badgeCompleted {
+  background: #e3fcef;
+  color: #006644;
+}
+
+.badgeMissed {
+  background: #ffebe6;
+  color: #bf2600;
+}
+
+.badgeCancelled {
+  background: #ffebe6;
+  color: #bf2600;
+}
+
+.dropdownFooter {
+  padding: 12px 12px 0;
+  margin-top: 8px;
+  border-top: 1px solid #dfe1e6;
+  font-size: 14px;
+  color: #626f86;
+  text-align: right;
 }
 
 .right {

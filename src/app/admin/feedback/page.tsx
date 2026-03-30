@@ -381,13 +381,6 @@ export default function AdminFeedbackPage() {
                         </td>
                         <td className={styles.stickyActionsCol}>
                           <div className={styles.actions}>
-                            <div className={styles.tooltipWrapper}>
-                              <button className={`${styles.actionButton} ${styles.viewButton}`}
-                                onClick={() => handleView(item)}>
-                                <EyeIcon size={16} />
-                              </button>
-                                <span className={styles.tooltip}>Xem chi tiết</span>
-                            </div>
                             {!item.isDeleted ? (
                               <div className={styles.tooltipWrapper}>
                                 <button className={`${styles.actionButton} ${styles.deleteButton}`}

@@ -93,7 +93,7 @@ export function FoodTable({ foods, onEdit, onDelete, deletingId, currentPage, pa
                       <span className={styles.tooltip}>{food.name}</span>
                     </div>
                   </td>
-                  <td>{food.foodType || food.type}</td>
+                  <td>{food.foodType || '-'}</td>
                   <td className={styles.instructionCell}>
                     {food.description ? (
                       <div className={styles.tooltipWrapper}>

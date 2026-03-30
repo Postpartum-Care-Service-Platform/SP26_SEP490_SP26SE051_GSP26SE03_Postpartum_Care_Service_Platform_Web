@@ -14,7 +14,8 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-width: 500px;
-  overflow: hidden;
+  /* Remove overflow: hidden to prevent clipping the DatePicker */
+  overflow: visible;
 }
 
 .modalHeader {
@@ -49,6 +50,7 @@
 
 .modalBody {
   padding: 16px 16px 0;
+  overflow: visible;
 }
 
 .formGroup {
@@ -162,4 +164,69 @@
 .buttonOutline:hover:not(:disabled) {
   background-color: #f8f9fa;
   color: #343a40;
+}
+
+.datePickerRelative {
+  position: relative;
+  width: 100%;
+}
+
+.dateTrigger {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  background-color: #fff !important; /* Force white for new design */
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0 12px;
+  height: 40px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dateTrigger:hover {
+  border-color: #fa8314;
+}
+
+.dateTriggerOpen {
+  border-color: #fa8314;
+  box-shadow: 0 0 0 3px rgba(250, 131, 20, 0.1);
+}
+
+.dateTrigger svg {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.dateText {
+  font-size: 13.5px;
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.placeholder {
+  color: #94a3b8 !important;
+}
+
+.sharedDatePickerWrapper {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10001; /* Higher than footer and modal parts */
+  margin-top: 8px;
+}
+
+/* Global DatePicker Overrides for this modal */
+.sharedDatePickerWrapper :global([class*="datePickerPopup"]) {
+  position: relative !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #fff !important;
+}
+
+.sharedDatePickerWrapper :global([class*="closeBtn"]),
+.sharedDatePickerWrapper :global([class*="title"]),
+.sharedDatePickerWrapper :global([class*="inputWrapper"]) {
+  display: none !important;
 }

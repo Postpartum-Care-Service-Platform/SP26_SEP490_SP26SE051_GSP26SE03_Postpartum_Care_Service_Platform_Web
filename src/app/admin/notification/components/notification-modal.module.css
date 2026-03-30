@@ -332,6 +332,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
+  overflow: hidden; /* Ensure image fits circle */
   background-color: #f1f3f5;
   display: flex;
   align-items: center;
@@ -357,7 +358,24 @@
   font-size: 14px;
   font-weight: 500;
   color: #292A2E;
-  font-family: "Atlassian Sans", ui-sans-serif, -apple-system, sans-serif !important;
+  font-family: inherit !important;
+}
+
+.userRoleBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  background-color: #fa8314;
+  color: #ffffff !important; /* Force white text */
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  margin-left: 8px;
+  text-transform: capitalize;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .userEmail {

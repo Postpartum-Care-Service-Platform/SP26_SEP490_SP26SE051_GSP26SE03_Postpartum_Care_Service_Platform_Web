@@ -78,7 +78,7 @@ const formatDate = (dateString: string | null | undefined) => {
 };
 
 export function ContractList({ contracts, selectedContractId, onSelectContract, onEdit, onDelete }: Props) {
-  const [previewContract, setPreviewContract] = useState<{ code: string; fileUrl: string | null } | null>(null);
+  const [previewContract, setPreviewContract] = useState<{ id: number; code: string; fileUrl: string | null } | null>(null);
 
   const handleRowClick = (contract: Contract, e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.' + styles.actions)) return;
@@ -151,7 +151,7 @@ export function ContractList({ contracts, selectedContractId, onSelectContract, 
                       className={styles.fileLink}
                       onClick={(e) => {
                         e.stopPropagation();
-                        setPreviewContract({ code: contract.contractCode, fileUrl: contract.fileUrl });
+                        setPreviewContract({ id: contract.id, code: contract.contractCode, fileUrl: contract.fileUrl });
                       }}
                       title="Xem file hợp đồng"
                     >
@@ -180,7 +180,7 @@ export function ContractList({ contracts, selectedContractId, onSelectContract, 
                         className={`${styles.actionButton} ${styles.viewButton}`}
                         onClick={() => {
                           if (contract.fileUrl) {
-                            setPreviewContract({ code: contract.contractCode, fileUrl: contract.fileUrl });
+                            setPreviewContract({ id: contract.id, code: contract.contractCode, fileUrl: contract.fileUrl });
                           }
                         }}
                         aria-label={`Xem tài liệu ${contract.contractCode}`}

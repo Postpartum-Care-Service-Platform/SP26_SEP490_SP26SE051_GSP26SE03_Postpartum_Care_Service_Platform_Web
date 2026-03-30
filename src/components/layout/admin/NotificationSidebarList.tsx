@@ -90,10 +90,6 @@ export function NotificationSidebarList() {
             <div className={styles.content}>
               <div className={styles.title}>{notification.title}</div>
               {notification.content && <div className={styles.contentText}>{notification.content}</div>}
-              <div className={styles.time}>
-                <Clock size={13} />
-                <span>{formatTime(notification.createdAt)}</span>
-              </div>
             </div>
           </div>
         );

@@ -70,22 +70,45 @@
   background: #172b4d;
   color: #fff;
   border-radius: 4px;
-  padding: 8px 10px;
+  padding: 8px 12px;
   font-size: 12px;
-  line-height: 1.4;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  max-width: 260px;
+  max-width: 280px;
+}
+
+.tooltipHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
 }
 
 .tooltipTitle {
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 0;
+  flex: 1;
 }
 
-.tooltipLine {
+.tooltipStatusBadge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.tooltipCode {
   font-size: 11px;
-  opacity: 0.95;
+  opacity: 0.9;
+  margin-bottom: 2px;
+}
+
+.tooltipTime {
+  font-size: 11px;
+  opacity: 0.8;
 }
 
 .tooltipArrow {

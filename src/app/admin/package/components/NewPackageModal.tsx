@@ -1,7 +1,8 @@
 'use client';
 
 import { Cross1Icon, ChevronDownIcon } from '@radix-ui/react-icons';
-import { useState, useEffect, forwardRef } from 'react';
+import { Upload } from 'lucide-react';
+import { useState, useEffect, forwardRef, useRef } from 'react';
 
 import {
   DropdownMenu,
@@ -64,6 +65,9 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
   const [packageTypes, setPackageTypes] = useState<PackageType[]>([]);
   const [packageTypeId, setPackageTypeId] = useState<number | ''>('');
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchTypes = async () => {
@@ -79,6 +83,43 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
     }
   }, [open]);
 
+  const handleFileSelect = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast({ title: 'Vui lòng chọn tệp hình ảnh (.jpg, .png, .webp)', variant: 'error' });
+      return;
+    }
+
+    setImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImageUrl(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const onDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const onDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelect(file);
+  };
+
+  const removeImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setImageFile(null);
+    setImageUrl(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   useEffect(() => {
     if (open) {
       if (packageToEdit) {
@@ -90,9 +131,11 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
           isActive: packageToEdit.isActive,
         });
         setPackageTypeId(packageToEdit.packageTypeId ?? '');
+        setImageUrl(packageToEdit.imageUrl || null);
       } else {
         setFormData(INITIAL_FORM_DATA);
         setPackageTypeId('');
+        setImageUrl(null);
       }
       setImageFile(null);
       setErrors({});
@@ -149,6 +192,7 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
           basePrice: formData.basePrice,
           packageTypeId: packageTypeId === '' ? undefined : Number(packageTypeId),
           isActive: formData.isActive,
+          image: imageFile || undefined,
         };
         await packageService.updatePackage(packageToEdit.id, updatePayload);
         toast({ title: 'Cập nhật gói dịch vụ thành công', variant: 'success' });
@@ -160,6 +204,7 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
           basePrice: formData.basePrice,
           isActive: formData.isActive,
           packageTypeId: packageTypeId === '' ? undefined : Number(packageTypeId),
+          image: imageFile || undefined,
         };
         await packageService.createPackage(createPayload);
         toast({ title: 'Tạo gói dịch vụ thành công', variant: 'success' });
@@ -240,7 +285,7 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
                       <span className={packageTypeId === '' ? styles.dropdownPlaceholder : styles.dropdownValue}>
                         {packageTypeId === ''
                           ? 'Chọn loại gói'
-                          : packageTypes.find((opt) => opt.id === packageTypeId)?.name}
+                          : packageTypes.find((opt) => opt.id === packageTypeId)?.typeName}
                       </span>
                       <ChevronDownIcon className={styles.dropdownChevron} />
                     </button>
@@ -257,7 +302,7 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
                           }
                         }}
                       >
-                        {opt.name}
+                        {opt.typeName}
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -297,24 +342,38 @@ export function NewPackageModal({ open, onOpenChange, onSuccess, packageToEdit }
             </div>
 
             <div className={`${styles.formGroup} ${styles.fullWidth}`}>
-              <label htmlFor="packageImage">Hình ảnh gói dịch vụ</label>
-              <div className={styles.fileInputWrapper}>
-                <label htmlFor="packageImage" className={styles.fileInputLabel}>
-                  Chọn ảnh...
-                </label>
-                <input
-                  id="packageImage"
-                  type="file"
-                  accept="image/*"
-                  className={styles.fileInput}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    setImageFile(file ?? null);
-                  }}
-                />
-                <span className={styles.fileInputText}>
-                  {imageFile?.name ?? 'Chưa chọn ảnh nào'}
-                </span>
+              <label className={styles.uploadLabel}>Hình ảnh gói dịch vụ</label>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className={styles.hiddenInput}
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileSelect(file);
+                }}
+              />
+              <div
+                className={`${styles.imageUploadZone} ${isDragging ? styles.dragging : ''}`}
+                onDragOver={onDragOver}
+                onDragLeave={onDragLeave}
+                onDrop={onDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {imageUrl ? (
+                  <div className={styles.previewContainer}>
+                    <img src={imageUrl} alt="Preview" className={styles.imagePreview} />
+                    <button type="button" className={styles.removeImage} onClick={removeImage}>
+                      <Cross1Icon />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className={styles.uploadIcon} />
+                    <span className={styles.uploadText}>Kéo thả ảnh vào đây hoặc click để chọn</span>
+                    <span className={styles.uploadHint}>Hỗ trợ: JPG, PNG, WEBP (Tối đa 5MB)</span>
+                  </>
+                )}
               </div>
             </div>
 
