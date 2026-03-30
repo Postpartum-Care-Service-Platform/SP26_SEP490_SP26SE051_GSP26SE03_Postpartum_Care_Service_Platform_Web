@@ -6,14 +6,15 @@ import {
   User, 
   Activity, 
 } from 'lucide-react';
+import Image from 'next/image';
 import React, { useState } from 'react';
 
 import type { Account, CustomerDetail } from '@/types/account';
 import type { FamilyProfile } from '@/types/family-profile';
 
-import styles from './account-details-dashboard.module.css';
-
 import { FamilyMembersList } from './FamilyMembersList';
+
+import styles from './account-details-dashboard.module.css';
 
 interface AccountDetailsDashboardProps {
   familyProfiles: FamilyProfile[];
@@ -23,8 +24,8 @@ interface AccountDetailsDashboardProps {
 
 export const AccountDetailsDashboard: React.FC<AccountDetailsDashboardProps> = ({ 
   familyProfiles, 
-  account,
-  customerDetail
+  account: _account,
+  customerDetail: _customerDetail
 }) => {
   const [activeTab, setActiveTab] = useState('profile');
 
@@ -88,9 +89,9 @@ export const AccountDetailsDashboard: React.FC<AccountDetailsDashboardProps> = (
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Nhân viên phụ trách</span>
                   <div className={styles.assignedContainer}>
-                    <img src="/avatar-1.jpg" alt="Assignee" className={styles.assigneeAvatar} />
-                    <img src="/avatar-2.jpg" alt="Assignee" className={styles.assigneeAvatar} />
-                    <img src="/avatar-3.jpg" alt="Assignee" className={styles.assigneeAvatar} />
+                    <Image src="/avatar-1.jpg" alt="Assignee" width={24} height={24} className={styles.assigneeAvatar} unoptimized />
+                    <Image src="/avatar-2.jpg" alt="Assignee" width={24} height={24} className={styles.assigneeAvatar} unoptimized />
+                    <Image src="/avatar-3.jpg" alt="Assignee" width={24} height={24} className={styles.assigneeAvatar} unoptimized />
                   </div>
                 </div>
               </div>
@@ -111,7 +112,7 @@ export const AccountDetailsDashboard: React.FC<AccountDetailsDashboardProps> = (
 
               <div className={styles.notesList}>
                 <div className={styles.noteItem}>
-                  <img src="/avatar-staff.jpg" alt="Maria Kelly" className={styles.noteAvatar} />
+                  <Image src="/avatar-staff.jpg" alt="Maria Kelly" width={32} height={32} className={styles.noteAvatar} unoptimized />
                   <div className={styles.noteBody}>
                     <div className={styles.noteHeader}>
                       <h5 className={styles.noteAuthor}>Bác sĩ Maria Kelly</h5>

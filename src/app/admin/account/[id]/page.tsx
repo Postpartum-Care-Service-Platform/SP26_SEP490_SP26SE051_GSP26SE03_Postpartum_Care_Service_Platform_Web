@@ -6,15 +6,16 @@ import React from 'react';
 import familyProfileService from '@/services/family-profile.service';
 import userService from '@/services/user.service';
 
-import styles from './account-overview.module.css';
+import type { Account, CustomerDetail } from '@/types/account';
+import type { FamilyProfile } from '@/types/family-profile';
+
 import { AccountDetailsDashboard } from './components/AccountDetailsDashboard';
 import { AccountOverviewHeader } from './components/AccountOverviewHeader';
-import { UserProfileCard } from './components/UserProfileCard';
-import { TransactionHistory } from './components/TransactionHistory';
 import { AccountScheduleTab } from './components/AccountScheduleTab';
+import { TransactionHistory } from './components/TransactionHistory';
+import { UserProfileCard } from './components/UserProfileCard';
 
-import type { FamilyProfile } from '@/types/family-profile';
-import type { Account, CustomerDetail } from '@/types/account';
+import styles from './account-overview.module.css';
 
 interface AccountOverviewData {
   familyProfiles: FamilyProfile[];
