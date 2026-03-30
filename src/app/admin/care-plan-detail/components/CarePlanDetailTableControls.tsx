@@ -20,8 +20,8 @@ type Props = {
 };
 
 const SORT_OPTIONS = [
-  { value: 'createdAt-desc', label: 'Ngày tạo: mới nhất' },
-  { value: 'createdAt-asc', label: 'Ngày tạo: cũ nhất' },
+  { value: 'createdAt-desc', label: 'Mới nhất' },
+  { value: 'createdAt-asc', label: 'Cũ nhất' },
   { value: 'dayNo-asc', label: 'Ngày: tăng dần' },
   { value: 'dayNo-desc', label: 'Ngày: giảm dần' },
   { value: 'packageName-asc', label: 'Tên gói A-Z' },
@@ -52,7 +52,7 @@ export function CarePlanDetailTableControls({ onSearch, onSortChange, onNewCareP
           <MagnifyingGlassIcon className={styles.searchIcon} />
           <input
             type="text"
-            placeholder="Tìm kiếm chi tiết kế hoạch chăm sóc..."
+            placeholder="Tìm kiếm hoạt động..."
             className={styles.searchInput}
             value={searchQuery}
             onChange={handleSearchChange}
@@ -84,7 +84,7 @@ export function CarePlanDetailTableControls({ onSearch, onSortChange, onNewCareP
       <div className={styles.right}>
         <Button variant="primary" size="sm" className={styles.newCarePlanDetailButton} onClick={onNewCarePlanDetail}>
           <PlusIcon className={styles.plusIcon} />
-          Chi tiết mới
+          Hoạt động mới
         </Button>
       </div>
     </div>

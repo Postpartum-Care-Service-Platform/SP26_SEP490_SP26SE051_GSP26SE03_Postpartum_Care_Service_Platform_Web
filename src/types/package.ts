@@ -23,6 +23,7 @@ export type CreatePackageRequest = {
   basePrice: number;
   packageTypeId?: number;
   isActive?: boolean;
+  image?: File;
 };
 
 export type UpdatePackageRequest = {
@@ -32,4 +33,5 @@ export type UpdatePackageRequest = {
   basePrice?: number;
   packageTypeId?: number;
   isActive?: boolean;
+  image?: File;
 };

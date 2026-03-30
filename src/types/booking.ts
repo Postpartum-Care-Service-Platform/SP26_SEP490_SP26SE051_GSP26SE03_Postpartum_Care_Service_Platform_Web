@@ -1,18 +1,48 @@
+export interface BookingCustomer {
+  id: string;
+  email: string;
+  username: string;
+  phone: string;
+}
+
+export interface BookingPackage {
+  id: number;
+  packageName: string;
+  durationDays: number;
+  basePrice: number;
+  roomTypeName: string;
+}
+
+export interface BookingContract {
+  id: number;
+  contractCode: string;
+  status: string;
+  fileUrl: string | null;
+}
+
+export interface TargetBooking {
+  id: number;
+  familyProfileId: number;
+  fullName: string;
+  relationship: string | null;
+}
+
 export interface Booking {
   id: number;
-  customerId: string;
-  packageId: number;
-  packageName?: string;
-  roomTypeId: number;
-  roomTypeName?: string;
   startDate: string;
   endDate: string;
   totalPrice: number;
-  depositAmount: number;
+  discountAmount? : number;
+  finalAmount? : number;
+  paidAmount? : number;
+  remainingAmount? : number;
   status: string;
-  notes?: string;
+  bookingDate: string;
   createdAt: string;
-  updatedAt: string;
+  customer: BookingCustomer;
+  package: BookingPackage;
+  contract: BookingContract;
+  targetBookings: TargetBooking[];
 }
 
 export interface CreateBookingRequest {

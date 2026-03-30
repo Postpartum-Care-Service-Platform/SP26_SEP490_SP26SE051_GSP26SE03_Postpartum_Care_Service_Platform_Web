@@ -1,6 +1,6 @@
 'use client';
 
-import { addMonths, format, isSameDay, isSameMonth, startOfMonth, startOfWeek, endOfMonth, endOfWeek, eachDayOfInterval, subMonths } from 'date-fns';
+import { addMonths, format, isSameDay, isSameMonth, startOfMonth, startOfWeek, endOfMonth, endOfWeek, eachDayOfInterval, subMonths, addDays, isWithinInterval } from 'date-fns';
 import React from 'react';
 
 import styles from './mini-calendar.module.css';
@@ -11,11 +11,18 @@ interface MiniCalendarProps {
   selectedDate?: Date;
   onDateSelect?: (date: Date) => void;
   currentMonth?: Date;
+  viewMode?: 'Month' | 'Week' | 'Day';
 }
 
-export function MiniCalendar({ selectedDate = new Date(), onDateSelect, currentMonth: externalMonth }: MiniCalendarProps) {
+export function MiniCalendar({ 
+  selectedDate = new Date(), 
+  onDateSelect, 
+  currentMonth: externalMonth,
+  viewMode = 'Month'
+}: MiniCalendarProps) {
   const [internalMonth, setInternalMonth] = React.useState(() => startOfMonth(selectedDate));
   const [selected, setSelected] = React.useState<Date>(selectedDate);
+  const [hoveredDate, setHoveredDate] = React.useState<Date | null>(null);
 
   // Use external month if provided, otherwise use internal state
   const currentMonth = externalMonth || internalMonth;
@@ -29,12 +36,19 @@ export function MiniCalendar({ selectedDate = new Date(), onDateSelect, currentM
     }
   }, [selectedDate, externalMonth]);
 
-  const days = React.useMemo(() => {
+  const weeks = React.useMemo(() => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(monthStart);
-    const calStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-    const calEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
-    return eachDayOfInterval({ start: calStart, end: calEnd });
+    // Use Sunday as start of week to match day labels
+    const calStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+    const calEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+    const allDays = eachDayOfInterval({ start: calStart, end: calEnd });
+    
+    const weekGroups = [];
+    for (let i = 0; i < allDays.length; i += 7) {
+      weekGroups.push(allDays.slice(i, i + 7));
+    }
+    return weekGroups;
   }, [currentMonth]);
 
   const handleDateClick = (date: Date) => {
@@ -59,9 +73,62 @@ export function MiniCalendar({ selectedDate = new Date(), onDateSelect, currentM
   const monthLabel = React.useMemo(() => {
     const month = currentMonth.getMonth();
     const year = currentMonth.getFullYear();
-    const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+    const monthNames = [
+      'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 
+      'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'
+    ];
     return `${monthNames[month]} ${year}`;
   }, [currentMonth]);
+
+  const isHighlighted = (day: Date) => {
+    if (!hoveredDate) return false;
+
+    if (viewMode === 'Week' || viewMode === 'Day') {
+      const weekStart = startOfWeek(hoveredDate, { weekStartsOn: 0 });
+      const weekEnd = endOfWeek(hoveredDate, { weekStartsOn: 0 });
+      return isWithinInterval(day, { start: weekStart, end: weekEnd });
+    }
+
+    return isSameDay(day, hoveredDate);
+  };
+
+  const getDayRangeClasses = (day: Date) => {
+    if (!hoveredDate || !isHighlighted(day)) return '';
+
+    let isStart = false;
+    let isEnd = false;
+
+    if (viewMode === 'Week' || viewMode === 'Day') {
+      const weekStart = startOfWeek(hoveredDate, { weekStartsOn: 0 });
+      const weekEnd = endOfWeek(hoveredDate, { weekStartsOn: 0 });
+      isStart = isSameDay(day, weekStart);
+      isEnd = isSameDay(day, weekEnd);
+    } else {
+      isStart = true;
+      isEnd = true;
+    }
+
+    return `${styles.hovered} ${isStart ? styles.rangeStart : ''} ${isEnd ? styles.rangeEnd : ''}`;
+  };
+
+  const getDaySelectedRangeClasses = (day: Date) => {
+    let isStart = false;
+    let isEnd = false;
+
+    if (viewMode === 'Week' || viewMode === 'Day') {
+      const weekStart = startOfWeek(selected, { weekStartsOn: 0 });
+      const weekEnd = endOfWeek(selected, { weekStartsOn: 0 });
+      if (!isWithinInterval(day, { start: weekStart, end: weekEnd })) return '';
+      isStart = isSameDay(day, weekStart);
+      isEnd = isSameDay(day, weekEnd);
+    } else {
+      if (!isSameDay(day, selected)) return '';
+      isStart = true;
+      isEnd = true;
+    }
+
+    return `${styles.selectedRange} ${isStart ? styles.rangeStart : ''} ${isEnd ? styles.rangeEnd : ''}`;
+  };
 
   return (
     <div className={styles.container}>
@@ -90,22 +157,30 @@ export function MiniCalendar({ selectedDate = new Date(), onDateSelect, currentM
       </div>
 
       <div className={styles.daysGrid}>
-        {days.map((day) => {
-          const isCurrentMonth = isSameMonth(day, currentMonth);
-          const isSelected = isSameDay(day, selected);
-          const isToday = isSameDay(day, new Date());
+        {weeks.map((week, weekIdx) => (
+          <div key={weekIdx} className={styles.weekRow}>
+            {week.map((day) => {
+              const isCurrentMonth = isSameMonth(day, currentMonth);
+              const isToday = isSameDay(day, new Date());
+              const isSelected = isSameDay(day, selected);
 
-          return (
-            <button
-              key={day.toISOString()}
-              type="button"
-              className={`${styles.dayCell} ${!isCurrentMonth ? styles.outside : ''} ${isSelected ? styles.selected : ''} ${isToday ? styles.today : ''}`}
-              onClick={() => handleDateClick(day)}
-            >
-              {format(day, 'd')}
-            </button>
-          );
-        })}
+              return (
+                <button
+                  key={day.toISOString()}
+                  type="button"
+                  className={`${styles.dayCell} ${!isCurrentMonth ? styles.outside : ''} ${isToday ? styles.today : ''} ${getDaySelectedRangeClasses(day)} ${getDayRangeClasses(day)}`}
+                  onClick={() => handleDateClick(day)}
+                  onMouseEnter={() => setHoveredDate(day)}
+                  onMouseLeave={() => setHoveredDate(null)}
+                >
+                  <span className={`${styles.dayNumber} ${isSelected ? styles.selected : ''}`}>
+                    {format(day, 'd')}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );

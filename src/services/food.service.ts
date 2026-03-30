@@ -12,11 +12,38 @@ const foodService = {
   },
 
   createFood: (data: CreateFoodRequest): Promise<Food> => {
-    return apiClient.post('/Food', data);
+    const formData = new FormData();
+    formData.append('Name', data.Name);
+    formData.append('FoodTypeId', String(data.FoodTypeId));
+    formData.append('Description', data.Description);
+    if (data.Image) {
+      formData.append('Image', data.Image);
+    }
+    if (data.IsActive !== undefined) {
+      formData.append('IsActive', String(data.IsActive));
+    }
+
+    return apiClient.post('/Food', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
   },
 
   updateFood: (id: number, data: UpdateFoodRequest): Promise<Food> => {
-    return apiClient.put(`/Food/${id}`, data);
+    const formData = new FormData();
+    formData.append('Id', String(data.Id));
+    if (data.Name) formData.append('Name', data.Name);
+    if (data.FoodTypeId) formData.append('FoodTypeId', String(data.FoodTypeId));
+    if (data.Description) formData.append('Description', data.Description);
+    if (data.Image) {
+      formData.append('Image', data.Image);
+    }
+    if (data.IsActive !== undefined) {
+      formData.append('IsActive', String(data.IsActive));
+    }
+
+    return apiClient.put(`/Food/${id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
   },
 
   deleteFood: (id: number): Promise<void> => {

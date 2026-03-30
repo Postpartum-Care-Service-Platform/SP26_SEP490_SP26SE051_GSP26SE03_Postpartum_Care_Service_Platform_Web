@@ -1,6 +1,11 @@
 .pageContainer {
-  padding: var(--spacing-md);
+  /* padding: var(--spacing-md); */
+  height: calc(100vh - 68px); /* 68px is the header height */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
+
 
 
 .loading,

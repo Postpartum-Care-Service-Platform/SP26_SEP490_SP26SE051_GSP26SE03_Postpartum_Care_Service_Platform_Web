@@ -5,15 +5,19 @@ import { useEffect, useMemo, useState } from 'react';
 import { useToast } from '@/components/ui/toast/use-toast';
 import menuRecordService from '@/services/menu-record.service';
 import type { MenuRecord } from '@/types/menu-record';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { Pagination } from '@/components/ui/pagination';
+import userService from '@/services/user.service';
+import menuService from '@/services/menu.service';
+import type { Account } from '@/types/account';
+import type { Menu } from '@/types/menu';
 
 import { NewMenuRecordModal, MenuRecordTable, MenuRecordTableControls } from './components';
 import { MenuRecordListHeader } from './components/MenuRecordListHeader';
 import styles from './menu-record.module.css';
 
-
 const getErrorMessage = (error: unknown, fallbackMessage: string) => {
   if (error instanceof Error && error.message) return error.message;
-  if (typeof error === 'string' && error.trim()) return error;
   return fallbackMessage;
 };
 
@@ -25,9 +29,9 @@ const sortMenuRecords = (items: MenuRecord[], sort: string) => {
     case 'createdAt-desc':
       return arr.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     case 'name-asc':
-      return arr.sort((a, b) => a.name.localeCompare(b.name));
+      return arr.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     case 'name-desc':
-      return arr.sort((a, b) => b.name.localeCompare(a.name));
+      return arr.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
     case 'date-asc':
       return arr.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     case 'date-desc':
@@ -40,6 +44,8 @@ const sortMenuRecords = (items: MenuRecord[], sort: string) => {
 export default function AdminMenuRecordPage() {
   const { toast } = useToast();
   const [menuRecords, setMenuRecords] = useState<MenuRecord[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [menus, setMenus] = useState<Menu[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,8 +63,14 @@ export default function AdminMenuRecordPage() {
     try {
       setLoading(true);
       setError(null);
-      const data = await menuRecordService.getAllMenuRecords();
-      setMenuRecords(data);
+      const [recordsData, accountsData, menusData] = await Promise.all([
+        menuRecordService.getAllMenuRecords(),
+        userService.getAllAccounts(),
+        menuService.getAllMenus(),
+      ]);
+      setMenuRecords(recordsData);
+      setAccounts(accountsData);
+      setMenus(menusData);
     } catch (error: unknown) {
       setError(getErrorMessage(error, 'Không thể tải danh sách bản ghi thực đơn'));
     } finally {
@@ -75,7 +87,7 @@ export default function AdminMenuRecordPage() {
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      filtered = filtered.filter((m) => m.name.toLowerCase().includes(q) || m.accountId.toLowerCase().includes(q));
+      filtered = filtered.filter((m) => (m.name || '').toLowerCase().includes(q) || (m.accountId || '').toLowerCase().includes(q));
     }
 
     if (statusFilter !== 'all') {
@@ -95,11 +107,12 @@ export default function AdminMenuRecordPage() {
     return filteredMenuRecords.slice(start, end);
   }, [filteredMenuRecords, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredMenuRecords.length / pageSize);
+  const totalPages = Math.ceil(filteredMenuRecords.length / pageSize) || 1;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const scrollArea = document.querySelector(`.${styles.pageContainer}`)?.closest('[class*="scrollArea"]');
+    scrollArea?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleEdit = (menuRecord: MenuRecord) => {
@@ -131,50 +144,56 @@ export default function AdminMenuRecordPage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <MenuRecordListHeader />
-
-      {loading ? (
-        <div className={styles.content}>
-          <p>Đang tải dữ liệu...</p>
-        </div>
-      ) : error ? (
-        <div className={styles.content}>
-          <p>{error}</p>
-        </div>
-      ) : (
-        <>
-          <MenuRecordTableControls
-            onSearch={(q) => setSearchQuery(q)}
-            onSortChange={(sort) => setSortKey(sort)}
-            onStatusChange={(status) => setStatusFilter(status)}
-            onNewMenuRecord={() => setIsModalOpen(true)}
+    <AdminPageLayout
+      header={<MenuRecordListHeader />}
+      controlPanel={
+        <MenuRecordTableControls
+          onSearch={(q) => setSearchQuery(q)}
+          onSortChange={(sort) => setSortKey(sort)}
+          onStatusChange={(status) => setStatusFilter(status)}
+          onNewMenuRecord={() => setIsModalOpen(true)}
+        />
+      }
+      pagination={
+        filteredMenuRecords.length > 0 ? (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalItems={filteredMenuRecords.length}
+            onPageChange={handlePageChange}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+            showResultCount={true}
           />
-
+        ) : null
+      }
+    >
+      <div className={styles.pageContainer}>
+        {loading ? (
+          <div className={styles.loading}>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        ) : error ? (
+          <div className={styles.error}>
+            <p>{error}</p>
+          </div>
+        ) : (
           <MenuRecordTable
             menuRecords={paginatedMenuRecords}
+            accounts={accounts}
+            menus={menus}
             onEdit={handleEdit}
             onDelete={handleDelete}
             deletingId={deletingId}
-            pagination={
-              totalPages > 0
-                ? {
-                    currentPage,
-                    totalPages,
-                    pageSize,
-                    totalItems: filteredMenuRecords.length,
-                    onPageChange: handlePageChange,
-                    pageSizeOptions: PAGE_SIZE_OPTIONS,
-                    onPageSizeChange: (size) => {
-                      setPageSize(size);
-                      setCurrentPage(1);
-                    },
-                  }
-                : undefined
-            }
+            currentPage={currentPage}
+            pageSize={pageSize}
           />
-        </>
-      )}
+        )}
+      </div>
 
       <NewMenuRecordModal
         open={isModalOpen}
@@ -182,6 +201,6 @@ export default function AdminMenuRecordPage() {
         onSuccess={fetchMenuRecords}
         menuRecordToEdit={editingMenuRecord}
       />
-    </div>
+    </AdminPageLayout>
   );
 }

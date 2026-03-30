@@ -1,0 +1,448 @@
+.container {
+  background-color: #fff;
+  border-radius: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+  width: 100%;
+  max-width: 320px;
+  height: 100%;
+  font-family: var(--font-body);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #f1f3f5;
+  flex-shrink: 0;
+}
+
+.placeholderAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--color-brand-accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1d23;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: 2px 0 4px;
+  font-size: 13px;
+  color: #8a92a4;
+  font-weight: 400;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.membershipBadge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background-color: #fef3c7;
+  color: #b45309;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a2d4d;
+}
+
+.starIcon {
+  color: #fa8314; /* Brand orange color */
+}
+
+.reviewCount {
+  color: #8a92a4;
+  font-weight: 400;
+}
+
+/* ── Section Styling ── */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid #f1f3f5;
+  padding-bottom: 16px;
+}
+
+.section:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  color: #8a92a4;
+  font-weight: 500;
+}
+
+.sectionTime {
+  font-size: 11px;
+  color: #adb5bd;
+}
+
+.countdown {
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 600;
+  background-color: #fee2e2;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.jobTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1d23;
+  margin: 4px 0;
+}
+
+.packageMeta {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.tag {
+  font-size: 10px;
+  color: #6d28d9;
+  background-color: #f5f3ff;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.jobDetails {
+  font-size: 11px;
+  color: #8a92a4;
+}
+
+.bookingDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #f1f3f5;
+}
+
+.bookingDetailItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.detailLabel {
+  color: #8a92a4;
+}
+
+.detailValue {
+  color: #1a1d23;
+  font-weight: 500;
+}
+
+.statusTag {
+  color: #fa8314;
+  font-weight: 700;
+}
+
+/* ── Progress/Stage Section ── */
+.stageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.stageLabel {
+  font-size: 12px;
+  color: #8a92a4;
+}
+
+.statusIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+}
+
+.progressBar {
+  display: flex;
+  gap: 4px;
+}
+
+.progressBlock {
+  flex: 1;
+  height: 6px;
+  background-color: #e9ecef;
+  border-radius: 2px;
+}
+
+.progressBlockActive {
+  background-color: #3b82f6;
+}
+
+.healthStats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #f1f3f5;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: #8a92a4;
+}
+
+.statValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1d23;
+}
+
+/* ── Assigned Staff Section ── */
+.assignedStaff {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+
+.staffAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.staffAvatarPlaceholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #adb5bd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.staffInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.staffName {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1d23;
+  margin: 0;
+}
+
+.staffRole {
+  font-size: 11px;
+  color: #8a92a4;
+  margin: 0;
+}
+
+.callIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #fff;
+  border: 1px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #3b82f6;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.callIcon:hover {
+  background-color: #3b82f6;
+  color: #fff;
+}
+
+/* ── Actions ── */
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.mainButton {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  background-color: #fff;
+  color: #6d28d9;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.mainButton:hover {
+  background-color: #f8f9fa;
+  border-color: #6d28d9;
+}
+
+.chatButton {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chatButton:hover {
+  background-color: #f8f9fa;
+  border-color: #fa8314;
+}
+
+/* ── Contact Section ── */
+.contactContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contactLabel {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1d23;
+  margin-bottom: 4px;
+}
+
+.contactItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.iconWrapper {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8a92a4;
+  margin-top: 2px;
+}
+
+.contactInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoLabel {
+  font-size: 11px;
+  color: #adb5bd;
+  margin-bottom: 2px;
+}
+
+.infoValue {
+  font-size: 13px;
+  color: #1a1d23;
+  word-break: break-all;
+}
+
+.linkValue {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.linkValue:hover {
+  text-decoration: underline;
+}
+
+/* Empty States */
+.emptyPackageState,
+.emptyStaffState {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 6px;
+  color: #adb5bd;
+  font-size: 13px;
+  border: 1px dashed #e9ecef;
+}
+
+.emptyIcon {
+  color: #dee2e6;
+  flex-shrink: 0;
+}

@@ -1,0 +1,293 @@
+.container {
+  background-color: #fff;
+  border-radius: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-body);
+}
+
+/* ── Tabs Navigation ── */
+.tabsNav {
+  display: flex;
+  border-bottom: 2px solid #f1f3f5;
+  padding: 0 24px;
+  background-color: #fff;
+  border-radius: 0;
+}
+
+.tab {
+  padding: 16px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #8a92a4;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+  border: none;
+  background: none;
+}
+
+.tab:hover {
+  color: #1a1d23;
+}
+
+.activeTab {
+  color: #fa8314;
+  font-weight: 600;
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #fa8314;
+}
+
+/* ── Content Area ── */
+.contentArea {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  flex: 1;
+}
+
+/* ── Section Headers ── */
+.sectionTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1d23;
+}
+
+.ratingButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #fa8314;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ── Ribbon Stage Progress ── */
+.ribbonWrapper {
+  display: flex;
+  gap: 8px;
+  /* Added gap between segments as in image */
+  margin-bottom: 24px;
+}
+
+.ribbonSegment {
+  flex: 1;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8a92a4;
+  background-color: #f8f9fa;
+  position: relative;
+  clip-path: polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%, 10% 50%);
+  padding: 0 10px;
+}
+
+.ribbonSegment:first-child {
+  clip-path: polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%);
+  border-radius: 4px 0 0 4px;
+}
+
+.ribbonSegmentActive {
+  background-color: #3b82f6;
+  color: #fff;
+}
+
+.ribbonSegmentCompleted {
+  background-color: #eef2ff;
+  color: #3b82f6;
+}
+
+/* ── Stage Info Grid ── */
+.stageInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoLabel {
+  font-size: 12px;
+  color: #adb5bd;
+  font-weight: 500;
+}
+
+.infoValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.statusChip {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #fff8e6;
+  color: #fa8314;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  width: fit-content;
+}
+
+/* ── Avatars List ── */
+.assignedContainer {
+  display: flex;
+  align-items: center;
+}
+
+.assigneeAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  margin-right: -8px;
+  object-fit: cover;
+}
+
+.nextStepButton {
+  padding: 10px 24px;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  color: #adb5bd;
+  font-size: 13px;
+  font-weight: 600;
+  width: fit-content;
+  cursor: not-allowed;
+}
+
+/* ── Notes Section ── */
+.notesList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.noteItem {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #f1f3f5;
+  border-radius: 4px;
+}
+
+.noteAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.noteBody {
+  flex: 1;
+}
+
+.noteHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.noteAuthor {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1d23;
+  margin: 0;
+}
+
+.noteTime {
+  font-size: 11px;
+  color: #adb5bd;
+}
+
+.noteText {
+  font-size: 13px;
+  color: #495057;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+}
+
+.noteFooter {
+  display: flex;
+  gap: 16px;
+}
+
+.replyLink {
+  font-size: 12px;
+  font-weight: 700;
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.replyLink:hover {
+  text-decoration: underline;
+}
+
+/* Empty Tab States */
+.emptyTabState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 40px;
+  background-color: #fcfcfd;
+  border-radius: 8px;
+  border: 1px dashed #e9ecef;
+  min-height: 350px;
+}
+
+.emptyTabIcon {
+  color: #ffedd5; /* Very soft orange */
+  margin-bottom: 24px;
+}
+
+.emptyTabState h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1d23;
+  margin: 0 0 12px 0;
+}
+
+.emptyTabState p {
+  font-size: 14px;
+  color: #8a92a4;
+  max-width: 400px;
+  margin: 0;
+  line-height: 1.6;
+}

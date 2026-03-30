@@ -1,38 +1,48 @@
-/* ── Outer wrapper: chỉ chứa scroll container + pagination ── */
 .tableWrapper {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-md);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
+
 
 /* ── Scroll container: bao quanh table, có cả 2 thanh scroll ── */
 .scrollContainer {
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: 560px;
-  border-radius: var(--radius-sm);
-  scrollbar-width: thin;
-  scrollbar-color: #fbb96a #f1f3f5;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  min-height: 0;
 }
+
 
 /* Webkit custom scrollbar – dọc & ngang */
 .scrollContainer::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
+
 .scrollContainer::-webkit-scrollbar-track {
   background: #f1f3f5;
-  border-radius: 10px;
+  border-radius: 0;
 }
+
+/* Ẩn mũi tên hai đầu của scrollbar */
+.scrollContainer::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .scrollContainer::-webkit-scrollbar-thumb {
-  background: #fbb96a;
-  border-radius: 10px;
-  border: 1px solid #f1f3f5;
+  background: var(--color-brand-accent);
+  border-radius: 0;
 }
+
 .scrollContainer::-webkit-scrollbar-thumb:hover {
   background: #fa8314;
 }
+
 .scrollContainer::-webkit-scrollbar-corner {
   background: #f1f3f5;
 }
@@ -41,7 +51,8 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px; /* đảm bảo luôn có scroll khi cần */
+  min-width: 900px;
+  /* đảm bảo luôn có scroll khi cần */
 }
 
 .table thead {
@@ -49,7 +60,7 @@
 }
 
 .table th {
-  padding: 10px 14px;
+  padding: 8px 12px;
   text-align: left;
   font-family: "Funnel Sans", sans-serif;
   font-size: 13px;
@@ -57,32 +68,49 @@
   color: #343A40;
   border-bottom: 1px solid var(--color-border-default);
   white-space: nowrap;
-  /* Sticky header đặt trên từng th mới hoạt động đúng */
   position: sticky;
   top: 0;
   background-color: #f2f2f4;
-  z-index: 3;
+  z-index: 50;
 }
+
+
+
+.sttHeaderCell {
+  text-align: center !important;
+  width: 60px;
+  z-index: 35 !important;
+}
+
+
 
 .table tbody tr {
   background-color: #fff !important;
   transition: background-color 0.2s ease;
 }
 
-.table tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.03) !important;
+.table tbody tr:hover td {
+  background-color: #f8f9fa !important;
 }
 
-/* Đảm bảo sticky cell kế thừa màu nền của row */
+/* Đảm bảo sticky cell có z-index đúng khi hover */
 .table tbody tr:hover .stickyCol {
-  background-color: rgba(242, 242, 244, 0.85) !important;
+  z-index: 15;
+  background-color: #f8f9fa !important;
 }
+
 
 .table td {
-  padding: var(--spacing-sm);
+  padding: 6px 12px;
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border-default);
+  white-space: nowrap;
+}
+
+.sttDataCell {
+  text-align: center !important;
 }
 
 /* ── Sticky cột Thao tác ── */
@@ -90,10 +118,10 @@
   position: sticky;
   right: 0;
   background-color: #fff;
-  z-index: 2;
-  /* đường kẻ phân cách bên trái */
-  box-shadow: -2px 0 6px -2px rgba(0, 0, 0, 0.08);
+  z-index: 5;
+  border-left: none !important;
 }
+
 
 /* Sticky header của cột Thao tác — cần z-index cao hơn th thường */
 .stickyColHeader {
@@ -101,24 +129,33 @@
   right: 0;
   top: 0;
   background-color: #f2f2f4 !important;
-  z-index: 5 !important;
-  box-shadow: -2px 0 6px -2px rgba(0, 0, 0, 0.08);
+  z-index: 60 !important;
+  border-left: none !important;
 }
+
+
+
 
 /* ── Other cells ── */
 .name {
   font-weight: 500;
+  max-width: 200px;
 }
 
 .sttCell {
-  cursor: help;
-  border-bottom: 1px dashed #aaa;
-  display: inline-block;
-  line-height: 1.4;
+  color: #555;
+  font-weight: 600;
+  font-size: 12px;
 }
 
 .truncateCell {
-  max-width: 260px;
+  max-width: 320px;
+  white-space: nowrap;
+}
+
+.textTruncate {
+  display: block;
+  width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -165,37 +202,80 @@
 /* Tooltip container */
 .tooltipWrapper {
   position: relative;
-  display: inline-flex;
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+/* FIRST 3 ROWS: Pointer tooltips DOWN to avoid the sticky header */
+.table tbody tr:nth-child(-n+3) .tooltipWrapper .tooltip {
+  top: calc(100% + 8px) !important;
+  bottom: auto !important;
+}
+
+.table tbody tr:nth-child(-n+3) .tooltipWrapper .tooltip::after {
+  bottom: 100% !important;
+  top: auto !important;
+  border-bottom-color: #343a40 !important;
+  border-top-color: transparent !important;
+}
+
+/* OTHER ROWS: Point tooltips UP to avoid the pagination boundary */
+.table tbody tr:nth-child(n+4) .tooltipWrapper .tooltip {
+  bottom: calc(100% + 8px) !important;
+  top: auto !important;
+}
+
+.table tbody tr:nth-child(n+4) .tooltipWrapper .tooltip::after {
+  top: 100% !important;
+  bottom: auto !important;
+  border-top-color: #343a40 !important;
+  border-bottom-color: transparent !important;
 }
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%) scale(0.85);
   background-color: #343a40;
   color: #fff;
   font-size: 11px;
   font-family: var(--font-body);
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 300px;
+  width: max-content;
   padding: 4px 8px;
   border-radius: 5px;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 10;
+  z-index: 1001;
+  line-height: 1.4;
 }
 
-/* Mũi tên nhỏ phía dưới tooltip */
 .tooltipWrapper .tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #343a40;
 }
+
+
+.table td:hover {
+  z-index: 40 !important;
+  position: relative;
+}
+
+.table td[class*="sticky"]:hover {
+  position: sticky;
+  z-index: 45 !important;
+}
+
+
+
+
+
 
 .tooltipWrapper:hover .tooltip {
   opacity: 1;
@@ -254,4 +334,3 @@
 }
 
 /* ── Pagination ── */
-

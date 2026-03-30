@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 
 import { Breadcrumbs } from '@/components/ui/breadcrumbs/Breadcrumbs';
 
@@ -18,21 +19,23 @@ type BreadcrumbItem = {
 };
 
 type Props = {
-  title: string;
   breadcrumbs: BreadcrumbItem[];
   tabs: Tab[];
   activeTab: string;
   onTabChange: (key: string) => void;
 };
 
-export function WorkScheduleHeader({ title, breadcrumbs, tabs, activeTab, onTabChange }: Props) {
+export function WorkScheduleHeader({ breadcrumbs, tabs, activeTab, onTabChange }: Props) {
+  const pathname = usePathname();
+  const isManager = pathname?.startsWith('/manager');
+  const homeHref = isManager ? '/manager' : '/admin';
+
   return (
     <div className={styles.wrap}>
       <div className={styles.header}>
-        <h4 className={styles.title}>{title}</h4>
         <Breadcrumbs
           items={breadcrumbs}
-          homeHref="/admin"
+          homeHref={homeHref}
         />
       </div>
 

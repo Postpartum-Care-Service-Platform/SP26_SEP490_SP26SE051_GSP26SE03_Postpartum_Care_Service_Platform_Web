@@ -36,13 +36,21 @@ const contractService = {
     return apiClient.get('/Contract/all');
   },
   getNoScheduleContracts: (): Promise<Contract[]> => {
-    return apiClient.get('/Contract/no-schedule');
+    return apiClient.get('/Contract/no-staff-schedule');
   },
   getStaffSchedules: (): Promise<StaffSchedule[]> => {
     return apiClient.get('/StaffSchedule/staffs');
   },
   updateContract: (id: number, data: UpdateContractRequest): Promise<Contract> => {
     return apiClient.put(`/Contract/${id}`, data);
+  },
+  exportPdf: (id: number): Promise<Blob> => {
+    return apiClient.get(`/Contract/${id}/export-pdf`, {
+      responseType: 'blob',
+      headers: {
+        Accept: '*/*',
+      },
+    });
   },
 };
 

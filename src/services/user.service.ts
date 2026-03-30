@@ -1,4 +1,4 @@
-import type { Account } from '@/types/account';
+import type { Account, CustomerDetail } from '@/types/account';
 
 import apiClient from './apiClient';
 
@@ -11,6 +11,10 @@ const userService = {
 
   getAccountById: (id: string): Promise<Account> => {
     return apiClient.get(`/Account/GetById/${id}`);
+  },
+
+  getCustomerDetail: (customerId: string): Promise<CustomerDetail> => {
+    return apiClient.get(`/Account/customer/${customerId}/detail`);
   },
 
   getAccountByEmail: (email: string): Promise<Account> => {

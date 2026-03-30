@@ -1,8 +1,9 @@
 'use client';
 
-import { Eye } from 'lucide-react';
-import { Pagination } from '@/components/ui/pagination';
+import { useState } from 'react';
+import { Eye, Inbox } from 'lucide-react';
 import type { AdminBooking } from '@/types/admin-booking';
+import { ContractPreviewModal } from './ContractPreviewModal';
 
 import styles from './booking-table.module.css';
 
@@ -18,6 +19,8 @@ type Props = {
     onPageSizeChange?: (size: number) => void;
   };
   onViewBooking?: (booking: AdminBooking) => void;
+  loading?: boolean;
+  error?: string | null;
 };
 
 const formatDate = (dateString: string) => {
@@ -149,29 +152,30 @@ const getTransactionStatusLabel = (status: string) => {
   }
 };
 
-const truncateText = (text: string, maxLength: number) => {
-  if (!text) return '';
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
-};
+export function BookingTable({ bookings, pagination, onViewBooking, loading, error }: Props) {
+  const [selectedContract, setSelectedContract] = useState<{ id: number; code: string; fileUrl: string | null } | null>(null);
 
-export function BookingTable({ bookings, pagination, onViewBooking }: Props) {
+  if (loading) {
+     return <div className={styles.statusCell}>Đang tải dữ liệu...</div>;
+  }
+
+  if (error) {
+    return <div className={styles.statusCell}>{error}</div>;
+  }
+
   return (
     <div className={styles.tableWrapper}>
-      <div className={styles.tableScroll}>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th title="Số thứ tự">STT</th>
+              <th title="Số thứ tự" className={styles.sttHeader}>STT</th>
               <th>Khách hàng</th>
               <th>Số điện thoại</th>
               <th>Gói dịch vụ</th>
-              <th>Loại phòng</th>
               <th>Phòng</th>
-              <th>Thời gian</th>
-              <th>Ngày đặt</th>
+              <th className={styles.dateHeader}>Thời hạn gói</th>
+              <th className={styles.dateHeader}>Ngày đặt</th>
               <th>Tổng giá</th>
-              <th>Giảm giá</th>
               <th>Thành tiền</th>
               <th>Đã thanh toán</th>
               <th>Còn lại</th>
@@ -179,14 +183,17 @@ export function BookingTable({ bookings, pagination, onViewBooking }: Props) {
               <th>Mã hợp đồng</th>
               <th>Trạng thái hợp đồng</th>
               <th>Giao dịch gần nhất</th>
-              <th>Thao tác</th>
+              <th className={styles.stickyActionsCol}>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {bookings.length === 0 ? (
-              <tr>
-                <td colSpan={18} className={styles.emptyState}>
-                  Chưa có booking nào
+               <tr>
+                <td colSpan={18}>
+                  <div className={styles.emptyState}>
+                    <Inbox size={48} className={styles.emptyIcon} />
+                    <p className={styles.emptyText}>Chưa có booking nào</p>
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -196,105 +203,124 @@ export function BookingTable({ bookings, pagination, onViewBooking }: Props) {
                   : index + 1;
 
                 return (
-                <tr key={booking.id}>
-                  <td className={styles['cell-nowrap']}>{bookingStt}</td>
-                  <td>
-                  <div className={styles.customerInfo}>
-                    <span className={styles.customerName}>{booking.customer.username}</span>
-                    <span className={styles.customerEmail}>{booking.customer.email}</span>
-                  </div>
-                  </td>
-                  <td className={styles['cell-nowrap']}>{booking.customer.phone}</td>
-                  <td className={styles['cell-nowrap']} title={booking.package ? `${booking.package.packageName} (${booking.package.durationDays} ngày)` : '-'}>
-                  {booking.package
-                    ? truncateText(`${booking.package.packageName} (${booking.package.durationDays} ngày)`, 25)
-                    : '-'}
-                  </td>
-                  <td className={styles['cell-nowrap']}>
-                  {booking.package?.roomTypeName || booking.room?.roomTypeName || '-'}
-                  </td>
-                  <td className={styles['cell-nowrap']}>
-                  {booking.room
-                    ? `Phòng ${booking.room.name} (Tầng ${booking.room.floor})`
-                    : '-'}
-                  </td>
-                  <td className={styles['cell-nowrap']}>
-                  {formatDate(booking.startDate)} - {formatDate(booking.endDate)}
-                  </td>
-                  <td className={styles['cell-nowrap']}>{formatDate(booking.bookingDate)}</td>
-                  <td className={styles['cell-nowrap']}>{formatCurrency(booking.totalPrice)}</td>
-                  <td className={styles['cell-nowrap']}>{formatCurrency(booking.discountAmount)}</td>
-                  <td className={`${styles.amount} ${styles['cell-nowrap']}`}>
-                    {formatCurrency(booking.finalAmount)}
-                  </td>
-                  <td className={styles['cell-nowrap']}>{formatCurrency(booking.paidAmount)}</td>
-                  <td className={styles['cell-nowrap']}>{formatCurrency(booking.remainingAmount)}</td>
-                  <td className={styles['cell-nowrap']}>
-                    <span className={`${styles.statusBadge} ${getStatusClass(booking.status)}`}>
-                      {getStatusLabel(booking.status)}
-                    </span>
-                  </td>
-                  <td className={styles['cell-nowrap']}>{booking.contract?.contractCode ?? '-'}</td>
-                  <td className={styles['cell-nowrap']}>
-                    {getContractStatusLabel(booking.contract?.status)}
-                  </td>
-                  {(() => {
-                    const lastTx =
-                      booking.transactions && booking.transactions.length > 0
-                        ? [...booking.transactions].sort(
+                  <tr key={booking.id}>
+                    <td className={styles.sttCell}>{bookingStt}</td>
+                    <td>
+                      <div className={styles.customerInfo}>
+                        <div className={styles.tooltipWrapper}>
+                          <span className={styles.customerName}>{booking.customer.username}</span>
+                          <span className={styles.tooltip}>{booking.customer.username}</span>
+                        </div>
+                        <div className={styles.tooltipWrapper}>
+                          <span className={styles.customerEmail}>{booking.customer.email}</span>
+                          <span className={styles.tooltip}>{booking.customer.email}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{booking.customer.phone}</td>
+                    <td>
+                      {booking.package ? (
+                        <div className={styles.tooltipWrapper}>
+                          <span className={styles.textTruncate}>{`${booking.package.packageName} (${booking.package.durationDays} ngày)`}</span>
+                          <span className={styles.tooltip}>{`${booking.package.packageName} (${booking.package.durationDays} ngày)`}</span>
+                        </div>
+                      ) : '-'}
+                    </td>
+                    <td>
+                      {booking.room ? (
+                        <div className={styles.tooltipWrapper}>
+                          <span className={styles.textTruncate}>{`Phòng ${booking.room.name} (Tầng ${booking.room.floor})`}</span>
+                          <span className={styles.tooltip}>{`Phòng ${booking.room.name} (Tầng ${booking.room.floor})`}</span>
+                        </div>
+                      ) : '-'}
+                    </td>
+                    <td>
+                      {formatDate(booking.startDate)} - {formatDate(booking.endDate)}
+                    </td>
+                    <td>{formatDate(booking.bookingDate)}</td>
+                    <td>{formatCurrency(booking.totalPrice)}</td>
+                    <td className={styles.amount}>
+                      {formatCurrency(booking.finalAmount)}
+                    </td>
+                    <td>{formatCurrency(booking.paidAmount)}</td>
+                    <td>{formatCurrency(booking.remainingAmount)}</td>
+                    <td>
+                      <span className={`${styles.statusBadge} ${getStatusClass(booking.status)}`}>
+                        {getStatusLabel(booking.status)}
+                      </span>
+                    </td>
+                    <td>
+                      {booking.contract?.contractCode ? (
+                        <div className={styles.tooltipWrapper}>
+                          <span
+                            className={`${styles.textTruncate} ${styles.contractLink}`}
+                            onClick={() => booking.contract && setSelectedContract({
+                              id: booking.contract.id,
+                              code: booking.contract.contractCode,
+                              fileUrl: booking.contract.fileUrl
+                            })}
+                          >
+                            {booking.contract.contractCode}
+                          </span>
+                          <span className={styles.tooltip}>{booking.contract.contractCode}</span>
+                        </div>
+                      ) : '-'}
+                    </td>
+                    <td>
+                      {getContractStatusLabel(booking.contract?.status)}
+                    </td>
+                    {(() => {
+                      const lastTx =
+                        booking.transactions && booking.transactions.length > 0
+                          ? [...booking.transactions].sort(
                             (a, b) =>
                               new Date(b.transactionDate).getTime() -
                               new Date(a.transactionDate).getTime(),
                           )[0]
-                        : undefined;
-                    return (
-                      <td className={styles['cell-transaction']}>
-                        {lastTx
-                          ? `${formatCurrency(lastTx.amount)} - ${getTransactionTypeLabel(
-                              lastTx.type,
-                            )} (${getTransactionStatusLabel(lastTx.status)})`
-                          : '-'}
-                      </td>
-                    );
-                  })()}
-                  <td>
-                    <div className={styles.actions}>
-                      <div className={styles.tooltipWrapper}>
-                        <button
-                          type="button"
-                          className={styles.actionButton}
-                          onClick={() => onViewBooking?.(booking)}
-                          aria-label={`Xem chi tiết booking ${booking.id}`}
-                        >
-                          <Eye size={18} color="#3B82F6" />
-                        </button>
-                        <span className={styles.tooltip}>Xem chi tiết</span>
+                          : undefined;
+                      return (
+                        <td>
+                          {lastTx ? (() => {
+                            const text = `${formatCurrency(lastTx.amount)} - ${getTransactionTypeLabel(lastTx.type)} (${getTransactionStatusLabel(lastTx.status)})`;
+                            return (
+                              <div className={styles.tooltipWrapper}>
+                                <span className={styles.textTruncate}>{text}</span>
+                                <span className={styles.tooltip}>{text}</span>
+                              </div>
+                            );
+                          })() : '-'}
+                        </td>
+                      );
+                    })()}
+                    <td className={styles.stickyActionsCol}>
+                      <div className={styles.actions}>
+                        <div className={styles.tooltipWrapper}>
+                          <button
+                            type="button"
+                            className={styles.actionButton}
+                            onClick={() => onViewBooking?.(booking)}
+                            aria-label={`Xem chi tiết booking ${booking.id}`}
+                          >
+                            <Eye size={18} />
+                          </button>
+                          <span className={styles.tooltip}>Xem chi tiết</span>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
+                    </td>
+                  </tr>
                 );
               })
             )}
           </tbody>
         </table>
-      </div>
 
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
+      {/* Contract Preview Modal */}
+      {selectedContract && (
+        <ContractPreviewModal
+          contract={selectedContract}
+          onClose={() => setSelectedContract(null)}
+        />
       )}
     </div>
   );
 }
-

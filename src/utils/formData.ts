@@ -4,6 +4,7 @@ export function buildFamilyProfileFormData(
   payload: CreateFamilyProfileRequest
 ): FormData {
   const formData = new FormData();
+  formData.append('AccountId', payload.accountId);
   formData.append('MemberTypeId', String(payload.memberTypeId));
   formData.append('FullName', payload.fullName);
   formData.append('DateOfBirth', payload.dateOfBirth);

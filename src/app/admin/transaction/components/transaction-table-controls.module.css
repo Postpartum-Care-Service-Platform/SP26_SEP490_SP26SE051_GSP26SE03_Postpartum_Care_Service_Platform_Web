@@ -2,13 +2,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #eae9eb;
   gap: var(--spacing-sm);
-  background-color: #fff;
-  padding: 16px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f1f1;
   flex-wrap: wrap;
+}
+
+.controlsRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .searchWrapper {
@@ -49,11 +53,11 @@
 .filterButton {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px var(--spacing-sm);
+  gap: 8px;
+  padding: 8px 16px;
   border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-sm);
-  background-color: #f8f9fa;
+  border-radius: 6px;
+  background-color: #fff;
   color: var(--color-text-primary);
   font-family: var(--font-body);
   font-size: 14px;
@@ -61,12 +65,37 @@
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
-  min-width: 140px;
 }
 
 .filterButton:hover {
   background-color: #e9ecef;
   border-color: var(--color-brand-accent);
+}
+
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exportButton:hover {
+  background-color: #e9ecef;
+  border-color: var(--color-brand-accent);
+}
+
+.exportIcon {
+  width: 16px;
+  height: 16px;
 }
 
 .filterButton[data-state='open'] .chevronIcon {

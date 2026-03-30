@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-
 import { useToast } from '@/components/ui/toast/use-toast';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { Pagination } from '@/components/ui/pagination';
 import transactionService from '@/services/transaction.service';
 import type { Transaction } from '@/types/transaction';
 
@@ -120,19 +121,10 @@ export default function AdminTransactionPage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <TransactionHeader />
-
-      {loading ? (
-        <div className={styles.content}>
-          <p>Đang tải dữ liệu...</p>
-        </div>
-      ) : error ? (
-        <div className={styles.content}>
-          <p>{error}</p>
-        </div>
-      ) : (
-        <>
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <AdminPageLayout
+        header={<TransactionHeader />}
+        controlPanel={
           <TransactionTableControls
             searchQuery={searchQuery}
             statusFilter={statusFilter}
@@ -143,28 +135,41 @@ export default function AdminTransactionPage() {
             onTypeChange={setTypeFilter}
             onSortChange={setSortKey}
           />
-
+        }
+        pagination={
+          totalPages > 0 ? (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={filteredTransactions.length}
+              onPageChange={handlePageChange}
+              pageSizeOptions={PAGE_SIZE_OPTIONS}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              showResultCount={true}
+            />
+          ) : null
+        }
+      >
+        {loading ? (
+          <div className={styles.loadingState}>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        ) : error ? (
+          <div className={styles.errorState}>
+            <p>{error}</p>
+          </div>
+        ) : (
           <TransactionTable
             transactions={paginatedTransactions}
-            pagination={
-              totalPages > 0
-                ? {
-                    currentPage,
-                    totalPages,
-                    pageSize,
-                    totalItems: filteredTransactions.length,
-                    onPageChange: handlePageChange,
-                    pageSizeOptions: PAGE_SIZE_OPTIONS,
-                    onPageSizeChange: (size) => {
-                      setPageSize(size);
-                      setCurrentPage(1);
-                    },
-                  }
-                : undefined
-            }
+            currentPage={currentPage}
+            pageSize={pageSize}
           />
-        </>
-      )}
+        )}
+      </AdminPageLayout>
     </div>
   );
 }

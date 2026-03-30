@@ -42,10 +42,10 @@ type Props = {
   onMarkAsRead?: (notification: Notification) => void;
   pagination?: {
     currentPage: number;
-    totalPages: number;
     pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
+    totalPages?: number;
+    totalItems?: number;
+    onPageChange?: (page: number) => void;
     pageSizeOptions?: number[];
     onPageSizeChange?: (size: number) => void;
   };
@@ -96,11 +96,7 @@ export function NotificationTable({
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>ID</th>
-              <th>ID loại</th>
-              <th>ID vé tiện ích</th>
-              <th>ID người gửi</th>
-              <th>ID người nhận</th>
+              <th className={styles.sttHeaderCell} title="Số thứ tự">STT</th>
               <th>Tiêu đề</th>
               <th>Nội dung</th>
               <th>Loại thông báo</th>
@@ -109,99 +105,93 @@ export function NotificationTable({
               <th>Trạng thái</th>
               <th>Ngày tạo</th>
               <th>Ngày cập nhật</th>
-              <th>Thao tác</th>
+              <th className={styles.stickyActionsCol}>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {notifications.length === 0 ? (
               <tr>
-                <td colSpan={14} className={styles.emptyState}>
-                  Chưa có thông báo nào
+                <td colSpan={10} className={styles.emptyState}>
+                   Chưa có thông báo nào
                 </td>
               </tr>
             ) : (
-              notifications.map((notification) => (
-                <tr key={notification.id} className={styles.tableRow}>
-                  <td>{notification.id}</td>
-                  <td>{notification.notificationTypeId || '-'}</td>
-                  <td>{notification.amenityTicketId || '-'}</td>
-                  <td>{notification.staffId || '-'}</td>
-                  <td
-                    title={notification.receiverId || ''}
-                    className={notification.receiverId ? `${styles.truncateCell} ${styles.copyableId}` : undefined}
-                    onClick={
-                      notification.receiverId
-                        ? () => {
-                            handleCopyId(notification.receiverId as string);
-                          }
-                        : undefined
-                    }
-                  >
-                    {notification.receiverId ? truncateText(notification.receiverId, 20) : '-'}
-                  </td>
-                  <td className={styles.titleCell} title={notification.title || ''}>
-                    {notification.title || '-'}
-                  </td>
-                  <td className={styles.contentCell} title={notification.content || ''}>
-                    {notification.content || '-'}
-                  </td>
-                  <td>{translateNotificationTypeName(notification.notificationTypeName || '')}</td>
-                  <td>{notification.staffName || 'Hệ thống'}</td>
-                  <td>{notification.receiverName || '-'}</td>
-                  <td>
-                    <span
-                      className={`${styles.statusBadge} ${
-                        notification.status === 'Unread' ? styles.statusUnread : styles.statusRead
-                      }`}
-                    >
-                      {notification.status === 'Unread' ? 'Chưa đọc' : 'Đã đọc'}
-                    </span>
-                  </td>
-                  <td>{formatDate(notification.createdAt)}</td>
-                  <td>{formatDate(notification.updatedAt)}</td>
-                  <td>
-                    <div className={styles.actions}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.editButton} btn-icon btn-sm`}
-                        onClick={() => onEdit?.(notification)}
-                        aria-label={`Chỉnh sửa ${notification.title || notification.id}`}
+              notifications.map((notification, index) => {
+                const stt = pagination ? (pagination.currentPage - 1) * pagination.pageSize + index + 1 : index + 1;
+                return (
+                  <tr key={notification.id} className={styles.tableRow}>
+                    <td className={styles.sttDataCell}>
+                      <div className={styles.tooltipWrapper}>
+                        <span className={styles.sttCell}>{stt}</span>
+                        <span className={styles.tooltip}>ID gốc: {notification.id}</span>
+                      </div>
+                    </td>
+                    <td className={styles.titleCell} title={notification.title || ''}>
+                      {notification.title || '-'}
+                    </td>
+                    <td className={styles.contentCell} title={notification.content || ''}>
+                      {notification.content || '-'}
+                    </td>
+                    <td className={styles.typeCell} title={translateNotificationTypeName(notification.notificationTypeName || '')}>
+                      {translateNotificationTypeName(notification.notificationTypeName || '')}
+                    </td>
+                    <td className={styles.staffCell} title={notification.staffName || 'Hệ thống'}>
+                      {notification.staffName || 'Hệ thống'}
+                    </td>
+                    <td className={styles.receiverCell} title={notification.receiverName || '-'}>
+                      {notification.receiverName || '-'}
+                    </td>
+                    <td>
+                      <span
+                        className={`${styles.statusBadge} ${
+                          notification.status === 'Unread' ? styles.statusUnread : styles.statusRead
+                        }`}
                       >
-                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.deleteButton} btn-icon btn-sm`}
-                        onClick={() => onDelete?.(notification)}
-                        aria-label={`Xóa ${notification.title || notification.id}`}
-                      >
-                        <Trash2OutlineIcon fill="#FD6161" size={16} />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))
+                        {notification.status === 'Unread' ? 'Chưa đọc' : 'Đã đọc'}
+                      </span>
+                    </td>
+                    <td>{formatDate(notification.createdAt)}</td>
+                    <td>{formatDate(notification.updatedAt)}</td>
+                    <td className={styles.stickyActionsCol}>
+                      <div className={styles.actions}>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${styles.editButton} btn-icon btn-sm`}
+                            onClick={() => onEdit?.(notification)}
+                            aria-label={`Chỉnh sửa ${notification.title || notification.id}`}
+                          >
+                            <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                        </div>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${styles.editButton} btn-icon btn-sm bg-red-soft hover:bg-red-soft`}
+                            style={{ color: '#FD6161' }}
+                            onClick={() => onDelete?.(notification)}
+                            aria-label={`Xóa ${notification.title || notification.id}`}
+                          >
+                            <Trash2OutlineIcon fill="#FD6161" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Xóa</span>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
       </div>
 
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
+
     </div>
   );
 }
+
+

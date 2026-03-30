@@ -1,61 +1,151 @@
-.tableWrapper {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  padding: var(--spacing-md);
-}
-
-.tableScroll {
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: 70vh;
-}
-
 .table {
   width: 100%;
   min-width: 1600px;
   border-collapse: collapse;
 }
 
-.table thead {
-  background-color: rgba(242, 242, 244, 0.5);
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 250;
+  background-color: #f8f9fa;
 }
 
+
+
+
+.sttHeader {
+  width: 60px;
+  text-align: center !important;
+}
+
+
+
+
 .table th {
-  padding: 10px 14px;
+  padding: 12px 16px;
   text-align: left;
-  font-family: 'Funnel Sans', sans-serif;
+  font-family: inherit;
   font-size: 13px;
   font-weight: 600;
   color: #343a40;
-  border-bottom: 1px solid var(--color-border-default);
+  border-bottom: 2px solid #f1f1f1;
   white-space: nowrap;
-}
-
-.table tbody tr {
-  background-color: #fff !important;
-  border-bottom: 1px solid var(--color-border-default);
-  transition: background-color 0.2s ease;
-}
-
-.table tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.03) !important;
 }
 
 .table td {
-  padding: var(--spacing-sm);
-  font-family: var(--font-body);
+  padding: 10px 16px;
   font-size: 14px;
-  color: var(--color-text-primary);
+  color: #495057;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f1f1;
 }
 
-.cell-nowrap {
-  white-space: nowrap;
+.table tbody tr:hover {
+  background-color: #f8f9fa;
 }
 
-.cell-transaction {
-  white-space: nowrap;
-  min-width: 250px;
+
+
+
+.stickyActionsCol {
+  position: sticky;
+  right: 0;
+  background-color: #ffffff;
+  width: 100px;
+  text-align: center;
+  z-index: 10;
+}
+
+
+.table thead th.stickyActionsCol {
+  top: 0;
+  background-color: #f8f9fa;
+  z-index: 300;
+}
+
+
+
+
+.table tbody tr:hover .stickyActionsCol {
+  background-color: #f8f9fa;
+  z-index: 200;
+}
+
+
+/* Removed duplicate sttHeader */
+
+
+.sttCell {
+  width: 60px;
+  text-align: center !important;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+
+.table tbody tr:hover .sttCell {
+  background-color: #f8f9fa;
+}
+
+.dateHeader {
+  width: 160px;
+}
+
+.customerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 180px;
+}
+
+.customerName {
+  font-weight: 600;
+  color: var(--color-brand-accent);
+}
+
+.customerEmail {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.contractLink {
+  color: #3b82f6;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.contractLink:hover {
+  text-decoration: underline;
+}
+
+.amount {
+  font-weight: 600;
+  color: #111827;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.statusConfirmed {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.statusCancelled {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.statusPending {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
 }
 
 .actions {
@@ -65,37 +155,76 @@
   gap: 8px;
 }
 
-/* ── Tooltip cho nút thao tác ── */
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 6px;
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.actionButton:hover {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.statusCell {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  color: #9ca3af;
+}
+
+.emptyIcon {
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.emptyText {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Tooltip */
 .tooltipWrapper {
   position: relative;
   display: inline-flex;
+  max-width: 100%;
 }
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + 8px);
   left: 50%;
-  transform: translateX(-50%) scale(0.85);
-  background-color: #343a40;
+  transform: translateX(-50%) scale(0.9);
+  background-color: #333;
   color: #fff;
   font-size: 11px;
-  white-space: nowrap;
-  padding: 4px 8px;
-  border-radius: 5px;
+  white-space: normal;
+  max-width: 300px;
+  width: max-content;
+  padding: 6px 10px;
+  border-radius: 4px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
-}
-
-.tooltipWrapper .tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: #343a40;
+  transition: all 0.2s ease;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  line-height: 1.4;
 }
 
 .tooltipWrapper:hover .tooltip {
@@ -103,110 +232,28 @@
   transform: translateX(-50%) scale(1);
 }
 
-.actionButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  background-color: #fff;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.table:has(.tooltipWrapper:hover) thead th {
+  z-index: 1 !important;
 }
 
-.actionButton:hover {
-  background-color: #f3f4f6;
-  border-color: #d1d5db;
+.table td:has(.tooltipWrapper:hover) {
+  z-index: 2000 !important;
+  position: relative;
 }
 
-/* Sticky column for Actions - last column */
-.table th:last-child,
-.table td:last-child {
+.table td[class*="sticky"]:has(.tooltipWrapper:hover) {
   position: sticky;
-  right: 0;
-  z-index: 3;
-  background-color: #fff;
-  box-shadow: -8px 0 12px -10px rgba(0, 0, 0, 0.15);
-}
-
-.table thead th:last-child {
-  z-index: 4;
-  background-color: rgba(242, 242, 244, 0.98);
-}
-
-.customerInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.customerName {
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
-
-.customerEmail {
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.amount {
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.statusBadge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: 500;
-  font-family: var(--font-body);
-}
-
-.statusConfirmed {
-  background-color: rgba(21, 128, 61, 0.1);
-  color: #15803d;
-}
-
-.statusCancelled {
-  background-color: rgba(185, 28, 28, 0.1);
-  color: #b91c1c;
-}
-
-.statusPending {
-  background-color: rgba(244, 208, 120, 0.15);
-  color: #f4d078;
-}
-
-.emptyState {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--color-text-muted);
-  font-family: var(--font-body);
+  z-index: 2000 !important;
 }
 
 
 
-.paginationWrapper :global(.container) {
-  width: 100%;
-  max-width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin: 0;
-  padding: 0;
-}
 
-.paginationWrapper :global(.resultCount) {
-  margin: 0;
-  flex-shrink: 0;
-}
 
-.paginationWrapper :global(.pagination) {
-  margin: 0;
-  flex-shrink: 0;
+.textTruncate {
+  display: block;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-

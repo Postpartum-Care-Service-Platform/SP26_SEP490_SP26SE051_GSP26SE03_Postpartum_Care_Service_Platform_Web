@@ -95,99 +95,90 @@ const getTypeLabel = (type: string) => {
 type Props = {
   transactions: Transaction[];
   onView?: (transaction: Transaction) => void;
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
-    pageSizeOptions?: number[];
-    onPageSizeChange?: (size: number) => void;
-  };
+  currentPage?: number;
+  pageSize?: number;
 };
 
-export function TransactionTable({ transactions, onView, pagination }: Props) {
+export function TransactionTable({ transactions, onView, currentPage = 1, pageSize = 10 }: Props) {
   return (
     <div className={styles.tableWrapper}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>ID Giao dịch</th>
-            <th>ID đặt phòng</th>
-            <th>Khách hàng</th>
-            <th>Số tiền</th>
-            <th>Loại</th>
-            <th>Ghi chú</th>
-            <th>Phương thức</th>
-            <th>Ngày giao dịch</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.length === 0 ? (
+      <div className={styles.scrollContainer}>
+        <table className={styles.table}>
+          <thead>
             <tr>
-              <td colSpan={10} className={styles.emptyState}>
-                Chưa có giao dịch nào
-              </td>
+              <th className={styles.stickyColHeader} style={{ width: '60px' }}>STT</th>
+              <th>Khách hàng</th>
+              <th>Số tiền</th>
+              <th>Loại</th>
+              <th>Ghi chú</th>
+              <th>Phương thức</th>
+              <th>Ngày giao dịch</th>
+              <th>Trạng thái</th>
+              <th className={styles.stickyColHeader}>Thao tác</th>
             </tr>
-          ) : (
-            transactions.map((transaction) => (
-              <tr key={transaction.id} className={styles.tableRow}>
-                <td className={styles.idCell}>{transaction.id.slice(0, 8)}...</td>
-                <td>{transaction.bookingId}</td>
-                <td>
-                  <div className={styles.customerInfo}>
-                    <div className={styles.customerName}>{transaction.customer.username}</div>
-                    <div className={styles.customerEmail}>{transaction.customer.email}</div>
-                  </div>
-                </td>
-                <td className={styles.amount}>{formatCurrency(transaction.amount)}</td>
-                <td>{getTypeLabel(transaction.type)}</td>
-                <td className={styles.noteCell}>{transaction.note || '-'}</td>
-                <td>{transaction.paymentMethod}</td>
-                <td>{formatDate(transaction.transactionDate)}</td>
-                <td>
-                  <span className={`${styles.statusBadge} ${getStatusBadgeClass(transaction.status)}`}>
-                    {getStatusLabel(transaction.status)}
-                  </span>
-                </td>
-                <td>
-                  <div className={styles.actions}>
-                    <div className={styles.tooltipWrapper}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.viewButton} btn-icon btn-sm`}
-                        onClick={() => onView?.(transaction)}
-                        aria-label={`Xem chi tiết giao dịch ${transaction.id}`}
-                      >
-                        <Eye size={16} />
-                      </Button>
-                      <span className={styles.tooltip}>Xem chi tiết</span>
-                    </div>
-                  </div>
+          </thead>
+          <tbody>
+            {transactions.length === 0 ? (
+              <tr>
+                <td colSpan={9} className={styles.emptyState}>
+                  Chưa có giao dịch nào
                 </td>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            ) : (
+              transactions.map((transaction, index) => (
+                <tr key={transaction.id} className={styles.tableRow}>
+                  <td className={styles.sttCol}>
+                    <span className={styles.sttCell} title={`ID: ${transaction.id}\nBooking ID: ${transaction.bookingId}`}>
+                      {(currentPage - 1) * pageSize + index + 1}
+                    </span>
+                  </td>
+                  <td>
+                    <div className={styles.customerInfo}>
+                      {transaction.customer ? (
+                        <>
+                          <div className={styles.customerName}>{transaction.customer.username}</div>
+                          <div className={styles.customerEmail}>{transaction.customer.email}</div>
+                        </>
+                      ) : (
+                        <div className={styles.customerName}>Chưa xác định</div>
+                      )}
+                    </div>
+                  </td>
+                  <td className={styles.amount}>{formatCurrency(transaction.amount)}</td>
+                  <td>{getTypeLabel(transaction.type)}</td>
+                  <td className={styles.noteCell} title={transaction.note || undefined}>
+                    {transaction.note ? (transaction.note.length > 30 ? transaction.note.slice(0, 30) + '...' : transaction.note) : '-'}
+                  </td>
+                  <td>{transaction.paymentMethod}</td>
+                  <td>{formatDate(transaction.transactionDate)}</td>
+                  <td>
+                    <span className={`${styles.statusBadge} ${getStatusBadgeClass(transaction.status)}`}>
+                      {getStatusLabel(transaction.status)}
+                    </span>
+                  </td>
+                  <td className={styles.stickyActionsCol}>
+                    <div className={styles.actions}>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={`${styles.viewButton} btn-icon btn-sm`}
+                          onClick={() => onView?.(transaction)}
+                          aria-label={`Xem chi tiết giao dịch ${transaction.id}`}
+                        >
+                          <Eye size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Xem chi tiết</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
     </div>
   );
 }

@@ -11,6 +11,8 @@ import {
     FileEdit,
 } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { AdminPageLayout } from "@/components/layout/admin/AdminPageLayout";
 
 import { convertPlaceholdersToChips, convertChipsToPlaceholders } from "@/components/ui/rich-text-editor/PlaceholderChip";
 import RichTextEditor from "@/components/ui/rich-text-editor/RichTextEditor";
@@ -257,116 +259,134 @@ export default function AdminTemplatesPage() {
         return placeholders.filter(p => p.isActive && (p.templateType === typeValue || p.templateType === 0));
     }, [placeholders, selected]);
 
+    const breadcrumbItems = useMemo(() => {
+        const items = [{ label: 'Soạn thảo mẫu' }];
+        if (selected && currentName) {
+            items.push({ label: currentName });
+        }
+        return items;
+    }, [selected, currentName]);
+
     return (
-        <div className={styles.pageContainer}>
-            {/* ── Sidebar ── */}
-            <aside className={styles.sidebar}>
-                <div className={styles.sidebarHeader}>
-                    <p className={styles.sidebarTitle}>Quản lý mẫu</p>
-                    <p className={styles.sidebarSubtitle}>Mẫu hợp đồng & email hệ thống</p>
-                </div>
-                <div className={styles.sidebarScroll}>
-                    {loadingList ? (
-                        <div className={styles.sidebarLoading}>Đang tải...</div>
+        <AdminPageLayout
+            header={
+                <Breadcrumbs
+                    items={breadcrumbItems}
+                    homeHref="/admin"
+                />
+            }
+            noScroll={true}
+        >
+            <div className={styles.pageContainer}>
+                {/* ── Sidebar ── */}
+                <aside className={styles.sidebar}>
+                    <div className={styles.sidebarHeader}>
+                        <p className={styles.sidebarTitle}>Danh sách mẫu</p>
+                        <p className={styles.sidebarSubtitle}>Mẫu hợp đồng & email hệ thống</p>
+                    </div>
+                    <div className={styles.sidebarScroll}>
+                        {loadingList ? (
+                            <div className={styles.sidebarLoading}>Đang tải...</div>
+                        ) : (
+                            <>
+                                <div className={styles.section}>
+                                    <div className={styles.sectionHeader}>
+                                        <span className={styles.sectionLabel} onClick={() => setContractOpen((v) => !v)}>
+                                            {contractOpen ? <ChevronDown size={13} className={styles.sectionIcon} /> : <ChevronRight size={13} className={styles.sectionIcon} />}
+                                            <FileText size={13} className={styles.sectionIcon} />
+                                            Mẫu hợp đồng
+                                            <span className={styles.sectionCount}>{contractTemplates.length}</span>
+                                        </span>
+                                        <button className={styles.sectionAddBtn} title="Tạo mẫu hợp đồng mới" onClick={() => setNewModal('contract')}><Plus size={14} /></button>
+                                    </div>
+                                    {contractOpen && (
+                                        <div className={styles.templateList}>
+                                            {contractTemplates.length === 0 && <div className={styles.sidebarLoading}>Chưa có mẫu nào</div>}
+                                            {contractTemplates.map((t) => (
+                                                <button key={t.id} className={`${styles.templateItem} ${selected?.type === 'contract' && selected.id === t.id ? styles.active : ''}`} onClick={() => handleSelect('contract', t.id)}>
+                                                    <FileEdit size={14} className={styles.templateItemIcon} />
+                                                    <span className={styles.templateName}>{t.name}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className={styles.section}>
+                                    <div className={styles.sectionHeader}>
+                                        <span className={styles.sectionLabel} onClick={() => setEmailOpen((v) => !v)}>
+                                            {emailOpen ? <ChevronDown size={13} className={styles.sectionIcon} /> : <ChevronRight size={13} className={styles.sectionIcon} />}
+                                            <Mail size={13} className={styles.sectionIcon} />
+                                            Mẫu email
+                                            <span className={styles.sectionCount}>{emailTemplates.length}</span>
+                                        </span>
+                                        <button className={styles.sectionAddBtn} title="Tạo mẫu email mới" onClick={() => setNewModal('email')}><Plus size={14} /></button>
+                                    </div>
+                                    {emailOpen && (
+                                        <div className={styles.templateList}>
+                                            {emailTemplates.length === 0 && <div className={styles.sidebarLoading}>Chưa có mẫu nào</div>}
+                                            {emailTemplates.map((t) => (
+                                                <button key={t.id} className={`${styles.templateItem} ${selected?.type === 'email' && selected.id === t.id ? styles.active : ''}`} onClick={() => handleSelect('email', t.id)}>
+                                                    <Mail size={14} className={styles.templateItemIcon} />
+                                                    <span className={styles.templateName}>{t.name}</span>
+                                                    {t.code && <span className={styles.templateMeta}>{t.code}</span>}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                </aside>
+
+                {/* ── Editor area ── */}
+                <div className={styles.editorArea}>
+                    {!selected ? (
+                        <div className={styles.emptyState}>
+                            <FileText size={56} className={styles.emptyStateIcon} />
+                            <p className={styles.emptyStateText}>Chọn một mẫu để bắt đầu chỉnh sửa</p>
+                        </div>
                     ) : (
-                        <>
-                            <div className={styles.section}>
-                                <div className={styles.sectionHeader}>
-                                    <span className={styles.sectionLabel} onClick={() => setContractOpen((v) => !v)}>
-                                        {contractOpen ? <ChevronDown size={13} className={styles.sectionIcon} /> : <ChevronRight size={13} className={styles.sectionIcon} />}
-                                        <FileText size={13} className={styles.sectionIcon} />
-                                        Mẫu hợp đồng
-                                        <span className={styles.sectionCount}>{contractTemplates.length}</span>
+                        <div className={styles.editorCard} style={{ position: 'relative' }}>
+                            {loadingDetail && <div className={styles.loadingOverlay}><div className={styles.spinner} /></div>}
+
+                            <div className={styles.editorCardHeader}>
+                                <div className={styles.editorCardHeaderLeft}>
+                                    <span className={`${styles.editorTypeBadge} ${selected.type === 'contract' ? styles.contract : styles.email}`}>
+                                        {selected.type === 'contract' ? <><FileText size={11} /> Hợp đồng</> : <><Mail size={11} /> Email</>}
                                     </span>
-                                    <button className={styles.sectionAddBtn} title="Tạo mẫu hợp đồng mới" onClick={() => setNewModal('contract')}><Plus size={14} /></button>
+                                    <input className={styles.editorNameInput} value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Tên mẫu..." />
                                 </div>
-                                {contractOpen && (
-                                    <div className={styles.templateList}>
-                                        {contractTemplates.length === 0 && <div className={styles.sidebarLoading}>Chưa có mẫu nào</div>}
-                                        {contractTemplates.map((t) => (
-                                            <button key={t.id} className={`${styles.templateItem} ${selected?.type === 'contract' && selected.id === t.id ? styles.active : ''}`} onClick={() => handleSelect('contract', t.id)}>
-                                                <FileEdit size={14} className={styles.templateItemIcon} />
-                                                <span className={styles.templateName}>{t.name}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                            <div className={styles.section}>
-                                <div className={styles.sectionHeader}>
-                                    <span className={styles.sectionLabel} onClick={() => setEmailOpen((v) => !v)}>
-                                        {emailOpen ? <ChevronDown size={13} className={styles.sectionIcon} /> : <ChevronRight size={13} className={styles.sectionIcon} />}
-                                        <Mail size={13} className={styles.sectionIcon} />
-                                        Mẫu email
-                                        <span className={styles.sectionCount}>{emailTemplates.length}</span>
-                                    </span>
-                                    <button className={styles.sectionAddBtn} title="Tạo mẫu email mới" onClick={() => setNewModal('email')}><Plus size={14} /></button>
+                                <div className={styles.editorCardHeaderRight}>
+                                    <button className={styles.btnDelete} onClick={() => setDeleteModal(true)}><Trash2 size={14} /> Xóa</button>
+                                    <button className={styles.btnSave} onClick={handleSave} disabled={saving}><Save size={14} /> {saving ? 'Đang lưu...' : 'Lưu'}</button>
                                 </div>
-                                {emailOpen && (
-                                    <div className={styles.templateList}>
-                                        {emailTemplates.length === 0 && <div className={styles.sidebarLoading}>Chưa có mẫu nào</div>}
-                                        {emailTemplates.map((t) => (
-                                            <button key={t.id} className={`${styles.templateItem} ${selected?.type === 'email' && selected.id === t.id ? styles.active : ''}`} onClick={() => handleSelect('email', t.id)}>
-                                                <Mail size={14} className={styles.templateItemIcon} />
-                                                <span className={styles.templateName}>{t.name}</span>
-                                                {t.code && <span className={styles.templateMeta}>{t.code}</span>}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
                             </div>
-                        </>
+
+                            {selected.type === 'email' && (
+                                <div className={styles.subjectRow}>
+                                    <span className={styles.subjectLabel}>Tiêu đề</span>
+                                    <input className={styles.subjectInput} value={editSubject} onChange={(e) => setEditSubject(e.target.value)} placeholder="Nhập tiêu đề email..." />
+                                </div>
+                            )}
+
+                            <div className={styles.editorContent}>
+                                <RichTextEditor
+                                    content={editorContent}
+                                    onChange={handleEditorChange}
+                                    placeholder="Nhập nội dung mẫu..."
+                                    editorRef={editorRef}
+                                    placeholders={filteredPlaceholders}
+                                />
+                            </div>
+                        </div>
                     )}
                 </div>
-            </aside>
 
-            {/* ── Editor area ── */}
-            <div className={styles.editorArea}>
-                {!selected ? (
-                    <div className={styles.emptyState}>
-                        <FileText size={56} className={styles.emptyStateIcon} />
-                        <p className={styles.emptyStateText}>Chọn một mẫu để bắt đầu chỉnh sửa</p>
-                    </div>
-                ) : (
-                    <div className={styles.editorCard} style={{ position: 'relative' }}>
-                        {loadingDetail && <div className={styles.loadingOverlay}><div className={styles.spinner} /></div>}
-
-                        <div className={styles.editorCardHeader}>
-                            <div className={styles.editorCardHeaderLeft}>
-                                <span className={`${styles.editorTypeBadge} ${selected.type === 'contract' ? styles.contract : styles.email}`}>
-                                    {selected.type === 'contract' ? <><FileText size={11} /> Hợp đồng</> : <><Mail size={11} /> Email</>}
-                                </span>
-                                <input className={styles.editorNameInput} value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Tên mẫu..." />
-                            </div>
-                            <div className={styles.editorCardHeaderRight}>
-                                <button className={styles.btnDelete} onClick={() => setDeleteModal(true)}><Trash2 size={14} /> Xóa</button>
-                                <button className={styles.btnSave} onClick={handleSave} disabled={saving}><Save size={14} /> {saving ? 'Đang lưu...' : 'Lưu'}</button>
-                            </div>
-                        </div>
-
-                        {selected.type === 'email' && (
-                            <div className={styles.subjectRow}>
-                                <span className={styles.subjectLabel}>Tiêu đề</span>
-                                <input className={styles.subjectInput} value={editSubject} onChange={(e) => setEditSubject(e.target.value)} placeholder="Nhập tiêu đề email..." />
-                            </div>
-                        )}
-
-                        <div className={styles.editorContent}>
-                            <RichTextEditor
-                                content={editorContent}
-                                onChange={handleEditorChange}
-                                placeholder="Nhập nội dung mẫu..."
-                                editorRef={editorRef}
-                                placeholders={filteredPlaceholders}
-                            />
-                        </div>
-                    </div>
-                )}
+                {/* ── Modals ── */}
+                {newModal && <NewTemplateModal type={newModal} onClose={() => setNewModal(null)} onCreate={handleCreate} />}
+                {deleteModal && currentName && <ConfirmDeleteModal name={currentName} onClose={() => setDeleteModal(false)} onConfirm={handleDelete} />}
             </div>
-
-            {/* ── Modals ── */}
-            {newModal && <NewTemplateModal type={newModal} onClose={() => setNewModal(null)} onCreate={handleCreate} />}
-            {deleteModal && currentName && <ConfirmDeleteModal name={currentName} onClose={() => setDeleteModal(false)} onConfirm={handleDelete} />}
-        </div>
+        </AdminPageLayout>
     );
 }

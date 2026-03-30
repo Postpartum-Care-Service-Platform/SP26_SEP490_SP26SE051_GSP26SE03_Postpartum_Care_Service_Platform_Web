@@ -157,7 +157,12 @@ export function TeamProductivity() {
                 data={data}
                 margin={{ top: 5, right: 10, left: 0, bottom: 0 }}
               >
-                <CartesianGrid strokeDasharray="4 4" stroke="#f1f1f1" />
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke="#f0f0f0" 
+                  vertical={false} 
+                  horizontal={true} 
+                />
                 <XAxis
                   dataKey="month"
                   tick={{ fontSize: 12, fill: '#373d3f' }}

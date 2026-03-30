@@ -37,10 +37,20 @@ type ApiErrorBody = {
 
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response.data,
-  (error: AxiosError<ApiErrorBody>) => {
+  async (error: AxiosError<ApiErrorBody>) => {
     if (error.response) {
       const status = error.response.status;
-      const data = error.response.data;
+      let data = error.response.data;
+
+      // Xử lý trường hợp data là Blob (thường xảy ra khi dùng responseType: 'blob')
+      if (data instanceof Blob && data.type === 'application/json') {
+        try {
+          const text = await data.text();
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error('Failed to parse error blob:', e);
+        }
+      }
 
       // Xử lý lỗi 401 Unauthorized
       if (status === 401) {

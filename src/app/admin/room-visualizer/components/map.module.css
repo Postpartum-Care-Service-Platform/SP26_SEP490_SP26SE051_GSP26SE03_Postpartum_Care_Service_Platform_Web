@@ -1,0 +1,96 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.roomCard {
+  background: var(--status-bg);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 120px;
+}
+
+.roomCard:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-color: var(--status-color);
+}
+
+.selected {
+  border: 2px solid var(--status-color);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+  background: white;
+}
+
+.roomHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.roomName {
+  font-weight: 700;
+  font-size: 18px;
+  color: #1e293b;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--status-color);
+  box-shadow: 0 0 8px var(--status-color);
+}
+
+.roomBody {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.typeName {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusBadge {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--status-color);
+}
+
+.selectionIndicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background-color: var(--status-color);
+}
+
+.noRooms {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

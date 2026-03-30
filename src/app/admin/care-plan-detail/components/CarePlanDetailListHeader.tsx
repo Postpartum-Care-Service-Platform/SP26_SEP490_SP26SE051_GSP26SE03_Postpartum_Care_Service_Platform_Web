@@ -1,18 +1,22 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 import styles from './care-plan-detail-list-header.module.css';
 
 export function CarePlanDetailListHeader() {
+  const pathname = usePathname();
+  const isManager = pathname?.startsWith('/manager');
+  const homeHref = isManager ? '/manager' : '/admin';
+
   return (
     <div className={styles.header}>
-      <h4 className={styles.title}>Danh sách chi tiết kế hoạch chăm sóc</h4>
       <Breadcrumbs
         items={[
-          { label: 'Chi tiết kế hoạch chăm sóc' },
+          { label: 'Hoạt động gói dịch vụ' },
         ]}
-        homeHref="/admin"
+        homeHref={homeHref}
       />
     </div>
   );

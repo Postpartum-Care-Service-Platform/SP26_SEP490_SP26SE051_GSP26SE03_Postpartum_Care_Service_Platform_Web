@@ -9,6 +9,7 @@ export type CarePlanDetail = {
   endTime: string;
   instruction: string;
   sortOrder: number;
+  homeServiceDate?: string | null;
 };
 
 export type CreateCarePlanDetailRequest = {
@@ -19,6 +20,7 @@ export type CreateCarePlanDetailRequest = {
   endTime: string;
   instruction: string;
   sortOrder?: number;
+  homeServiceDate?: string | null;
 };
 
 export type UpdateCarePlanDetailRequest = {
@@ -29,4 +31,5 @@ export type UpdateCarePlanDetailRequest = {
   endTime?: string;
   instruction?: string;
   sortOrder?: number;
+  homeServiceDate?: string | null;
 };

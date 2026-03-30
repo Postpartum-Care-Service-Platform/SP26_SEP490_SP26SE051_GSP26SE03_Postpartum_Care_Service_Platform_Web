@@ -1,4 +1,4 @@
-import type { StaffSchedule, GetStaffScheduleParams } from '@/types/staff-schedule';
+import type { StaffSchedule, GetStaffScheduleParams, StaffScheduleAllResponse } from '@/types/staff-schedule';
 
 import apiClient from './apiClient';
 
@@ -19,8 +19,15 @@ export interface CreateFamilyScheduleRequest {
 const staffScheduleService = {
   getStaffSchedule: (params: GetStaffScheduleParams): Promise<StaffSchedule[]> => {
     const { staffId, from, to } = params;
-    return apiClient.get(`/StaffSchedule/${staffId}`, {
+    const url = staffId ? `/StaffSchedule/${staffId}` : '/StaffSchedule';
+    return apiClient.get(url, {
       params: { from, to },
+    });
+  },
+
+  getAllSchedules: (from: string, to: string): Promise<StaffScheduleAllResponse[]> => {
+    return apiClient.get('/StaffSchedule/all-schedules', {
+      params: { fromDate: from, toDate: to },
     });
   },
 

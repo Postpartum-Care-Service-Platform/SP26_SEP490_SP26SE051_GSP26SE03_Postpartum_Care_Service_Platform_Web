@@ -1,150 +1,85 @@
-.tableWrapper {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.tableScrollArea {
-  overflow-x: auto;
-  overflow-y: auto;
-  max-height: 70vh;
-  scrollbar-width: thin;
-  scrollbar-color: #fbb96a #f1f3f5;
-}
-
-/* Webkit scrollbar – dọc & ngang */
-.tableScrollArea::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
-}
-.tableScrollArea::-webkit-scrollbar-track {
-  background: #f1f3f5;
-  border-radius: 10px;
-}
-.tableScrollArea::-webkit-scrollbar-thumb {
-  background: #fbb96a;
-  border-radius: 10px;
-  border: 1px solid #f1f3f5;
-}
-.tableScrollArea::-webkit-scrollbar-thumb:hover {
-  background: #fa8314;
-}
-.tableScrollArea::-webkit-scrollbar-corner {
-  background: #f1f3f5;
-}
-
-
 .table {
   width: 100%;
-  min-width: 1500px;
+  min-width: 1400px;
   border-collapse: collapse;
 }
 
 .table thead {
-  background-color: rgba(242, 242, 244, 0.5);
+  background-color: #f2f2f4;
+  position: sticky;
+  top: 0;
+  z-index: 100; /* Ensure header stays above everything */
 }
 
 .table th {
-  padding: 10px 14px;
+  padding: 12px 14px;
   text-align: left;
-  font-family: "Funnel Sans", sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
   color: #343A40;
   white-space: nowrap;
+  background-color: inherit;
 }
 
+.avatarHeader {
+  text-align: right !important;
+  padding-right: 12px !important;
+}
+
+.avatarCell {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 12px !important;
+  border-right: none;
+}
+
+.table td {
+  padding: 16px 14px; /* Increased padding as requested */
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  overflow: visible !important; /* Prevent clipping tooltips */
+}
+
+/* Base column widths */
 .table th:nth-child(1),
-.table td:nth-child(1) {
-  width: 40px;
-  min-width: 40px;
-}
-
+.table td:nth-child(1) { width: 64px; min-width: 64px; text-align: center; }
 .table th:nth-child(2),
-.table td:nth-child(2) {
-  width: 150px;
-  min-width: 150px;
-  max-width: 150px;
-}
-
+.table td:nth-child(2) { width: 64px; min-width: 64px; }
 .table th:nth-child(3),
-.table td:nth-child(3) {
-  width: 180px;
-  min-width: 180px;
-}
-
+.table td:nth-child(3) { width: 180px; min-width: 180px; }
 .table th:nth-child(4),
-.table td:nth-child(4) {
-  width: 230px;
-  min-width: 230px;
-}
-
+.table td:nth-child(4) { width: 150px; min-width: 150px; }
 .table th:nth-child(5),
-.table td:nth-child(5) {
-  width: 95px;
-  min-width: 95px;
-}
-
+.table td:nth-child(5) { width: 230px; min-width: 230px; }
 .table th:nth-child(6),
-.table td:nth-child(6) {
-  width: 80px;
-  min-width: 80px;
-}
-
+.table td:nth-child(6) { width: 110px; min-width: 110px; }
 .table th:nth-child(7),
-.table td:nth-child(7) {
-  width: 90px;
-  min-width: 90px;
-}
-
+.table td:nth-child(7) { width: 120px; min-width: 120px; }
 .table th:nth-child(8),
-.table td:nth-child(8) {
-  width: 120px;
-  min-width: 120px;
-}
-
+.table td:nth-child(8) { width: 130px; min-width: 130px; }
 .table th:nth-child(9),
-.table td:nth-child(9) {
-  width: 140px;
-  min-width: 140px;
-}
-
+.table td:nth-child(9) { width: 250px; min-width: 250px; }
 .table th:nth-child(10),
-.table td:nth-child(10) {
-  width: 110px;
-  min-width: 110px;
-}
-
+.table td:nth-child(10) { width: 170px; min-width: 170px; }
 .table th:nth-child(11),
-.table td:nth-child(11) {
-  width: 130px;
-  min-width: 130px;
-}
-
+.table td:nth-child(11) { width: 140px; min-width: 140px; text-align: center; }
 .table th:nth-child(12),
-.table td:nth-child(12) {
-  width: 120px;
-  min-width: 120px;
-}
+.table td:nth-child(12) { width: 120px; min-width: 120px; }
 
-.table th:nth-child(13),
-.table td:nth-child(13) {
-  width: 100px;
-  min-width: 100px;
+.stickyActionsCol {
   position: sticky;
   right: 0;
-  z-index: 3;
+  z-index: 20;
   background-color: #fff;
-  box-shadow: -8px 0 12px -10px rgba(0, 0, 0, 0.35);
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
+  overflow: visible !important; /* Crucial for tooltips in sticky cells */
 }
 
-.table thead th:nth-child(13) {
-  z-index: 4;
-  background-color: rgba(242, 242, 244, 0.98);
+thead th.stickyActionsCol {
+  z-index: 110; /* Must be higher than normal thead z-index */
+  background-color: #f2f2f4 !important;
 }
 
 .table tbody tr {
@@ -158,6 +93,13 @@
 
 .table tbody tr:hover {
   background-color: #f8f9fa;
+  position: relative;
+  z-index: 90; /* Increased to stay above the row above it */
+}
+
+.table tbody tr:hover td:nth-child(12) {
+  background-color: #f8f9fa;
+  overflow: visible !important;
 }
 
 .expandableRow {
@@ -272,16 +214,7 @@
   display: inline-block;
 }
 
-.table td {
-  padding: 13px 12px;
-  font-family: var(--font-body);
-  font-size: 14px;
-  color: #343A40;
-  white-space: nowrap;
-}
-
 .truncateCell {
-  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -303,6 +236,9 @@
 .patientNameText {
   font-size: 13px;
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .avatar {
@@ -376,11 +312,16 @@
 .tooltipWrapper {
   position: relative;
   display: inline-flex;
+  z-index: 1; /* Initial z-index */
+}
+
+.tooltipWrapper:hover {
+  z-index: 1000; /* Higher than all rows */
 }
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + 8px); /* Default: point UP */
   left: 50%;
   transform: translateX(-50%) scale(0.85);
   background-color: #343a40;
@@ -392,17 +333,29 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
 }
 
 .tooltipWrapper .tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
+  top: 100%; /* Arrow at the bottom */
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #343a40;
+  border-top-color: #343a40; /* Arrow pointing down */
+}
+
+/* SMART TOOLTIP: Switch direction to DOWN for first 3 rows to avoid sticky header clipping */
+.table tbody tr:nth-child(-n+3) .tooltipWrapper .tooltip {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+
+.table tbody tr:nth-child(-n+3) .tooltipWrapper .tooltip::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: #343a40; /* Arrow pointing up */
 }
 
 .tooltipWrapper:hover .tooltip {
@@ -415,16 +368,17 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 8px;
+  padding: 4px 10px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-family: "Atlassian Sans", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.02em;
   color: #172B4D;
   background: rgba(9, 30, 66, 0.08);
+  white-space: nowrap; /* Prevent wrap */
 }
 
 .roleTrigger:disabled {
@@ -441,42 +395,117 @@
 
 .roleBadgeAdmin {
   background: #fde2e1;
-  color: #9f1239;
+  color: #172B4D;
 }
 
 .roleBadgeStaff {
   background: #dbeafe;
-  color: #1d4ed8;
+  color: #172B4D;
 }
 
 .roleBadgeCustomer {
-  background: #e5e7eb;
-  color: #374151;
+  background: #fff7ed;
+  color: #172B4D;
 }
 
 .roleBadgeManager {
   background: #fef3c7;
-  color: #b45309;
+  color: #172B4D;
 }
 
 .roleBadgeAmenity {
   background: #dcfce7;
-  color: #166534;
+  color: #172B4D;
 }
 
 .roleBadgeDefault {
-  background: rgba(9, 30, 66, 0.08);
+  background: #fff7ed;
   color: #172B4D;
 }
 
 .statusActive {
   background: #dcfce7;
-  color: #166534;
+  color: #172B4D;
 }
 
 .statusInactive {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: transparent;
+  color: inherit;
+}
+
+.plainTrigger {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+/* ── Single Animated Status Dot ── */
+.statusIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  position: relative;
+  width: 8px;
+  height: 8px;
+}
+
+.statusCircle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+}
+
+.statusAnimated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: inherit;
+  z-index: 1;
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  70% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.statusActive .statusCircle {
+  background-color: #10B981;
+}
+
+.statusActive .statusIndicator.statusAnimated::after {
+  background-color: #10B981;
+}
+
+.statusInactive .statusCircle {
+  background-color: #EF4444;
+}
+
+.statusInactive .statusIndicator.statusAnimated::after {
+  background-color: #EF4444;
 }
 
 .roleMenu {
@@ -555,18 +584,22 @@
   width: 7px;
   height: 7px;
 }
+
 .profilesTableScrollArea::-webkit-scrollbar-track {
   background: #f1f3f5;
   border-radius: 10px;
 }
+
 .profilesTableScrollArea::-webkit-scrollbar-thumb {
   background: #fbb96a;
   border-radius: 10px;
   border: 1px solid #f1f3f5;
 }
+
 .profilesTableScrollArea::-webkit-scrollbar-thumb:hover {
   background: #fa8314;
 }
+
 .profilesTableScrollArea::-webkit-scrollbar-corner {
   background: #f1f3f5;
 }
@@ -669,6 +702,7 @@
 }
 
 @media (max-width: 768px) {
+
   .table th,
   .table td {
     padding: 12px 8px;
@@ -688,7 +722,14 @@
 }
 
 .paginationWrapper {
-  margin-top: 16px;
+  position: sticky;
+  bottom: 0;
+  background-color: #fff;
+  padding: 16px 0;
+  margin-top: 0;
   display: flex;
   justify-content: flex-end;
+  z-index: 80;
+  border-top: 1px solid #f1f3f5;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.03);
 }

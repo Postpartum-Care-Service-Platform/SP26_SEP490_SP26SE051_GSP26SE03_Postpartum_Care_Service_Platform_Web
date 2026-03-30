@@ -20,6 +20,8 @@ export type Patient = {
   status: PatientStatus;
   // Account ID to fetch profiles
   accountId: string;
+  // Customer ID for account overview
+  customerId?: string;
 };
 
 export type PatientStatus = 'Stable' | 'Under Observation' | 'Recovering' | 'Critical';

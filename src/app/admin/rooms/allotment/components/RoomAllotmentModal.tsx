@@ -175,13 +175,28 @@ export function RoomAllotmentModal({ open, onOpenChange, room, onSuccess }: Prop
               {/* Trạng thái (chỉ edit mode) */}
               {!isCreateMode && (
                 <div className={styles.formGroup}>
-                  <label htmlFor="roomStatus">Trạng thái</label>
-                  <select id="roomStatus" className={styles.formControl}
-                    value={status} onChange={(e) => setStatus(e.target.value as RoomStatus)}>
-                    {STATUS_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>{opt.label}</option>
-                    ))}
-                  </select>
+                  <label>Trạng thái</label>
+                  <DropdownMenu modal={false}>
+                    <DropdownMenuTrigger asChild>
+                      <button type="button" className={styles.dropdownTrigger}>
+                        <span className={styles.dropdownValueSelected}>
+                          {STATUS_OPTIONS.find((opt) => opt.value === status)?.label || status}
+                        </span>
+                        <ChevronDownIcon className={styles.dropdownChevron} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className={styles.dropdownContent} align="start">
+                      {STATUS_OPTIONS.map((opt) => (
+                        <DropdownMenuItem
+                          key={opt.value}
+                          className={`${styles.dropdownItem} ${status === opt.value ? styles.dropdownItemActive : ''}`}
+                          onClick={() => setStatus(opt.value)}
+                        >
+                          {opt.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               )}
             </div>

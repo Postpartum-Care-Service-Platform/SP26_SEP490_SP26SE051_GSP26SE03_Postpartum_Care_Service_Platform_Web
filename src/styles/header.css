@@ -41,11 +41,15 @@
 }
 
 .tjn-header__brandText {
-  font-family: var(--font-display);
+  font-family: 'ES Rebond Grotesque', var(--font-display);
   font-size: 22px;
   font-weight: 400;
   color: #fa8314;
   text-decoration: none;
+}
+
+.tjn-header__nav {
+  height: 100%;
 }
 
 .row-menu-inner {
@@ -53,20 +57,81 @@
   align-items: center;
   gap: 22px;
   flex-wrap: nowrap;
+  height: 100%;
 }
 
 .tjn-header__link {
   color: #111;
   text-decoration: none;
-  font-family: var(--font-body);
-  font-size: 15px;
+  font-family: 'ES Rebond Grotesque', var(--font-body);
+  font-size: 14px;
   line-height: 1;
   padding: 8px 6px;
   white-space: nowrap;
 }
 
-.tjn-header__link:hover {
+.tjn-header__link:hover,
+.tjn-header__link.is-active {
+  color: #fa8314;
   text-decoration: none;
+}
+
+/* Submenu / Dropdown Styles */
+.tjn-header__nav-item {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-icon {
+  margin-left: 4px;
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-top: -1px;
+  transition: transform 0.2s ease;
+}
+
+.has-dropdown:hover .dropdown-icon {
+  transform: translateY(1px);
+}
+
+.tjn-header__submenu {
+  position: absolute;
+  top: 81px; /* Attached exactly to the bottom of the header */
+  left: 0;
+  background-color: #ffffff;
+  min-width: 160px;
+  padding: 12px 0;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 1000;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.tjn-header__nav-item:hover .tjn-header__submenu {
+  opacity: 1;
+  visibility: visible;
+}
+
+.tjn-header__submenu-link {
+  display: block;
+  padding: 10px 24px;
+  color: #111;
+  font-family: 'ES Rebond Grotesque', var(--font-body);
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.tjn-header__submenu-link:hover {
+  background-color: #fffbf4;
+  color: #fa8314;
+  padding-left: 28px;
 }
 
 .tjn-header__actions {
@@ -79,8 +144,8 @@
 .tjn-header__login {
   color: #111;
   text-decoration: underline;
-  font-family: var(--font-body);
-  font-size: 16px;
+  font-family: 'ES Rebond Grotesque', var(--font-body);
+  font-size: 15px;
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
@@ -103,7 +168,7 @@
   background-color: rgb(250, 131, 20);
   color: #fff;
   text-decoration: none;
-  font-family: var(--font-body);
+  font-family: 'ES Rebond Grotesque', var(--font-body);
   font-size: 16px;
   font-weight: 500;
   line-height: 1;
@@ -203,7 +268,7 @@
 }
 
 .tjn-header__dropdown-item {
-  font-family: var(--font-body);
+  font-family: 'ES Rebond Grotesque', var(--font-body);
   font-size: 14px;
   color: #111;
   text-decoration: none;

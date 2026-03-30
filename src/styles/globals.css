@@ -1,6 +1,21 @@
-@import '@fontsource/lexend-deca/400.css';
 @import '@fontsource/lexend-deca/500.css';
 @import '@fontsource/lexend-deca/600.css';
+
+@font-face {
+  font-family: 'ES Rebond Grotesque';
+  src: url('/ES-Rebond-Grotesque-normal-400-100.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Queens';
+  src: url('/Queens-normal-400-100.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -12,8 +27,18 @@ body {
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow-x: hidden;
+  overflow-x: auto;
+  -ms-overflow-style: none; /* IE & Edge */
 }
+
+/* Hide vertical scrollbar but allow horizontal in Chrome/Safari/Edge */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+}
+
+
+
 
 body.app-shell {
   min-height: 100vh;
@@ -27,7 +52,6 @@ body.app-shell .app-shell__inner {
 
 body.app-shell .app-shell__main {
   flex: 1;
-  background-color: #ffffff;
 }
 
 *,
@@ -225,16 +249,26 @@ a:hover {
 
 ::-webkit-scrollbar {
   width: 8px;
-  height: 3px;
+  height: 8px; /* Tăng height cho scrollbar ngang đồng nhất */
   scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-accent) rgba(0, 0, 0, 0.05);
+}
+
+/* Ẩn mũi tên hai đầu của scrollbar */
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 ::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.05);
+  border-radius: 0; /* Bỏ border radius */
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgb(250, 131, 20);
+  background-color: var(--color-brand-accent);
+  border-radius: 0; /* Bỏ border radius */
 }
 
 ::-webkit-scrollbar-thumb:hover {

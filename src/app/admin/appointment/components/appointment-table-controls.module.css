@@ -1,27 +1,59 @@
 .wrapper {
-  background-color: #fff;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid var(--color-border-default);
-}
-
-.title {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0;
+  overflow: visible;
 }
 
 .controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f1f1;
+  gap: var(--spacing-sm);
+  padding: 16px;
+  background-color: #fff;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 1;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--spacing-sm);
+  width: 18px;
+  height: 18px;
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background-color: #f8f9fa;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+}
+
+.right {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
@@ -57,6 +89,38 @@
 
 .statusButton[data-state='open'] .chevronIcon {
   transform: rotate(180deg);
+}
+
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exportButton:hover {
+  background-color: #e9ecef;
+  border-color: var(--color-brand-accent);
+}
+
+.exportIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.itemIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
 }
 
 .dropdownContent {

@@ -2,7 +2,7 @@
 
 import * as Popover from '@radix-ui/react-popover';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { addDays, format, startOfWeek, isSameDay, isBefore, startOfDay } from 'date-fns';
+import { addDays, format, startOfWeek, isSameDay, isBefore, startOfDay, isToday } from 'date-fns';
 import React from 'react';
 
 import staffScheduleService from '@/services/staff-schedule.service';
@@ -10,18 +10,25 @@ import type { StaffSchedule } from '@/types/staff-schedule';
 
 import styles from './calendar-week-view.module.css';
 import { MiniCalendar } from './MiniCalendar';
+import { ScheduleDetailPopover } from '../shared/ScheduleDetailPopover';
+import { CalendarSidebarExtra } from './CalendarSidebarExtra';
 
-// Generate hours - each slot represents 2 hours (e.g., "12 AM" = 12 AM - 2 AM)
-const HOURS = Array.from({ length: 8 }, (_, i) => i); // 8 slots: 6 AM - 10 PM
-const START_HOUR = 6; // Schedule starts at 6 AM
-const TIME_SLOT_STEP = 2; // Each slot represents 2 hours
 
-// Color mapping for target
-const TARGET_COLORS = {
-  Mom: '#FFB6C1',
-  Baby: '#87CEEB',
-  Both: '#DDA0DD',
-} as const;
+// Generate hours - each slot represents 1 hour
+const HOURS = Array.from({ length: 24 }, (_, i) => i); // 24 slots: 12 AM - 11 PM
+const START_HOUR = 0; // Schedule starts at 12 AM
+const TIME_SLOT_STEP = 1; // Each slot represents 1 hour
+
+const STATUS_COLORS: Record<string, string> = {
+  Scheduled: '#DDEBFF',
+  Done: '#CDEFE1',
+  Missed: '#FBE2E4',
+  Cancelled: '#FBE2E4',
+};
+
+function getStatusColor(status: string): string {
+  return STATUS_COLORS[status] || '#E9EDF5';
+}
 
 function formatTimeSlot(slotIndex: number): string {
   const hour = START_HOUR + slotIndex * TIME_SLOT_STEP;
@@ -38,6 +45,11 @@ function formatEventTime(time: string): string {
   return `${hour}:${minutes.toString().padStart(2, '0')} ${ampm}`;
 }
 
+function formatTime(time: string): string {
+  const [hours, minutes] = time.split(':');
+  return `${hours}:${minutes}`;
+}
+
 function getEventsForDate(date: Date, events: StaffSchedule[]): StaffSchedule[] {
   const dateStr = format(date, 'yyyy-MM-dd');
   return events.filter(event => 
@@ -50,7 +62,16 @@ function getEventsForDate(date: Date, events: StaffSchedule[]): StaffSchedule[] 
 function getEventPosition(startTime: string): number {
   const [hours, minutes] = startTime.split(':').map(Number);
   const totalHours = hours + minutes / 60;
-  return (totalHours - START_HOUR) * 48; // Each hour is 48px
+  return (totalHours - START_HOUR) * 96; // Each hour is 96px
+}
+
+function getEventHeight(startTime: string, endTime: string): number {
+  const [startH, startM] = startTime.split(':').map(Number);
+  const [endH, endM] = endTime.split(':').map(Number);
+  const startTotal = startH + startM / 60;
+  const endTotal = endH + endM / 60;
+  const duration = Math.max(0.5, endTotal - startTotal); // Min 30 mins
+  return duration * 96;
 }
 
 function getCurrentTimePosition(): number {
@@ -59,25 +80,37 @@ function getCurrentTimePosition(): number {
   const minutes = now.getMinutes();
   // Each hour = 48px, starting from 6 AM
   if (hours < START_HOUR) return -1;
-  return (hours - START_HOUR) * 48 + (minutes / 60) * 48;
+  return (hours - START_HOUR) * 96 + (minutes / 60) * 96;
 }
 
-export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: { 
-  monthCursor: Date; 
+export function CalendarWeekView({ 
+  weekCursor, 
+  schedules, 
+  onEventCreated, 
+  onDateChange,
+  selectedStaffId,
+  onStaffSelect,
+}: { 
+  weekCursor: Date; 
   schedules: StaffSchedule[];
   onEventCreated?: () => void;
+  onDateChange?: (date: Date) => void;
+  selectedStaffId: string | null;
+  onStaffSelect: (staffId: string | null) => void;
 }) {
-  const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
   const [selectedDateTime, setSelectedDateTime] = React.useState<{
     date: Date;
     hour: number;
     anchorRect: DOMRect;
   } | null>(null);
+  const [selectedSchedule, setSelectedSchedule] = React.useState<StaffSchedule | null>(null);
+  const [scheduleAnchorRect, setScheduleAnchorRect] = React.useState<DOMRect | null>(null);
+  const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 
-  // Start from Monday of the week containing monthCursor
+  // Start from Sunday of the week containing weekCursor
   const weekStart = React.useMemo(() => {
-    return startOfWeek(monthCursor, { weekStartsOn: 1 });
-  }, [monthCursor]);
+    return startOfWeek(weekCursor, { weekStartsOn: 0 });
+  }, [weekCursor]);
 
   // Generate Mon-Sun (7 days)
   const days = React.useMemo(() => {
@@ -98,14 +131,27 @@ export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: {
     });
   };
 
+  const handleEventClick = (schedule: StaffSchedule, event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    const rect = event.currentTarget.getBoundingClientRect();
+    setScheduleAnchorRect(rect);
+    setSelectedSchedule(schedule);
+    setIsPopoverOpen(true);
+  };
+
   return (
     <Tooltip.Provider delayDuration={350}>
       <div style={{ display: 'flex', gap: '16px' }}>
-        <div style={{ flexShrink: 0 }}>
+        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', width: '220px', overflowY: 'auto', overflowX: 'hidden' }}>
           <MiniCalendar 
-            selectedDate={selectedDate} 
-            onDateSelect={setSelectedDate}
-            currentMonth={monthCursor}
+            selectedDate={weekCursor} 
+            onDateSelect={onDateChange}
+            currentMonth={weekCursor}
+            viewMode="Week"
+          />
+          <CalendarSidebarExtra 
+            selectedDate={weekCursor}
+            schedules={schedules}
           />
         </div>
 
@@ -126,36 +172,48 @@ export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: {
           <div className={styles.grid}>
             {/* Time column */}
             <div className={styles.timeColumn}>
-              {/* Each hour slot = 2 hours (96px) */}
+              {/* Each hour slot = 1 hour (48px) */}
               {HOURS.map((slotIndex) => (
-                <div key={slotIndex} className={`${styles.timeSlot} ${styles.timeSlotDouble}`}>
+                <div key={slotIndex} className={styles.timeSlot}>
                   {formatTimeSlot(slotIndex)}
                 </div>
               ))}
-              {/* Current time indicator - dot only */}
-              <div 
-                className={styles.currentTimeDot}
-                style={{ 
-                  top: `${currentTimePosition}px`,
-                  backgroundColor: '#FF6B00'
-                }}
-              />
+              {/* Current time indicator - dot with tooltip */}
+              {currentTimePosition >= 0 && (
+                <Tooltip.Root>
+                  <Tooltip.Trigger asChild>
+                    <div 
+                      className={styles.currentTimeDot}
+                      style={{ 
+                        top: `${currentTimePosition}px`,
+                        backgroundColor: '#FF6B00',
+                        cursor: 'help'
+                      }}
+                    />
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content className={styles.tooltipContent} side="right" sideOffset={10}>
+                      {format(new Date(), 'HH:mm')}
+                      <Tooltip.Arrow className={styles.tooltipArrow} />
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
+              )}
             </div>
 
             {/* Day columns */}
             {days.map((d) => {
-              const isToday = isSameDay(d, today);
-              const isPast = isBefore(d, startOfDay(today));
+              const isTodayDate = isToday(d);
               const dayEvents = getEventsForDate(d, schedules);
               const dayKey = d.toISOString();
               
               return (
-                <div key={dayKey} className={`${styles.dayColumn} ${isToday ? styles.today : ''}`}>
-                  {/* Hour grid lines - each slot = 2 hours (96px) */}
+                <div key={dayKey} className={`${styles.dayColumn} ${isTodayDate ? styles.today : ''}`}>
+                  {/* Hour grid lines - each slot = 1 hour (48px) */}
                   {HOURS.map((slotIndex) => (
                     <div 
                       key={slotIndex} 
-                      className={`${styles.hourSlot} ${styles.hourSlotDouble}`}
+                      className={styles.hourSlot}
                       onClick={(event) => handleCellClick(d, slotIndex, event)}
                       style={{ cursor: 'pointer' }}
                     >
@@ -164,50 +222,81 @@ export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: {
                     </div>
                   ))}
                   
-                  {/* Current time line - only show dot on time column */}
-                  
-                  {/* Past time line - dashed, lighter color */}
-                  {isPast && (
+                  {/* Current time line - only show on today */}
+                  {isTodayDate && currentTimePosition >= 0 && (
                     <div 
-                      className={styles.pastTimeLine}
+                      className={styles.currentTimeLine}
+                      style={{ 
+                        top: `${currentTimePosition}px`
+                      }}
+                    />
+                  )}
+                  {/* Dashed current time line for other days */}
+                  {!isTodayDate && currentTimePosition >= 0 && (
+                    <div 
+                      className={styles.currentTimeLineDashed}
                       style={{ top: `${currentTimePosition}px` }}
                     />
                   )}
                   {/* Events */}
                   {dayEvents.map((schedule) => {
                     const { familyScheduleResponse: fs } = schedule;
-                    const eventColor = TARGET_COLORS[fs.target] || TARGET_COLORS.Baby;
                     const topPosition = getEventPosition(fs.startTime);
+                    const height = getEventHeight(fs.startTime, fs.endTime);
                     
                     return (
                       <Tooltip.Root key={schedule.id}>
                         <Tooltip.Trigger asChild>
                           <div
                             className={styles.eventChip}
+                            onClick={(e) => handleEventClick(schedule, e)}
                             style={{ 
-                              backgroundColor: eventColor,
                               top: `${topPosition}px`,
+                              height: `${height}px`,
+                              cursor: 'pointer',
+                              backgroundColor: getStatusColor(fs.status),
                             }}
                           >
-                            <span className={styles.eventTime}>
-                              {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
-                            </span>
-                            <span className={styles.eventTitle}>
-                              {fs.activity}
-                            </span>
-                            <span className={styles.eventCustomer}>
-                              {fs.customerName}
-                            </span>
+                            <div className={styles.eventContent}>
+                              <span className={styles.eventTime} style={{ color: '#ff7a00' }}>
+                                {formatTime(fs.startTime)}
+                              </span>
+                              <span className={styles.eventTitle}>
+                                {fs.activity}
+                              </span>
+                            </div>
                           </div>
                         </Tooltip.Trigger>
                         <Tooltip.Portal>
                           <Tooltip.Content className={styles.tooltipContent} sideOffset={5}>
-                            <div className={styles.tooltipTitle}>{fs.activity}</div>
+                            <div className={styles.tooltipHeader}>
+                              <div className={styles.tooltipTitle}>{fs.activity}</div>
+                              <div 
+                                className={styles.tooltipStatusBadge}
+                                style={{ 
+                                  backgroundColor: 
+                                    fs.status === 'Done' ? '#CDEFE1' : 
+                                    fs.status === 'Missed' ? '#FBE2E4' : 
+                                    fs.status === 'Cancelled' ? '#F4F5F7' : '#DDEBFF',
+                                  color: 
+                                    fs.status === 'Done' ? '#006644' : 
+                                    fs.status === 'Missed' ? '#AE2E24' : 
+                                    fs.status === 'Cancelled' ? '#42526E' : '#0052CC'
+                                }}
+                              >
+                                {fs.status === 'Done' ? 'Đã hoàn thành' : 
+                                 fs.status === 'Missed' ? 'Đã bỏ lỡ' : 
+                                 fs.status === 'Cancelled' ? 'Đã hủy' : 'Đã lên lịch'}
+                              </div>
+                            </div>
+
                             <div className={styles.tooltipCode}>{fs.customerName}</div>
                             <div className={styles.tooltipTime}>
                               {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
                             </div>
                             <div className={styles.tooltipCode}>{fs.packageName}</div>
+                            {schedule.staffName && <div className={styles.tooltipCode}>{schedule.staffName}</div>}
+                            {fs.note && <div className={styles.tooltipCode}>{fs.note}</div>}
                             <Tooltip.Arrow className={styles.tooltipArrow} />
                           </Tooltip.Content>
                         </Tooltip.Portal>
@@ -233,6 +322,14 @@ export function CalendarWeekView({ monthCursor, schedules, onEventCreated }: {
             }}
           />
         )}
+
+        {/* Schedule Detail Popover */}
+        <ScheduleDetailPopover
+          open={isPopoverOpen}
+          onOpenChange={setIsPopoverOpen}
+          schedule={selectedSchedule}
+          anchorRect={scheduleAnchorRect || undefined}
+        />
       </div>
     </Tooltip.Provider>
   );
@@ -294,14 +391,19 @@ function CalendarQuickCreateWrapper({
 
   return (
     <Popover.Root open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
+      <Popover.Anchor
+        style={{
+          position: 'fixed',
+          top: anchorRect.top,
+          left: anchorRect.left,
+          width: anchorRect.width,
+          height: anchorRect.height,
+          pointerEvents: 'none',
+        }}
+      />
       <Popover.Portal>
         <Popover.Content 
           className={styles.quickCreatePopover}
-          style={{
-            position: 'fixed',
-            top: `${anchorRect.top + window.scrollY + 8}px`,
-            left: `${anchorRect.left + window.scrollX + 8}px`,
-          }}
           side="top" 
           align="start"
           sideOffset={8}
@@ -336,7 +438,15 @@ function CalendarQuickCreateWrapper({
                 type="button" 
                 onClick={handleCreate}
                 disabled={!summary.trim() || loading}
-                style={{ padding: '6px 12px', borderRadius: '4px', border: 'none', background: '#0052cc', color: '#fff', cursor: summary.trim() && !loading ? 'pointer' : 'not-allowed', opacity: summary.trim() && !loading ? 1 : 0.5 }}
+                style={{ 
+                  padding: '6px 12px', 
+                  borderRadius: '4px', 
+                  border: 'none', 
+                  background: '#ff7a00', 
+                  color: '#fff', 
+                  cursor: summary.trim() && !loading ? 'pointer' : 'not-allowed', 
+                  opacity: summary.trim() && !loading ? 1 : 0.5 
+                }}
               >
                 {loading ? 'Đang tạo...' : 'Tạo'}
               </button>

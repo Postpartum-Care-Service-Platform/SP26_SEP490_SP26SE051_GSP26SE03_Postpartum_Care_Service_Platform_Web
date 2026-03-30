@@ -11,12 +11,14 @@ type Status = {
   pillClass: string;
 };
 
-export type CalendarStatusType = 'TO DO' | 'IN PROGRESS' | 'DONE';
+export type CalendarStatusType = 'Scheduled' | 'Done' | 'Missed' | 'Cancelled' | 'TO DO' | 'IN PROGRESS' | 'DONE' | null;
 
 const STATUSES: Status[] = [
-  { id: 'DONE', label: 'Hoàn thành', pillClass: styles.pillDone },
-  { id: 'IN PROGRESS', label: 'Đang làm', pillClass: styles.pillInProgress },
-  { id: 'TO DO', label: 'Cần làm', pillClass: styles.pillTodo },
+  { id: null, label: 'Tất cả trạng thái', pillClass: styles.pillAll },
+  { id: 'Scheduled', label: 'Đã lên lịch', pillClass: styles.pillScheduled },
+  { id: 'Done', label: 'Hoàn thành', pillClass: styles.pillDone },
+  { id: 'Missed', label: 'Đã bỏ lỡ', pillClass: styles.pillMissed },
+  { id: 'Cancelled', label: 'Đã hủy', pillClass: styles.pillCancelled },
 ];
 
 function SearchIcon() {
@@ -55,8 +57,8 @@ export function CalendarStatusDropdown({
   onChange,
   children,
 }: {
-  value: CalendarStatusType;
-  onChange?: (value: CalendarStatusType) => void;
+  value: CalendarStatusType | null;
+  onChange?: (value: CalendarStatusType | null) => void;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -112,7 +114,7 @@ export function CalendarStatusDropdown({
                   aria-selected={checked}
                   tabIndex={0}
                   onClick={() => {
-                    onChange?.(s.id);
+                    onChange?.(checked ? null : s.id);
                     setOpen(false);
                   }}
                   onKeyDown={(e) => {
@@ -131,7 +133,7 @@ export function CalendarStatusDropdown({
           </div>
 
           <div className={styles.footer}>
-            {items.length} of {STATUSES.length}
+            {items.length} trên {STATUSES.length}
           </div>
         </Popover.Content>
       </Popover.Portal>

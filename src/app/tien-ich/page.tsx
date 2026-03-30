@@ -1,148 +1,173 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import Image from 'next/image';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-import babyImage from '@/assets/images/gallery/baby.webp';
-import foodImage from '@/assets/images/gallery/food.avif';
-import momentImage from '@/assets/images/gallery/moment.avif';
-import room2Image from '@/assets/images/gallery/room-2.avif';
-import roomImage from '@/assets/images/gallery/room.jpg';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
-import amenityService from '@/services/amenity-service.service';
-import type { AmenityService } from '@/types/amenity-service';
 
 import styles from './tien-ich.module.css';
 
-// Mapping ảnh cho các tiện ích (có thể mở rộng)
-const amenityImages = [
-  roomImage,
-  foodImage,
-  momentImage,
-  room2Image,
-  babyImage,
-  roomImage,
-  foodImage,
-  momentImage,
-];
+// Animation variants
+const fadeInUp: any = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } 
+  },
+};
 
-// Icon mapping cho các tiện ích phổ biến
-const getAmenityIcon = (name: string): string => {
-  const lowerName = name.toLowerCase();
-  if (lowerName.includes('spa') || lowerName.includes('massage')) return '💆';
-  if (lowerName.includes('gym') || lowerName.includes('thể dục')) return '💪';
-  if (lowerName.includes('pool') || lowerName.includes('bơi')) return '🏊';
-  if (lowerName.includes('restaurant') || lowerName.includes('nhà hàng')) return '🍽️';
-  if (lowerName.includes('library') || lowerName.includes('thư viện')) return '📚';
-  if (lowerName.includes('playground') || lowerName.includes('sân chơi')) return '🎮';
-  if (lowerName.includes('parking') || lowerName.includes('đỗ xe')) return '🅿️';
-  if (lowerName.includes('wifi') || lowerName.includes('internet')) return '📶';
-  if (lowerName.includes('yoga') || lowerName.includes('thiền')) return '🧘';
-  if (lowerName.includes('care') || lowerName.includes('chăm sóc')) return '👶';
-  return '✨';
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+    },
+  },
 };
 
 export default function TienIchPage() {
-  const [amenities, setAmenities] = useState<AmenityService[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchAmenities = async () => {
-      try {
-        setLoading(true);
-        const data = await amenityService.getAllAmenityServices();
-        // Lọc chỉ lấy các tiện ích đang active
-        const activeAmenities = data.filter((amenity) => amenity.isActive !== false);
-        setAmenities(activeAmenities);
-        setError(null);
-      } catch (err) {
-        console.error('Lỗi khi tải danh sách tiện ích:', err);
-        setError('Không thể tải danh sách tiện ích. Vui lòng thử lại sau.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAmenities();
-  }, []);
+  const amenities = [
+    {
+      id: 'yoga',
+      name: 'Phòng Yoga',
+      description: 'Tìm về sự cân bằng và thư giãn với những buổi yoga nhẹ nhàng, được thiết kế riêng cho mẹ sau sinh. Chúng tôi tạo điều kiện để cơ thể và tâm trí mẹ được phục hồi một cách tự nhiên nhất.',
+      image: '/thejoyfulnest/amenity/Yoga-2000x857.jpg',
+    },
+    {
+      id: 'gym',
+      name: 'Phòng tập thể hình',
+      description: 'Phòng tập thể dục tràn ngập ánh sáng tự nhiên, với đầy đủ thiết bị hiện đại, là nơi lý tưởng để bố vận động và tăng cường sức khỏe theo nhịp độ của riêng mình.',
+      image: '/thejoyfulnest/amenity/room-2000x857.jpg',
+    },
+    {
+      id: 'pool',
+      name: 'Hồ bơi',
+      description: 'Hai hồ bơi tuyệt đẹp với tầm nhìn toàn cảnh thành phố – một hồ bơi yên tĩnh trên tầng 5 và một hồ bơi vô cực trên tầng thượng – là nơi hoàn hảo để gia đình bạn gắn kết và tận hưởng những giây phút thư giãn.',
+      image: '/thejoyfulnest/amenity/pool-uai-2000x857.jpg',
+    },
+    {
+      id: 'social',
+      name: 'Không gian kết nối',
+      description: 'Không gian của chúng tôi là nơi lý tưởng để các mẹ gặp gỡ, trò chuyện và kết nối với những tâm hồn đồng điệu. Dù là tham gia lớp học làm đồ thủ công, các buổi workshop về chăm sóc bé, hay đơn giản chỉ là chia sẻ câu chuyện bên tách trà – mẹ sẽ dễ dàng tìm thấy sự đồng cảm từ những người cùng chung hành trình. Tại đây, mẹ không chỉ được lắng nghe, mà còn xây dựng được các mối quan hệ tâm giao sâu sắc.',
+      image: '/thejoyfulnest/amenity/Joyful-room-uai-2000x857.jpg',
+    },
+    {
+      id: 'family',
+      name: 'Khu giải trí gia đình',
+      description: 'Sân chơi ngoài trời và khu vực BBQ là nơi lý tưởng để cả gia đình quây quần, vui chơi và tận hưởng những khoảnh khắc hạnh phúc bên nhau.',
+      image: '/thejoyfulnest/amenity/vuichoi-uai-1024x438.jpg',
+    },
+    {
+      id: 'lounge',
+      name: 'Phòng Lounge',
+      description: 'Có những ngày mẹ cần một góc nhỏ yên tĩnh để nghỉ ngơi, cũng có những lúc mẹ muốn tìm đến những cuộc trò chuyện thân tình. Hãy đến phòng chờ, thả mình trên chiếc sofa êm ái thưởng thức tách trà thảo mộc. Đắm mình trong cuốn tạp chí yêu thích, chia sẻ những khoảnh khắc đáng quý cho những người thân yêu. Không gian của chúng tôi luôn sẵn sàng chào đón mẹ – nghỉ dưỡng theo cách riêng của mình.',
+      image: '/thejoyfulnest/amenity/happy-room-uai-1280x548.jpg',
+    },
+    {
+      id: 'shopping',
+      name: 'Mua sắm & Giải trí',
+      description: 'Ngay bên cạnh The Joyful Nest là một trong những trung tâm mua sắm bậc nhất Sài Gòn – Vivo City. Đặt chân đến đây, cả gia đình sẽ bước vào một thế giới trải nghiệm đa dạng, từ các cửa hàng mua sắm cao cấp, khu ẩm thực phong phú đến những hoạt động giải trí hấp dẫn phù hợp với mọi lứa tuổi.',
+      image: '/thejoyfulnest/amenity/VNO-SC20VivoCity20Shopping20Center.jpg-uai-1408x603.jpg',
+    }
+  ];
 
   return (
     <div className="app-shell__inner">
       <Header />
       <main className={`app-shell__main ${styles.main}`}>
-        <section className={styles.tienIchSection}>
+        {/* Hero Header Section */}
+        <section className={styles.heroSection}>
           <div className={styles.container}>
-            {/* Header với tiêu đề */}
-            <div className={styles.header}>
-              <h1 className={styles.title}>Tiện Ích Tại Trung Tâm</h1>
-              <p className={styles.description}>
-                Khám phá các tiện ích đẳng cấp được thiết kế để mang lại trải nghiệm tuyệt vời cho
-                mẹ và bé trong suốt thời gian lưu trú tại The Joyful Nest.
-              </p>
+            <motion.div 
+              className={styles.heroContent}
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+            >
+              <motion.h1 className={styles.heroTitle} variants={fadeInUp}>
+                An dưỡng sức khoẻ trong không gian thanh tĩnh
+              </motion.h1>
+              <motion.p className={styles.heroDescription} variants={fadeInUp}>
+                Trong khi mẹ tĩnh dưỡng cho quá trình hồi phục sức khoẻ, các thành viên trong gia đình có thể tận hưởng 
+                những giây phút thư giãn và vui chơi trong không gian ấm cúng của The Joyful Nest. Từ những góc nhỏ 
+                tĩnh lặng yên bình đến những không gian rộng mở, mỗi khoảnh khắc sum vầy bên nhau đều trở thành 
+                những kỷ niệm đáng nhớ.
+              </motion.p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Amenities List */}
+        <section className={styles.amenitiesList}>
+          {amenities.map((amenity) => (
+            <div key={amenity.id} className={styles.amenityItem}>
+              {/* Large Image */}
+              <motion.div 
+                className={styles.imageSection}
+                initial={{ opacity: 0, scale: 1.05 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className={styles.imageWrapper}>
+                  <Image
+                    src={amenity.image}
+                    alt={amenity.name}
+                    width={2000}
+                    height={857}
+                    className={styles.amenityImage}
+                    priority
+                  />
+                </div>
+              </motion.div>
+
+              {/* Amenity Detail Info */}
+              <div className={styles.container}>
+                <motion.div 
+                  className={styles.detailSection}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  variants={staggerContainer}
+                >
+                  <motion.h2 className={styles.amenityName} variants={fadeInUp}>
+                    {amenity.name}
+                  </motion.h2>
+                  <motion.p className={styles.amenityDesc} variants={fadeInUp}>
+                    {amenity.description}
+                  </motion.p>
+                </motion.div>
+              </div>
             </div>
+          ))}
+        </section>
 
-            {/* Loading state */}
-            {loading && (
-              <div className={styles.loading}>
-                <div className={styles.spinner} />
-                <p>Đang tải danh sách tiện ích...</p>
+        {/* CTA Section */}
+        <section className={styles.ctaSection}>
+          <div className={styles.ctaContainer}>
+            <Image 
+              src="/thejoyfulnest/food/call-to-action.svg" 
+              alt="CTA Background Decoration" 
+              fill
+              className={styles.ctaBackgroundSvg}
+            />
+            <motion.div 
+              className={styles.ctaContent}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeInUp}
+            >
+              <h2 className={styles.ctaTitle}>Hãy để The Joyful Nest đồng hành cùng mẹ!</h2>
+              <div className={styles.ctaButtons}>
+                <button className={styles.ctaButton}>Đặt Lịch Ngay</button>
+                <button className={styles.ctaButton}>Yêu cầu báo giá</button>
               </div>
-            )}
-
-            {/* Error state */}
-            {error && <div className={styles.error}>{error}</div>}
-
-            {/* Grid hiển thị các tiện ích */}
-            {!loading && !error && amenities.length > 0 && (
-              <div className={styles.amenitiesGrid}>
-                {amenities.map((amenity, index) => {
-                  const imageIndex = index % amenityImages.length;
-                  const amenityImage = amenityImages[imageIndex];
-                  return (
-                    <div key={amenity.id} className={styles.amenityCard}>
-                      {/* Hình ảnh tiện ích */}
-                      <div className={styles.imageWrapper}>
-                        <Image
-                          src={amenityImage}
-                          alt={amenity.name}
-                          fill
-                          className={styles.image}
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
-                        {/* Icon overlay */}
-                        <div className={styles.iconOverlay}>
-                          <span className={styles.icon}>{getAmenityIcon(amenity.name)}</span>
-                        </div>
-                        {/* Overlay màu đen từ trái qua phải khi hover */}
-                        <div className={styles.overlay}>
-                          <div className={styles.overlayContent}>
-                            <span className={styles.overlayIcon}>{getAmenityIcon(amenity.name)}</span>
-                            <p className={styles.overlayText}>Khám phá ngay</p>
-                          </div>
-                        </div>
-                      </div>
-
-                    {/* Nội dung card */}
-                    <div className={styles.cardContent}>
-                      <h3 className={styles.amenityName}>{amenity.name}</h3>
-                      {amenity.description && (
-                        <p className={styles.amenityDescription}>{amenity.description}</p>
-                      )}
-                    </div>
-                  </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Empty state */}
-            {!loading && !error && amenities.length === 0 && (
-              <div className={styles.emptyState}>
-                <p>Hiện tại chưa có tiện ích nào được cập nhật.</p>
-              </div>
-            )}
+            </motion.div>
           </div>
         </section>
       </main>

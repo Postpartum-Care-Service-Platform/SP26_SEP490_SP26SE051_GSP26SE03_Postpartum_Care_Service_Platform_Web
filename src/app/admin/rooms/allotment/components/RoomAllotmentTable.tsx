@@ -104,9 +104,14 @@ export function RoomAllotmentTable({ rooms, onEdit, onDelete, onMaintain, onActi
                   </span>
                 </td>
                 <td>
-                  <span className={`${styles.activeBadge} ${room.isActive ? styles.active : styles.inactive}`}>
-                    {room.isActive ? 'Hoạt động' : 'Ngừng hoạt động'}
-                  </span>
+                  <div className={`${styles.activeBadge} ${room.isActive ? styles.active : styles.inactive}`}>
+                    <div className={`${styles.statusIndicator} ${styles.statusAnimated}`}>
+                      <span className={styles.statusCircle}></span>
+                    </div>
+                    <span className={styles.statusIndicatorText}>
+                      {room.isActive ? 'Hoạt động' : 'Tạm dừng'}
+                    </span>
+                  </div>
                 </td>
                 <td>{formatDate(room.createdAt)}</td>
                 <td>{formatDate(room.updatedAt)}</td>

@@ -120,7 +120,22 @@ export function LoginForm() {
 
       login(authResponse);
       toast({ title: AUTH_LOGIN_MESSAGES.loginSuccess, variant: 'success' });
-      router.push(authResponse.user.role?.toLowerCase() === 'admin' ? ROUTES.admin : ROUTES.main);
+      
+      // Redirect dựa trên role
+      const userRole = authResponse.user.role?.toLowerCase();
+      switch (userRole) {
+        case 'admin':
+          router.push(ROUTES.admin);
+          break;
+        case 'manager':
+          router.push(ROUTES.manager);
+          break;
+        case 'staff':
+          router.push('/staff');
+          break;
+        default:
+          router.push(ROUTES.main);
+      }
     } catch (err: unknown) {
       const { status, message, data } = getApiErrorDetails(err);
       if (status === 401) {

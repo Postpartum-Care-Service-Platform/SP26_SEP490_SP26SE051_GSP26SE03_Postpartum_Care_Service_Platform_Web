@@ -1,7 +1,9 @@
-'use client';
-
+import * as Popover from '@radix-ui/react-popover';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import React from 'react';
 
+import { AssigneePicker } from '../shared/AssigneePicker';
+import type { StaffSchedule as StaffListMember } from '@/services/contract.service';
 import styles from './timeline-control-panel.module.css';
 
 function SearchIcon() {
@@ -53,64 +55,201 @@ type Props = {
   searchValue?: string;
   onSearchChange?: (value: string) => void;
   epicLabel?: string;
-  typeLabel?: string;
-  statusCategoryLabel?: string;
   assigneeOnly?: boolean;
   onAssigneeOnlyChange?: (value: boolean) => void;
+  assigneeValue?: any;
+  onAssigneeChange?: (value: any) => void;
+  staffList?: StaffListMember[];
 };
 
 export function TimelineControlPanel({
   searchValue = '',
   onSearchChange,
   epicLabel = 'Epic',
-  typeLabel = 'Type',
-  statusCategoryLabel = 'Status category',
   assigneeOnly = false,
   onAssigneeOnlyChange,
+  assigneeValue = null,
+  onAssigneeChange,
+  staffList = [],
 }: Props) {
+  const [isStatusOpen, setIsStatusOpen] = React.useState(false);
+  const [isAssigneeOpen, setIsAssigneeOpen] = React.useState(false);
+  const statusRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (statusRef.current && !statusRef.current.contains(event.target as Node)) {
+        setIsStatusOpen(false);
+      }
+    }
+    if (isStatusOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isStatusOpen]);
+
+  const getInitials = (name: string) => {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
   return (
-    <div className={styles.wrap}>
-      <div className={styles.left}>
-        <div className={styles.search}>
-          <span className={styles.searchIcon}>
-            <SearchIcon />
-          </span>
-          <input
-            className={styles.searchInput}
-            placeholder="Search timeline"
-            value={searchValue}
-            onChange={(e) => onSearchChange?.(e.target.value)}
-          />
-        </div>
+    <Tooltip.Provider delayDuration={350}>
+      <div className={styles.wrap}>
+        <div className={styles.left}>
+          <div className={styles.search}>
+            <span className={styles.searchIcon}>
+              <SearchIcon />
+            </span>
+            <input
+              className={styles.searchInput}
+              placeholder="Tìm kiếm dòng thời gian"
+              value={searchValue}
+              onChange={(e) => onSearchChange?.(e.target.value)}
+            />
+          </div>
 
         <div className={styles.avatars} aria-label="Assignees">
-          <button type="button" className={styles.avatar} aria-label="VT">
-            VT
-          </button>
-          <button
-            type="button"
-            className={`${styles.avatar} ${styles.avatarVT} ${assigneeOnly ? styles.avatarActive : ''}`}
-            aria-label="VT"
-            onClick={() => onAssigneeOnlyChange?.(!assigneeOnly)}
-          >
-            VT
-          </button>
+          {staffList.slice(0, 3).map((staff) => (
+            <button
+              key={staff.id}
+              type="button"
+              className={`${styles.avatar} ${assigneeValue?.id === staff.id ? styles.avatarActive : ''}`}
+              title={staff.fullName}
+              onClick={() => {
+                if (assigneeValue?.id === staff.id) {
+                  onAssigneeChange?.(null);
+                } else {
+                  onAssigneeChange?.({
+                    id: staff.id,
+                    name: staff.fullName,
+                    avatarUrl: staff.avatarUrl,
+                    initials: getInitials(staff.fullName),
+                    type: 'user'
+                  });
+                }
+              }}
+            >
+              {staff.avatarUrl ? (
+                <img src={staff.avatarUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+              ) : (
+                getInitials(staff.fullName)
+              )}
+            </button>
+          ))}
+          {staffList.length > 3 && (
+            <div className={styles.avatarMore}>
+              +{staffList.length - 3}
+            </div>
+          )}
         </div>
+
+        <Popover.Root open={isAssigneeOpen} onOpenChange={setIsAssigneeOpen}>
+          <Tooltip.Root>
+            <Tooltip.Trigger asChild>
+              <Popover.Trigger asChild>
+                <button type="button" className={styles.filterBtn}>
+                  {assigneeValue && (
+                    <div className={styles.avatarCircle} style={{ background: '#ed8936', color: '#fff' }}>
+                      {assigneeValue.avatarUrl ? (
+                        <img src={assigneeValue.avatarUrl} alt="" className={styles.avatarImg} />
+                      ) : (
+                        getInitials(assigneeValue.name)
+                      )}
+                    </div>
+                  )}
+                  <span>{assigneeValue ? assigneeValue.name : 'Tất cả nhân viên'}</span>
+                  <ChevronDownIcon />
+                </button>
+              </Popover.Trigger>
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
+                Lọc theo nhân viên
+                <Tooltip.Arrow className={styles.tooltipArrow} />
+              </Tooltip.Content>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+          <Popover.Portal>
+            <Popover.Content
+              className={styles.popoverContent}
+              side="bottom"
+              align="start"
+              sideOffset={6}
+              collisionPadding={12}
+            >
+              <AssigneePicker
+                value={assigneeValue}
+                onChange={(a) => {
+                  onAssigneeChange?.(a);
+                  setIsAssigneeOpen(false);
+                }}
+                onClose={() => setIsAssigneeOpen(false)}
+              />
+            </Popover.Content>
+          </Popover.Portal>
+        </Popover.Root>
 
         <button type="button" className={styles.filterBtn}>
           <span>{epicLabel}</span>
           <ChevronDownIcon />
         </button>
 
-        <button type="button" className={styles.filterBtn}>
-          <span>{typeLabel}</span>
-          <ChevronDownIcon />
-        </button>
+        <div className={styles.statusWrap} ref={statusRef}>
+          <button
+            type="button"
+            className={`${styles.filterBtn} ${isStatusOpen ? styles.filterBtnActive : ''}`}
+            onClick={() => setIsStatusOpen(!isStatusOpen)}
+          >
+            <span>Trạng thái</span>
+            <ChevronDownIcon />
+          </button>
 
-        <button type="button" className={styles.filterBtn}>
-          <span>{statusCategoryLabel}</span>
-          <ChevronDownIcon />
-        </button>
+          {isStatusOpen && (
+            <div className={styles.dropdown}>
+              <div className={styles.dropdownSearch}>
+                <span className={styles.dropdownSearchIcon}><SearchIcon /></span>
+                <input
+                  type="text"
+                  className={styles.dropdownInput}
+                  placeholder="Tìm kiếm trạng thái"
+                  autoFocus
+                />
+              </div>
+
+              <div className={styles.dropdownList}>
+                <label className={styles.dropdownItem}>
+                  <input type="checkbox" defaultChecked />
+                  <span className={styles.checkText}>TẤT CẢ TRẠNG THÁI</span>
+                </label>
+                <label className={styles.dropdownItem}>
+                  <input type="checkbox" />
+                  <span className={`${styles.badge} ${styles.badgeScheduled}`}>ĐÃ LÊN LỊCH</span>
+                </label>
+                <label className={styles.dropdownItem}>
+                  <input type="checkbox" />
+                  <span className={`${styles.badge} ${styles.badgeCompleted}`}>HOÀN THÀNH</span>
+                </label>
+                <label className={styles.dropdownItem}>
+                  <input type="checkbox" />
+                  <span className={`${styles.badge} ${styles.badgeMissed}`}>ĐÃ BỎ LỠ</span>
+                </label>
+                <label className={styles.dropdownItem}>
+                  <input type="checkbox" />
+                  <span className={`${styles.badge} ${styles.badgeCancelled}`}>ĐÃ HỦY</span>
+                </label>
+              </div>
+
+              <div className={styles.dropdownFooter}>
+                5 trên 5
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className={styles.right}>
@@ -122,5 +261,6 @@ export function TimelineControlPanel({
         </button>
       </div>
     </div>
+    </Tooltip.Provider>
   );
 }

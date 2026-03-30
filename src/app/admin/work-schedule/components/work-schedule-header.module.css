@@ -2,30 +2,20 @@
   background-color: #fff;
   border-bottom: 1px solid var(--color-border-default);
   padding: 16px 16px 0;
-  margin: -16px -16px 16px;
+  margin: -16px -16px 0;
 }
 
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding-bottom: var(--spacing-md);
+  justify-content: flex-start;
 }
 
-.title {
-  font-family: var(--font-admin-title);
-  font-size: 15px;
-  font-weight: 500;
-  text-transform: capitalize;
-  line-height: 1.2;
-  color: var(--color-admin-text-primary);
-  margin: 0;
-}
 
 .tabs {
   display: flex;
   gap: 24px;
-  margin-top: 8px;
+  margin-top: 16px;
 }
 
 .tab {

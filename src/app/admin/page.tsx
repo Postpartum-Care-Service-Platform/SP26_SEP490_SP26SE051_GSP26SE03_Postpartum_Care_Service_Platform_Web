@@ -14,6 +14,10 @@ import { GenderStatsCard } from './components/GenderStatsCard';
 import { InvoiceList } from './components/InvoiceList';
 import { PatientByAge } from './components/PatientByAge';
 import { PatientVisitByGender } from './components/PatientVisitByGender';
+import { RevenueChart } from './components/RevenueChart';
+import { CategoryRevenueChart } from './components/CategoryRevenueChart';
+import { ServicePopularityChart } from './components/ServicePopularityChart';
+import { CashflowChart } from './components/CashflowChart';
 import { TeamProductivity } from './components/TeamProductivity';
 import { TopDoctors } from './components/TopDoctors';
 
@@ -67,6 +71,16 @@ export default function AdminPage() {
     <div className={styles.pageContainer}>
       <DashboardHeader />
       <DashboardStatsCards stats={stats} />
+
+      <div className={styles.chartSection}>
+        <div className={styles.revenueChartWrapper}>
+          <RevenueChart />
+        </div>
+        <div className={styles.categoryChartWrapper}>
+          <CategoryRevenueChart />
+        </div>
+      </div>
+
       <div className={styles.bottomSection}>
         <div className={styles.topRow}>
           <div className={styles.leftColumn}>
@@ -91,6 +105,16 @@ export default function AdminPage() {
             <AveragePatientVisit />
           </div>
         </div>
+
+        <div className={styles.middleRow}>
+          <div className={styles.popularityWrapperSide}>
+            <ServicePopularityChart />
+          </div>
+          <div className={styles.cashflowWrapper}>
+            <CashflowChart />
+          </div>
+        </div>
+
         <div className={styles.bottomRow}>
           <div className={styles.patientVisitByGenderWrapper}>
             <PatientVisitByGender />

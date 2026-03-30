@@ -1,17 +1,17 @@
 export interface PackageType {
   id: number;
-  name: string;
+  typeName: string;
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface CreatePackageTypeRequest {
-  name: string;
+  typeName: string;
   isActive?: boolean;
 }
 
 export interface UpdatePackageTypeRequest {
-  name?: string;
+  typeName?: string;
   isActive?: boolean;
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import userService from '@/services/user.service';
@@ -15,6 +16,7 @@ const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 
 export default function AdminPatientsPage() {
+  const router = useRouter();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -131,7 +133,15 @@ export default function AdminPatientsPage() {
   };
 
   const handleViewProfile = (patient: Patient) => {
-    console.log('View profile overview:', patient);
+    // Ưu tiên dùng customerId để xem hồ sơ gia đình, nếu không có thì dùng accountId
+    const targetId = patient.customerId || patient.accountId;
+    if (targetId) {
+      const currentPath = window.location.pathname;
+      const baseRoute = currentPath.includes('/manager') ? '/manager/customers' : '/admin/account';
+      router.push(`${baseRoute}/${targetId}`);
+    } else {
+      console.warn('Không tìm thấy ID hợp lệ để xem hồ sơ:', patient);
+    }
   };
 
   const handleChat = (patient: Patient) => {
@@ -182,30 +192,40 @@ export default function AdminPatientsPage() {
     : undefined;
 
   return (
-    <AdminPageLayout
-      header={<PatientListHeader />}
-      controlPanel={
-        <PatientTableControls
-          onSearch={handleSearch}
-          onSortChange={handleSortChange}
-          onStatusChange={handleStatusChange}
-          onRoleChange={handleRoleChange}
-          onNewPatient={handleNewPatient}
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <AdminPageLayout
+        header={<PatientListHeader />}
+        controlPanel={
+          <PatientTableControls
+            onSearch={handleSearch}
+            onSortChange={handleSortChange}
+            onStatusChange={handleStatusChange}
+            onRoleChange={handleRoleChange}
+            onNewPatient={handleNewPatient}
+          />
+        }
+        pagination={
+          paginationConfig ? (
+            <div style={{ padding: '0 16px' }}>
+              <Pagination {...paginationConfig} />
+            </div>
+          ) : undefined
+        }
+      >
+        <PatientTable
+          patients={paginatedPatients}
+          onViewProfile={handleViewProfile}
+          onChat={handleChat}
+          onRoleUpdated={fetchPatients}
+          currentPage={currentPage}
+          pageSize={pageSize}
         />
-      }
-    >
-      <PatientTable
-        patients={paginatedPatients}
-        onViewProfile={handleViewProfile}
-        onChat={handleChat}
-        onRoleUpdated={fetchPatients}
-        pagination={paginationConfig}
-      />
-      <NewAccountModal
-        open={isNewAccountOpen}
-        onOpenChange={setIsNewAccountOpen}
-        onSuccess={fetchPatients}
-      />
-    </AdminPageLayout>
+        <NewAccountModal
+          open={isNewAccountOpen}
+          onOpenChange={setIsNewAccountOpen}
+          onSuccess={fetchPatients}
+        />
+      </AdminPageLayout>
+    </div>
   );
 }

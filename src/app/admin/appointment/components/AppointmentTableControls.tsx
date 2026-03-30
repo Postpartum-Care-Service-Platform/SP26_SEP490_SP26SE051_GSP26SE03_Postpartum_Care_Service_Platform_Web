@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronDownIcon, PlusIcon } from '@radix-ui/react-icons';
+import { Download, Search, Upload } from 'lucide-react';
 import { useState } from 'react';
 
 import {
@@ -40,9 +41,19 @@ export function AppointmentTableControls({ onStatusChange, onAddClick }: Props) 
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.header}>
-        <h4 className={styles.title}>Tất cả lịch hẹn</h4>
-        <div className={styles.controls}>
+      <div className={styles.controls}>
+        <div className={styles.left}>
+          <div className={styles.searchWrapper}>
+            <Search className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Tìm kiếm lịch hẹn (Tên, SĐT, Mã...)"
+              className={styles.searchInput}
+            />
+          </div>
+        </div>
+
+        <div className={styles.right}>
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <button className={styles.statusButton}>
@@ -62,6 +73,27 @@ export function AppointmentTableControls({ onStatusChange, onAddClick }: Props) 
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <button className={styles.exportButton}>
+                <Download className={styles.exportIcon} />
+                Nhập/Xuất
+                <ChevronDownIcon className={styles.chevronIcon} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className={styles.dropdownContent} align="end">
+              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+                <Upload size={16} className={styles.itemIcon} />
+                Nhập từ Excel
+              </DropdownMenuItem>
+              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+                <Download size={16} className={styles.itemIcon} />
+                Xuất ra Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <button type="button" onClick={onAddClick} className={styles.addButton}>
             <PlusIcon className={styles.plusIcon} />
             Thêm lịch hẹn

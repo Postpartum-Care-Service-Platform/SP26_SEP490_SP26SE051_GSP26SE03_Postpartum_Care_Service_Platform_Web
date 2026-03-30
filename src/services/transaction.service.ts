@@ -31,6 +31,10 @@ const transactionService = {
   checkPaymentStatus: (orderCode: string): Promise<{ status: string }> => {
     return apiClient.get(`/Transaction/check-status/${orderCode}`);
   },
+
+  getTransactionByUser: (customerId: string): Promise<Transaction[]> => {
+    return apiClient.get(`/Transaction/user/${customerId}`);
+  },
 };
 
 export default transactionService;

@@ -3,8 +3,7 @@
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 
-import { roomMapService, Floor } from '@/services/room-map.service';
-
+import { roomMapService, Floor, MOCK_ROOM_DATA } from '@/services/room-map.service';
 import { FloorMap } from './FloorMap';
 import { initMallMap } from './mall-map.init';
 
@@ -12,36 +11,91 @@ const MallMap = () => {
   const [mapData, setMapData] = useState<Floor[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRoomKey, setSelectedRoomKey] = useState<string | null>(null);
+  const [errorInfo, setErrorInfo] = useState<string | null>(null);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setErrorInfo(null);
+    try {
+      const data = await roomMapService.getMapData();
+      console.log('Map Data loaded:', data);
+      if (data.length === 0) {
+        console.warn('API returned 0 floors/rooms');
+      }
+      setMapData(data);
+    } catch (error: any) {
+      console.error("Lỗi khi tải dữ liệu bản đồ:", error);
+      setErrorInfo(error?.message || 'Lỗi không xác định');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await roomMapService.getMapData();
-        setMapData(data);
-      } catch (error) {
-        console.error("Lỗi khi tải dữ liệu bản đồ:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
 
+  const loadMockData = () => {
+    console.log('Manually loading MOCK_ROOM_DATA...');
+    // Dùng logic conversion trong component nếu cần, hoặc giả lập API flow
+    // Ở đây ta cast trực tiếp qua build logic của service (mock logic)
+    // Để đơn giản, ta lặp lại logic build của service ở đây hoặc gọi service chuyên biệt
+    // Vì buildFloorsFromRooms không export, ta sẽ fake 1 floor đơn giản
+    const mockFloors: Floor[] = [
+      { id: 1, name: 'Tầng 1 (MOCK)', level: 1, rooms: MOCK_ROOM_DATA.filter(r => r.floor === 1).map(d => ({
+        id: d.name, name: `Phòng ${d.name}`, category: '1', content: d.roomTypeName, floorId: 1, apiId: d.id, status: d.status, isActive: true, rawName: d.name, roomTypeId: 1, roomTypeName: d.roomTypeName
+      }))}
+    ];
+    setMapData(mockFloors);
+  };
+
   useEffect(() => {
-    if (!loading && mapData.length > 0) {
-      const cleanup = initMallMap(setSelectedRoomKey);
-      return () => {
-        if (cleanup) cleanup();
-      };
+    if (!loading) {
+      console.log('Initializing Mall Map with', mapData.length, 'floors');
+      const timer = setTimeout(() => {
+        const cleanup = initMallMap(setSelectedRoomKey);
+        return () => {
+          if (cleanup) cleanup();
+        };
+      }, 500); // Đợi DOM sync
+      return () => clearTimeout(timer);
     }
-  }, [loading, mapData]);
+  }, [loading, mapData.length]);
 
   if (loading) {
-    return <div className="p-10 text-center text-orange-500">Đang tải bản đồ...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center p-20 gap-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+        <p className="text-orange-500 font-medium">Đang tải bản đồ 3D...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="container">
+    <div className="container relative">
+      {/* Nút Diagnostic - Chỉ hiện khi thiếu data */}
+      {mapData.length === 0 && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 bg-white p-6 rounded-lg shadow-2xl border border-orange-200 text-center max-w-sm">
+          <h4 className="text-red-500 font-bold mb-2">Không tìm thấy dữ liệu phòng</h4>
+          <p className="text-gray-600 text-sm mb-4">
+            {errorInfo ? `Lỗi: ${errorInfo}` : 'API /Room đã phản hồi nhưng không có dữ liệu phòng nào được trả về.'}
+          </p>
+          <div className="flex flex-col gap-2">
+            <button 
+              onClick={() => fetchData()}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded transition"
+            >
+              Thử tải lại API
+            </button>
+            <button 
+              onClick={loadMockData}
+              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded font-bold transition"
+            >
+              🚀 Tải Dữ Liệu Mẫu (MOCK)
+            </button>
+          </div>
+        </div>
+      )}
       <div className="main">
         <div className="mall">
           <div className="surroundings">

@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useToast } from '@/components/ui/toast/use-toast';
 import menuService from '@/services/menu.service';
 import type { Menu } from '@/types/menu';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { Pagination } from '@/components/ui/pagination';
 
 import {
   MenuListHeader,
@@ -14,13 +16,10 @@ import {
 } from './components';
 import styles from './menu.module.css';
 
-
 const getErrorMessage = (error: unknown, fallbackMessage: string) => {
   if (error instanceof Error && error.message) return error.message;
-  if (typeof error === 'string' && error.trim()) return error;
   return fallbackMessage;
 };
-
 
 const sortMenus = (items: Menu[], sort: string) => {
   const arr = [...items];
@@ -115,11 +114,12 @@ export default function AdminMenuPage() {
     return filteredMenus.slice(start, end);
   }, [filteredMenus, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredMenus.length / pageSize);
+  const totalPages = Math.ceil(filteredMenus.length / pageSize) || 1;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const scrollArea = document.querySelector(`.${styles.pageContainer}`)?.closest('[class*="scrollArea"]');
+    scrollArea?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleEdit = (menu: Menu) => {
@@ -151,50 +151,54 @@ export default function AdminMenuPage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <MenuListHeader />
-
-      {loading ? (
-        <div className={styles.content}>
-          <p>Đang tải dữ liệu...</p>
-        </div>
-      ) : error ? (
-        <div className={styles.content}>
-          <p>{error}</p>
-        </div>
-      ) : (
-        <>
-          <MenuTableControls
-            onSearch={(q) => setSearchQuery(q)}
-            onSortChange={(sort) => setSortKey(sort)}
-            onStatusChange={(status) => setStatusFilter(status)}
-            onNewMenu={() => setIsModalOpen(true)}
+    <AdminPageLayout
+      header={<MenuListHeader />}
+      controlPanel={
+        <MenuTableControls
+          onSearch={(q) => setSearchQuery(q)}
+          onSortChange={(sort) => setSortKey(sort)}
+          onStatusChange={(status) => setStatusFilter(status)}
+          onNewMenu={() => setIsModalOpen(true)}
+        />
+      }
+      pagination={
+        filteredMenus.length > 0 ? (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalItems={filteredMenus.length}
+            onPageChange={handlePageChange}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+            showResultCount={true}
           />
-
+        ) : null
+      }
+    >
+      <div className={styles.pageContainer}>
+        {loading ? (
+          <div className={styles.loading}>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        ) : error ? (
+          <div className={styles.error}>
+            <p>{error}</p>
+          </div>
+        ) : (
           <MenuTable
             menus={paginatedMenus}
             onEdit={handleEdit}
             onDelete={handleDelete}
             deletingId={deletingId}
-            pagination={
-              totalPages > 0
-                ? {
-                    currentPage,
-                    totalPages,
-                    pageSize,
-                    totalItems: filteredMenus.length,
-                    onPageChange: handlePageChange,
-                    pageSizeOptions: PAGE_SIZE_OPTIONS,
-                    onPageSizeChange: (size) => {
-                      setPageSize(size);
-                      setCurrentPage(1);
-                    },
-                  }
-                : undefined
-            }
+            currentPage={currentPage}
+            pageSize={pageSize}
           />
-        </>
-      )}
+        )}
+      </div>
 
       <NewMenuModal
         open={isModalOpen}
@@ -202,6 +206,6 @@ export default function AdminMenuPage() {
         onSuccess={fetchMenus}
         menuToEdit={editingMenu}
       />
-    </div>
+    </AdminPageLayout>
   );
 }

@@ -1,21 +1,30 @@
 .pageContainer {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 68px);
-  overflow: hidden;
-  padding: 16px;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
 }
 
 .loading,
 .error {
-  padding: var(--spacing-lg);
+  padding: 40px;
   text-align: center;
-  font-family: var(--font-body);
+  font-family: inherit;
   font-size: 14px;
-  color: var(--color-text-primary);
+  color: #6b7280;
 }
 
 .error {
-  color: #ef4444;
+  color: #dc2626;
 }
 
+.content {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.header {
+  margin-bottom: 0px;
+}

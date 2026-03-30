@@ -1,6 +1,6 @@
 .wrap {
   border: 1px solid #dfe1e6;
-  border-radius: 6px;
+  border-radius: 0;
   background: #fff;
   overflow: hidden;
   position: relative;
@@ -9,7 +9,7 @@
 .grid {
   display: grid;
   grid-template-columns: 420px 1fr;
-  min-height: 640px;
+  min-height: 620px;
 }
 
 .left {
@@ -17,25 +17,41 @@
 }
 
 .leftHeader {
-  height: 44px;
   display: flex;
   align-items: center;
   padding: 0 12px;
   background: #f4f5f7;
-  border-bottom: 1px solid #dfe1e6;
+  border-bottom: 2px solid #dfe1e6;
   font-weight: 600;
   color: #172b4d;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
 }
 
 .leftBody {
-  padding: 8px 0;
+  padding: 0;
 }
 
 .sectionTitle {
-  padding: 8px 12px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
   font-size: 14px;
   font-weight: 600;
   color: #626f86;
+  border-bottom: 1px solid #dfe1e6;
+  background: #fff;
+}
+
+.sectionTitleTrack {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 36px;
+  border-bottom: 1px solid #dfe1e6;
 }
 
 .row {
@@ -99,11 +115,71 @@
 .monthHeader {
   display: inline-grid;
   grid-auto-flow: column;
-  grid-auto-columns: 200px;
   height: 40px;
   background: #f7f8f9;
+  border-bottom: 2px solid #dfe1e6;
+  border-top: none;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+}
+
+.weekHeaderWrap {
+  display: inline-flex;
+  flex-direction: column;
+  height: 60px;
+  background: #f7f8f9;
+  border-bottom: 2px solid #dfe1e6;
+  border-top: none;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+}
+
+.weekHeaderTop {
+  display: flex;
+  height: 30px;
   border-bottom: 1px solid #dfe1e6;
-  border-top: 1px solid #dfe1e6;
+}
+
+.weekHeaderBottom {
+  display: flex;
+  height: 30px;
+}
+
+.headerGroup {
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #626f86;
+  border-right: 1px solid #dfe1e6;
+  background: #f4f5f7;
+  text-transform: uppercase;
+}
+
+.dayCell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: #172b4d;
+  box-sizing: border-box;
+}
+
+.dayCellLast {
+  border-right: 1px solid #dfe1e6;
+}
+
+.dayCellCurrent {
+  background: #ff8c00;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 4px;
 }
 
 .monthCell {
@@ -129,7 +205,7 @@
   position: relative;
   width: fit-content;
   min-width: 100%;
-  height: calc(640px - 40px);
+  height: calc(100% - 40px);
   background: repeating-linear-gradient(
     to right,
     transparent,
@@ -224,9 +300,20 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #0c66e4;
-  left: 600px;
-  z-index: 5;
+  background: #ff8c00;
+  z-index: 25;
+}
+
+.todayMarker {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 8px solid #ff8c00;
 }
 
 .bottomSwitcher {
@@ -237,10 +324,11 @@
   align-items: center;
   background: #fff;
   border: 1px solid #dfe1e6;
-  border-radius: 6px;
+  border-radius: 0;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   z-index: 50;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .switchBtn {
@@ -251,6 +339,7 @@
   cursor: pointer;
   color: #172b4d;
   font-size: 14px;
+  transition: background 0.3s ease;
 }
 
 .switchBtn:hover {
@@ -266,4 +355,35 @@
   width: 1px;
   height: 18px;
   background: #dfe1e6;
+}
+
+.bottomSwitcherCollapsed {
+  padding: 0 4px;
+}
+
+.collapseBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #626f86;
+  transition: all 0.2s;
+}
+
+.collapseBtn:hover {
+  background: #f4f5f7;
+  color: #172b4d;
+}
+
+.infoIcon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #626f86;
 }

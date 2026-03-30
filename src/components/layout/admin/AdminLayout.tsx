@@ -7,6 +7,7 @@ import { ScrollToTop } from '@/components/ui';
 import styles from './admin-layout.module.css';
 import { AdminHeader } from './AdminHeader';
 import { AdminSidebar } from './AdminSidebar';
+import { adminNav } from '@/configs/adminNav';
 import { NotificationSidebar } from './NotificationSidebar';
 
 
@@ -16,12 +17,18 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className={styles.container}>
-      <AdminSidebar collapsed={collapsed} onToggleCollapsed={() => setCollapsed(!collapsed)} />
+      <AdminSidebar
+        collapsed={collapsed}
+        onToggleCollapsed={() => setCollapsed(!collapsed)}
+        navSections={adminNav}
+        brandText="Serena Postnatal"
+      />
       <div className={`${styles.main} ${collapsed ? styles.mainCollapsed : ''}`}>
         <AdminHeader
           collapsed={collapsed}
           onToggleCollapsed={() => setCollapsed(!collapsed)}
           onOpenNotifications={() => setNotificationSidebarOpen(true)}
+          isNotificationSidebarOpen={notificationSidebarOpen}
         />
         <div className={styles.content}>{children}</div>
       </div>

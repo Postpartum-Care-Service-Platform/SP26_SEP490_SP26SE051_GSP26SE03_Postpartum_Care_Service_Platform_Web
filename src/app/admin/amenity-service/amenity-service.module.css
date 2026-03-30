@@ -1,0 +1,411 @@
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eae9eb;
+  gap: var(--spacing-sm);
+  background-color: #fff;
+  padding: 16px;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 1;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: var(--spacing-sm);
+  width: 18px;
+  height: 18px;
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background-color: #f8f9fa;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-brand-accent);
+}
+
+.filterButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px var(--spacing-sm);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background-color: #f8f9fa;
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 140px;
+  justify-content: space-between;
+}
+
+.filterButton:hover {
+  background-color: #e9ecef;
+  border-color: var(--color-brand-accent);
+}
+
+.chevronIcon {
+  width: 14px;
+  height: 14px;
+  color: #6c757d;
+  transition: transform 0.2s;
+}
+
+.filterButton[data-state='open'] .chevronIcon,
+.exportButton[data-state='open'] .chevronIcon {
+  transform: rotate(180deg);
+}
+
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exportButton:hover {
+  background-color: #e9ecef;
+  border-color: var(--color-brand-accent);
+}
+
+.exportIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.itemIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}
+
+.dropdownContent {
+  background-color: #fff;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+  min-width: 180px;
+  z-index: 1001;
+}
+
+.dropdownItem {
+  padding: 8px 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s;
+  outline: none;
+}
+
+.dropdownItem:hover {
+  background-color: rgba(250, 131, 20, 0.1);
+}
+
+.dropdownItemActive {
+  color: var(--color-brand-accent);
+  background-color: rgba(250, 131, 20, 0.1);
+}
+
+.newButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px var(--spacing-sm);
+  background-color: var(--color-brand-accent);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.newButton:hover {
+  background-color: #e67310;
+}
+
+.tableWrapper {
+  background-color: #fff;
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background-color: #f8f9fa;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343a40;
+  border-bottom: 2px solid #f1f1f1;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #495057;
+  vertical-align: middle;
+}
+
+
+.stickyActionsCol {
+  position: sticky;
+  right: 0;
+  background-color: #fff;
+  width: 100px;
+  text-align: center;
+  z-index: 10;
+  box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+.table thead th.stickyActionsCol {
+  background-color: #f8f9fa;
+  z-index: 25;
+}
+
+
+.sttHeaderCell {
+  text-align: center !important;
+  width: 60px;
+}
+
+.sttDataCell {
+  text-align: center !important;
+}
+
+.sttCell {
+  color: #555;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editButton {
+  background-color: rgba(164, 123, 200, 0.1);
+  color: #a47bc8;
+}
+
+.editButton:hover {
+  background-color: #a47bc8;
+  color: #fff;
+}
+
+.deleteButton {
+  background-color: rgba(253, 97, 97, 0.1);
+  color: #fd6161;
+}
+
+.deleteButton:hover {
+  background-color: #fd6161;
+  color: #fff;
+}
+
+.loadingCell, .errorCell, .emptyRow {
+  padding: 40px !important;
+  text-align: center;
+  color: #adb5bd;
+}
+
+.errorCell {
+  color: #dc2626;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ── Tooltip ── */
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltipWrapper .tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  background-color: #333;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.2s ease;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tooltipWrapper .tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #333;
+}
+
+.tooltipWrapper:hover .tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+.amenityImage {
+  width: 60px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.amenityImagePlaceholder {
+  width: 60px;
+  height: 40px;
+  background-color: #f1f3f5;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #adb5bd;
+}
+
+.nameCell {
+  font-weight: 500;
+  color: var(--color-brand-accent);
+}
+
+.textTruncate {
+  display: block;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.statusActive {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.statusInactive {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .left {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .searchWrapper {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

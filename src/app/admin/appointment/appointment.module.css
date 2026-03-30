@@ -1,28 +1,30 @@
 .pageContainer {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
   gap: 0;
 }
 
-.content {
-  padding: var(--spacing-md);
+.loadingState,
+.errorState {
   background-color: #fff;
-  border-radius: var(--radius-md);
+  padding: 48px;
   text-align: center;
+  color: var(--color-admin-text-muted);
+  font-family: var(--font-body);
 }
 
-.contentRow {
-  display: flex;
-  align-items: flex-start;
-  gap: 24px;
+.retryButton {
+  margin-top: 16px;
+  padding: 8px 16px;
+  background-color: var(--color-brand-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
 }
 
-.tableSection {
-  flex: 1;
-  min-width: 0;
-}
-
-.sidebar {
-  width: 400px;
-  flex-shrink: 0;
-}
+.retryButton:hover {
+  background-color: #e67310;
+}

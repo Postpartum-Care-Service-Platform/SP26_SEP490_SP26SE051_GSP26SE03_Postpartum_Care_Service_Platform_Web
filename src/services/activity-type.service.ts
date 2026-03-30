@@ -1,4 +1,5 @@
 import type { ActivityType, CreateActivityTypeRequest, UpdateActivityTypeRequest } from '@/types/activity-type';
+ 
 import apiClient from './apiClient';
 
 const activityTypeService = {

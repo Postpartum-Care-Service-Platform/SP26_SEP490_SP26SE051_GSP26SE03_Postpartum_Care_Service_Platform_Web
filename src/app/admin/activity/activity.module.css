@@ -1,9 +1,6 @@
 .pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   padding: 16px;
-}
-
-.content {
-  padding: var(--spacing-md);
-  background-color: #fff;
-  border-radius: var(--radius-md);
 }

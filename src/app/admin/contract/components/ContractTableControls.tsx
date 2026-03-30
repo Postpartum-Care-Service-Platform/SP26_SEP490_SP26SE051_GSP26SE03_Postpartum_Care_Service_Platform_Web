@@ -1,6 +1,7 @@
 'use client';
 
-import { PlusIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+import { PlusIcon, ChevronDownIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { Download } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -24,9 +25,11 @@ type Props = {
   sortBy?: string;
   onSortChange?: (value: string) => void;
   onAddContract?: () => void;
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
 };
 
-export function ContractTableControls({ sortBy = 'date-newest', onSortChange, onAddContract }: Props) {
+export function ContractTableControls({ sortBy = 'date-newest', onSortChange, onAddContract, searchQuery = '', onSearchChange }: Props) {
   const selectedSortLabel = SORT_OPTIONS.find((opt) => opt.value === sortBy)?.label || 'Sắp xếp';
 
   const handleSortSelect = (value: string) => {
@@ -35,7 +38,16 @@ export function ContractTableControls({ sortBy = 'date-newest', onSortChange, on
 
   return (
     <div className={styles.controls}>
-      <h5 className={styles.listTitle}>Danh sách hợp đồng</h5>
+      <div className={styles.searchWrapper}>
+        <MagnifyingGlassIcon className={styles.searchIcon} />
+        <input
+          type="text"
+          placeholder="Tìm kiếm hợp đồng, khách hàng..."
+          className={styles.searchInput}
+          value={searchQuery}
+          onChange={(e) => onSearchChange?.(e.target.value)}
+        />
+      </div>
       <div className={styles.right}>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
@@ -56,6 +68,17 @@ export function ContractTableControls({ sortBy = 'date-newest', onSortChange, on
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className={styles.exportButton}
+          onClick={() => console.log('Export Contract')}
+        >
+          <Download size={16} className={styles.exportIcon} />
+          Xuất file
+        </Button>
+
         <Button variant="primary" size="sm" className={styles.addButton} onClick={onAddContract}>
           <PlusIcon className={styles.plusIcon} />
           Thêm hợp đồng

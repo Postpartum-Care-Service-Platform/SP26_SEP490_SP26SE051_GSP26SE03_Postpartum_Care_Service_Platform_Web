@@ -8,6 +8,9 @@ import type { Notification } from '@/types/notification';
 import type { NotificationType } from '@/types/notification-type';
 import notificationTypeService from '@/services/notification-type.service';
 
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { Pagination } from '@/components/ui/pagination';
+
 import { NotificationListHeader } from './components/NotificationListHeader';
 import { NotificationModal } from './components/NotificationModal';
 import { NotificationTable } from './components/NotificationTable';
@@ -110,7 +113,6 @@ export default function AdminNotificationPage() {
   };
 
   const handleDeleteNotification = async (notification: Notification) => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa thông báo "${notification.title || `ID ${notification.id}`}"?`)) return;
     try {
       setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
       toast({ title: 'Xóa thông báo thành công', variant: 'success' });
@@ -127,50 +129,61 @@ export default function AdminNotificationPage() {
   const totalPages = Math.ceil(filteredNotifications.length / pageSize);
 
   return (
-    <div className={styles.pageContainer}>
-      <NotificationListHeader />
-      <NotificationTableControls
-        onCreateClick={handleCreateNotification}
-        onSearch={setSearchQuery}
-        onStatusChange={(status) => setStatusFilter(status)}
-        onSortChange={(sort) => setSortKey(sort)}
-      />
-      {loading ? (
-        <div className={styles.loading}>Đang tải dữ liệu...</div>
-      ) : error ? (
-        <div className={styles.error}>{error}</div>
-      ) : (
-        <NotificationTable
-          notifications={paginatedNotifications}
-          onEdit={handleEditNotification}
-          onDelete={handleDeleteNotification}
-          onMarkAsRead={handleMarkAsRead}
-          pagination={
-            totalPages > 0
-              ? {
-                  currentPage,
-                  totalPages,
-                  pageSize,
-                  totalItems: filteredNotifications.length,
-                  onPageChange: (page) => setCurrentPage(page),
-                  pageSizeOptions: PAGE_SIZE_OPTIONS,
-                  onPageSizeChange: (size) => {
-                    setPageSize(size);
-                    setCurrentPage(1);
-                  },
-                }
-              : undefined
-          }
-        />
-      )}
+    <div className="flex flex-col flex-1 h-full min-h-0">
+      <AdminPageLayout
+        header={<NotificationListHeader />}
+        controlPanel={
+          <NotificationTableControls
+            onCreateClick={handleCreateNotification}
+            onSearch={setSearchQuery}
+            onStatusChange={(status) => setStatusFilter(status)}
+            onSortChange={(sort) => setSortKey(sort)}
+          />
+        }
+        pagination={
+          totalPages > 0 ? (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={filteredNotifications.length}
+              onPageChange={(page) => setCurrentPage(page)}
+              pageSizeOptions={PAGE_SIZE_OPTIONS}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              showResultCount={true}
+            />
+          ) : undefined
+        }
+      >
+        {loading ? (
+          <div className={styles.loading}>Đang tải dữ liệu...</div>
+        ) : error ? (
+          <div className={styles.error}>{error}</div>
+        ) : (
+          <NotificationTable
+            notifications={paginatedNotifications}
+            onEdit={handleEditNotification}
+            onDelete={handleDeleteNotification}
+            onMarkAsRead={handleMarkAsRead}
+            pagination={{
+              currentPage,
+              pageSize,
+            }}
+          />
+        )}
 
-      <NotificationModal
-        open={isNotificationModalOpen}
-        onOpenChange={setIsNotificationModalOpen}
-        notification={selectedNotification}
-        notificationTypes={notificationTypes}
-        onSuccess={fetchData}
-      />
+        <NotificationModal
+          open={isNotificationModalOpen}
+          onOpenChange={setIsNotificationModalOpen}
+          notification={selectedNotification}
+          notificationTypes={notificationTypes}
+          onSuccess={fetchData}
+        />
+      </AdminPageLayout>
     </div>
   );
 }
+

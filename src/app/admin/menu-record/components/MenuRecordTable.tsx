@@ -1,13 +1,12 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Pagination } from '@/components/ui/pagination';
 import type { MenuRecord } from '@/types/menu-record';
-
+import type { Account } from '@/types/account';
+import type { Menu } from '@/types/menu';
 import styles from './menu-record-table.module.css';
 
-const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill={fill}>
+const Edit2OutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-edit-2-outline" fill="currentColor">
     <g data-name="Layer 2">
       <g data-name="edit-2">
         <rect width="24" height="24" opacity="0" />
@@ -18,8 +17,8 @@ const Edit2OutlineIcon = ({ fill = '#A47BC8', size = 16 }: { fill?: string; size
   </svg>
 );
 
-const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; size?: number }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill={fill}>
+const Trash2OutlineIcon = ({ size = 16 }: { size?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" className="eva eva-trash-2-outline" fill="currentColor">
     <g data-name="Layer 2">
       <g data-name="trash-2">
         <rect width="24" height="24" opacity="0" />
@@ -33,18 +32,13 @@ const Trash2OutlineIcon = ({ fill = '#FD6161', size = 16 }: { fill?: string; siz
 
 type Props = {
   menuRecords: MenuRecord[];
+  accounts: Account[];
+  menus: Menu[];
   onEdit?: (menuRecord: MenuRecord) => void;
   onDelete?: (menuRecord: MenuRecord) => void;
   deletingId?: number | null;
-  pagination?: {
-    currentPage: number;
-    totalPages: number;
-    pageSize: number;
-    totalItems: number;
-    onPageChange: (page: number) => void;
-    pageSizeOptions?: number[];
-    onPageSizeChange?: (size: number) => void;
-  };
+  currentPage: number;
+  pageSize: number;
 };
 
 const formatDate = (dateString?: string) => {
@@ -61,100 +55,129 @@ const formatDate = (dateString?: string) => {
   }
 };
 
-export function MenuRecordTable({ menuRecords, onEdit, onDelete, deletingId, pagination }: Props) {
+export function MenuRecordTable({ 
+  menuRecords, 
+  accounts,
+  menus,
+  onEdit, 
+  onDelete, 
+  deletingId, 
+  currentPage, 
+  pageSize 
+}: Props) {
+  const getAccountName = (id?: string | null) => {
+    if (!id) return 'Hệ thống';
+    const acc = accounts.find(a => a.id === id);
+    return acc ? acc.username || acc.email : 'Ẩn danh';
+  };
+
+  const getMenuInfo = (id: number) => {
+    const menu = menus.find(m => m.id === id);
+    return menu ? { name: menu.menuName, type: menu.menuTypeName, foods: menu.foods || [] } : null;
+  };
+
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>ID</th>
+            <th className={styles.stickySTTCol}>STT</th>
+            <th>Tài khoản</th>
             <th>Tên</th>
-            <th>Account ID</th>
-            <th>Menu ID</th>
-            <th>Ngày</th>
+            <th>Thực đơn</th>
+            <th>Ngày áp dụng</th>
             <th>Trạng thái</th>
-            <th>Ngày tạo</th>
             <th>Cập nhật</th>
-            <th>Thao tác</th>
+            <th className={styles.stickyActionsCol}>Thao tác</th>
           </tr>
         </thead>
         <tbody>
           {menuRecords.length === 0 ? (
             <tr>
-              <td colSpan={9} className={styles.emptyState}>
+              <td colSpan={8} className={styles.emptyState}>
                 Chưa có bản ghi thực đơn nào
               </td>
             </tr>
           ) : (
-            menuRecords.map((menuRecord) => (
-              <tr key={menuRecord.id} className={styles.tableRow}>
-                <td>{menuRecord.id}</td>
-                <td className={styles.name}>{menuRecord.name}</td>
-                <td className={styles.idCell}>{menuRecord.accountId.slice(0, 8)}...</td>
-                <td>{menuRecord.menuId}</td>
-                <td>{formatDate(menuRecord.date)}</td>
-                <td>
-                  <span
-                    className={`${styles.statusBadge} ${menuRecord.isActive ? styles.statusActive : styles.statusInactive}`}
-                  >
-                    {menuRecord.isActive ? 'Hoạt động' : 'Tạm dừng'}
-                  </span>
-                </td>
-                <td>{formatDate(menuRecord.createdAt)}</td>
-                <td>{formatDate(menuRecord.updatedAt)}</td>
-                <td>
-                  <div className={styles.actions}>
-                    {onEdit && (
+            menuRecords.map((menuRecord, index) => {
+              const stt = (currentPage - 1) * pageSize + index + 1;
+              const menuInfo = getMenuInfo(menuRecord.menuId);
+              
+              return (
+                <tr key={menuRecord.id} className={styles.tableRow}>
+                  <td className={styles.stickySTTCol}>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.sttCell}>{stt}</span>
+                      <span className={styles.tooltip}>ID gốc: {menuRecord.id}</span>
+                    </div>
+                  </td>
+                  <td className={styles.accountCell}>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.truncateCell}>{getAccountName(menuRecord.accountId)}</span>
+                      <span className={styles.tooltip}>ID tài khoản: {menuRecord.accountId || 'N/A'}</span>
+                    </div>
+                  </td>
+                  <td className={styles.name}>
+                    <div className={styles.tooltipWrapper}>
+                      <span className={styles.nameTruncate}>{menuRecord.name || `Bản ghi thực đơn #${menuRecord.id}`}</span>
+                      <span className={styles.tooltip}>{menuRecord.name || 'Không có tên'}</span>
+                    </div>
+                  </td>
+                  <td className={styles.menuCell}>
+                    {menuInfo ? (
                       <div className={styles.tooltipWrapper}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={`${styles.editButton} btn-icon btn-sm`}
-                          onClick={() => onEdit(menuRecord)}
-                          aria-label={`Chỉnh sửa ${menuRecord.name}`}
+                        <div className={styles.menuLabel}>
+                          <span className={styles.menuNameText}>{menuInfo.name}</span>
+                          <span className={styles.menuCountBadge}>{menuInfo.foods.length} món</span>
+                        </div>
+                        <span className={styles.tooltip}>
+                          {menuInfo.type}: {menuInfo.foods.map(f => f.name).join(', ')}
+                        </span>
+                      </div>
+                    ) : '-'}
+                  </td>
+                  <td className={styles.dateCell}>{formatDate(menuRecord.date)}</td>
+                  <td>
+                    <span
+                      className={`${styles.statusBadge} ${
+                        menuRecord.isActive ? styles.statusActive : styles.statusInactive
+                      }`}
+                    >
+                      {menuRecord.isActive ? 'Hoạt động' : 'Tạm dừng'}
+                    </span>
+                  </td>
+                  <td className={styles.dateCell}>{formatDate(menuRecord.updatedAt)}</td>
+                  <td className={styles.stickyActionsCol}>
+                    <div className={styles.actions}>
+                      <div className={styles.tooltipWrapper}>
+                        <button
+                          className={`${styles.actionButton} ${styles.editButton}`}
+                          onClick={() => onEdit?.(menuRecord)}
+                          aria-label={`Chỉnh sửa ${menuRecord.name || ''}`}
                         >
-                          <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                        </Button>
+                          <Edit2OutlineIcon size={16} />
+                        </button>
                         <span className={styles.tooltip}>Chỉnh sửa</span>
                       </div>
-                    )}
-                    {onDelete && (
                       <div className={styles.tooltipWrapper}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={`${styles.deleteButton} btn-icon btn-sm`}
-                          onClick={() => onDelete(menuRecord)}
+                        <button
+                          className={`${styles.actionButton} ${styles.deleteButton}`}
+                          onClick={() => onDelete?.(menuRecord)}
+                          aria-label={`Xóa ${menuRecord.name || ''}`}
                           disabled={deletingId === menuRecord.id}
-                          aria-label={`Xóa ${menuRecord.name}`}
                         >
-                          <Trash2OutlineIcon fill="#FD6161" size={16} />
-                        </Button>
+                          <Trash2OutlineIcon size={16} />
+                        </button>
                         <span className={styles.tooltip}>Xóa</span>
                       </div>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </table>
-
-      {pagination && pagination.totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={pagination.currentPage}
-            totalPages={pagination.totalPages}
-            pageSize={pagination.pageSize}
-            totalItems={pagination.totalItems}
-            onPageChange={pagination.onPageChange}
-            pageSizeOptions={pagination.pageSizeOptions}
-            onPageSizeChange={pagination.onPageSizeChange}
-            showResultCount={true}
-          />
-        </div>
-      )}
     </div>
   );
 }

@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Pagination } from '@/components/ui/pagination';
-import type { Role } from '@/types/role';
 
 import styles from './system-settings-list.module.css';
 
@@ -36,8 +35,8 @@ type Props = {
   settings: SystemSetting[];
   groupDisplayName?: string;
   onEdit?: (setting: SystemSetting) => void;
-  onUpdateRole?: (role: Role, newRoleName: string) => void;
-  roles: Role[];
+  currentPage: number;
+  pageSize: number;
 };
 
 const formatDate = (dateString?: string) => {
@@ -56,147 +55,76 @@ const formatDate = (dateString?: string) => {
 
 export function SystemSettingsList({
   settings,
-  groupDisplayName: _groupDisplayName,
   onEdit,
-  onUpdateRole,
-  roles,
+  currentPage,
+  pageSize,
 }: Props) {
-  const [localValues, setLocalValues] = useState<Record<number, string>>({});
-  const [savingId, setSavingId] = useState<number | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
-
-  const handleChange = (id: number, value: string) => {
-    setLocalValues((prev) => ({ ...prev, [id]: value }));
-  };
-
-  const handleSaveRole = async (role: Role) => {
-    const newValue = localValues[role.id] ?? role.roleName;
-    if (newValue === role.roleName || !onUpdateRole) return;
-
-    try {
-      setSavingId(role.id);
-      await onUpdateRole(role, newValue);
-      setLocalValues((prev) => {
-        const updated = { ...prev };
-        delete updated[role.id];
-        return updated;
-      });
-    } finally {
-      setSavingId(null);
-    }
-  };
-
   const paginatedSettings = settings.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-  const totalPages = Math.ceil(settings.length / pageSize);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
+    <div className={styles.tableWrapper}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th style={{ width: '60px' }}>STT</th>
+            <th>Key</th>
+            <th>Giá trị</th>
+            <th>Mô tả</th>
+            <th>Kiểu dữ liệu</th>
+            <th>Cập nhật</th>
+            <th style={{ width: '80px', textAlign: 'center' }}>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {paginatedSettings.length === 0 ? (
             <tr>
-              <th>Key</th>
-              <th>Giá trị</th>
-              <th>Mô tả</th>
-              <th>Kiểu dữ liệu</th>
-              <th>Cập nhật</th>
-              <th>Thao tác</th>
+              <td colSpan={7} className={styles.emptyState}>
+                Chưa có cấu hình
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {paginatedSettings.length === 0 ? (
-              <tr>
-                <td colSpan={6} className={styles.emptyState}>
-                  Chưa có cấu hình
-                </td>
-              </tr>
-            ) : (
-              paginatedSettings.map((setting) => {
-                const currentValue = localValues[setting.id] ?? setting.value;
-                const isSaving = savingId === setting.id;
-                const isDisabled = !setting.isEditable || isSaving;
+          ) : (
+            paginatedSettings.map((setting, index) => {
+              const isDisabled = !setting.isEditable;
 
-                return (
-                  <tr key={setting.id}>
-                    <td className={styles.keyCell} title={setting.key}>
-                      {setting.key}
-                    </td>
-                    <td className={styles.valueCell} title={setting.value}>
-                      {setting.value}
-                    </td>
-                    <td className={styles.descCell} title={setting.description}>
-                      {setting.description || '-'}
-                    </td>
-                    <td>
-                      <span className={styles.dataTypeBadge}>{setting.dataType}</span>
-                    </td>
-                    <td>{formatDate(setting.updatedAt)}</td>
-                    <td>
-                      <div className={styles.actions}>
-                        {setting.group === 'Role' ? (
-                          // Role row - keep inline edit
-                          <>
-                            <input
-                              className={styles.valueInput}
-                              type="text"
-                              value={currentValue}
-                              disabled={isDisabled}
-                              onChange={(e) => handleChange(setting.id, e.target.value)}
-                            />
-                            <div className={styles.tooltipWrapper}>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className={`${styles.saveButton} btn-icon btn-sm`}
-                                disabled={isDisabled || currentValue === setting.value}
-                                onClick={() => handleSaveRole(roles.find(r => r.id === setting.id) || roles[0])}
-                                aria-label={`Lưu ${setting.key}`}
-                              >
-                                <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24" fill={isDisabled || currentValue === setting.value ? '#9ca3af' : '#22c55e'}>
-                                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                                </svg>
-                              </Button>
-                              <span className={styles.tooltip}>Lưu</span>
-                            </div>
-                          </>
-                        ) : (
-                          // Regular setting - show edit button
-                          <div className={styles.tooltipWrapper}>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className={`${styles.editButton} btn-icon btn-sm`}
-                              onClick={() => onEdit?.(setting)}
-                              disabled={!setting.isEditable}
-                              aria-label={`Chỉnh sửa ${setting.key}`}
-                            >
-                              <Edit2OutlineIcon fill={setting.isEditable ? '#A47BC8' : '#9ca3af'} size={16} />
-                            </Button>
-                            <span className={styles.tooltip}>Chỉnh sửa</span>
-                          </div>
-                        )}
+              return (
+                <tr key={setting.id}>
+                  <td>{(currentPage - 1) * pageSize + index + 1}</td>
+                  <td className={styles.keyCell} title={setting.key}>
+                    {setting.key}
+                  </td>
+                  <td className={styles.valueCell} title={setting.value}>
+                    {setting.value}
+                  </td>
+                  <td className={styles.descCell} title={setting.description}>
+                    {setting.description || '-'}
+                  </td>
+                  <td>
+                    <span className={styles.dataTypeBadge}>{setting.dataType}</span>
+                  </td>
+                  <td>{formatDate(setting.updatedAt)}</td>
+                  <td style={{ textAlign: 'center' }}>
+                    <div className={styles.actions} style={{ justifyContent: 'center' }}>
+                      <div className={styles.tooltipWrapper}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className={`${styles.editButton} btn-icon btn-sm`}
+                          onClick={() => onEdit?.(setting)}
+                          disabled={!setting.isEditable}
+                          aria-label={`Chỉnh sửa ${setting.key}`}
+                        >
+                          <Edit2OutlineIcon fill={setting.isEditable ? '#A47BC8' : '#9ca3af'} size={16} />
+                        </Button>
+                        <span className={styles.tooltip}>Chỉnh sửa</span>
                       </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {totalPages > 1 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            totalItems={settings.length}
-            onPageChange={setCurrentPage}
-          />
-        </div>
-      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }

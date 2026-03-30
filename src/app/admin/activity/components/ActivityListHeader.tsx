@@ -1,18 +1,22 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 
 import styles from './activity-list-header.module.css';
 
 export function ActivityListHeader() {
+  const pathname = usePathname();
+  const isManager = pathname?.startsWith('/manager');
+  const homeHref = isManager ? '/manager' : '/admin';
+
   return (
     <div className={styles.header}>
-      <h4 className={styles.title}>Danh sách hoạt động</h4>
       <Breadcrumbs
         items={[
           { label: 'Hoạt động' },
         ]}
-        homeHref="/admin"
+        homeHref={homeHref}
       />
     </div>
   );

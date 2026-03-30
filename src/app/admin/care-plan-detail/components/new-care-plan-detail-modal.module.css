@@ -14,7 +14,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-width: 600px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .modalHeader {
@@ -44,11 +44,40 @@
 }
 
 .closeButton:hover {
-  color: #343A40;
+  color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.tooltipWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.tooltip {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  background-color: #343a40;
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.2s ease;
+  z-index: 10001;
+}
+
+.tooltipWrapper:hover .tooltip {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .modalBody {
   padding: 16px 16px 0;
+  overflow: visible;
 }
 
 .formGroup {
@@ -158,4 +187,149 @@
 .buttonOutline:hover:not(:disabled) {
   background-color: #f8f9fa;
   color: #343a40;
+}
+
+.dropdownTrigger {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 14px !important;
+  background-color: #f8f9fa !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 6px !important;
+  color: #495057 !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  height: 38px !important;
+  transition: all 0.2s ease !important;
+}
+
+.dropdownTrigger:hover {
+  background-color: #fff !important;
+  border-color: #fa8314 !important;
+}
+
+.dropdownContent {
+  width: 100% !important;
+  min-width: unset !important;
+  background-color: #fff !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  padding: 4px !important;
+  z-index: 10010 !important;
+}
+
+.dropdownItem {
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  color: #495057 !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease !important;
+  font-weight: 400 !important;
+  background-color: transparent !important;
+  border: none !important;
+  margin-bottom: 2px !important;
+}
+
+.dropdownItem:hover {
+  background-color: rgba(250, 131, 20, 0.1) !important;
+  color: #fa8314 !important;
+}
+
+.dropdownItem:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ── Custom Date Picker Styles ── */
+.datePickerRelative {
+  position: relative;
+  width: 100%;
+}
+
+.dateTrigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #F6F7F9;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0 14px;
+  height: 40px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.dateTrigger:hover {
+  background-color: #fff;
+  border-color: #fa8314;
+}
+
+.dateTrigger.dateTriggerOpen {
+  border-color: #fa8314;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(250, 131, 20, 0.1);
+}
+
+.dateTrigger.invalid {
+  border-color: #dc3545;
+}
+
+.dateIcon {
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.dateTrigger:hover .dateIcon {
+  color: #fa8314;
+}
+
+.dateText {
+  font-size: 13.5px;
+  color: #495057;
+  font-weight: 500;
+}
+
+.dateText.placeholder {
+  color: #adb5bd;
+  font-weight: 400;
+}
+
+.sharedDatePickerWrapper {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  z-index: 10015;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  animation: pickerIn 0.2s ease-out;
+}
+
+@keyframes pickerIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Global DatePicker Overrides for this modal */
+.sharedDatePickerWrapper :global([class*="datePickerPopup"]) {
+  position: relative !important;
+  box-shadow: none !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+}
+
+.sharedDatePickerWrapper :global([class*="closeBtn"]),
+.sharedDatePickerWrapper :global([class*="title"]),
+.sharedDatePickerWrapper :global([class*="inputWrapper"]) {
+  display: none !important;
 }

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronDownIcon, MagnifyingGlassIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
+import { Download, Upload } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -77,11 +78,13 @@ const sortItems = (items: PackageType[], key: SortKey) => {
   switch (key) {
     case 'id-asc':    return arr.sort((a, b) => a.id - b.id);
     case 'id-desc':   return arr.sort((a, b) => b.id - a.id);
-    case 'name-asc':  return arr.sort((a, b) => a.name.localeCompare(b.name));
-    case 'name-desc': return arr.sort((a, b) => b.name.localeCompare(a.name));
+    case 'name-asc':  return arr.sort((a, b) => a.typeName.localeCompare(b.typeName));
+    case 'name-desc': return arr.sort((a, b) => b.typeName.localeCompare(a.typeName));
     default: return arr;
   }
 };
+
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 
 export default function AdminPackageTypePage() {
   const [items, setItems]         = useState<PackageType[]>([]);
@@ -97,6 +100,7 @@ export default function AdminPackageTypePage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<PackageType | null>(null);
+  const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
 
   const { toast } = useToast();
 
@@ -119,7 +123,7 @@ export default function AdminPackageTypePage() {
     let filtered = [...items];
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
-      filtered = filtered.filter((item) => item.name.toLowerCase().includes(q));
+      filtered = filtered.filter((item) => item.typeName.toLowerCase().includes(q));
     }
     if (statusFilter !== 'all') {
       filtered = filtered.filter((item) => statusFilter === 'active' ? item.isActive : !item.isActive);
@@ -166,154 +170,221 @@ export default function AdminPackageTypePage() {
     }
   };
 
+  const handleToggleStatus = async (item: PackageType, newStatus: boolean) => {
+    if (item.isActive === newStatus || updatingStatusIds.has(item.id)) return;
+    try {
+      setUpdatingStatusIds(prev => {
+        const next = new Set(prev);
+        next.add(item.id);
+        return next;
+      });
+      if (newStatus) {
+        await packageTypeService.restorePackageType(item.id);
+        toast({ title: 'Khôi phục loại gói thành công', variant: 'success' });
+      } else {
+        await packageTypeService.deletePackageType(item.id);
+        toast({ title: 'Tạm dừng loại gói thành công', variant: 'success' });
+      }
+      await fetchData();
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Cập nhật trạng thái thất bại'), variant: 'error' });
+    } finally {
+      setUpdatingStatusIds(prev => {
+        const next = new Set(prev);
+        next.delete(item.id);
+        return next;
+      });
+    }
+  };
+
   const selectedSortLabel   = SORT_OPTIONS.find((o) => o.value === sortKey)?.label ?? 'Sắp xếp';
   const selectedStatusLabel = STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? 'Tất cả';
 
-  return (
-    <div className={styles.pageContainer}>
-      {/* Controls */}
-      <div className={styles.controls}>
-        <div className={styles.controlsLeft}>
-          <div className={styles.searchWrapper}>
-            <MagnifyingGlassIcon className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Tìm kiếm loại gói dịch vụ..."
-              className={styles.searchInput}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={styles.filterButton}>
-                <MixerHorizontalIcon className={styles.filterIcon} />
-                {selectedSortLabel}
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {SORT_OPTIONS.map((opt) => (
-                <DropdownMenuItem key={opt.value}
-                  className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setSortKey(opt.value)}>
-                  {opt.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className={styles.controlsRight}>
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className={styles.statusButton}>
-                {selectedStatusLabel}
-                <ChevronDownIcon className={styles.chevronIcon} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent}>
-              {STATUS_OPTIONS.map((opt) => (
-                <DropdownMenuItem key={opt.value}
-                  className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`}
-                  onClick={() => setStatusFilter(opt.value)}>
-                  {opt.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button variant="primary" size="sm" className={styles.createButton} onClick={handleOpenCreate}>
-            <PlusIcon className={styles.plusIcon} />
-            Loại mới
-          </Button>
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className={styles.tableContainer}>
-        {loading ? (
-          <div className={styles.placeholder}>Đang tải dữ liệu...</div>
-        ) : error ? (
-          <div className={styles.placeholder}>{error}</div>
-        ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th title="Số thứ tự">STT</th>
-                  <th>Tên loại gói dịch vụ</th>
-                  <th>Trạng thái</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedItems.length === 0 ? (
-                  <tr><td colSpan={4} className={styles.emptyState}>
-                    {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có loại gói dịch vụ nào.'}
-                  </td></tr>
-                ) : (
-                  paginatedItems.map((item, index) => {
-                    const stt = (currentPage - 1) * pageSize + index + 1;
-                    return (
-                      <tr key={item.id}>
-                        <td><span className={styles.sttCell} title={`ID gốc: ${item.id}`}>{stt}</span></td>
-                        <td className={styles.nameCell}>{item.name}</td>
-                        <td>
-                          <span className={`${styles.statusBadge} ${item.isActive ? styles.statusActive : styles.statusInactive}`}>
-                            {item.isActive ? 'Hoạt động' : 'Tạm dừng'}
-                          </span>
-                        </td>
-                        <td>
-                          <div className={styles.actions}>
-                            <div className={styles.tooltipWrapper}>
-                              <Button variant="outline" size="sm" className={styles.editButton}
-                                onClick={() => handleOpenEdit(item)}>
-                                <EditIcon />
-                              </Button>
-                              <span className={styles.tooltip}>Chỉnh sửa</span>
-                            </div>
-                            {item.isActive ? (
-                              <div className={styles.tooltipWrapper}>
-                                <Button variant="outline" size="sm" className={styles.deleteButton}
-                                  onClick={() => handleDelete(item)} disabled={deletingId === item.id}>
-                                  <TrashIcon />
-                                </Button>
-                                <span className={styles.tooltip}>Xóa</span>
-                              </div>
-                            ) : (
-                              <div className={styles.tooltipWrapper}>
-                                <Button variant="outline" size="sm" className={styles.restoreButton}
-                                  onClick={() => handleRestore(item)} disabled={deletingId === item.id}>
-                                  <RestoreIcon />
-                                </Button>
-                                <span className={styles.tooltip}>Khôi phục</span>
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {!loading && !error && filteredItems.length > 0 && totalPages > 0 && (
-        <div className={styles.paginationWrapper}>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            totalItems={filteredItems.length}
-            onPageChange={(page) => { setCurrentPage(page); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
-            onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
-            showResultCount={true}
+  const controlPanel = (
+    <div className={styles.controls}>
+      <div className={styles.controlsLeft}>
+        <div className={styles.searchWrapper}>
+          <MagnifyingGlassIcon className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Tìm kiếm loại gói dịch vụ..."
+            className={styles.searchInput}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-      )}
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.filterButton}>
+              <MixerHorizontalIcon className={styles.filterIcon} />
+              {selectedSortLabel}
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent}>
+            {SORT_OPTIONS.map((opt) => (
+              <DropdownMenuItem key={opt.value}
+                className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
+                onClick={() => setSortKey(opt.value)}>
+                {opt.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <div className={styles.controlsRight}>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.exportButton}>
+              <Download size={16} className={styles.exportIcon} />
+              Nhập/Xuất
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent} align="end">
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+              <Upload size={16} className={styles.itemIcon} />
+              Nhập từ Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+              <Download size={16} className={styles.itemIcon} />
+              Xuất ra Excel
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.statusButton}>
+              {selectedStatusLabel}
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent}>
+            {STATUS_OPTIONS.map((opt) => (
+              <DropdownMenuItem key={opt.value}
+                className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`}
+                onClick={() => setStatusFilter(opt.value)}>
+                {opt.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Button variant="primary" size="sm" className={styles.createButton} onClick={handleOpenCreate}>
+          <PlusIcon className={styles.plusIcon} />
+          Loại mới
+        </Button>
+      </div>
+    </div>
+  );
+
+  const pagination = !loading && !error && filteredItems.length > 0 && totalPages > 0 ? (
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      pageSize={pageSize}
+      totalItems={filteredItems.length}
+      onPageChange={(page) => { setCurrentPage(page); }}
+      pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
+      onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
+      showResultCount={true}
+    />
+  ) : null;
+
+  return (
+    <AdminPageLayout
+      controlPanel={controlPanel}
+      pagination={pagination}
+    >
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th style={{ width: '50px' }}>STT</th>
+              <th>Tên loại gói dịch vụ</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan={4} className={styles.placeholder}>Đang tải dữ liệu...</td></tr>
+            ) : error ? (
+              <tr><td colSpan={4} className={styles.placeholder}>{error}</td></tr>
+            ) : paginatedItems.length === 0 ? (
+              <tr><td colSpan={4} className={styles.emptyState}>
+                {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có loại gói dịch vụ nào.'}
+              </td></tr>
+            ) : (
+              paginatedItems.map((item, index) => {
+                const stt = (currentPage - 1) * pageSize + index + 1;
+                return (
+                  <tr key={item.id}>
+                    <td><span className={styles.sttCell}>{stt}</span></td>
+                    <td className={styles.nameCell}>{item.typeName}</td>
+                    <td>
+                      <div className={styles.tooltipWrapper}>
+                        <DropdownMenu modal={false}>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className={`${styles.plainTrigger} ${item.isActive ? styles.statusActive : styles.statusInactive}`}
+                              disabled={updatingStatusIds.has(item.id)}
+                            >
+                              <div className={`${styles.statusIndicator} ${styles.statusAnimated}`}>
+                                <span className={styles.statusCircle}></span>
+                              </div>
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className={styles.statusMenu} align="start" sideOffset={4}>
+                            <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(item, true)}>
+                              Hoạt động
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(item, false)}>
+                              Tạm dừng
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <span className={styles.tooltip}>
+                          {item.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className={styles.actions}>
+                        <div className={styles.tooltipWrapper}>
+                          <Button variant="outline" size="sm" className={styles.editButton}
+                            onClick={() => handleOpenEdit(item)}>
+                            <EditIcon />
+                          </Button>
+                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                        </div>
+                        {item.isActive ? (
+                          <div className={styles.tooltipWrapper}>
+                            <Button variant="outline" size="sm" className={styles.deleteButton}
+                              onClick={() => handleDelete(item)} disabled={deletingId === item.id}>
+                              <TrashIcon />
+                            </Button>
+                            <span className={styles.tooltip}>Xóa</span>
+                          </div>
+                        ) : (
+                          <div className={styles.tooltipWrapper}>
+                            <Button variant="outline" size="sm" className={styles.restoreButton}
+                              onClick={() => handleRestore(item)} disabled={deletingId === item.id}>
+                              <RestoreIcon />
+                            </Button>
+                            <span className={styles.tooltip}>Khôi phục</span>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
 
       <PackageTypeModal
         open={isModalOpen}
@@ -321,6 +392,6 @@ export default function AdminPackageTypePage() {
         item={editingItem}
         onSuccess={fetchData}
       />
-    </div>
+    </AdminPageLayout>
   );
 }

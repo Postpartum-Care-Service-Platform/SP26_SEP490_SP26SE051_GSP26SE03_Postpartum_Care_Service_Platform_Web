@@ -1,0 +1,120 @@
+.dropdownContainer {
+  position: relative;
+  width: 100%;
+}
+
+.dropdownHeader {
+  width: 100%;
+  padding: 8px 14px;
+  background-color: #F6F7F9;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #495057;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  min-height: 38px;
+}
+
+.dropdownHeader:hover {
+  border-color: #fa8314;
+}
+
+.dropdownHeader.isOpen {
+  border-color: #fa8314;
+  box-shadow: 0 0 0 0.2rem rgba(250, 131, 20, 0.1);
+  background-color: #fff;
+}
+
+.dropdownHeader.isInvalid {
+  border-color: #dc3545;
+}
+
+.placeholder {
+  color: #adb5bd;
+}
+
+.arrow {
+  transition: transform 0.2s;
+  color: #adb5bd;
+}
+
+.arrowOpen {
+  transform: rotate(180deg);
+  color: #fa8314;
+}
+
+.dropdownList {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 4px;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdownOption {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #495057;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.dropdownOption:hover {
+  background-color: #fff8f1;
+  color: #fa8314;
+}
+
+.dropdownOption.isSelected {
+  background-color: #fa8314;
+  color: #fff;
+}
+
+.noOptions {
+  padding: 12px;
+  text-align: center;
+  color: #adb5bd;
+  font-size: 13px;
+}
+
+.searchBox {
+  padding: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f1f3f5;
+  margin-bottom: 4px;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 2;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  outline: none;
+  background-color: #f8f9fa;
+}
+
+.searchInput:focus {
+  border-color: #fa8314;
+}

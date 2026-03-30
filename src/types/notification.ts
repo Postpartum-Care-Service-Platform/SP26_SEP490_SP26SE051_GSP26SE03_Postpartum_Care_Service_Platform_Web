@@ -15,16 +15,13 @@ export interface Notification {
 }
 
 export interface CreateNotificationRequest {
-  amenityTicketId?: number | null;
-  staffId?: string | null;
-  receiverId?: string | null;
+  receiverIds: string[];
   notificationTypeId: number;
   title: string;
   content: string;
 }
 
 export interface UpdateNotificationRequest {
-  amenityTicketId?: number | null;
   staffId?: string | null;
   receiverId?: string | null;
   notificationTypeId?: number;

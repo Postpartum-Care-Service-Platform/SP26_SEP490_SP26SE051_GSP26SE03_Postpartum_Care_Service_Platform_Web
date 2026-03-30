@@ -1,12 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
-
 import { useToast } from '@/components/ui/toast/use-toast';
 import appointmentService from '@/services/appointment.service';
 import type { Appointment as ApiAppointment } from '@/types/appointment';
 
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { Pagination } from '@/components/ui/pagination';
 import styles from './appointment.module.css';
 import { AppointmentHeader } from './components/AppointmentHeader';
 import { AppointmentTable } from './components/AppointmentTable';
@@ -14,7 +14,6 @@ import { AppointmentTableControls } from './components/AppointmentTableControls'
 import { EditAppointmentModal } from './components/EditAppointmentModal';
 import { QuickCreateAppointment } from './components/QuickCreateAppointment';
 import type { Appointment, AppointmentStatus } from './components/types';
-
 
 export default function AdminAppointmentPage() {
   const { toast } = useToast();
@@ -29,8 +28,9 @@ export default function AdminAppointmentPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showQuickCreate, setShowQuickCreate] = useState(false);
 
+  // ... (mapStatus, formatDateTime, formatDate, formatDateOnly, formatTimeOnly functions stay the same)
+
   const mapStatus = (status: string): AppointmentStatus => {
-    // Map từ status tiếng Anh trong API sang enum nội bộ
     if (status === 'Pending') return 'Pending';
     if (status === 'Completed') return 'Completed';
     if (status === 'Cancelled') return 'Cancelled';
@@ -42,16 +42,10 @@ export default function AdminAppointmentPage() {
     if (!isoString) return '-';
     try {
       const date = new Date(isoString);
-      if (isNaN(date.getTime())) {
-        return '-';
-      }
+      if (isNaN(date.getTime())) return '-';
       return date.toLocaleString('vi-VN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false,
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hour12: false,
       });
     } catch (error) {
       console.error('Error formatting date:', isoString, error);
@@ -63,14 +57,8 @@ export default function AdminAppointmentPage() {
     if (!isoString) return '-';
     try {
       const date = new Date(isoString);
-      if (isNaN(date.getTime())) {
-        return '-';
-      }
-      return date.toLocaleDateString('vi-VN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-      });
+      if (isNaN(date.getTime())) return '-';
+      return date.toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' });
     } catch (error) {
       console.error('Error formatting date:', isoString, error);
       return '-';
@@ -86,7 +74,7 @@ export default function AdminAppointmentPage() {
 
   const formatTimeOnly = (timeOnly: string | null | undefined): string => {
     if (!timeOnly) return '-';
-    return timeOnly.slice(0, 5); // HH:mm từ HH:mm:ss
+    return timeOnly.slice(0, 5); 
   };
 
   const mapAppointment = useCallback((apt: ApiAppointment): Appointment => {
@@ -130,6 +118,7 @@ export default function AdminAppointmentPage() {
   useEffect(() => {
     fetchAppointments();
   }, [fetchAppointments]);
+
   const filteredAppointments = useMemo(() => {
     let filtered = [...appointments];
     if (statusFilter !== 'all') {
@@ -160,80 +149,75 @@ export default function AdminAppointmentPage() {
     console.log('Delete appointment:', appointment);
   };
 
-  if (loading) {
-    return (
-      <div className={styles.pageContainer}>
-        <AppointmentHeader />
-        <div className={styles.content}>
-          <p>Đang tải dữ liệu...</p>
-        </div>
-      </div>
-    );
-  }
+  const header = <AppointmentHeader />;
 
-  if (error) {
-    return (
-      <div className={styles.pageContainer}>
-        <AppointmentHeader />
-        <div className={styles.content}>
-          <p>{error}</p>
-          <button onClick={fetchAppointments} style={{ marginTop: '16px', padding: '8px 16px' }}>
-            Thử lại
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const controlPanel = (
+    <AppointmentTableControls 
+      onStatusChange={handleStatusChange}
+      onAddClick={() => setShowQuickCreate(true)}
+    />
+  );
+
+  const pagination = (
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      pageSize={pageSize}
+      totalItems={filteredAppointments.length}
+      onPageChange={setCurrentPage}
+      pageSizeOptions={PAGE_SIZE_OPTIONS}
+      onPageSizeChange={(size) => {
+        setPageSize(size);
+        setCurrentPage(1);
+      }}
+      showResultCount={true}
+    />
+  );
 
   return (
-    <div className={styles.pageContainer}>
-      <AppointmentHeader />
-      <div className={styles.contentRow}>
-        <div className={styles.tableSection}>
-          <AppointmentTableControls 
-            onStatusChange={handleStatusChange}
-            onAddClick={() => setShowQuickCreate(true)}
-          />
+    <AdminPageLayout
+      header={header}
+      controlPanel={controlPanel}
+      pagination={pagination}
+    >
+      {loading ? (
+        <div className={styles.loadingState}>Đang tải dữ liệu...</div>
+      ) : error ? (
+        <div className={styles.errorState}>
+          <p>{error}</p>
+          <button onClick={fetchAppointments} className={styles.retryButton}>Thử lại</button>
+        </div>
+      ) : (
+        <>
           <AppointmentTable
             appointments={paginatedAppointments}
             onEdit={handleEdit}
             onDelete={handleDelete}
-            pagination={{
-              currentPage,
-              totalPages,
-              pageSize,
-              totalItems: filteredAppointments.length,
-              onPageChange: setCurrentPage,
-              pageSizeOptions: PAGE_SIZE_OPTIONS,
-              onPageSizeChange: (size) => {
-                setPageSize(size);
-                setCurrentPage(1);
-              },
-            }}
+            currentPage={currentPage}
+            pageSize={pageSize}
             quickCreateComponent={
               <QuickCreateAppointment
                 hideDefaultButton={true}
                 isOpen={showQuickCreate}
                 onOpenChange={setShowQuickCreate}
-                onCreated={() => {
-                  fetchAppointments();
-                }}
+                onCreated={fetchAppointments}
               />
             }
           />
-        </div>
-      </div>
 
-      <EditAppointmentModal
-        open={isEditModalOpen}
-        onOpenChange={(open) => {
-          setIsEditModalOpen(open);
-          if (!open) setEditingAppointment(null);
-        }}
-        appointment={editingAppointment}
-        onSuccess={fetchAppointments}
-      />
-    </div>
+          <EditAppointmentModal
+            open={isEditModalOpen}
+            onOpenChange={(open) => {
+              setIsEditModalOpen(open);
+              if (!open) setEditingAppointment(null);
+            }}
+            appointment={editingAppointment}
+            onSuccess={fetchAppointments}
+          />
+        </>
+      )}
+    </AdminPageLayout>
   );
 }
+
 

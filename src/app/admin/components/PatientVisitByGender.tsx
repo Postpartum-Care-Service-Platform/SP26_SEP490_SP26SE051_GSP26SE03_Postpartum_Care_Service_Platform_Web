@@ -31,18 +31,17 @@ type PatientVisitByGenderProps = {
 };
 
 const mockData: GenderVisitData[] = [
-  { month: 'Jan', female: 800, male: 600 },
-  { month: 'Feb', female: 600, male: 400 },
-  { month: 'Mar', female: 900, male: 700 },
-  { month: 'Apr', female: 1200, male: 900 },
-  { month: 'May', female: 1000, male: 800 },
-  { month: 'Jun', female: 850, male: 650 },
-  { month: 'Jul', female: 1100, male: 900 },
-  { month: 'Aug', female: 750, male: 550 },
-  { month: 'Sep', female: 1300, male: 1000 },
-  { month: 'Oct', female: 950, male: 750 },
-  { month: 'Nov', female: 1150, male: 900 },
-  { month: 'Dec', female: 900, male: 700 },
+  { month: 'Feb', female: 65, male: 40 },
+  { month: 'Mar', female: 85, male: 60 },
+  { month: 'Apr', female: 75, male: 55 },
+  { month: 'May', female: 55, male: 45 },
+  { month: 'Jun', female: 78, male: 62 },
+  { month: 'Jul', female: 50, male: 35 },
+  { month: 'Aug', female: 88, male: 68 },
+  { month: 'Sep', female: 65, male: 50 },
+  { month: 'Oct', female: 75, male: 60 },
+  { month: 'Nov', female: 80, male: 55 },
+  { month: 'Dec', female: 55, male: 30 },
 ];
 
 type PatientVisitTooltipItem = {
@@ -185,9 +184,9 @@ export function PatientVisitByGender({
                 </linearGradient>
               </defs>
               <CartesianGrid
-                strokeDasharray="5 5"
-                stroke="#e0e0e0"
-                vertical
+                strokeDasharray="3 3"
+                stroke="#f0f0f0"
+                vertical={true}
                 horizontal={false}
               />
               <XAxis
@@ -195,12 +194,14 @@ export function PatientVisitByGender({
                 axisLine={false}
                 tickLine={false}
                 tick={{
-                  fill: '#6c757d',
+                  fill: '#888',
                   fontSize: 12,
-                  fontFamily: 'Funnel Sans, sans-serif',
+                  fontFamily: 'inherit',
+                  fontWeight: 500
                 }}
+                dy={10}
               />
-              <YAxis hide />
+              <YAxis hide domain={['dataMin - 10', 'dataMax + 10']} />
               <Tooltip
                 content={<CustomTooltip />}
                 cursor={{
@@ -213,17 +214,19 @@ export function PatientVisitByGender({
                 type="monotone"
                 dataKey="female"
                 stroke="#a47bc8"
-                strokeWidth={1}
+                strokeWidth={2}
                 fill="url(#femaleGradient)"
                 name="Female"
+                activeDot={{ r: 6, fill: '#a47bc8', stroke: '#fff', strokeWidth: 2 }}
               />
               <Area
                 type="monotone"
                 dataKey="male"
                 stroke="#f5d178"
-                strokeWidth={1}
+                strokeWidth={2}
                 fill="url(#maleGradient)"
                 name="Male"
+                activeDot={{ r: 6, fill: '#f5d178', stroke: '#fff', strokeWidth: 2 }}
               />
             </AreaChart>
           </ResponsiveContainer>

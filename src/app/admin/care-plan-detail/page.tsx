@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useToast } from '@/components/ui/toast/use-toast';
 import carePlanDetailService from '@/services/care-plan-detail.service';
 import type { CarePlanDetail } from '@/types/care-plan-detail';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { Pagination } from '@/components/ui/pagination';
 
 import styles from './care-plan-detail.module.css';
 import {
@@ -13,9 +15,6 @@ import {
   CarePlanDetailTableControls,
   NewCarePlanDetailModal,
 } from './components';
-
-
-
 
 const sortCarePlanDetails = (items: CarePlanDetail[], sort: string) => {
   const arr = [...items];
@@ -62,7 +61,7 @@ export default function AdminCarePlanDetailPage() {
       const message =
         err instanceof Error && err.message
           ? err.message
-          : 'Không thể tải danh sách chi tiết kế hoạch chăm sóc';
+          : 'Không thể tải danh sách hoạt động gói dịch vụ';
       setError(message);
     } finally {
       setLoading(false);
@@ -99,7 +98,7 @@ export default function AdminCarePlanDetailPage() {
     return filteredCarePlanDetails.slice(start, end);
   }, [filteredCarePlanDetails, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredCarePlanDetails.length / pageSize);
+  const totalPages = Math.ceil(filteredCarePlanDetails.length / pageSize) || 1;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -136,49 +135,53 @@ export default function AdminCarePlanDetailPage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <CarePlanDetailListHeader />
-
-      {loading ? (
-        <div className={styles.content}>
-          <p>Đang tải dữ liệu...</p>
-        </div>
-      ) : error ? (
-        <div className={styles.content}>
-          <p>{error}</p>
-        </div>
-      ) : (
-        <>
-          <CarePlanDetailTableControls
-            onSearch={(q) => setSearchQuery(q)}
-            onSortChange={(sort) => setSortKey(sort)}
-            onNewCarePlanDetail={() => setIsModalOpen(true)}
+    <AdminPageLayout
+      header={<CarePlanDetailListHeader />}
+      controlPanel={
+        <CarePlanDetailTableControls
+          onSearch={(q) => setSearchQuery(q)}
+          onSortChange={(sort) => setSortKey(sort)}
+          onNewCarePlanDetail={() => setIsModalOpen(true)}
+        />
+      }
+      pagination={
+        filteredCarePlanDetails.length > 0 ? (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalItems={filteredCarePlanDetails.length}
+            onPageChange={handlePageChange}
+            pageSizeOptions={PAGE_SIZE_OPTIONS}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+            showResultCount={true}
           />
-
+        ) : null
+      }
+    >
+      <div className={styles.pageContainer}>
+        {loading ? (
+          <div className={styles.loading}>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        ) : error ? (
+          <div className={styles.error}>
+            <p>{error}</p>
+          </div>
+        ) : (
           <CarePlanDetailTable
             carePlanDetails={paginatedCarePlanDetails}
             onEdit={handleEdit}
             onDelete={handleDelete}
             deletingId={deletingId}
-            pagination={
-              totalPages > 0
-                ? {
-                    currentPage,
-                    totalPages,
-                    pageSize,
-                    totalItems: filteredCarePlanDetails.length,
-                    onPageChange: handlePageChange,
-                    pageSizeOptions: PAGE_SIZE_OPTIONS,
-                    onPageSizeChange: (size) => {
-                      setPageSize(size);
-                      setCurrentPage(1);
-                    },
-                  }
-                : undefined
-            }
+            currentPage={currentPage}
+            pageSize={pageSize}
           />
-        </>
-      )}
+        )}
+      </div>
 
       <NewCarePlanDetailModal
         open={isModalOpen}
@@ -186,6 +189,6 @@ export default function AdminCarePlanDetailPage() {
         onSuccess={fetchCarePlanDetails}
         carePlanDetailToEdit={editingCarePlanDetail}
       />
-    </div>
+    </AdminPageLayout>
   );
 }

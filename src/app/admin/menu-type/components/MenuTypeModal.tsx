@@ -16,12 +16,9 @@ type Props = {
   onSuccess?: () => void;
 };
 
-const getErrorMessage = (error: unknown, fallback: string): string => {
-  if (error instanceof Error && error.message) return error.message;
-  if (typeof error === 'object' && error !== null && 'message' in error &&
-    typeof (error as { message?: unknown }).message === 'string')
-    return (error as { message: string }).message;
-  return fallback;
+const getErrorMessage = (error: any, fallback: string): string => {
+  if (typeof error === 'string') return error;
+  return error?.message || error?.error || error?.data?.message || error?.data?.error || fallback;
 };
 
 export function MenuTypeModal({ open, onOpenChange, item, onSuccess }: Props) {
@@ -49,7 +46,7 @@ export function MenuTypeModal({ open, onOpenChange, item, onSuccess }: Props) {
         await menuTypeService.updateMenuType(item.id, payload);
         toast({ title: 'Cập nhật loại thực đơn thành công', variant: 'success' });
       } else {
-        const payload: CreateMenuTypeRequest = { name: name.trim(), isActive: false };
+        const payload: CreateMenuTypeRequest = { name: name.trim() };
         await menuTypeService.createMenuType(payload);
         toast({ title: 'Tạo loại thực đơn thành công', variant: 'success' });
       }

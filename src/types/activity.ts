@@ -3,21 +3,21 @@ export interface Activity {
   name: string;
   description: string;
   price: number | null;
-  target: 'Mom' | 'Baby' | string;
+  target: number | string;
   activityTypeId: number;
-  activityTypeName: string;
+  activityTypeName: string | null;
   duration: number;
-  status: 'Active' | 'Inactive' | string;
+  status: number | string;
 }
 
 export type CreateActivityRequest = {
   name: string;
   description?: string;
   price?: number | null;
-  target?: string;
+  target?: number;
   activityTypeId?: number;
   duration?: number;
-  status?: string;
+  status?: number;
 };
 
 export type UpdateActivityRequest = Partial<CreateActivityRequest>;

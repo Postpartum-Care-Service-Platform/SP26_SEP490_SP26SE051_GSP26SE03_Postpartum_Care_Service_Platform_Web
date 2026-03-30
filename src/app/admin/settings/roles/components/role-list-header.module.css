@@ -1,25 +1,7 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding-bottom: var(--spacing-md);
-}
-
-.header h4.title,
-h4.title,
-.title {
-  font-family: var(--font-admin-title);
-  font-size: 15px;
-  font-weight: 500;
-  text-transform: capitalize;
-  line-height: 1.2;
-  color: var(--color-admin-text-primary);
-  margin: 0;
-  padding: 0;
-  letter-spacing: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  justify-content: flex-start;
 }
 
 @media (max-width: 768px) {

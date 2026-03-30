@@ -80,7 +80,7 @@ export function PackageTable({ packages, onEdit, onDelete, deletingId, paginatio
         <table className={styles.table}>
           <thead>
             <tr>
-              <th title="Số thứ tự">STT</th>
+              <th className={styles.sttHeaderCell} title="Số thứ tự">STT</th>
               <th>Tên gói</th>
               <th>Hình ảnh</th>
               <th>Loại gói dịch vụ</th>
@@ -108,75 +108,90 @@ export function PackageTable({ packages, onEdit, onDelete, deletingId, paginatio
 
                 return (
                   <tr key={pkg.id} className={styles.tableRow}>
-                  <td>
-                    <span className={styles.sttCell} title={`ID gốc: ${pkg.id}`}>
-                      {stt}
-                    </span>
-                  </td>
-                  <td className={styles.name} title={pkg.packageName}>
-                    {pkg.packageName}
-                  </td>
-                  <td>
-                    {pkg.imageUrl ? (
-                      <div className={styles.imageCell}>
-                        <Image
-                          src={pkg.imageUrl}
-                          alt={pkg.packageName}
-                          width={60}
-                          height={60}
-                          className={styles.packageImage}
-                          unoptimized
-                        />
-                      </div>
-                    ) : (
-                      <div className={styles.imagePlaceholder}>-</div>
-                    )}
-                  </td>
-                  <td>{translatePackageTypeName(pkg.packageTypeName)}</td>
-                  <td>{pkg.roomTypeName || '-'}</td>
-                  <td className={styles.truncateCell} title={pkg.description}>
-                    {pkg.description || '-'}
-                  </td>
-                  <td>{pkg.durationDays}</td>
-                  <td>{pkg.basePrice.toLocaleString('vi-VN')} VND</td>
-                  <td>
-                    <span
-                      className={`${styles.statusBadge} ${pkg.isActive ? styles.statusActive : styles.statusInactive}`}
-                    >
-                      {pkg.isActive ? 'Hoạt động' : 'Tạm dừng'}
-                    </span>
-                  </td>
-                  <td>{formatDate(pkg.updatedAt)}</td>
-                  <td>
-                    <div className={styles.actions}>
+                    <td className={styles.sttDataCell}>
+                      <span className={styles.sttCell} title={`ID gốc: ${pkg.id}`}>
+                        {stt}
+                      </span>
+                    </td>
+                    <td className={styles.name}>
                       <div className={styles.tooltipWrapper}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={`${styles.editButton} btn-icon btn-sm`}
-                          onClick={() => onEdit?.(pkg)}
-                          aria-label={`Chỉnh sửa ${pkg.packageName}`}
-                        >
-                          <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                        </Button>
-                        <span className={styles.tooltip}>Chỉnh sửa</span>
+                        <span className={styles.textTruncate}>{pkg.packageName}</span>
+                        <span className={styles.tooltip}>{pkg.packageName}</span>
                       </div>
-                      <div className={styles.tooltipWrapper}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={`${styles.deleteButton} btn-icon btn-sm`}
-                          onClick={() => onDelete?.(pkg)}
-                          aria-label={`Xóa ${pkg.packageName}`}
-                          disabled={deletingId === pkg.id}
-                        >
-                          <Trash2OutlineIcon fill="#FD6161" size={16} />
-                        </Button>
-                        <span className={styles.tooltip}>Xóa</span>
+                    </td>
+                    <td>
+                      {pkg.imageUrl ? (
+                        <div className={styles.imageCell}>
+                          <Image
+                            src={pkg.imageUrl}
+                            alt={pkg.packageName}
+                            width={60}
+                            height={60}
+                            className={styles.packageImage}
+                            unoptimized
+                          />
+                        </div>
+                      ) : (
+                        <div className={styles.imagePlaceholder}>-</div>
+                      )}
+                    </td>
+                    <td>{translatePackageTypeName(pkg.packageTypeName)}</td>
+                    <td className={styles.roomTypeCell}>
+                      {pkg.roomTypeName ? (
+                        <div className={styles.tooltipWrapper}>
+                          <span className={styles.textTruncate}>{pkg.roomTypeName}</span>
+                          <span className={styles.tooltip}>{pkg.roomTypeName}</span>
+                        </div>
+                      ) : '-'}
+                    </td>
+                    <td className={styles.truncateCell}>
+                      {pkg.description ? (
+                        <div className={styles.tooltipWrapper}>
+                          <span className={styles.textTruncate}>{pkg.description}</span>
+                          <span className={styles.tooltip}>{pkg.description}</span>
+                        </div>
+                      ) : '-'}
+                    </td>
+                    <td>{pkg.durationDays}</td>
+                    <td>{pkg.basePrice.toLocaleString('vi-VN')} VND</td>
+                    <td>
+                      <span
+                        className={`${styles.statusBadge} ${pkg.isActive ? styles.statusActive : styles.statusInactive}`}
+                      >
+                        {pkg.isActive ? 'Hoạt động' : 'Tạm dừng'}
+                      </span>
+                    </td>
+                    <td>{formatDate(pkg.updatedAt)}</td>
+                    <td>
+                      <div className={styles.actions}>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${styles.editButton} btn-icon btn-sm`}
+                            onClick={() => onEdit?.(pkg)}
+                            aria-label={`Chỉnh sửa ${pkg.packageName}`}
+                          >
+                            <Edit2OutlineIcon fill="#A47BC8" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                        </div>
+                        <div className={styles.tooltipWrapper}>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={`${styles.deleteButton} btn-icon btn-sm`}
+                            onClick={() => onDelete?.(pkg)}
+                            aria-label={`Xóa ${pkg.packageName}`}
+                            disabled={deletingId === pkg.id}
+                          >
+                            <Trash2OutlineIcon fill="#FD6161" size={16} />
+                          </Button>
+                          <span className={styles.tooltip}>Xóa</span>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
+                    </td>
+                  </tr>
                 );
               })
             )}

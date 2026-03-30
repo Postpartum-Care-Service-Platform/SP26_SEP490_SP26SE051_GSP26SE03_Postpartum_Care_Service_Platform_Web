@@ -5,13 +5,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useToast } from '@/components/ui/toast/use-toast';
 import packageService from '@/services/package.service';
 import type { Package } from '@/types/package';
-
-import { NewPackageModal, PackageTable, PackageTableControls } from './components';
-import { PackageListHeader } from './components/PackageListHeader';
+import { Pagination } from '@/components/ui/pagination';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { NewPackageModal, PackageListHeader, PackageTable, PackageTableControls } from './components';
 import styles from './package.module.css';
-
-
-
 
 const sortPackages = (items: Package[], sort: string) => {
   const arr = [...items];
@@ -53,7 +50,6 @@ export default function AdminPackagePage() {
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-
   const fetchPackages = async () => {
     try {
       setLoading(true);
@@ -78,7 +74,6 @@ export default function AdminPackagePage() {
 
   useEffect(() => {
     fetchPackages();
-     
   }, []);
 
   const filteredPackages = useMemo(() => {
@@ -112,7 +107,8 @@ export default function AdminPackagePage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const scrollArea = document.querySelector('[class*="scrollArea"]');
+    scrollArea?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleEdit = (pkg: Package) => {
@@ -150,51 +146,56 @@ export default function AdminPackagePage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-
-      {loading ? (
-        <div className={styles.content}>
-          <p>Đang tải dữ liệu...</p>
-        </div>
-      ) : error ? (
-        <div className={styles.content}>
-          <p>{error}</p>
-        </div>
-      ) : (
-        <>
+    <>
+      <AdminPageLayout
+        header={<PackageListHeader />}
+        controlPanel={
           <PackageTableControls
             onSearch={(q) => setSearchQuery(q)}
             onSortChange={(sort) => setSortKey(sort)}
             onStatusChange={(status) => setStatusFilter(status)}
             onNewPackage={() => setIsModalOpen(true)}
           />
-
+        }
+        pagination={
+          totalPages > 0 ? (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={filteredPackages.length}
+              onPageChange={handlePageChange}
+              pageSizeOptions={PAGE_SIZE_OPTIONS}
+              onPageSizeChange={(size: number) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+              showResultCount={true}
+            />
+          ) : null
+        }
+      >
+        {loading ? (
+          <div className={styles.content}>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        ) : error ? (
+          <div className={styles.content}>
+            <p>{error}</p>
+          </div>
+        ) : (
           <PackageTable
             packages={paginatedPackages}
             onEdit={handleEdit}
             onDelete={handleDelete}
             deletingId={deletingId}
-            pagination={
-              totalPages > 0
-                ? {
-                    currentPage,
-                    totalPages,
-                    pageSize,
-                    totalItems: filteredPackages.length,
-                    onPageChange: handlePageChange,
-                    pageSizeOptions: PAGE_SIZE_OPTIONS,
-                    onPageSizeChange: (size) => {
-                      setPageSize(size);
-                      setCurrentPage(1);
-                    },
-                  }
-                : undefined
-            }
+            pagination={{
+              currentPage,
+              pageSize,
+            } as any}
           />
-
-
-        </>
-      )}
+        )}
+      </AdminPageLayout>
 
       <NewPackageModal
         open={isModalOpen}
@@ -202,6 +203,6 @@ export default function AdminPackagePage() {
         onSuccess={fetchPackages}
         packageToEdit={editingPackage}
       />
-    </div>
+    </>
   );
 }
