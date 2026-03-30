@@ -5,19 +5,9 @@ import { Eye, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
-import type { Role } from '@/types/role';
-
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown';
-import { useToast } from '@/components/ui/toast/use-toast';
 import roleService from '@/services/role.service';
 import userService from '@/services/user.service';
-import { truncateText } from '@/utils/text';
+import type { Role } from '@/types/role';
 
 import styles from './patient-table.module.css';
 import type { Patient } from './patientTypes';
@@ -84,23 +74,6 @@ const getRoleBadgeClass = (role: string | null | undefined) => {
   }
 };
 
-const getProfileValue = (value: string | null | undefined) => {
-  const normalized = (value || '').trim();
-  if (!normalized || normalized.toLowerCase() === 'string') {
-    return 'Chưa cập nhật';
-  }
-  return normalized;
-};
-
-const getProfileGenderLabel = (gender: string | null | undefined) => {
-  const normalized = (gender || '').toLowerCase().trim();
-  if (!normalized) return 'Chưa cập nhật';
-
-  if (normalized === 'male' || normalized === 'nam') return 'Nam';
-  if (normalized === 'female' || normalized === 'nu' || normalized === 'nữ') return 'Nữ';
-
-  return 'Chưa cập nhật';
-};
 
 export function PatientTable({
   patients,
@@ -176,21 +149,6 @@ export function PatientTable({
     }
   };
 
-  const handleCopyId = async (id: string) => {
-    try {
-      await navigator.clipboard.writeText(id);
-      toast({
-        title: 'Đã sao chép ID',
-        description: id,
-        variant: 'success',
-      });
-    } catch (_err) {
-      toast({
-        title: 'Sao chép thất bại',
-        variant: 'error',
-      });
-    }
-  };
 
   return (
     <table className={styles.table}>
