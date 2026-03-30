@@ -11,6 +11,6 @@
   justify-content: center;
 }
 
-:global([data-radix-popper-content-wrapper]) {
+.placeholder :global([data-radix-popper-content-wrapper]) {
   z-index: 9999 !important;
 }
