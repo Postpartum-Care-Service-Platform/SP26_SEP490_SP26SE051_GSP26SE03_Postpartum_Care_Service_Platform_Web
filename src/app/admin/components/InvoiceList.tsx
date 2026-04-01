@@ -8,126 +8,52 @@ import { Pagination } from '@/components/ui/pagination';
 
 import styles from './invoice-list.module.css';
 
-type Invoice = {
-  id: string;
-  client: {
-    name: string;
-    company: string;
-    avatar?: string;
-  };
-  date: string;
-  dueDate: string;
-  total: number;
-  paid: number;
-  balance: number;
-  paymentMethod: string;
-  status: 'Partial' | 'Paid' | 'Overdue' | 'Partially Paid';
-};
+import { Transaction } from '@/types/transaction';
 
 type InvoiceListProps = {
-  invoices?: Invoice[];
+  transactions?: Transaction[];
 };
 
-const mockInvoices: Invoice[] = [
-  {
-    id: 'INV-1001',
-    client: {
-      name: 'Eleanor Pena',
-      company: 'Apple Inc.',
-    },
-    date: '2025-09-01',
-    dueDate: '2025-09-15',
-    total: 2400.0,
-    paid: 1200.0,
-    balance: 1200.0,
-    paymentMethod: 'Credit Card',
-    status: 'Partial',
-  },
-  {
-    id: 'INV-1002',
-    client: {
-      name: 'Robert Fox',
-      company: 'Microsoft Corp.',
-    },
-    date: '2025-09-02',
-    dueDate: '2025-09-16',
-    total: 3200.0,
-    paid: 3200.0,
-    balance: 0.0,
-    paymentMethod: 'Bank Transfer',
-    status: 'Paid',
-  },
-  {
-    id: 'INV-1003',
-    client: {
-      name: 'Courtney Henry',
-      company: 'Google',
-    },
-    date: '2025-09-05',
-    dueDate: '2025-09-20',
-    total: 1800.0,
-    paid: 0.0,
-    balance: 1800.0,
-    paymentMethod: 'Paypal',
-    status: 'Overdue',
-  },
-  {
-    id: 'INV-1004',
-    client: {
-      name: 'Leslie Alexander',
-      company: 'Google LLC',
-    },
-    date: '2025-09-10',
-    dueDate: '2025-09-25',
-    total: 5200.0,
-    paid: 5200.0,
-    balance: 0.0,
-    paymentMethod: 'Credit Card',
-    status: 'Paid',
-  },
-  {
-    id: 'INV-1005',
-    client: {
-      name: 'Jane Smith',
-      company: 'Amazon Inc.',
-    },
-    date: '2025-09-12',
-    dueDate: '2025-09-27',
-    total: 1500.0,
-    paid: 750.0,
-    balance: 750.0,
-    paymentMethod: 'Bank Transfer',
-    status: 'Partially Paid',
-  },
-  {
-    id: 'INV-1006',
-    client: {
-      name: 'John Doe',
-      company: 'Facebook Inc.',
-    },
-    date: '2025-09-15',
-    dueDate: '2025-09-30',
-    total: 2800.0,
-    paid: 0.0,
-    balance: 2800.0,
-    paymentMethod: 'Credit Card',
-    status: 'Overdue',
-  },
-  {
-    id: 'INV-1007',
-    client: {
-      name: 'Emily Johnson',
-      company: 'Netflix Inc.',
-    },
-    date: '2025-09-18',
-    dueDate: '2025-10-03',
-    total: 2100.0,
-    paid: 2100.0,
-    balance: 0.0,
-    paymentMethod: 'Paypal',
-    status: 'Paid',
-  },
-];
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(amount);
+};
+
+const getStatusClass = (status: string) => {
+  switch (status?.toLowerCase()) {
+    case 'paid':
+    case 'completed':
+    case 'success':
+      return styles.statusPaid;
+    case 'pending':
+    case 'processing':
+      return styles.statusPartial;
+    case 'failed':
+    case 'cancelled':
+      return styles.statusOverdue;
+    default:
+      return '';
+  }
+};
+
+const getStatusLabel = (status: string) => {
+  switch (status?.toLowerCase()) {
+    case 'paid':
+    case 'completed':
+    case 'success':
+      return 'Thành công';
+    case 'pending':
+      return 'Chờ xử lý';
+    case 'failed':
+      return 'Thất bại';
+    case 'cancelled':
+      return 'Đã hủy';
+    default:
+      return status || 'N/A';
+  }
+};
 
 const EyeOutlineIcon = ({
   fill = '#A47BC8',
@@ -179,134 +105,78 @@ const Edit2OutlineIcon = ({
   </svg>
 );
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(amount);
-};
 
-const getStatusClass = (status: Invoice['status']) => {
-  switch (status) {
-    case 'Paid':
-      return styles.statusPaid;
-    case 'Partial':
-    case 'Partially Paid':
-      return styles.statusPartial;
-    case 'Overdue':
-      return styles.statusOverdue;
-    default:
-      return '';
-  }
-};
-
-export function InvoiceList({ invoices = mockInvoices }: InvoiceListProps) {
+export function InvoiceList({ transactions = [] }: InvoiceListProps) {
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-  const PAGE_SIZE_OPTIONS = [10, 20, 50];
-  const totalItems = invoices.length;
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const PAGE_SIZE_OPTIONS = [5, 10, 20];
+  const totalItems = transactions.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentInvoices = invoices.slice(startIndex, endIndex);
+  const currentTransactions = transactions.slice(startIndex, endIndex);
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h3 className={styles.title}>Invoice List</h3>
+        <h3 className={styles.title}>Danh sách giao dịch</h3>
         <a href="#" className={styles.seeAllLink}>
-          See All <span className={styles.arrow}>→</span>
+          Xem tất cả <span className={styles.arrow}>→</span>
         </a>
       </div>
       <div className={styles.body}>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Invoice ID</th>
-              <th>Client</th>
-              <th>Date</th>
-              <th>Due Date</th>
-              <th>Total</th>
-              <th>Paid</th>
-              <th>Balance</th>
-              <th>Payment Method</th>
-              <th>Status</th>
-              <th>Action</th>
+              <th>Mã giao dịch</th>
+              <th>Khách hàng</th>
+              <th>Ngày giao dịch</th>
+              <th>Số tiền</th>
+              <th>Phương thức</th>
+              <th>Trạng thái</th>
+              <th>Ghi chú</th>
             </tr>
           </thead>
           <tbody>
-            {currentInvoices.length === 0 ? (
+            {currentTransactions.length === 0 ? (
               <tr>
-                <td colSpan={10} className={styles.emptyState}>
-                  Chưa có hóa đơn nào
+                <td colSpan={7} className={styles.emptyState}>
+                  Chưa có giao dịch nào
                 </td>
               </tr>
             ) : (
-              currentInvoices.map((invoice) => (
-                <tr key={invoice.id}>
-                  <td className={styles.invoiceId}>#{invoice.id}</td>
+              currentTransactions.map((tx) => (
+                <tr key={tx.id}>
+                  <td className={styles.invoiceId}>#{tx.id.slice(0, 8)}...</td>
                   <td>
                     <div className={styles.clientCell}>
-                      <div className={styles.avatarContainer}>
-                        {invoice.client.avatar ? (
-                          <Image
-                            src={invoice.client.avatar}
-                            alt={invoice.client.name}
-                            width={32}
-                            height={32}
-                            className={styles.avatar}
-                          />
-                        ) : (
-                          <div className={styles.avatarPlaceholder}>
-                            <span>{invoice.client.name.charAt(0)}</span>
-                          </div>
-                        )}
+                      <div className={styles.avatarPlaceholder}>
+                        <span>{tx.customer?.username?.charAt(0) || 'U'}</span>
                       </div>
                       <div className={styles.clientInfo}>
                         <div className={styles.clientName}>
-                          {invoice.client.name}
+                          {tx.customer?.username || 'N/A'}
                         </div>
                         <div className={styles.clientCompany}>
-                          {invoice.client.company}
+                          {tx.customer?.email || 'N/A'}
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td>{invoice.date}</td>
-                  <td>{invoice.dueDate}</td>
-                  <td>{formatCurrency(invoice.total)}</td>
-                  <td>{formatCurrency(invoice.paid)}</td>
-                  <td>{formatCurrency(invoice.balance)}</td>
-                  <td>{invoice.paymentMethod}</td>
+                  <td>{new Date(tx.transactionDate).toLocaleDateString('vi-VN')}</td>
+                  <td>{formatCurrency(tx.amount)}</td>
+                  <td>{tx.paymentMethod}</td>
                   <td>
                     <span
                       className={`${styles.statusBadge} ${getStatusClass(
-                        invoice.status
+                        tx.status
                       )}`}
                     >
-                      {invoice.status}
+                      {getStatusLabel(tx.status)}
                     </span>
                   </td>
-                  <td>
-                    <div className={styles.actions}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.actionButton} btn-icon btn-sm`}
-                        aria-label={`View invoice ${invoice.id}`}
-                      >
-                        <EyeOutlineIcon fill="#A47BC8" size={16} />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={`${styles.actionButton} btn-icon btn-sm`}
-                        aria-label={`Edit invoice ${invoice.id}`}
-                      >
-                        <Edit2OutlineIcon fill="#A47BC8" size={16} />
-                      </Button>
-                    </div>
+                  <td style={{ fontSize: '12px', color: '#666' }}>
+                    {tx.note || '-'}
                   </td>
                 </tr>
               ))

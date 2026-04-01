@@ -17,11 +17,10 @@ export function PageLoader({ text = 'Đang tải...', className }: PageLoaderPro
     <div className={`${styles.overlay} ${className || ''}`} role="status" aria-label="Đang tải trang">
       <div className={styles.content}>
         <div className={styles.logoWrapper}>
-          <Image src={LogoSymbol} alt="Serena Postnatal" width={180} height={180} priority />
+          <Image src={LogoSymbol} alt="thejoyfulnest" width={180} height={180} priority />
         </div>
         {text && <span className={styles.text}>{text}</span>}
       </div>
     </div>
   );
 }
-

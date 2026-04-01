@@ -53,7 +53,7 @@ export function DashboardStatsCards({ stats }: Props) {
   const cards: StatCard[] = [
     {
       key: 'outstandingBalance',
-      label: 'Outstanding Balance',
+      label: 'Dư nợ chưa thanh toán',
       value: stats.outstandingBalance,
       format: 'currency',
       icon: AlertCircle,
@@ -66,7 +66,7 @@ export function DashboardStatsCards({ stats }: Props) {
     },
     {
       key: 'newPatients',
-      label: 'New Patients',
+      label: 'Khách hàng mới',
       value: stats.newPatients,
       format: 'number',
       icon: Users,
@@ -79,7 +79,7 @@ export function DashboardStatsCards({ stats }: Props) {
     },
     {
       key: 'appointments',
-      label: 'Appointments',
+      label: 'Lịch hẹn',
       value: stats.appointments,
       format: 'number',
       icon: Calendar,
@@ -92,7 +92,7 @@ export function DashboardStatsCards({ stats }: Props) {
     },
     {
       key: 'bedOccupancy',
-      label: 'Bed Occupancy',
+      label: 'Tỷ lệ phục vụ',
       value: stats.bedOccupancy,
       format: 'percentage',
       icon: Activity,
@@ -114,23 +114,23 @@ export function DashboardStatsCards({ stats }: Props) {
       <div className={styles.activePatientsCard}>
         <div className={styles.activePatientsContent}>
           <div className={styles.activePatientsHeader}>
-            <span className={styles.activePatientsLabel}>Active Patients :</span>
+            <span className={styles.activePatientsLabel}>Khách hàng đang phục vụ :</span>
             <h5 className={styles.activePatientsValue}>
               <CountUp value={stats.activePatients} format="number" />
             </h5>
           </div>
           <div className={styles.weeklyAppointments}>
             <h6 className={styles.weeklyAppointmentsTitle}>
-              Weekly Appointments
+              Lịch hẹn trong tuần
             </h6>
             <p className={styles.weeklyAppointmentsText}>
-              You have{' '}
-              <CountUp value={stats.appointments} format="number" /> total
-              appointments scheduled this week.
+              Đang có{' '}
+              <CountUp value={stats.appointments} format="number" /> đơn đặt lịch được
+              lên kế hoạch cho tuần này.
             </p>
           </div>
           <button className={styles.bookAppointmentButton}>
-            Book Appointment
+            Xem danh sách lịch hẹn
           </button>
         </div>
         <div className={styles.logoContainer}>
@@ -177,7 +177,7 @@ export function DashboardStatsCards({ stats }: Props) {
                   }`}
                   onClick={() => handlePeriodChange(card.key, '7')}
                 >
-                  Last 7 Days
+                  7 ngày qua
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className={`${styles.dropdownItem} ${
@@ -185,7 +185,7 @@ export function DashboardStatsCards({ stats }: Props) {
                   }`}
                   onClick={() => handlePeriodChange(card.key, '30')}
                 >
-                  Last 30 Days
+                  30 ngày qua
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -226,7 +226,7 @@ export function DashboardStatsCards({ stats }: Props) {
               <p className={styles.statLabel}>{card.label}</p>
             </div>
             <a href="#" className={styles.viewDetailsLink}>
-              View Details &gt;
+              Xem chi tiết &gt;
             </a>
           </div>
         );

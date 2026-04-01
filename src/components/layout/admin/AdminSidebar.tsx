@@ -105,7 +105,7 @@ export function AdminSidebar({ collapsed, onToggleCollapsed, navSections, brandT
     <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
       <div className={styles.sidebarTop}>
         <div className={styles.brand}>
-          <Image src={LogoSymbol} alt="Serena Postnatal" width={28} height={28} />
+          <Image src={LogoSymbol} alt="thejoyfulnest" width={28} height={28} />
           {!collapsed && <span className={styles.brandText}>{brandText}</span>}
         </div>
 

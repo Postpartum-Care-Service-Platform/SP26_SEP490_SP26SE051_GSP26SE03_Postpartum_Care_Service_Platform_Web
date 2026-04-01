@@ -105,12 +105,19 @@
   color: #6b7280;
 }
 
-.imagePreview {
+.foodImage {
   width: 40px;
   height: 40px;
   border-radius: 4px;
   object-fit: cover;
   border: 1px solid #eee;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.foodImage:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .statusBadge {

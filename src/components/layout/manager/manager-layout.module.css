@@ -37,9 +37,11 @@
 }
 
 .brandText {
+  font-family: var(--font-display);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 400;
   color: #fff;
+  white-space: nowrap;
 }
 
 .iconBtn {

@@ -23,6 +23,14 @@ export const ROUTES = {
   managerWorkSchedule: '/manager/work-schedule',
   managerContract: '/manager/contract',
   managerTransaction: '/manager/transaction',
+  receptionist: '/receptionist',
+  receptionistProfile: '/receptionist/profile',
+  receptionistChat: '/receptionist/chat',
+  receptionistAppointment: '/receptionist/appointment',
+  receptionistActivity: '/receptionist/activity',
+  receptionistWorkSchedule: '/receptionist/work-schedule',
+  receptionistContract: '/receptionist/contract',
+  receptionistTransaction: '/receptionist/transaction',
 } as const;
 
 export const buildVerifyEmailRoute = (email: string) =>

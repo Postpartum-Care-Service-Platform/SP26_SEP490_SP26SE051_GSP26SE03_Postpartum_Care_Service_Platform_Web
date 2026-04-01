@@ -44,10 +44,11 @@
   color: #868e96;
   cursor: pointer;
   padding: 0;
+  transition: color 0.15s ease-in-out;
 }
 
 .closeButton:hover {
-  color: #343A40;
+  color: #dc3545;
 }
 
 /* Modal Body */

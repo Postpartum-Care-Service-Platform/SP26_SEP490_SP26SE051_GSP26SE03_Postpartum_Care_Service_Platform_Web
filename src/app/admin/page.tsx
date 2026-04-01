@@ -21,6 +21,11 @@ import { CashflowChart } from './components/CashflowChart';
 import { TeamProductivity } from './components/TeamProductivity';
 import { TopDoctors } from './components/TopDoctors';
 
+import statisticsService from '@/services/statistics.service';
+
+import { Transaction } from '@/types/transaction';
+import transactionService from '@/services/transaction.service';
+
 type DashboardStats = {
   activePatients: number;
   outstandingBalance: number;
@@ -30,30 +35,53 @@ type DashboardStats = {
 };
 
 export default function AdminPage() {
-  const [stats] = useState<DashboardStats>({
-    activePatients: 1250,
-    outstandingBalance: 34250000,
-    newPatients: 1250,
-    appointments: 3420,
-    bedOccupancy: 78,
+  const [stats, setStats] = useState<DashboardStats>({
+    activePatients: 0,
+    outstandingBalance: 0,
+    newPatients: 0,
+    appointments: 0,
+    bedOccupancy: 0,
   });
-  const [loading] = useState(false);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // TODO: Fetch real data from API
   useEffect(() => {
-    // Example: Fetch stats from API
-    // const fetchStats = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const data = await dashboardService.getStats();
-    //     setStats(data);
-    //   } catch (error) {
-    //     console.error('Failed to load dashboard stats', error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    // fetchStats();
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const [
+          activePatientsRes, 
+          weeklyAppointmentsRes, 
+          outstandingRes, 
+          newPatientsRes,
+          transactionsRes
+        ] = await Promise.all([
+          statisticsService.getActivePatients(),
+          statisticsService.getWeeklyAppointments(),
+          statisticsService.getOutstandingBalance(),
+          statisticsService.getNewPatients(),
+          transactionService.getAllTransactions()
+        ]);
+
+        setStats({
+          activePatients: activePatientsRes?.count ?? 0,
+          appointments: weeklyAppointmentsRes?.count ?? 0,
+          outstandingBalance: outstandingRes?.totalAmount ?? 0,
+          newPatients: newPatientsRes?.count ?? 0,
+          bedOccupancy: 78,
+        });
+
+        // Set top 10 latest transactions for dashboard
+        if (Array.isArray(transactionsRes)) {
+          setTransactions(transactionsRes.slice(0, 10));
+        }
+      } catch (error) {
+        console.error('Failed to load dashboard data', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardData();
   }, []);
 
   if (loading) {
@@ -142,7 +170,7 @@ export default function AdminPage() {
           </div>
         </div>
         <div className={styles.invoiceRow}>
-          <InvoiceList />
+          <InvoiceList transactions={transactions} />
         </div>
         <div className={styles.appointmentsRow}>
           <AppointmentsList />

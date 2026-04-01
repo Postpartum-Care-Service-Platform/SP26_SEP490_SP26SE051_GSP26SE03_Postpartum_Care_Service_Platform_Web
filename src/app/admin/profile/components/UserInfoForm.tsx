@@ -26,6 +26,7 @@ import { DatePicker } from '../../work-schedule/components/DatePicker';
 type FieldErrors = Partial<Record<keyof CreateFamilyProfileRequest, string>>;
 
 const emptyForm: CreateFamilyProfileRequest = {
+  accountId: '',
   memberTypeId: 1,
   fullName: '',
   dateOfBirth: '',
@@ -110,6 +111,7 @@ export function UserInfoForm() {
         setProfileId(ownerProfile.id);
 
         setFormData({
+          accountId: account.id,
           memberTypeId: ownerProfile.memberTypeId ?? 1,
           fullName: ownerProfile.fullName ?? '',
           dateOfBirth: ownerProfile.dateOfBirth ? ownerProfile.dateOfBirth.slice(0, 10) : '',
@@ -201,7 +203,6 @@ export function UserInfoForm() {
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <h5 className={styles.formTitle}>Thông tin người dùng</h5>
 
       <div className={styles.formRow}>
         <div className={styles.formGroup}>

@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import type { Food } from '@/types/food';
+import { useState } from 'react';
+import { ImagePreviewModal } from './ImagePreviewModal';
 
 import styles from './food-table.module.css';
 
@@ -54,8 +56,16 @@ const formatDate = (dateString?: string) => {
 };
 
 export function FoodTable({ foods, onEdit, onDelete, deletingId, currentPage, pageSize }: Props) {
+  const [previewImage, setPreviewImage] = useState<{ url: string; name: string } | null>(null);
+
   return (
     <div className={styles.tableWrapper}>
+      <ImagePreviewModal
+        isOpen={!!previewImage}
+        onClose={() => setPreviewImage(null)}
+        imageUrl={previewImage?.url || ''}
+        foodName={previewImage?.name}
+      />
       <table className={styles.table}>
         <thead>
           <tr>
@@ -104,13 +114,17 @@ export function FoodTable({ foods, onEdit, onDelete, deletingId, currentPage, pa
                   </td>
                   <td>
                     {food.imageUrl ? (
-                      <Image
-                        src={food.imageUrl}
-                        alt={food.name}
-                        className={styles.foodImage}
-                        width={40}
-                        height={40}
-                      />
+                      <div className={styles.tooltipWrapper}>
+                        <Image
+                          src={food.imageUrl}
+                          alt={food.name}
+                          className={styles.foodImage}
+                          width={40}
+                          height={40}
+                          onClick={() => setPreviewImage({ url: food.imageUrl || '', name: food.name })}
+                        />
+                        <span className={styles.tooltip}>Xem ảnh</span>
+                      </div>
                     ) : (
                       <span className={styles.noImage}>-</span>
                     )}

@@ -9,6 +9,11 @@ import {
     ChevronDown,
     ChevronRight,
     FileEdit,
+    PanelLeftClose,
+    PanelLeftOpen,
+    Minus,
+    BookOpen,
+    Globe,
 } from "lucide-react";
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
@@ -117,6 +122,10 @@ export default function AdminTemplatesPage() {
 
     const [newModal, setNewModal] = useState<TemplateType | null>(null);
     const [deleteModal, setDeleteModal] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [tooltipData, setTooltipData] = useState<{ text: string; top: number; left: number } | null>(null);
+    const [zoomLevel, setZoomLevel] = useState(100);
+    const [viewMode, setViewMode] = useState<'print' | 'read' | 'web'>('print');
 
     // ── Fetch data ──
     const fetchAll = useCallback(async () => {
@@ -267,6 +276,20 @@ export default function AdminTemplatesPage() {
         return items;
     }, [selected, currentName]);
 
+    const handleMouseEnter = (e: React.MouseEvent, text: string) => {
+        if (!isSidebarCollapsed) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        setTooltipData({
+            text,
+            top: rect.top + rect.height / 2,
+            left: rect.left + rect.width + 12
+        });
+    };
+
+    const handleMouseLeave = () => {
+        setTooltipData(null);
+    };
+
     return (
         <AdminPageLayout
             header={
@@ -279,10 +302,15 @@ export default function AdminTemplatesPage() {
         >
             <div className={styles.pageContainer}>
                 {/* ── Sidebar ── */}
-                <aside className={styles.sidebar}>
+                <aside className={`${styles.sidebar} ${isSidebarCollapsed ? styles.collapsed : ''}`}>
                     <div className={styles.sidebarHeader}>
-                        <p className={styles.sidebarTitle}>Danh sách mẫu</p>
-                        <p className={styles.sidebarSubtitle}>Mẫu hợp đồng & email hệ thống</p>
+                        <div>
+                            <p className={styles.sidebarTitle}>Danh sách mẫu</p>
+                            <p className={styles.sidebarSubtitle}>Mẫu hợp đồng & email hệ thống</p>
+                        </div>
+                        <button className={styles.toggleSidebarBtn} onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} title={isSidebarCollapsed ? "Mở rộng Sidebar" : "Thu gọn Sidebar"}>
+                            {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+                        </button>
                     </div>
                     <div className={styles.sidebarScroll}>
                         {loadingList ? (
@@ -291,10 +319,11 @@ export default function AdminTemplatesPage() {
                             <>
                                 <div className={styles.section}>
                                     <div className={styles.sectionHeader}>
-                                        <span className={styles.sectionLabel} onClick={() => setContractOpen((v) => !v)}>
-                                            {contractOpen ? <ChevronDown size={13} className={styles.sectionIcon} /> : <ChevronRight size={13} className={styles.sectionIcon} />}
-                                            <FileText size={13} className={styles.sectionIcon} />
-                                            Mẫu hợp đồng
+                                        <span className={styles.sectionLabel} onClick={() => setContractOpen((v) => !v)} onMouseEnter={(e) => handleMouseEnter(e, 'Mẫu hợp đồng')} onMouseLeave={handleMouseLeave}>
+                                            <div className={styles.tooltipWrapper}>
+                                                <FileText size={isSidebarCollapsed ? 20 : 13} className={styles.sectionIcon} />
+                                            </div>
+                                            <span className={styles.sectionText}>Mẫu hợp đồng</span>
                                             <span className={styles.sectionCount}>{contractTemplates.length}</span>
                                         </span>
                                         <button className={styles.sectionAddBtn} title="Tạo mẫu hợp đồng mới" onClick={() => setNewModal('contract')}><Plus size={14} /></button>
@@ -303,8 +332,10 @@ export default function AdminTemplatesPage() {
                                         <div className={styles.templateList}>
                                             {contractTemplates.length === 0 && <div className={styles.sidebarLoading}>Chưa có mẫu nào</div>}
                                             {contractTemplates.map((t) => (
-                                                <button key={t.id} className={`${styles.templateItem} ${selected?.type === 'contract' && selected.id === t.id ? styles.active : ''}`} onClick={() => handleSelect('contract', t.id)}>
-                                                    <FileEdit size={14} className={styles.templateItemIcon} />
+                                                <button key={t.id} className={`${styles.templateItem} ${selected?.type === 'contract' && selected.id === t.id ? styles.active : ''}`} onClick={() => handleSelect('contract', t.id)} onMouseEnter={(e) => handleMouseEnter(e, t.name)} onMouseLeave={handleMouseLeave}>
+                                                    <div className={styles.tooltipWrapper}>
+                                                        <FileEdit size={isSidebarCollapsed ? 20 : 14} className={styles.templateItemIcon} />
+                                                    </div>
                                                     <span className={styles.templateName}>{t.name}</span>
                                                 </button>
                                             ))}
@@ -313,10 +344,11 @@ export default function AdminTemplatesPage() {
                                 </div>
                                 <div className={styles.section}>
                                     <div className={styles.sectionHeader}>
-                                        <span className={styles.sectionLabel} onClick={() => setEmailOpen((v) => !v)}>
-                                            {emailOpen ? <ChevronDown size={13} className={styles.sectionIcon} /> : <ChevronRight size={13} className={styles.sectionIcon} />}
-                                            <Mail size={13} className={styles.sectionIcon} />
-                                            Mẫu email
+                                        <span className={styles.sectionLabel} onClick={() => setEmailOpen((v) => !v)} onMouseEnter={(e) => handleMouseEnter(e, 'Mẫu email')} onMouseLeave={handleMouseLeave}>
+                                            <div className={styles.tooltipWrapper}>
+                                                <Mail size={isSidebarCollapsed ? 20 : 13} className={styles.sectionIcon} />
+                                            </div>
+                                            <span className={styles.sectionText}>Mẫu email</span>
                                             <span className={styles.sectionCount}>{emailTemplates.length}</span>
                                         </span>
                                         <button className={styles.sectionAddBtn} title="Tạo mẫu email mới" onClick={() => setNewModal('email')}><Plus size={14} /></button>
@@ -325,8 +357,10 @@ export default function AdminTemplatesPage() {
                                         <div className={styles.templateList}>
                                             {emailTemplates.length === 0 && <div className={styles.sidebarLoading}>Chưa có mẫu nào</div>}
                                             {emailTemplates.map((t) => (
-                                                <button key={t.id} className={`${styles.templateItem} ${selected?.type === 'email' && selected.id === t.id ? styles.active : ''}`} onClick={() => handleSelect('email', t.id)}>
-                                                    <Mail size={14} className={styles.templateItemIcon} />
+                                                <button key={t.id} className={`${styles.templateItem} ${selected?.type === 'email' && selected.id === t.id ? styles.active : ''}`} onClick={() => handleSelect('email', t.id)} onMouseEnter={(e) => handleMouseEnter(e, t.name)} onMouseLeave={handleMouseLeave}>
+                                                    <div className={styles.tooltipWrapper}>
+                                                        <Mail size={isSidebarCollapsed ? 20 : 14} className={styles.templateItemIcon} />
+                                                    </div>
                                                     <span className={styles.templateName}>{t.name}</span>
                                                     {t.code && <span className={styles.templateMeta}>{t.code}</span>}
                                                 </button>
@@ -377,7 +411,43 @@ export default function AdminTemplatesPage() {
                                     placeholder="Nhập nội dung mẫu..."
                                     editorRef={editorRef}
                                     placeholders={filteredPlaceholders}
+                                    zoom={zoomLevel / 100}
                                 />
+                            </div>
+
+                            {/* ── Status Bar (Word style) ── */}
+                            <div className={styles.statusBar}>
+                                <div className={styles.viewModes}>
+                                    <button className={`${styles.viewBtn} ${viewMode === 'read' ? styles.active : ''}`} onClick={() => setViewMode('read')} title="Chế độ đọc">
+                                        <BookOpen size={15} />
+                                    </button>
+                                    <button className={`${styles.viewBtn} ${viewMode === 'print' ? styles.active : ''}`} onClick={() => setViewMode('print')} title="Bố cục in">
+                                        <FileText size={15} />
+                                    </button>
+                                    <button className={`${styles.viewBtn} ${viewMode === 'web' ? styles.active : ''}`} onClick={() => setViewMode('web')} title="Bố cục Web">
+                                        <Globe size={15} />
+                                    </button>
+                                </div>
+                                <div className={styles.zoomControls}>
+                                    <button className={styles.zoomBtn} onClick={() => setZoomLevel(prev => Math.max(10, prev - 10))} title="Thu nhỏ">
+                                        <Minus size={14} />
+                                    </button>
+                                    <div className={styles.zoomSliderContainer}>
+                                        <input
+                                            type="range"
+                                            min="10"
+                                            max="500"
+                                            value={zoomLevel}
+                                            onChange={(e) => setZoomLevel(parseInt(e.target.value))}
+                                            className={styles.zoomSlider}
+                                        />
+                                        <div className={styles.zoomMark} style={{ left: '18%' }} /> {/* 100% mark approx */}
+                                    </div>
+                                    <button className={styles.zoomBtn} onClick={() => setZoomLevel(prev => Math.min(500, prev + 10))} title="Phóng to">
+                                        <Plus size={14} />
+                                    </button>
+                                    <span className={styles.zoomValue} onClick={() => setZoomLevel(100)} title="Đặt lại 100%">{zoomLevel}%</span>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -386,6 +456,14 @@ export default function AdminTemplatesPage() {
                 {/* ── Modals ── */}
                 {newModal && <NewTemplateModal type={newModal} onClose={() => setNewModal(null)} onCreate={handleCreate} />}
                 {deleteModal && currentName && <ConfirmDeleteModal name={currentName} onClose={() => setDeleteModal(false)} onConfirm={handleDelete} />}
+
+                {/* Fixed tooltip */}
+                {tooltipData && (
+                    <div className={styles.fixedTooltip} style={{ top: tooltipData.top, left: tooltipData.left }}>
+                        <span className={styles.tooltipArrow} />
+                        {tooltipData.text}
+                    </div>
+                )}
             </div>
         </AdminPageLayout>
     );

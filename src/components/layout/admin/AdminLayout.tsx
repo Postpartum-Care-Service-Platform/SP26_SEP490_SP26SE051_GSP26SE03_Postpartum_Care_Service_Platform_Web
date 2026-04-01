@@ -21,7 +21,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         collapsed={collapsed}
         onToggleCollapsed={() => setCollapsed(!collapsed)}
         navSections={adminNav}
-        brandText="Serena Postnatal"
+        brandText="The Joyful Nest"
       />
       <div className={`${styles.main} ${collapsed ? styles.mainCollapsed : ''}`}>
         <AdminHeader

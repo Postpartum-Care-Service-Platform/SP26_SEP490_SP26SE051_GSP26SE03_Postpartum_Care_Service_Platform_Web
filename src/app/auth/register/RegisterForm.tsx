@@ -140,11 +140,11 @@ export function RegisterForm() {
   return (
     <div className={styles.container}>
       <div className={styles.brand}>
-        <Image src={LogoSymbol} alt="Serena Postnatal" width={34} height={34} priority />
-        <span className={styles.brandName}>Serena Postnatal</span>
+        <Image src={LogoSymbol} alt="thejoyfulnest" width={34} height={34} priority />
+        <span className={styles.brandName}>thejoyfulnest</span>
       </div>
 
-      <div className={styles.heading}>Tạo tài khoản Serena Postnatal</div>
+      <div className={styles.heading}>Tạo tài khoản thejoyfulnest</div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         <label className={styles.label}>

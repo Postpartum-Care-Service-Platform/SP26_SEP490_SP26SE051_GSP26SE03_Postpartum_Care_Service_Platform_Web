@@ -109,12 +109,6 @@ export const adminNav: AdminNavSection[] = [
       },
 
       {
-        key: 'package-activities',
-        label: 'Hoạt động gói dịch vụ',
-        href: '/admin/package-activities',
-        icon: ClipboardCheck,
-      },
-      {
         key: 'feedback',
         label: 'Phản hồi',
         href: '/admin/feedback',
@@ -153,10 +147,23 @@ export const adminNav: AdminNavSection[] = [
         ],
       },
       {
-        key: 'package',
-        label: 'Gói dịch vụ',
-        href: '/admin/package',
+        key: 'package-management',
+        label: 'Quản lý gói dịch vụ',
         icon: Package,
+        children: [
+          {
+            key: 'package',
+            label: 'Danh sách gói',
+            href: '/admin/package',
+            icon: Package,
+          },
+          {
+            key: 'package-activities',
+            label: 'Hoạt động gói',
+            href: '/admin/package-activities',
+            icon: ClipboardCheck,
+          },
+        ],
       },
       {
         key: 'amenity-service',

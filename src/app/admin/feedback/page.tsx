@@ -127,6 +127,7 @@ export default function AdminFeedbackPage() {
 
   const [viewingItem, setViewingItem] = useState<Feedback | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
   const { toast } = useToast();
 
@@ -362,7 +363,12 @@ export default function AdminFeedbackPage() {
                             return (
                               <div className={styles.imageStack}>
                                 {images.slice(0, 2).map((img, i) => (
-                                  <div key={i} className={styles.imageWrapper} style={{ zIndex: images.length - i }}>
+                                  <div 
+                                    key={i} 
+                                    className={styles.imageWrapper} 
+                                    style={{ zIndex: images.length - i }}
+                                    onClick={() => setPreviewImage({ url: img, title: `Phản hồi từ ${item.customerName || 'Khách hàng'}` })}
+                                  >
                                     <img src={img} alt="Feedback" className={styles.imagePreview} />
                                   </div>
                                 ))}
@@ -415,6 +421,15 @@ export default function AdminFeedbackPage() {
         onOpenChange={handleModalClose}
         feedback={viewingItem}
       />
+
+      {previewImage && (
+        <div className={styles.imageModalOverlay} onClick={() => setPreviewImage(null)}>
+          <div className={styles.imageModalContent}>
+            <img src={previewImage.url} alt={previewImage.title} className={styles.fullImage} />
+            <div className={styles.imageModalTitle}>{previewImage.title}</div>
+          </div>
+        </div>
+      )}
     </AdminPageLayout>
   );
 }

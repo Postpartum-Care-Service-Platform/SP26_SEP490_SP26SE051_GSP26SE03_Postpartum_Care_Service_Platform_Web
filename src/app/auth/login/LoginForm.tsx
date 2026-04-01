@@ -133,6 +133,9 @@ export function LoginForm() {
         case 'staff':
           router.push('/staff');
           break;
+        case 'receptionist':
+          router.push(ROUTES.receptionist);
+          break;
         default:
           router.push(ROUTES.main);
       }
@@ -156,10 +159,10 @@ export function LoginForm() {
   return (
     <div className={styles.container}>
       <div className={styles.brand}>
-        <Image src={LogoSymbol} alt="Serena Postnatal" width={34} height={34} priority />
-        <span className={styles.brandName}>Serena Postnatal</span>
+        <Image src={LogoSymbol} alt="thejoyfulnest" width={34} height={34} priority />
+        <span className={styles.brandName}>thejoyfulnest</span>
       </div>
-      <div className={styles.heading}>Đăng nhập vào Serena Postnatal</div>
+      <div className={styles.heading}>Đăng nhập vào thejoyfulnest</div>
       <div className={styles.googleBtnWrapper}>
         <button type="button" className={styles.googleBtn} disabled={isLoading} onClick={handleGoogleRedirect}>
           <Image

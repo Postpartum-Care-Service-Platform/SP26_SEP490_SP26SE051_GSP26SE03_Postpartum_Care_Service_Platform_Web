@@ -1,307 +1,153 @@
 .wrap {
   border: 1px solid #dfe1e6;
-  border-radius: 0;
   background: #fff;
   overflow: hidden;
   position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 420px 1fr;
-  min-height: 620px;
-}
-
-.left {
-  border-right: 1px solid #dfe1e6;
+/* TOP HEADER BLOCK */
+.topHeaderRow {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 2px solid #dfe1e6;
+  background: #f4f5f7;
+  flex-shrink: 0;
+  z-index: 50;
 }
 
 .leftHeader {
+  width: 420px;
+  min-width: 420px;
   display: flex;
   align-items: center;
   padding: 0 12px;
-  background: #f4f5f7;
-  border-bottom: 2px solid #dfe1e6;
   font-weight: 600;
   color: #172b4d;
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+  border-right: 1px solid #dfe1e6;
+  box-sizing: border-box;
 }
 
-.leftBody {
-  padding: 0;
+.rightHeaderOuter {
+  flex: 1;
+  overflow: hidden; /* Scrolled via JS ref */
+}
+
+/* SCROLLING BODY BLOCK */
+.scrollingContent {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.leftBodyFixed {
+  width: 420px;
+  min-width: 420px;
+  background: #fff;
+  border-right: 1px solid #dfe1e6;
+  overflow-y: auto;
+  scrollbar-width: none; /* Sync vertical? Easier if we just have One big vertical scroll */
+}
+
+/* Actually, a single Big Vertical scroll is easier */
+.scrollingContent {
+  flex: 1;
+  display: flex;
+  overflow-y: auto; /* Vertically scroll everything below header together */
+}
+
+.leftBodyFixed {
+  width: 420px;
+  min-width: 420px;
+  border-right: 1px solid #dfe1e6;
+}
+
+.rightBodyScroll {
+  flex: 1;
+  overflow-x: auto;
+  position: relative;
+}
+
+/* SUB-HEADERS (Section Titles) */
+.sectionTitle, .sectionTitleTrack {
+  height: 40px;
+  background: #fafbfc;
+  border-bottom: 1px solid #dfe1e6;
 }
 
 .sectionTitle {
-  height: 36px;
   display: flex;
   align-items: center;
   padding: 0 12px;
   font-size: 14px;
   font-weight: 600;
   color: #626f86;
-  border-bottom: 1px solid #dfe1e6;
-  background: #fff;
 }
 
 .sectionTitleTrack {
-  position: absolute;
+  position: sticky;
+  top: 0; 
   left: 0;
   right: 0;
-  height: 36px;
-  border-bottom: 1px solid #dfe1e6;
+  z-index: 5;
 }
 
+/* ROWS */
 .row {
-  display: grid;
-  grid-template-columns: 28px 16px 1fr;
+  display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   height: 44px;
   padding: 0 12px;
+  border-bottom: 1px solid rgba(9, 30, 66, 0.08);
 }
 
-.row:nth-child(even) {
-  background: rgba(9, 30, 66, 0.04);
-}
-
-.checkbox {
-  width: 16px;
-  height: 16px;
-}
-
-.epicIcon {
-  color: #a855f7;
-  display: flex;
-}
-
-.epicIconImg {
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-  display: block;
-}
-
-.epicText {
-  color: #172b4d;
-  font-size: 14px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.createRow {
-  height: 44px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 12px;
-  color: #172b4d;
-  cursor: pointer;
-}
-
-.createRow:hover {
-  background: rgba(9, 30, 66, 0.04);
-}
-
-.right {
-  position: relative;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-.monthHeader {
-  display: inline-grid;
-  grid-auto-flow: column;
-  height: 40px;
-  background: #f7f8f9;
-  border-bottom: 2px solid #dfe1e6;
-  border-top: none;
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
-}
-
-.weekHeaderWrap {
-  display: inline-flex;
-  flex-direction: column;
-  height: 60px;
-  background: #f7f8f9;
-  border-bottom: 2px solid #dfe1e6;
-  border-top: none;
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
-}
-
-.weekHeaderTop {
-  display: flex;
-  height: 30px;
-  border-bottom: 1px solid #dfe1e6;
-}
-
-.weekHeaderBottom {
-  display: flex;
-  height: 30px;
-}
-
-.headerGroup {
-  display: flex;
-  align-items: center;
-  padding-left: 12px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #626f86;
-  border-right: 1px solid #dfe1e6;
-  background: #f4f5f7;
-  text-transform: uppercase;
-}
-
-.dayCell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 500;
-  color: #172b4d;
-  box-sizing: border-box;
-}
-
-.dayCellLast {
-  border-right: 1px solid #dfe1e6;
-}
-
-.dayCellCurrent {
-  background: #ff8c00;
-  color: #fff;
-  font-weight: 700;
-  border-radius: 4px;
-}
-
-.monthCell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b6e76;
-  border-right: 1px solid #dfe1e6;
-  box-sizing: border-box;
-}
-
-.monthCell:last-child {
-  border-right: none;
-}
-
-.monthCellCurrent {
-  background: rgba(12, 102, 228, 0.10);
-}
-
-.canvas {
-  position: relative;
-  width: fit-content;
-  min-width: 100%;
-  height: calc(100% - 40px);
-  background: repeating-linear-gradient(
-    to right,
-    transparent,
-    transparent 199px,
-    rgba(9, 30, 66, 0.14) 200px
-  );
-  overflow: visible;
-}
+.row:nth-child(even) { background: #fafbfc; }
 
 .rowTrack {
   position: absolute;
   left: 0;
   right: 0;
   height: 44px;
+  border-bottom: 1px solid rgba(9, 30, 66, 0.05);
 }
 
-.rowTrack:nth-child(even) {
-  background: rgba(9, 30, 66, 0.04);
+.epicIconImg { display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; }
+.activityInfo { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.epicText { font-size: 13px; font-weight: 600; color: #172b4d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.subText { font-size: 11px; color: #626f86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.checkbox { width: 14px; height: 14px; cursor: pointer; }
+
+/* CANVAS & BARS */
+.canvas { position: relative; }
+.bar { position: absolute; top: 12px; height: 20px; border-radius: 3px; z-index: 2; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+
+/* TODAY MARKER */
+.rightHeaderOuter {
+  position: relative; /* for todayLineHeader */
 }
 
-.bar {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 22px;
-  background: #c77dff;
-  border-radius: 4px;
-  cursor: grab;
-  user-select: none;
-}
-
-.barActive {
-  cursor: grabbing;
-}
-
-.barHandle {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 10px;
-  height: 18px;
-  border-radius: 2px;
-  background: rgba(0, 0, 0, 0.1);
-  cursor: ew-resize;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.bar:hover .barHandle {
-  opacity: 1;
-}
-
-.barHandleLeft {
-  left: 2px;
-}
-
-.barHandleRight {
-  right: 2px;
-}
-
-.badge {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #172b4d;
-  color: #fff;
-  font-size: 11px;
-  padding: 4px 8px;
-  border-radius: 3px;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-  z-index: 20;
-}
-
-.bar:hover .badge,
-.barActive .badge {
-  opacity: 1;
-}
-
-.badgeLeft {
-  right: calc(100% + 8px);
-}
-
-.badgeRight {
-  left: calc(100% + 8px);
-}
-
-.todayLine {
+.todayLineHeader {
   position: absolute;
   top: 0;
   bottom: 0;
   width: 2px;
   background: #ff8c00;
-  z-index: 25;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.todayLine {
+  position: absolute;
+  top: 40px; /* Start below the section title track */
+  bottom: 0;
+  width: 2px;
+  background: #ff8c00;
+  z-index: 10;
+  pointer-events: none;
 }
 
 .todayMarker {
@@ -311,79 +157,42 @@
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 8px solid #ff8c00;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 10px solid #ff8c00;
 }
 
-.bottomSwitcher {
+.currentTimeLabel {
   position: absolute;
-  right: 16px;
-  bottom: 16px;
-  display: flex;
-  align-items: center;
-  background: #fff;
-  border: 1px solid #dfe1e6;
-  border-radius: 0;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  z-index: 50;
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  top: 45px; /* Stay below the 40px sectionTitleTrack */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff8c00;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 4px;
+  border-radius: 3px;
+  z-index: 11;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.switchBtn {
-  height: 36px;
-  padding: 0 14px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: #172b4d;
-  font-size: 14px;
-  transition: background 0.3s ease;
-}
+/* BOTTOM SWITCHER */
+.bottomSwitcher { position: fixed; right: 24px; bottom: 24px; display: flex; align-items: center; background: #fff; border: 1px solid #dfe1e6; border-radius: 4px; box-shadow: 0 4px 12px rgba(9, 30, 66, 0.2); z-index: 1000; }
+.switchBtn { height: 36px; padding: 0 14px; border: none; background: transparent; cursor: pointer; color: #172b4d; font-size: 14px; }
+.switchBtnActive { background: rgba(12, 102, 228, 0.12); color: #0c66e4; }
+.divider { width: 1px; height: 18px; background: #dfe1e6; }
+.collapseBtn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: none; background: transparent; cursor: pointer; color: #626f86; }
 
-.switchBtn:hover {
-  background: #f4f5f7;
-}
+/* TIME HEADER CELLS */
+.monthHeader { display: flex; height: 40px; background: #f4f5f7; border-bottom: 2px solid #dfe1e6; }
+.monthCell { flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #626f86; border-right: 1px solid #dfe1e6; }
+.weekHeaderWrap { display: flex; flex-direction: column; background: #f4f5f7; height: 60px; }
+.weekHeaderTop { display: flex; height: 30px; border-bottom: 1px solid #dfe1e6; }
+.weekHeaderBottom { display: flex; height: 30px; }
+.headerGroup { flex-shrink: 0; display: flex; align-items: center; padding-left: 12px; font-size: 11px; font-weight: 700; color: #626f86; border-right: 1px solid #dfe1e6; text-transform: uppercase; }
+.dayCell { flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: #172b4d; border-right: 1px solid #dfe1e6; }
+.dayCellCurrent { background: #e9f2ff; color: #0052cc; font-weight: 700; }
 
-.switchBtnActive {
-  background: rgba(12, 102, 228, 0.12);
-  color: #0c66e4;
-}
-
-.divider {
-  width: 1px;
-  height: 18px;
-  background: #dfe1e6;
-}
-
-.bottomSwitcherCollapsed {
-  padding: 0 4px;
-}
-
-.collapseBtn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  color: #626f86;
-  transition: all 0.2s;
-}
-
-.collapseBtn:hover {
-  background: #f4f5f7;
-  color: #172b4d;
-}
-
-.infoIcon {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #626f86;
-}
+.createRow { height: 44px; display: flex; align-items: center; gap: 8px; padding: 0 12px; color: #0052cc; font-size: 13px; font-weight: 500; cursor: pointer; }
+.createRow:hover { background: rgba(9, 30, 66, 0.04); }

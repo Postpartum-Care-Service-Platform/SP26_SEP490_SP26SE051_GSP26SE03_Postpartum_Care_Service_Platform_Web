@@ -16,8 +16,8 @@ const hennyPenny = Henny_Penny({
 });
 
 export const metadata: Metadata = {
-  title: 'Postpartum Service',
-  description: 'Postpartum Service - Dịch vụ chăm sóc hậu sản',
+  title: 'thejoyfulnest',
+  description: 'thejoyfulnest - Dịch vụ chăm sóc hậu sản',
 };
 
 export default function RootLayout({

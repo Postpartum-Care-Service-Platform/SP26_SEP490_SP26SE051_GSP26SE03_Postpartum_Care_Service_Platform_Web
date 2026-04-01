@@ -4,6 +4,8 @@ import React from 'react';
 
 import { AssigneePicker } from '../shared/AssigneePicker';
 import type { StaffSchedule as StaffListMember } from '@/services/contract.service';
+import { AmenityServicePicker } from '../shared/AmenityServicePicker';
+import type { AmenityService } from '@/types/amenity-service';
 import styles from './timeline-control-panel.module.css';
 
 function SearchIcon() {
@@ -51,6 +53,19 @@ function MoreIcon() {
   );
 }
 
+function ChecklistIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2 3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3zm2 1v8h8V4H4zm1 2h6v1H5V6zm0 2h6v1H5V8zm0 2h4v1H5v-1z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 type Props = {
   searchValue?: string;
   onSearchChange?: (value: string) => void;
@@ -60,6 +75,9 @@ type Props = {
   assigneeValue?: any;
   onAssigneeChange?: (value: any) => void;
   staffList?: StaffListMember[];
+  amenityValue?: AmenityService | null;
+  onAmenityChange?: (value: AmenityService | null) => void;
+  onAmenityBrowse?: () => void;
 };
 
 export function TimelineControlPanel({
@@ -71,9 +89,13 @@ export function TimelineControlPanel({
   assigneeValue = null,
   onAssigneeChange,
   staffList = [],
+  amenityValue = null,
+  onAmenityChange,
+  onAmenityBrowse,
 }: Props) {
   const [isStatusOpen, setIsStatusOpen] = React.useState(false);
   const [isAssigneeOpen, setIsAssigneeOpen] = React.useState(false);
+  const [isAmenityOpen, setIsAmenityOpen] = React.useState(false);
   const statusRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -194,10 +216,32 @@ export function TimelineControlPanel({
           </Popover.Portal>
         </Popover.Root>
 
-        <button type="button" className={styles.filterBtn}>
-          <span>{epicLabel}</span>
-          <ChevronDownIcon />
-        </button>
+        <Popover.Root open={isAmenityOpen} onOpenChange={setIsAmenityOpen}>
+          <Popover.Trigger asChild>
+            <button type="button" className={styles.filterBtn}>
+              <span>{amenityValue ? amenityValue.name : (epicLabel || 'Tất cả tiện ích')}</span>
+              <ChevronDownIcon />
+            </button>
+          </Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Content
+              className={styles.popoverContent}
+              side="bottom"
+              align="start"
+              sideOffset={6}
+              collisionPadding={12}
+            >
+              <AmenityServicePicker
+                value={amenityValue}
+                onChange={(a) => {
+                  onAmenityChange?.(a);
+                  setIsAmenityOpen(false);
+                }}
+                onClose={() => setIsAmenityOpen(false)}
+              />
+            </Popover.Content>
+          </Popover.Portal>
+        </Popover.Root>
 
         <div className={styles.statusWrap} ref={statusRef}>
           <button
@@ -253,6 +297,9 @@ export function TimelineControlPanel({
       </div>
 
       <div className={styles.right}>
+        <button type="button" className={styles.iconBtn} aria-label="Duyệt tiện ích" title="Duyệt tiện ích" onClick={onAmenityBrowse}>
+          <ChecklistIcon />
+        </button>
         <button type="button" className={styles.iconBtn} aria-label="Controls">
           <SlidersIcon />
         </button>

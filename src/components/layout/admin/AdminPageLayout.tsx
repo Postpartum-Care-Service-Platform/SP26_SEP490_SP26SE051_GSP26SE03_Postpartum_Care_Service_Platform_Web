@@ -10,6 +10,7 @@ interface AdminPageLayoutProps {
   controlPanel?: React.ReactNode;
   pagination?: React.ReactNode;
   noScroll?: boolean;
+  noCard?: boolean;
 }
 
 export function AdminPageLayout({
@@ -18,7 +19,19 @@ export function AdminPageLayout({
   controlPanel,
   pagination,
   noScroll = false,
+  noCard = false,
 }: AdminPageLayoutProps) {
+  if (noCard) {
+    return (
+      <div className={styles.container}>
+        {header && <div className={styles.header}>{header}</div>}
+        <div className={`${styles.scrollArea} ${noScroll ? styles.noScroll : ''}`}>
+          {children}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       {/* Header + Breadcrumbs - Outside the card */}

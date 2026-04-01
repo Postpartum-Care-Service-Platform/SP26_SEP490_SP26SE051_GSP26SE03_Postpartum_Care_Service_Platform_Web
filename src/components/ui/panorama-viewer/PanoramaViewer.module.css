@@ -1,0 +1,290 @@
+.pViewer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background-color: #000;
+  user-select: none;
+  cursor: grab;
+}
+
+.pViewer:active {
+  cursor: grabbing;
+}
+
+.viewport {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.cube {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  transform-style: preserve-3d;
+  margin: 0;
+  padding: 0;
+}
+
+.face {
+  position: absolute;
+  width: 1024px; /* Default face size, matching the 512px offset in JS */
+  height: 1024px;
+  top: 50%;
+  left: 50%;
+  margin-top: -512px;
+  margin-left: -512px;
+  background-size: 100% 100%;
+  backface-visibility: hidden;
+  /* Prevent small gaps between faces */
+  outline: 1px solid transparent; 
+}
+
+/* UI Overlay */
+.uiOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.backButton {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #ddd;
+  padding: 8px 16px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #004a8c;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+  width: fit-content;
+}
+
+.backButton:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.title {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  letter-spacing: -0.5px;
+}
+
+.controls {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.controlBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  cursor: pointer;
+  color: #004a8c;
+  transition: all 0.2s;
+}
+
+.controlBtn:hover {
+  transform: scale(1.1);
+  background: #fff;
+}
+
+.controlBtn.active {
+  background: #fa8314;
+  color: #fff;
+}
+
+.hint {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,0.1);
+  pointer-events: none;
+}
+
+/* Scene / Room Switcher at bottom */
+.sceneSwitcher {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  pointer-events: auto;
+}
+
+.thumbnail {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.thumbnail:hover {
+  transform: scale(1.1) translateY(-5px);
+  border-color: #fff;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.thumbLabel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 8px;
+  text-align: center;
+  padding: 2px 0;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.thumbnail:hover .thumbLabel {
+  opacity: 1;
+}
+
+/* 3D Hotspots */
+.panoHotspot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60px;
+  height: 60px;
+  margin-top: -30px;
+  margin-left: -30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  pointer-events: auto;
+  transform-style: preserve-3d;
+}
+
+.hotspotArrow {
+  width: 44px;
+  height: 44px;
+  background: rgba(240, 240, 240, 0.85);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 2px solid #fff;
+}
+
+.arrowIcon {
+  color: #333;
+  width: 24px;
+  height: 24px;
+}
+
+.panoHotspot:hover .hotspotArrow {
+  background: #fff;
+  transform: scale(1.2) rotateX(-20deg);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+}
+
+.hotspotPopup {
+  position: absolute;
+  top: -40px;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s;
+}
+
+.panoHotspot:hover .hotspotPopup {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Fading transition */
+.pViewer.fading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 9999;
+  animation: fadeInOut 1s forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}

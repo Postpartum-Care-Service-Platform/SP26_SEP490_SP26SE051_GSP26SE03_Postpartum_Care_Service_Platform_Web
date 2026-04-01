@@ -1,15 +1,21 @@
 'use client';
 
 import React from 'react';
+import { format, parseISO, differenceInMinutes, startOfDay, isSameDay } from 'date-fns';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
+import type { StaffScheduleAllResponse } from '@/types/staff-schedule';
 
 import Epic16Icon from '../list/artifacts/glyph/epic/16';
 
 import styles from './timeline-view.module.css';
 
+interface TimelineViewProps {
+  staffData?: StaffScheduleAllResponse[];
+}
+
 function EpicIcon() {
   return (
-    <span className={styles.epicIconImg} aria-label="Epic">
+    <span className={styles.epicIconImg} aria-label="Thunder Icon">
       <Epic16Icon width={16} height={16} />
     </span>
   );
@@ -23,23 +29,11 @@ function PlusIcon() {
   );
 }
 
-const EPICS = [
-  'ACSCM-7 Giai đoạn 1: Quản lý người dùng & Au...',
-  'ACSCM-8 Giai đoạn 2: Kho hàng & Tồn kho...',
-  'ACSCM-9 Giai đoạn 3: Mua sắm & Quản lý ngân sách...',
-  'ACSCM-10 Giai đoạn 4: Công thức & Hệ thống nấu ăn...',
-  'ACSCM-11 Giai đoạn 5: Lập kế hoạch thực đơn & Bữa ăn...',
-  'ACSCM-16 Giai đoạn 6: Theo dõi Dinh dưỡng & Sức khỏe...',
-  'ACSCM-12 Giai đoạn 7: AI & Tối ưu hóa thông minh',
-  'ACSCM-13 Giai đoạn 8: Báo cáo & Phân tích',
-  'ACSCM-14 Giai đoạn 9: Thông báo & Liên lạc...',
-];
-
-const INITIAL_MONTHS_COUNT = 12;
+const FIVE_MIN_WIDTH = 60; 
 const DAY_WIDTH = 40;
 const MONTH_WIDTH = 200;
-const BEFORE_DAYS = 30;
-const AFTER_DAYS = 60;
+const BEFORE_DAYS = 7;
+const AFTER_DAYS = 21;
 
 const generateMonths = (startYear: number, startMonth: number, count: number) => {
   const result = [];
@@ -56,8 +50,8 @@ const generateMonths = (startYear: number, startMonth: number, count: number) =>
 
 const generateDays = (start: Date, before: number, after: number) => {
   const result: Date[] = [];
-  const base = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 0, 0, 0, 0);
-  for (let i = before; i <= after; i++) {
+  const base = startOfDay(start);
+  for (let i = -before; i <= after; i++) {
     const d = new Date(base);
     d.setDate(base.getDate() + i);
     result.push(d);
@@ -65,373 +59,228 @@ const generateDays = (start: Date, before: number, after: number) => {
   return result;
 };
 
-export function TimelineView() {
-  const [range, setRange] = React.useState<'Weeks' | 'Months'>('Months');
+const generateSlots = (start: Date, before: number, after: number) => {
+  const result: Date[] = [];
+  const base = new Date(start.getFullYear(), start.getMonth(), start.getDate(), start.getHours(), 0, 0, 0);
+  for (let i = -before; i <= after; i++) {
+    const d = new Date(base.getTime() + i * 5 * 60 * 1000);
+    result.push(d);
+  }
+  return result;
+};
+
+export function TimelineView({ staffData = [] }: TimelineViewProps) {
+  const [range, setRange] = React.useState<'Days' | 'Weeks' | 'Months'>('Days');
   const [isCollapsed, setIsCollapsed] = React.useState(false);
-  const [months, setMonths] = React.useState(() => generateMonths(2026, 3, INITIAL_MONTHS_COUNT));
-  const [days, setDays] = React.useState(() => {
-    const today = new Date(2026, 2, 1);
-    return generateDays(today, -BEFORE_DAYS, AFTER_DAYS);
+  const [currentTime, setCurrentTime] = React.useState(new Date());
+
+  const [months, setMonths] = React.useState(() => {
+    const today = new Date();
+    return generateMonths(today.getFullYear(), today.getMonth() + 1, 12);
   });
-  const rightRef = React.useRef<HTMLDivElement>(null);
+  const [days] = React.useState(() => generateDays(new Date(), BEFORE_DAYS, AFTER_DAYS));
+  const [slots] = React.useState(() => generateSlots(new Date(), 12, 24 * 12 * 2));
 
-  const colWidth = range === 'Weeks' ? DAY_WIDTH : MONTH_WIDTH;
+  const rightHeaderRef = React.useRef<HTMLDivElement>(null);
+  const rightBodyRef = React.useRef<HTMLDivElement>(null);
 
-  const currentMonthKey = React.useMemo(() => {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    return `${y}-${m}`;
-  }, []);
-
-  const todayKey = React.useMemo(() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  }, []);
-
-  const [bars, setBars] = React.useState<Record<number, { left: number; width: number }>>({
-    1: { left: 450, width: 350 },
-  });
-
-  const [dragging, setDragging] = React.useState<{
-    index: number;
-    type: 'move' | 'left' | 'right';
-    startX: number;
-    startLeft: number;
-    startWidth: number;
-  } | null>(null);
-
-  const handleScroll = () => {
-    const el = rightRef.current;
-    if (!el) return;
-
+  // Sync horizontal scrolling between header and body
+  const handleBodyScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (rightHeaderRef.current) {
+      rightHeaderRef.current.scrollLeft = e.currentTarget.scrollLeft;
+    }
+    // Infinite load for months
     if (range === 'Months') {
-      const rightBuffer = el.scrollWidth - el.scrollLeft - el.clientWidth;
-      if (rightBuffer < 200) {
+      const el = e.currentTarget;
+      if (el.scrollWidth - el.scrollLeft - el.clientWidth < 200) {
         const lastMonthKey = months[months.length - 1];
         const [y, m] = lastMonthKey.split('-').map(Number);
-        const nextDate = new Date(y, m, 1);
-        setMonths([...months, ...generateMonths(nextDate.getFullYear(), nextDate.getMonth() + 1, 6)]);
-      }
-    } else {
-      const sLeft = el.scrollLeft;
-      const sWidth = el.scrollWidth;
-
-      if (sLeft < 200) {
-        const newDays = generateDays(days[0], -BEFORE_DAYS, -1);
-        setDays([...newDays, ...days]);
-        el.scrollLeft = sLeft + (BEFORE_DAYS * DAY_WIDTH);
-      } else if (sWidth - sLeft - el.clientWidth < 400) {
-        const lastDay = days[days.length - 1];
-        const newDays = generateDays(lastDay, 1, AFTER_DAYS);
-        setDays([...days, ...newDays]);
+        setMonths([...months, ...generateMonths(y, m + 1, 6)]);
       }
     }
   };
-
-  const handlePointerDown = (index: number, type: 'move' | 'left' | 'right', e: React.PointerEvent) => {
-    e.stopPropagation();
-    const bar = bars[index];
-    if (!bar) return;
-
-    setDragging({
-      index,
-      type,
-      startX: e.clientX,
-      startLeft: bar.left,
-      startWidth: bar.width,
-    });
-
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!dragging) return;
-
-    const deltaX = e.clientX - dragging.startX;
-    const { index, type, startLeft, startWidth } = dragging;
-
-    setBars((prev) => {
-      const bar = prev[index];
-      if (!bar) return prev;
-
-      let newLeft = bar.left;
-      let newWidth = bar.width;
-
-      if (type === 'move') {
-        newLeft = startLeft + deltaX;
-      } else if (type === 'left') {
-        newLeft = startLeft + deltaX;
-        newWidth = startWidth - deltaX;
-      } else if (type === 'right') {
-        newWidth = startWidth + deltaX;
-      }
-
-      if (newWidth < 20) {
-        if (type === 'left') {
-          newLeft = startLeft + startWidth - 20;
-        }
-        newWidth = 20;
-      }
-
-      return {
-        ...prev,
-        [index]: { left: newLeft, width: newWidth },
-      };
-    });
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (dragging) {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-      setDragging(null);
-    }
-  };
-
-  const handleTrackClick = (index: number, e: React.MouseEvent) => {
-    if (bars[index] || dragging) return;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-
-    setBars(prev => ({
-      ...prev,
-      [index]: { left: x, width: colWidth * 2 }
-    }));
-  };
-
-  const getLabel = (pixels: number) => {
-    const start = new Date(2025, 10, 1);
-    if (range === 'Months') {
-      const totalDays = (pixels / MONTH_WIDTH) * 30;
-      start.setDate(start.getDate() + Math.round(totalDays));
-    } else {
-      const totalDays = pixels / DAY_WIDTH;
-      start.setDate(start.getDate() + Math.round(totalDays));
-    }
-    return start.toLocaleDateString('vi-VN', { month: 'numeric', day: '2-digit', year: 'numeric' });
-  };
-
-  const weekGroups = React.useMemo(() => {
-    if (range !== 'Weeks') return [];
-    const groups: { label: string; count: number }[] = [];
-    
-    for (let i = 0; i < days.length; i += 7) {
-      const weekDays = days.slice(i, i + 7);
-      if (weekDays.length === 0) break;
-      
-      const first = weekDays[0];
-      const last = weekDays[weekDays.length - 1];
-      
-      let label = first.toLocaleDateString('en-US', { month: 'short' });
-      if (first.getMonth() !== last.getMonth()) {
-        label += ' / ' + last.toLocaleDateString('en-US', { month: 'short' });
-      }
-      
-      groups.push({ label, count: weekDays.length });
-    }
-    return groups;
-  }, [days, range]);
-
-  const canvasWidth = range === 'Weeks' ? days.length * DAY_WIDTH : months.length * MONTH_WIDTH;
-
-  const todayPos = React.useMemo(() => {
-    const now = new Date();
-    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0).getTime();
-    
-    if (range === 'Months') {
-      if (months.length === 0) return 0;
-      const firstMonthKey = months[0];
-      const [y, m] = firstMonthKey.split('-').map(Number);
-      const startOfMonthOne = new Date(y, m - 1, 1, 0, 0, 0, 0).getTime();
-      const diffDays = Math.round((todayStart - startOfMonthOne) / (1000 * 60 * 60 * 24));
-      return (diffDays / 30) * MONTH_WIDTH;
-    } else {
-      if (days.length === 0) return 0;
-      const firstDay = days[0];
-      const firstDayStart = new Date(firstDay.getFullYear(), firstDay.getMonth(), firstDay.getDate(), 0, 0, 0, 0).getTime();
-      const diffDays = Math.round((todayStart - firstDayStart) / (1000 * 60 * 60 * 24));
-      return diffDays * DAY_WIDTH;
-    }
-  }, [days, months, range]);
 
   React.useEffect(() => {
-    if (range === 'Weeks') {
-      const el = rightRef.current;
-      if (el) {
-        el.scrollLeft = todayPos - (el.clientWidth / 2) + (DAY_WIDTH / 2);
-      }
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentMonthKey = format(currentTime, 'yyyy-MM');
+  const todayKey = format(currentTime, 'yyyy-MM-dd');
+
+  const activityRows = React.useMemo(() => {
+    const rows: any[] = [];
+    staffData.forEach(staff => {
+      staff.bookings?.forEach(booking => {
+        booking.activities?.forEach(activity => {
+          const actWorkDate = parseISO(activity.workDate);
+          const actStart = parseISO(`${activity.workDate}T${activity.startTime}`);
+          const actEnd = parseISO(`${activity.workDate}T${activity.endTime}`);
+
+          let left = -2000;
+          let width = 0;
+
+          if (range === 'Days') {
+            const firstSlot = slots[0];
+            const diffMin = differenceInMinutes(actStart, firstSlot);
+            left = (diffMin / 5) * FIVE_MIN_WIDTH;
+            width = (differenceInMinutes(actEnd, actStart) / 5) * FIVE_MIN_WIDTH;
+          } else if (range === 'Weeks') {
+            const dayIndex = days.findIndex(d => isSameDay(d, actWorkDate));
+            if (dayIndex !== -1) {
+              left = dayIndex * DAY_WIDTH + (differenceInMinutes(actStart, startOfDay(actStart)) / 1440) * DAY_WIDTH;
+              width = (differenceInMinutes(actEnd, actStart) / 1440) * DAY_WIDTH;
+            }
+          } else if (range === 'Months') {
+            const actMonthKey = format(actWorkDate, 'yyyy-MM');
+            const monthIndex = months.indexOf(actMonthKey);
+            if (monthIndex !== -1) {
+              left = monthIndex * MONTH_WIDTH + (actWorkDate.getDate() / 31) * MONTH_WIDTH;
+              width = 10;
+            }
+          }
+
+          if (left > -1000) {
+            rows.push({
+              id: activity.staffScheduleId,
+              title: activity.activity,
+              staffName: staff.staffFullName,
+              packageName: booking.packageName,
+              left,
+              width: Math.max(width, 4),
+              status: activity.status,
+              workDate: activity.workDate,
+              startTime: activity.startTime,
+              endTime: activity.endTime
+            });
+          }
+        });
+      });
+    });
+    return rows.sort((a, b) => (a.workDate + a.startTime).localeCompare(b.workDate + b.startTime));
+  }, [staffData, range, slots, days, months]);
+
+  const canvasWidth = range === 'Days' ? slots.length * FIVE_MIN_WIDTH : range === 'Weeks' ? days.length * DAY_WIDTH : months.length * MONTH_WIDTH;
+
+  const todayPos = React.useMemo(() => {
+    if (range === 'Days') {
+      return (differenceInMinutes(currentTime, slots[0]) / 5) * FIVE_MIN_WIDTH;
+    } else if (range === 'Months') {
+      const first = months[0].split('-').map(Number);
+      const startMs = new Date(first[0], first[1]-1, 1).getTime();
+      return ((currentTime.getTime() - startMs) / (1000*60*60*24*30)) * MONTH_WIDTH;
+    } else {
+      return (differenceInMinutes(currentTime, startOfDay(days[0])) / 1440) * DAY_WIDTH;
+    }
+  }, [days, months, range, slots, currentTime]);
+
+  React.useEffect(() => {
+    if (rightBodyRef.current) {
+      rightBodyRef.current.scrollLeft = todayPos - (rightBodyRef.current.clientWidth / 2);
     }
   }, [range, todayPos]);
 
   return (
     <div className={styles.wrap}>
-      <div className={styles.grid}>
-        <div className={styles.left}>
-          <div className={styles.leftHeader} style={{ height: range === 'Weeks' ? '60px' : '40px' }}>
-            Công việc
-          </div>
-          <div className={styles.leftBody}>
-            <div className={styles.sectionTitle}>Giai đoạn</div>
-
-            {EPICS.map((t, _i) => (
-              <div key={t} className={styles.row}>
-                <input className={styles.checkbox} type="checkbox" aria-label="Chọn" />
-                <span className={styles.epicIcon} aria-hidden="true">
-                  <EpicIcon />
-                </span>
-                <span className={styles.epicText}>{t}</span>
-              </div>
-            ))}
-
-            <div className={styles.createRow} role="button" tabIndex={0}>
-              <PlusIcon />
-              <span>Tạo mới</span>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.right} ref={rightRef} onScroll={handleScroll}>
+      {/* HEADER ROW - ALWAYS VISIBLE */}
+      <div className={styles.topHeaderRow} style={{ height: range === 'Months' ? 40 : 60 }}>
+        <div className={styles.leftHeader}>Công việc</div>
+        <div className={styles.rightHeaderOuter} ref={rightHeaderRef}>
           {range === 'Months' ? (
-            <div className={styles.monthHeader} style={{ gridAutoColumns: `${MONTH_WIDTH}px` }}>
-              {months.map((keyOrObj, i) => {
-                const key = typeof keyOrObj === 'string' ? keyOrObj : (keyOrObj as { key: string }).key;
+            <div className={styles.monthHeader} style={{ width: canvasWidth }}>
+              {months.map((key, i) => {
                 const [y, m] = key.split('-').map(Number);
-                const label = (i === 0 || m === 1) ? `Tháng ${m} năm ${y}` : `Tháng ${m}`;
                 return (
-                  <div
-                    key={key}
-                    className={`${styles.monthCell} ${key === currentMonthKey ? styles.monthCellCurrent : ''}`}
-                    style={{ width: `${MONTH_WIDTH}px` }}
-                  >
-                    {label}
+                  <div key={key} className={`${styles.monthCell} ${key === currentMonthKey ? styles.monthCellCurrent : ''}`} style={{ width: MONTH_WIDTH }}>
+                    {(i === 0 || m === 1) ? `Tháng ${m} năm ${y}` : `Tháng ${m}`}
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className={styles.weekHeaderWrap}>
+            <div className={styles.weekHeaderWrap} style={{ width: canvasWidth }}>
               <div className={styles.weekHeaderTop}>
-                {weekGroups.map((g, i) => (
-                  <div key={i} className={styles.headerGroup} style={{ width: g.count * DAY_WIDTH }}>
-                    {g.label}
-                  </div>
+                {(range === 'Weeks' ? 
+                  Array.from({ length: Math.ceil(days.length / 7) }).map((_, i) => ({ label: format(days[i*7], 'MMM'), count: 7 })) :
+                  Array.from({ length: slots.length / 12 }).map((_, i) => ({ label: format(slots[i*12], 'dd/MM'), count: 12 }))
+                ).map((g, i) => (
+                  <div key={i} className={styles.headerGroup} style={{ width: g.count * (range === 'Weeks' ? DAY_WIDTH : FIVE_MIN_WIDTH) }}>{g.label}</div>
                 ))}
               </div>
               <div className={styles.weekHeaderBottom}>
-                {days.map((d, i) => {
-                  const dKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-                  const isLastDayOfWeek = (i + 1) % 7 === 0;
-                  return (
-                    <div 
-                      key={i} 
-                      className={`${styles.dayCell} ${dKey === todayKey ? styles.dayCellCurrent : ''} ${isLastDayOfWeek ? styles.dayCellLast : ''}`}
-                      style={{ width: `${DAY_WIDTH}px` }}
-                    >
-                      {d.getDate()}
-                    </div>
-                  );
-                })}
+                {range === 'Weeks' ? days.map((d, i) => (
+                  <div key={i} className={`${styles.dayCell} ${format(d, 'yyyy-MM-dd') === todayKey ? styles.dayCellCurrent : ''}`} style={{ width: DAY_WIDTH }}>{d.getDate()}</div>
+                )) : slots.filter((_, i) => i % 12 === 0).map((s, i) => (
+                  <div key={i} className={styles.dayCell} style={{ width: 12 * FIVE_MIN_WIDTH, justifyContent: 'flex-start', paddingLeft: 4, fontSize: 10 }}>{format(s, 'HH:mm')}</div>
+                ))}
               </div>
             </div>
           )}
+        </div>
+      </div>
 
+      {/* BODY SECTION - SCROLLABLE */}
+      <div className={styles.scrollingContent}>
+        <div className={styles.leftBodyFixed}>
+          <div className={styles.sectionTitle}>Danh sách hoạt động</div>
+          {activityRows.map(row => (
+            <div key={row.id} className={styles.row}>
+              <input type="checkbox" className={styles.checkbox} />
+              <EpicIcon />
+              <div className={styles.activityInfo}>
+                <div className={styles.epicText}>{row.title}</div>
+                <div className={styles.subText}>{row.staffName} • {row.packageName}</div>
+              </div>
+            </div>
+          ))}
+          <div className={styles.createRow}><PlusIcon /><span>Tạo mới</span></div>
+        </div>
+
+        <div className={styles.rightBodyScroll} ref={rightBodyRef} onScroll={handleBodyScroll}>
           <div className={styles.canvas} style={{ 
-            width: canvasWidth,
-            height: `calc(100% - ${range === 'Weeks' ? 60 : 40}px)`,
+            width: canvasWidth, 
+            height: 40 + activityRows.length * 44, // Calculate exact height of content
             background: range === 'Months' 
-              ? `repeating-linear-gradient(to right, transparent, transparent ${MONTH_WIDTH - 1}px, rgba(9, 30, 66, 0.14) ${MONTH_WIDTH}px)`
-              : `repeating-linear-gradient(to right, transparent, transparent ${(DAY_WIDTH * 7) - 1}px, rgba(9, 30, 66, 0.14) ${DAY_WIDTH * 7}px)`
+              ? `repeating-linear-gradient(to right, transparent, transparent ${MONTH_WIDTH-1}px, #dfe1e6 ${MONTH_WIDTH}px)`
+              : range === 'Weeks'
+              ? `repeating-linear-gradient(to right, transparent, transparent ${DAY_WIDTH-1}px, #dfe1e6 ${DAY_WIDTH}px)`
+              : `repeating-linear-gradient(to right, transparent, transparent ${FIVE_MIN_WIDTH*12-1}px, #dfe1e6 ${FIVE_MIN_WIDTH*12}px)`
           }}>
-            <div className={styles.sectionTitleTrack} style={{ top: 0 }} />
-
-            {EPICS.map((_, i) => (
-              <div
-                key={i}
-                className={styles.rowTrack}
-                style={{ top: 36 + (i * 44) }}
-                onClick={(e) => handleTrackClick(i, e)}
-              >
-                {bars[i] && (
-                  <div
-                    className={`${styles.bar} ${dragging?.index === i ? styles.barActive : ''}`}
-                    style={{ left: bars[i].left, width: bars[i].width }}
-                    onPointerDown={(e) => handlePointerDown(i, 'move', e)}
-                    onPointerMove={handlePointerMove}
-                    onPointerUp={handlePointerUp}
-                  >
-                    <div
-                      className={`${styles.barHandle} ${styles.barHandleLeft}`}
-                      onPointerDown={(e) => handlePointerDown(i, 'left', e)}
-                    />
-                    <div
-                      className={`${styles.barHandle} ${styles.barHandleRight}`}
-                      onPointerDown={(e) => handlePointerDown(i, 'right', e)}
-                    />
-
-                    <div className={`${styles.badge} ${styles.badgeLeft}`}>
-                      {getLabel(bars[i].left)}
-                    </div>
-                    <div className={`${styles.badge} ${styles.badgeRight}`}>
-                      {getLabel(bars[i].left + bars[i].width)}
-                    </div>
-                  </div>
-                )}
+            <div className={styles.sectionTitleTrack} />
+            {activityRows.map((row, i) => (
+              <div key={row.id} className={styles.rowTrack} style={{ top: 40 + i * 44 }}>
+                <div 
+                  className={styles.bar} 
+                  style={{ 
+                    left: row.left, width: row.width,
+                    backgroundColor: row.status === 'Done' ? '#36B37E' : row.status === 'InProgress' ? '#00B8D9' : '#FFAB00'
+                  }}
+                  title={`${row.title} (${row.startTime} - ${row.endTime})`}
+                />
               </div>
             ))}
-
-            <div className={styles.todayLine} style={{ left: todayPos }} aria-hidden="true">
+            <div className={styles.todayLine} style={{ left: todayPos }}>
               <div className={styles.todayMarker} />
+              {range === 'Days' && <div className={styles.currentTimeLabel}>{format(currentTime, 'HH:mm')}</div>}
             </div>
           </div>
         </div>
       </div>
 
-      <div className={`${styles.bottomSwitcher} ${isCollapsed ? styles.bottomSwitcherCollapsed : ''}`} aria-label="Phạm vi thời gian">
-        <div className={styles.switcherInner} style={{
-          display: 'flex',
-          alignItems: 'center',
-          width: isCollapsed ? '36px' : 'auto',
-          overflow: 'hidden',
-          transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)'
-        }}>
-          {!isCollapsed && (
-            <div style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
-              <button 
-                type="button" 
-                className={styles.switchBtn}
-                onClick={() => {
-                  if (rightRef.current) rightRef.current.scrollLeft = todayPos - 200;
-                }}
-              >
-                Hôm nay
-              </button>
-              <div className={styles.divider} />
-              <button
-                type="button"
-                className={`${styles.switchBtn} ${range === 'Weeks' ? styles.switchBtnActive : ''}`}
-                onClick={() => setRange('Weeks')}
-              >
-                Tuần
-              </button>
-              <button
-                type="button"
-                className={`${styles.switchBtn} ${range === 'Months' ? styles.switchBtnActive : ''}`}
-                onClick={() => setRange('Months')}
-              >
-                Tháng
-              </button>
-            </div>
-          )}
-          <button
-            type="button"
-            className={styles.collapseBtn}
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            style={{ marginLeft: isCollapsed ? 0 : '4px' }}
-          >
-            {isCollapsed ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
-          </button>
-        </div>
+      {/* SWITCHER - FLOATING FIXED */}
+      <div className={`${styles.bottomSwitcher} ${isCollapsed ? styles.bottomSwitcherCollapsed : ''}`}>
+        {!isCollapsed && (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <button className={styles.switchBtn} onClick={() => rightBodyRef.current?.scrollTo({ left: todayPos - 200, behavior: 'smooth' })}>Hôm nay</button>
+            <div className={styles.divider} />
+            <button className={`${styles.switchBtn} ${range === 'Days' ? styles.switchBtnActive : ''}`} onClick={() => setRange('Days')}>Giờ/Phút</button>
+            <button className={`${styles.switchBtn} ${range === 'Weeks' ? styles.switchBtnActive : ''}`} onClick={() => setRange('Weeks')}>Tuần</button>
+            <button className={`${styles.switchBtn} ${range === 'Months' ? styles.switchBtnActive : ''}`} onClick={() => setRange('Months')}>Tháng</button>
+          </div>
+        )}
+        <button className={styles.collapseBtn} onClick={() => setIsCollapsed(!isCollapsed)}>
+          {isCollapsed ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+        </button>
       </div>
     </div>
   );
