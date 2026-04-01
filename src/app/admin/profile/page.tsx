@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import { AccountInfoCard } from './components/AccountInfoCard';
 import { ProfileAvatar } from './components/ProfileAvatar';
 import { ProfileCover } from './components/ProfileCover';
@@ -15,19 +16,20 @@ export default function AdminProfilePage() {
   const displayName = user?.username || '';
 
   return (
-    <div className={styles.pageContainer}>
-      <ProfileHeader />
-      <div className={styles.profileSection}>
-        <ProfileCover />
-        <div className={styles.profileInfo}>
-          <ProfileAvatar name={displayName} />
-          <ProfileName name={displayName} />
+    <AdminPageLayout header={<ProfileHeader />} noCard={true} noScroll={true}>
+      <div className={styles.pageContainer}>
+        <div className={styles.profileSection}>
+          <ProfileCover />
+          <div className={styles.profileInfo}>
+            <ProfileAvatar name={displayName} />
+            <ProfileName name={displayName} />
+          </div>
+        </div>
+        <div className={styles.cardsContainer}>
+          <AccountInfoCard />
+          <SettingsCard />
         </div>
       </div>
-      <div className={styles.cardsContainer}>
-        <AccountInfoCard />
-        <SettingsCard />
-      </div>
-    </div>
+    </AdminPageLayout>
   );
 }

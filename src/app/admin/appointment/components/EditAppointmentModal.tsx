@@ -207,7 +207,7 @@ export function EditAppointmentModal({ open, onOpenChange, appointment, onSucces
       >
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>Chỉnh sửa lịch hẹn</h2>
-          <button onClick={() => onOpenChange(false)} className={styles.closeButton} aria-label="Close">
+          <button onClick={() => onOpenChange(false)} className={styles.closeButton} aria-label="Close" title="Đóng">
             <Cross1Icon />
           </button>
         </div>

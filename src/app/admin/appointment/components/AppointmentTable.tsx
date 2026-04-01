@@ -39,10 +39,8 @@ type Props = {
   appointments: Appointment[];
   onEdit?: (appointment: Appointment) => void;
   onDelete?: (appointment: Appointment) => void;
-  onCreated?: () => void;
   currentPage: number;
   pageSize: number;
-  quickCreateComponent?: React.ReactNode;
 };
 
 const getStatusClass = (status: Appointment['status']) => {
@@ -83,10 +81,8 @@ export function AppointmentTable({
   appointments, 
   onEdit, 
   onDelete, 
-  onCreated, 
   currentPage,
   pageSize,
-  quickCreateComponent 
 }: Props) {
   return (
     <div className={styles.tableWrapper}>
@@ -192,11 +188,6 @@ export function AppointmentTable({
         </tbody>
       </table>
 
-      {quickCreateComponent && (
-        <div className={styles.quickCreateWrapper}>
-          {quickCreateComponent}
-        </div>
-      )}
     </div>
   );
 }

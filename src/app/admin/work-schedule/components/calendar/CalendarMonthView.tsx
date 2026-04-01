@@ -191,8 +191,7 @@ export function CalendarMonthView({
             className={styles.sidebarList}
             style={{ 
               flex: 1, 
-              overflowY: 'auto',
-              paddingTop: '8px'
+              overflowY: 'auto'
             }}
           >
             <CalendarSidebarExtra 

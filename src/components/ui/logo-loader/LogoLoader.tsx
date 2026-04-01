@@ -29,7 +29,7 @@ export function LogoLoader({ size = 'md', text, className }: LogoLoaderProps) {
   return (
     <div className={`${styles.container} ${className || ''}`} role="status" aria-label="Đang tải">
       <div className={styles.logoWrapper}>
-        <Image src={Logo} alt="Serena Postnatal" width={config.dimension} height={config.dimension} priority />
+        <Image src={Logo} alt="thejoyfulnest" width={config.dimension} height={config.dimension} priority />
       </div>
       {text && <span className={styles.text}>{text}</span>}
     </div>

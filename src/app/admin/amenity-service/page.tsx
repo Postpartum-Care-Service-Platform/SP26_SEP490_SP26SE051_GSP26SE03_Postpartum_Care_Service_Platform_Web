@@ -99,6 +99,7 @@ export default function AdminAmenityServicePage() {
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
   const fetchAmenityServices = async () => {
     try {
@@ -344,7 +345,15 @@ export default function AdminAmenityServicePage() {
                     </td>
                     <td>
                       {item.imageUrl ? (
-                        <img src={item.imageUrl} alt={item.name} className={styles.amenityImage} />
+                        <div className={styles.tooltipWrapper}>
+                          <img 
+                            src={item.imageUrl} 
+                            alt={item.name} 
+                            className={styles.amenityImage} 
+                            onClick={() => setPreviewImage({ url: item.imageUrl!, title: item.name })}
+                          />
+                          <span className={styles.tooltip}>Xem ảnh lớn</span>
+                        </div>
                       ) : (
                         <div className={styles.amenityImagePlaceholder}>-</div>
                       )}
@@ -418,6 +427,15 @@ export default function AdminAmenityServicePage() {
           cancelLabel="Suy nghĩ lại"
           variant="danger"
         />
+
+        {previewImage && (
+          <div className={styles.imageModalOverlay} onClick={() => setPreviewImage(null)}>
+            <div className={styles.imageModalContent}>
+              <img src={previewImage.url} alt={previewImage.title} className={styles.fullImage} />
+              <div className={styles.imageModalTitle}>{previewImage.title}</div>
+            </div>
+          </div>
+        )}
       </AdminPageLayout>
     </div>
   );

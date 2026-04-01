@@ -140,9 +140,9 @@ export default function AdminAmenityTicketPage() {
     return filtered.sort((a, b) => {
       switch (sortKey) {
         case 'startTime-asc':
-          return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+          return new Date(`${a.date}T${a.startTime}`).getTime() - new Date(`${b.date}T${b.startTime}`).getTime();
         case 'startTime-desc':
-          return new Date(b.startTime).getTime() - new Date(a.startTime).getTime();
+          return new Date(`${b.date}T${b.startTime}`).getTime() - new Date(`${a.date}T${a.startTime}`).getTime();
         case 'id-asc':
           return a.id - b.id;
         case 'id-desc':
@@ -164,8 +164,10 @@ export default function AdminAmenityTicketPage() {
 
   const totalPages = Math.ceil(filteredTickets.length / pageSize);
 
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatDateTime = (dateStr: string, timeStr: string) => {
+    const date = new Date(`${dateStr}T${timeStr}`);
+    if (isNaN(date.getTime())) return `${dateStr} ${timeStr}`;
+
     return date.toLocaleString('vi-VN', {
       day: '2-digit',
       month: '2-digit',
@@ -326,8 +328,8 @@ export default function AdminAmenityTicketPage() {
                         <span className={styles.tooltip}>{getServiceName(ticket.amenityServiceId)}</span>
                       </div>
                     </td>
-                    <td className={styles.dateCol}>{formatDateTime(ticket.startTime)}</td>
-                    <td className={styles.dateCol}>{formatDateTime(ticket.endTime)}</td>
+                    <td className={styles.dateCol}>{formatDateTime(ticket.date, ticket.startTime)}</td>
+                    <td className={styles.dateCol}>{formatDateTime(ticket.date, ticket.endTime)}</td>
                     <td className={styles.statusCol}>
                       <span className={`${styles.statusBadge} ${styles[`status-${ticket.status}`]}`}>
                         {STATUS_OPTIONS.find(opt => opt.value === ticket.status)?.label || ticket.status}

@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;600;700&family=Playfair+Display:wght@400;700&family=Lora:wght@400;700&family=Open+Sans:wght@400;600;700&family=Outfit:wght@400;600;700&display=swap');
 
-.editorWrapper {
+.container {
   height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--color-border-default, #e0e0e0);
-  border-radius: 8px;
   background: #fff;
   overflow: hidden;
+  position: relative;
 }
 
 .toolbar {
@@ -278,26 +278,30 @@
   border-radius: 4px;
   height: 30px;
   margin: 0 4px;
-  gap: 2px; /* Added spacing between items */
+  gap: 2px;
+  /* Added spacing between items */
 }
 
 .fontSizeBtn {
   border: none;
   background: transparent;
   width: 28px;
-  height: 28px; /* Slightly shorter to fit well */
+  height: 28px;
+  /* Slightly shorter to fit well */
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: #5f6368;
-  border-radius: 4px; /* Default radius */
+  border-radius: 4px;
+  /* Default radius */
   transition: background 0.2s;
 }
 
 .fontSizeBtn:hover {
   background: #f1f3f4;
-  border-radius: 4px; /* Ensure radius on hover */
+  border-radius: 4px;
+  /* Ensure radius on hover */
 }
 
 .fontSizeValue {
@@ -412,9 +416,18 @@
 
 .workspace {
   flex: 1;
-  overflow-y: auto;
+  min-height: 0;
+  overflow: auto;
   background: #f0f2f5;
-  padding: 30px 15px;
+  padding: 0 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.zoomContainer {
+  padding-top: 30px;
+  padding-bottom: 60px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -425,7 +438,6 @@
   max-width: 850px;
   background: #fff;
   min-height: 1100px;
-  box-shadow: 0 1px 3px rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15);
   border-radius: 4px;
   padding: 0;
   position: relative;
@@ -485,7 +497,7 @@
   left: 0;
   background: #fff;
   border-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   padding: 12px;
   z-index: 10001;
   width: 280px;
@@ -526,7 +538,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   cursor: pointer;
   padding: 0;
   transition: transform 0.1s;
@@ -534,7 +546,7 @@
 
 .colorSwatch:hover {
   transform: scale(1.2);
-  border-color: rgba(0,0,0,0.3);
+  border-color: rgba(0, 0, 0, 0.3);
 }
 
 .colorPickerFooter {
@@ -608,11 +620,16 @@
   min-height: 1000px;
   background: #fff;
   padding: 60px 80px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   outline: none;
   font-size: 14px;
   line-height: 1.6;
   color: #333;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  white-space: break-spaces;
+  -webkit-font-variant-ligatures: none;
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0;
 }
 
 .proseMirror p {
@@ -825,7 +842,7 @@
   height: 12px;
   border: 2px solid #fff;
   border-radius: 50%;
-  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
@@ -880,7 +897,7 @@
   background: #fff;
   border: 2px solid #dadce0;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 .colorInputsRow {
@@ -940,7 +957,8 @@
   margin-top: 8px;
 }
 
-.cancelBtn, .confirmBtn {
+.cancelBtn,
+.confirmBtn {
   height: 36px;
   padding: 0 20px;
   border-radius: 4px;
@@ -969,145 +987,5 @@
 
 .confirmBtn:hover {
   background: #1765cc;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-}
-
-/* Ruler Styles */
-.rulerContainer {
-  height: 25px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: center;
-  user-select: none;
-  overflow: hidden;
-}
-
-.rulerContent {
-  width: 850px;
-  height: 100%;
-  position: relative;
-  background: white;
-  border-left: 1px solid #e8eaed;
-  border-right: 1px solid #e8eaed;
-  display: flex;
-  align-items: flex-end;
-}
-
-.rulerScale {
-  display: flex;
-  flex: 1;
-  padding: 0 45px; /* Alignment with editor padding */
-  justify-content: space-between;
-}
-
-.rulerUnit {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 32px;
-  position: relative;
-}
-
-.rulerNumber {
-  font-size: 9px;
-  color: #70757a;
-  position: absolute;
-  top: -14px;
-}
-
-.rulerSubTicks {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 2px;
-}
-
-.tick {
-  width: 1px;
-  height: 4px;
-  background-color: #cbd5e0;
-}
-
-.leftMarginMarker {
-  position: absolute;
-  left: 45px;
-  bottom: 0px;
-  width: 10px;
-  height: 8px;
-  background-color: var(--color-brand-accent, #fa8314);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform: translateX(-50%);
-  z-index: 10;
-}
-
-.leftMarginMarker::after {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  width: 1px;
-  height: 2000px;
-  background-color: rgba(250, 131, 20, 0.4);
-  transform: translateX(-50%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.1s;
-}
-
-.leftMarginMarker[data-dragging="true"]::after {
-  opacity: 1;
-}
-
-.rightMarginMarker {
-  position: absolute;
-  right: 45px;
-  bottom: 0px;
-  width: 10px;
-  height: 8px;
-  background-color: var(--color-brand-accent, #fa8314);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform: translateX(50%);
-  z-index: 10;
-}
-
-.rightMarginMarker::after {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  width: 1px;
-  height: 2000px;
-  background-color: rgba(250, 131, 20, 0.4);
-  transform: translateX(-50%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.1s;
-}
-
-.rightMarginMarker[data-dragging="true"]::after {
-  opacity: 1;
-}
-
-.leftMarginMarker::after {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  width: 1px;
-  height: 2000px;
-  background-color: rgba(250, 131, 20, 0.4);
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.rightMarginMarker {
-  position: absolute;
-  right: 45px;
-  bottom: 0px;
-  width: 10px;
-  height: 8px;
-  background-color: var(--color-brand-accent, #fa8314);
-  clip-path: polygon(0 0, 100% 0, 50% 100%);
-  transform: translateX(50%);
-  z-index: 10;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }

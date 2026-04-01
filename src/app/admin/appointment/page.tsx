@@ -12,7 +12,7 @@ import { AppointmentHeader } from './components/AppointmentHeader';
 import { AppointmentTable } from './components/AppointmentTable';
 import { AppointmentTableControls } from './components/AppointmentTableControls';
 import { EditAppointmentModal } from './components/EditAppointmentModal';
-import { QuickCreateAppointment } from './components/QuickCreateAppointment';
+import { NewAppointmentModal } from './components/NewAppointmentModal';
 import type { Appointment, AppointmentStatus } from './components/types';
 
 export default function AdminAppointmentPage() {
@@ -26,9 +26,9 @@ export default function AdminAppointmentPage() {
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [showQuickCreate, setShowQuickCreate] = useState(false);
+  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
 
-  // ... (mapStatus, formatDateTime, formatDate, formatDateOnly, formatTimeOnly functions stay the same)
+  // ... (mapStatus, formatDateTime, formatDate, formatDateOnly, formatTimeOnly functions)
 
   const mapStatus = (status: string): AppointmentStatus => {
     if (status === 'Pending') return 'Pending';
@@ -154,7 +154,7 @@ export default function AdminAppointmentPage() {
   const controlPanel = (
     <AppointmentTableControls 
       onStatusChange={handleStatusChange}
-      onAddClick={() => setShowQuickCreate(true)}
+      onAddClick={() => setIsNewModalOpen(true)}
     />
   );
 
@@ -195,14 +195,12 @@ export default function AdminAppointmentPage() {
             onDelete={handleDelete}
             currentPage={currentPage}
             pageSize={pageSize}
-            quickCreateComponent={
-              <QuickCreateAppointment
-                hideDefaultButton={true}
-                isOpen={showQuickCreate}
-                onOpenChange={setShowQuickCreate}
-                onCreated={fetchAppointments}
-              />
-            }
+          />
+
+          <NewAppointmentModal
+            open={isNewModalOpen}
+            onOpenChange={setIsNewModalOpen}
+            onSuccess={fetchAppointments}
           />
 
           <EditAppointmentModal

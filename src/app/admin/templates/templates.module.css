@@ -4,6 +4,7 @@
     height: 100%;
     overflow: hidden;
     background: #fff;
+    min-height: 0;
     /* Match AdminPageLayout card background */
 }
 
@@ -16,11 +17,52 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.sidebar.collapsed {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.sidebar.collapsed .sidebarTitle,
+.sidebar.collapsed .sidebarSubtitle,
+.sidebar.collapsed .sectionText,
+.sidebar.collapsed .sectionCount,
+.sidebar.collapsed .sectionAddBtn,
+.sidebar.collapsed .templateName,
+.sidebar.collapsed .templateMeta {
+    display: none;
+}
+
+.sidebar.collapsed .sidebarHeader {
+    padding: 20px 10px;
+    justify-content: center;
+}
+
+.sidebar.collapsed .sectionLabel,
+.sidebar.collapsed .templateItem {
+    justify-content: center;
+}
+
+.sidebar.collapsed .templateItemIcon {
+    margin: 0;
+}
+
+.sidebar.collapsed .toggleSidebarBtn {
+    margin: 0;
 }
 
 .sidebarHeader {
     padding: 20px 20px 12px;
     border-bottom: 1px solid var(--color-border-default);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
 }
 
 .sidebarTitle {
@@ -41,6 +83,9 @@
     flex: 1;
     overflow-y: auto;
     padding: 12px 0;
+    /* Allow tooltips to overflow if necessary */
+    position: relative;
+    scrollbar-gutter: stable;
 }
 
 .section {
@@ -161,6 +206,28 @@
     flex-direction: column;
     overflow: hidden;
     background: #f5f6fa;
+    height: 100%;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggleSidebarBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: #fff;
+    color: var(--color-admin-text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggleSidebarBtn:hover {
+    background: #f5f6fa;
+    color: var(--color-brand-accent);
 }
 
 .emptyState {
@@ -190,6 +257,7 @@
     background: #fff;
     border: none;
     overflow: hidden;
+    height: 100%;
 }
 
 .editorCardHeader {
@@ -215,7 +283,7 @@
     align-items: center;
     gap: 4px;
     padding: 3px 10px;
-    border-radius: 20px;
+    border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
@@ -266,7 +334,7 @@
     background: var(--color-brand-accent);
     color: #fff;
     border: none;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -291,7 +359,7 @@
     background: rgba(253, 97, 97, 0.08);
     color: #fd6161;
     border: 1px solid rgba(253, 97, 97, 0.2);
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -389,9 +457,8 @@
 
 .editorContent {
     flex: 1;
-    display: flex;
-    flex-direction: column;
     min-height: 0;
+    overflow: hidden;
 }
 
 .richEditor {
@@ -758,4 +825,170 @@
 .placeholderItemLabel {
     font-size: 12px;
     color: var(--color-admin-text-primary);
+}
+
+.tooltipWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px; /* Aligned icons width */
+    flex-shrink: 0;
+}
+
+.sidebar.collapsed .tooltipWrapper {
+    width: 100%;
+}
+
+.fixedTooltip {
+    position: fixed;
+    transform: translateY(-50%);
+    background-color: #343a40;
+    color: #fff;
+    font-size: 11px;
+    font-family: var(--font-body);
+    white-space: nowrap;
+    padding: 6px 10px;
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 99999;
+    line-height: 1.2;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: fadeInTooltip 0.18s ease;
+}
+
+.tooltipArrow {
+    content: '';
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-right-color: #343a40;
+}
+
+@keyframes fadeInTooltip {
+    from {
+        opacity: 0;
+        transform: translateY(-50%) translateX(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+    }
+}
+
+/* ── Status Bar Styles ── */
+.statusBar {
+    height: 38px;
+    background: #f0f0f0;
+    border-top: 1px solid #d0d0d0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-family: inherit;
+    position: relative;
+    z-index: 10;
+}
+
+.viewModes {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.viewBtn {
+    height: 100%;
+    padding: 0 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.viewBtn:hover {
+    background: #e0e0e0;
+}
+
+.viewBtn.active {
+    background: #d0d0d0;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.zoomControls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #444;
+    font-size: 12px;
+}
+
+.zoomBtn {
+    padding: 4px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.zoomBtn:hover {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.zoomSliderContainer {
+    position: relative;
+    width: 140px;
+    display: flex;
+    align-items: center;
+}
+
+.zoomSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: #a0a0a0;
+    outline: none;
+    cursor: pointer;
+}
+
+.zoomSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 8px;
+    height: 14px;
+    background: #444;
+    cursor: pointer;
+    border-radius: 1px;
+}
+
+.zoomMark {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 6px;
+    background: #666;
+    pointer-events: none;
+}
+
+.zoomValue {
+    min-width: 45px;
+    text-align: right;
+    cursor: pointer;
+    user-select: none;
+}
+
+.zoomValue:hover {
+    text-decoration: underline;
 }

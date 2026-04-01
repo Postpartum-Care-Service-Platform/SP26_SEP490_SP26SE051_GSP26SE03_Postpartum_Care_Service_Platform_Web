@@ -13,6 +13,8 @@ import { CalendarStatusDropdown, type CalendarStatusType } from './CalendarStatu
 import { CalendarViewDropdown, type CalendarViewMode } from './CalendarViewDropdown';
 import { MonthYearPicker } from './MonthYearPicker';
 import type { Assignee } from '../shared/AssigneePicker';
+import { AmenityServicePicker } from '../shared/AmenityServicePicker';
+import type { AmenityService } from '@/types/amenity-service';
 
 // Assignee type imported above from shared/AssigneePicker
 
@@ -85,6 +87,19 @@ function SlidersIcon() {
   );
 }
 
+function ChecklistIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M2 3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3zm2 1v8h8V4H4zm1 2h6v1H5V6zm0 2h6v1H5V8zm0 2h4v1H5v-1z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 type Props = {
   searchValue?: string;
   onSearchChange?: (value: string) => void;
@@ -103,7 +118,10 @@ type Props = {
   selectedDate?: Date;
   onSelectedDateChange?: (date: Date) => void;
   onSchedule?: () => void;
+  onAmenityBrowse?: () => void;
   staffList?: StaffListMember[];
+  amenityValue?: AmenityService | null;
+  onAmenityChange?: (value: AmenityService | null) => void;
 };
 
 export function CalendarControlPanel({
@@ -124,7 +142,10 @@ export function CalendarControlPanel({
   selectedDate,
   onSelectedDateChange,
   onSchedule,
+  onAmenityBrowse,
   staffList = [],
+  amenityValue = null,
+  onAmenityChange,
 }: Props) {
   const [isTaskTypeOpen, setIsTaskTypeOpen] = React.useState(false);
   const selectedTaskType = taskType ?? TASK_TYPES[TASK_TYPES.length - 1];
@@ -159,6 +180,7 @@ export function CalendarControlPanel({
   const [isStatusOpen, setIsStatusOpen] = React.useState(false);
   const statusRef = React.useRef<HTMLDivElement>(null);
   const [isAssigneeOpen, setIsAssigneeIdOpen] = React.useState(false);
+  const [isAmenityOpen, setIsAmenityOpen] = React.useState(false);
 
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -280,10 +302,33 @@ export function CalendarControlPanel({
             </Popover.Portal>
           </Popover.Root>
 
-          <button type="button" className={styles.filterBtn}>
-            <span>Epic</span>
-            <ChevronDownIcon />
-          </button>
+          <Popover.Root open={isAmenityOpen} onOpenChange={setIsAmenityOpen}>
+            <Popover.Trigger asChild>
+              <button type="button" className={styles.filterBtn}>
+                <span>{amenityValue ? amenityValue.name : 'Tất cả tiện ích'}</span>
+                <ChevronDownIcon />
+              </button>
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content
+                className={styles.popoverContent}
+                side="bottom"
+                align="start"
+                sideOffset={6}
+                collisionPadding={12}
+                onOpenAutoFocus={(e) => e.preventDefault()}
+              >
+                <AmenityServicePicker
+                  value={amenityValue}
+                  onChange={(a) => {
+                    onAmenityChange?.(a);
+                    setIsAmenityOpen(false);
+                  }}
+                  onClose={() => setIsAmenityOpen(false)}
+                />
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
 
           <div className={styles.statusWrap} ref={statusRef}>
             <button
@@ -393,6 +438,10 @@ export function CalendarControlPanel({
             dayCount={dayCount}
             onChange={onViewModeChange || (() => { })}
           />
+
+          <button type="button" className={styles.iconBtn} aria-label="Duyệt tiện ích" title="Duyệt tiện ích" onClick={onAmenityBrowse}>
+            <ChecklistIcon />
+          </button>
 
           <button type="button" className={styles.iconBtn} aria-label="Tạo lịch mới" title="Tạo lịch mới" onClick={onSchedule}>
             <CalendarPlusIcon />

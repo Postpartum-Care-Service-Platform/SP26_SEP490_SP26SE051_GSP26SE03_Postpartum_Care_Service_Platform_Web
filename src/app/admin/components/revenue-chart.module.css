@@ -15,8 +15,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-wrap: nowrap;
+  gap: 24px;
 }
 
 .titleGroup {
@@ -40,14 +40,14 @@
 .legendGroup {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
 
 .legendItem {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: #666;
   text-transform: uppercase;

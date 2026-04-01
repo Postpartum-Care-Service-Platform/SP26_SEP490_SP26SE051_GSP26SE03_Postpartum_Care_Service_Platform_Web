@@ -23,6 +23,8 @@ export function AdminHeader({ collapsed, onToggleCollapsed, onOpenNotifications,
   const getPageTitle = () => {
     if (pathname === '/admin' || pathname === '/manager') return 'Bảng điều khiển';
 
+    if (pathname?.endsWith('/profile')) return 'Hồ sơ';
+
     const currentNav = pathname?.startsWith('/manager') ? managerNav : adminNav;
 
     for (const section of currentNav as any[]) {

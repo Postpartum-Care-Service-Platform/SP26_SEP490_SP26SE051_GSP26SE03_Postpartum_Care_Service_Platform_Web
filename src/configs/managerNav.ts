@@ -1,5 +1,5 @@
 import React from 'react';
-import { 
+import {
   Activity,
   BedDouble,
   BookOpen,
@@ -28,9 +28,9 @@ export type ManagerNavItem = {
   label: string;
   href?: string;
   icon?: React.ComponentType<{ size?: number | string; className?: string }>;
-  children?: Array<{ 
-    key: string; 
-    label: string; 
+  children?: Array<{
+    key: string;
+    label: string;
     href: string;
     icon?: React.ComponentType<{ size?: number | string; className?: string }>;
   }>;
@@ -96,12 +96,6 @@ export const managerNav: ManagerNavSection[] = [
         icon: FileText,
       },
       {
-        key: 'package-activities',
-        label: 'Hoạt động gói dịch vụ',
-        href: '/manager/package-activities',
-        icon: ClipboardCheck,
-      },
-      {
         key: 'feedback',
         label: 'Phản hồi',
         href: '/manager/feedback',
@@ -145,10 +139,23 @@ export const managerNav: ManagerNavSection[] = [
         ],
       },
       {
-        key: 'package',
-        label: 'Gói dịch vụ',
-        href: '/manager/package',
+        key: 'package-management',
+        label: 'Quản lý gói dịch vụ',
         icon: Package,
+        children: [
+          {
+            key: 'package',
+            label: 'Danh sách gói',
+            href: '/manager/package',
+            icon: Package,
+          },
+          {
+            key: 'package-activities',
+            label: 'Hoạt động gói',
+            href: '/manager/package-activities',
+            icon: ClipboardCheck,
+          },
+        ],
       },
       {
         key: 'amenity-service',

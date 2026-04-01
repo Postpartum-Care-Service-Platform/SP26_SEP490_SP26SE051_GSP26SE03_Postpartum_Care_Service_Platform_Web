@@ -144,6 +144,7 @@ interface RichTextEditorProps {
   editorRef?: React.MutableRefObject<unknown>;
   placeholders?: PlaceholderSuggestion[];
   onPlaceholderSelect?: (key: string, label: string) => void;
+  zoom?: number;
 }
 
 const TEXT_COLORS = [
@@ -686,6 +687,7 @@ export default function RichTextEditor({
   editorRef,
   placeholders = [],
   onPlaceholderSelect,
+  zoom = 1,
 }: RichTextEditorProps) {
   const [showFontSizeDropdown, setShowFontSizeDropdown] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -704,7 +706,7 @@ export default function RichTextEditor({
   const [isDraggingRight, setIsDraggingRight] = useState(false);
   const rulerRef = useCallback((node: HTMLDivElement | null) => {
     if (node !== null) {
-      window.rulerElement = node;
+      (window as any).rulerElement = node;
     }
   }, []);
 
@@ -712,7 +714,7 @@ export default function RichTextEditor({
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDraggingLeft && !isDraggingRight) return;
-      const ruler = window.rulerElement;
+      const ruler = (window as any).rulerElement;
       if (!ruler) return;
 
       const rect = ruler.getBoundingClientRect();
@@ -962,8 +964,9 @@ export default function RichTextEditor({
   };
 
   return (
-    <div className={styles.editorWrapper}>
-      <div className={styles.toolbar}>
+    <div className={styles.container}>
+      {/* ── Toolbar ── */}
+      <div className={styles.toolbar} onMouseDown={(e) => e.preventDefault()}>
         <div className={styles.toolbarGroup}>
           <FontPicker
             currentFont={currentFont}
@@ -1152,43 +1155,15 @@ export default function RichTextEditor({
           <Btn onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="Làm lại"><Redo size={15} /></Btn>
         </div>
       </div>
-      <div className={styles.rulerContainer}>
-        <div className={styles.rulerContent} ref={rulerRef}>
-          <div 
-            className={styles.leftMarginMarker} 
-            data-dragging={isDraggingLeft}
-            style={{ left: `${leftMargin}px` }}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              setIsDraggingLeft(true);
-            }}
-          />
-          <div className={styles.rulerScale}>
-            {/* Generate ticks and numbers */}
-            {Array.from({ length: 19 }).map((_, i) => (
-              <div key={i} className={styles.rulerUnit}>
-                <span className={styles.rulerNumber}>{i + 1}</span>
-                <div className={styles.rulerSubTicks}>
-                  <div className={styles.tick} />
-                  <div className={styles.tick} />
-                  <div className={styles.tick} />
-                  <div className={styles.tick} />
-                </div>
-              </div>
-            ))}
-          </div>
-          <div 
-            className={styles.rightMarginMarker} 
-            data-dragging={isDraggingRight}
-            style={{ right: `${rightMargin}px` }}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              setIsDraggingRight(true);
-            }}
-          />
-        </div>
-      </div>
+
       <div className={styles.workspace}>
+
+      <div 
+        className={styles.zoomContainer}
+        style={{ 
+          zoom: zoom
+        }}
+      >
         <div className={styles.page}>
           <EditorContent editor={editor} className={styles.richEditor} />
 
@@ -1247,5 +1222,6 @@ export default function RichTextEditor({
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }

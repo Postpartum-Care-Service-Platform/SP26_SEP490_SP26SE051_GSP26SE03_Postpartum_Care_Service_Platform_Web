@@ -1,13 +1,13 @@
 .pageContainer {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .cardsContainer {
   display: flex;
-  gap: 16px;
-  align-items: flex-start;
+  gap: 12px;
+  align-items: stretch;
 }
 
 .profileSection {
@@ -15,7 +15,7 @@
   width: 100%;
   background-color: #ffffff;
   border-radius: 4px;
-  padding-bottom: 24px;
+  padding-bottom: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
@@ -24,9 +24,9 @@
   display: flex;
   align-items: flex-end;
   gap: 16px;
-  margin-top: -60px;
+  margin-top: -40px;
   margin-left: 24px;
-  padding-bottom: 24px;
+  padding-bottom: 16px;
   z-index: 2;
   position: relative;
 }
