@@ -9,6 +9,7 @@ import { TextStyle, Color, FontFamily } from "@tiptap/extension-text-style";
 import Underline from "@tiptap/extension-underline";
 import { useEditor, EditorContent, Extension, Node, mergeAttributes } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+
 import {
   Bold,
   Italic,
@@ -38,6 +39,7 @@ import {
   ChevronDown as ChevronDownIcon,
   ChevronRight as ChevronRightIcon,
 } from "lucide-react";
+
 import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 

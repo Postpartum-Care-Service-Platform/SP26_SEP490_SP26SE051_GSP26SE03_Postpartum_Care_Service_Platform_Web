@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import styles from './PanoramaViewer.module.css';
 import { Play, Pause, Move, Camera, ChevronLeft } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+
+import styles from './PanoramaViewer.module.css';
 
 interface PanoramaHotspot {
   id: string;
@@ -42,6 +43,32 @@ export function PanoramaViewer({
     title: initialTitle
   });
 
+  const [prevInitial, setPrevInitial] = useState({
+    initialFolderPath,
+    initialFilePrefix,
+    initialFileSuffix,
+    initialTitle
+  });
+
+  // Sync internal scene state with initial props if they change (Adjustment during rendering)
+  if (initialFolderPath !== prevInitial.initialFolderPath || 
+      initialFilePrefix !== prevInitial.initialFilePrefix ||
+      initialFileSuffix !== prevInitial.initialFileSuffix ||
+      initialTitle !== prevInitial.initialTitle) {
+    setPrevInitial({
+      initialFolderPath,
+      initialFilePrefix,
+      initialFileSuffix,
+      initialTitle
+    });
+    setScene({
+      folderPath: initialFolderPath,
+      filePrefix: initialFilePrefix,
+      fileSuffix: initialFileSuffix,
+      title: initialTitle
+    });
+  }
+
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [isAutoRotate, setIsAutoRotate] = useState(true);
@@ -52,15 +79,6 @@ export function PanoramaViewer({
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>(0);
 
-  // Sync internal scene state with initial props if they change
-  useEffect(() => {
-    setScene({
-      folderPath: initialFolderPath,
-      filePrefix: initialFilePrefix,
-      fileSuffix: initialFileSuffix,
-      title: initialTitle
-    });
-  }, [initialFolderPath, initialFilePrefix, initialFileSuffix, initialTitle]);
 
   const handleSceneSwitch = (newScene: PanoramaHotspot['target']) => {
     setIsFading(true);
@@ -164,7 +182,7 @@ export function PanoramaViewer({
         
         {/* Thumbnails / Bottom Switcher - Simplified mock as per user request screenshot */}
         <div className={styles.sceneSwitcher}>
-          {hotspots.map((hs, idx) => (
+          {hotspots.map((hs) => (
              <div 
                key={hs.id} 
                className={styles.thumbnail}
