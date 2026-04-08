@@ -21,6 +21,9 @@ const feedbackService = {
   restoreFeedback: (id: number): Promise<Feedback> => {
     return apiClient.patch(`/Feedback/${id}/restore`);
   },
+  getFeedbacksByUserId: (userId: string): Promise<Feedback[]> => {
+    return apiClient.get(`/Feedback/user/${userId}`);
+  },
 };
 
 export default feedbackService;

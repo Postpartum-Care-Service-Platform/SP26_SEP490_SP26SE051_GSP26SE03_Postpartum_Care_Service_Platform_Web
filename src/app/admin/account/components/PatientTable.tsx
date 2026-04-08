@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronDownIcon } from '@radix-ui/react-icons';
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { Eye, MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -160,60 +161,113 @@ export function PatientTable({
 
 
   return (
-    <table className={styles.table}>
-      <thead>
-        <tr>
-          <th title="Số thứ tự">STT</th>
-          <th className={styles.avatarHeader}></th>
-          <th>Họ và tên</th>
-          <th>Tên đăng nhập</th>
-          <th>Email</th>
-          <th>Ngày sinh</th>
-          <th>Giới tính</th>
-          <th>Số điện thoại</th>
-          <th>Địa chỉ</th>
-          <th>Vai trò</th>
-          <th>Trạng thái</th>
-          <th className={styles.stickyActionsCol}>Thao tác</th>
-        </tr>
-      </thead>
-      <tbody>
-        {patients.map((patient, patientIndex) => {
-          const patientStt = (currentPage - 1) * pageSize + patientIndex + 1;
+    <TooltipPrimitive.Provider delayDuration={400}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th style={{ textAlign: 'center' }}>
+              <TooltipPrimitive.Root>
+                <TooltipPrimitive.Trigger asChild>
+                  <span>STT</span>
+                </TooltipPrimitive.Trigger>
+                <TooltipPrimitive.Portal>
+                  <TooltipPrimitive.Content className={styles.tooltipContent} side="top" sideOffset={5}>
+                    Số thứ tự
+                    <TooltipPrimitive.Arrow className={styles.tooltipArrow} />
+                  </TooltipPrimitive.Content>
+                </TooltipPrimitive.Portal>
+              </TooltipPrimitive.Root>
+            </th>
+            <th className={styles.avatarHeader}></th>
+            <th>Họ và tên</th>
+            <th>Tên đăng nhập</th>
+            <th>Email</th>
+            <th>Ngày sinh</th>
+            <th>Giới tính</th>
+            <th>Số điện thoại</th>
+            <th>Địa chỉ</th>
+            <th>Vai trò</th>
+            <th>Trạng thái</th>
+            <th className={styles.stickyActionsCol}>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          {patients.map((patient, patientIndex) => {
+            const patientStt = (currentPage - 1) * pageSize + patientIndex + 1;
 
-          return (
-            <tr key={patient.id}>
-              <td>{patientStt}</td>
-              <td className={styles.avatarCell}>
-                {patient.avatar ? (
-                  <Image
-                    src={patient.avatar}
-                    alt={patient.name}
-                    className={styles.avatarImage}
-                    width={40}
-                    height={40}
-                  />
-                ) : (
-                  <div className={styles.avatar}>
-                    {patient.name.charAt(0)}
-                  </div>
-                )}
-              </td>
-              <td className={styles.truncateCell} title={patient.name}>
-                <span className={styles.patientNameText}>{patient.name}</span>
-              </td>
-              <td className={styles.truncateCell} title={patient.username}>
-                {patient.username}
-              </td>
-              <td className={styles.truncateCell} title={patient.email}>
-                {patient.email}
-              </td>
-              <td>{patient.dateOfBirth ?? 'Chưa cập nhật'}</td>
-              <td>{getGenderLabel(patient.gender)}</td>
-              <td>{patient.contact}</td>
-              <td title={patient.address} className={styles.truncateCell}>
-                {patient.address}
-              </td>
+            return (
+              <tr key={patient.id}>
+                <td style={{ textAlign: 'center' }}>{patientStt}</td>
+                <td className={styles.avatarCell}>
+                  {patient.avatar ? (
+                    <Image
+                      src={patient.avatar}
+                      alt={patient.name}
+                      className={styles.avatarImage}
+                      width={40}
+                      height={40}
+                    />
+                  ) : (
+                    <div className={styles.avatar}>
+                      {patient.name.charAt(0)}
+                    </div>
+                  )}
+                </td>
+                <td className={styles.truncateCell}>
+                  <TooltipPrimitive.Root>
+                    <TooltipPrimitive.Trigger asChild>
+                      <span className={styles.patientNameText}>{patient.name}</span>
+                    </TooltipPrimitive.Trigger>
+                    <TooltipPrimitive.Portal>
+                      <TooltipPrimitive.Content className={styles.tooltipContent} side="top" sideOffset={5}>
+                        {patient.name}
+                        <TooltipPrimitive.Arrow className={styles.tooltipArrow} />
+                      </TooltipPrimitive.Content>
+                    </TooltipPrimitive.Portal>
+                  </TooltipPrimitive.Root>
+                </td>
+                <td className={styles.truncateCell}>
+                  <TooltipPrimitive.Root>
+                    <TooltipPrimitive.Trigger asChild>
+                      <span>{patient.username}</span>
+                    </TooltipPrimitive.Trigger>
+                    <TooltipPrimitive.Portal>
+                      <TooltipPrimitive.Content className={styles.tooltipContent} side="top" sideOffset={5}>
+                        {patient.username}
+                        <TooltipPrimitive.Arrow className={styles.tooltipArrow} />
+                      </TooltipPrimitive.Content>
+                    </TooltipPrimitive.Portal>
+                  </TooltipPrimitive.Root>
+                </td>
+                <td className={styles.truncateCell}>
+                  <TooltipPrimitive.Root>
+                    <TooltipPrimitive.Trigger asChild>
+                      <span>{patient.email}</span>
+                    </TooltipPrimitive.Trigger>
+                    <TooltipPrimitive.Portal>
+                      <TooltipPrimitive.Content className={styles.tooltipContent} side="top" sideOffset={5}>
+                        {patient.email}
+                        <TooltipPrimitive.Arrow className={styles.tooltipArrow} />
+                      </TooltipPrimitive.Content>
+                    </TooltipPrimitive.Portal>
+                  </TooltipPrimitive.Root>
+                </td>
+                <td>{patient.dateOfBirth ?? 'Chưa cập nhật'}</td>
+                <td>{getGenderLabel(patient.gender)}</td>
+                <td>{patient.contact}</td>
+                <td className={styles.truncateCell}>
+                  <TooltipPrimitive.Root>
+                    <TooltipPrimitive.Trigger asChild>
+                      <span>{patient.address}</span>
+                    </TooltipPrimitive.Trigger>
+                    <TooltipPrimitive.Portal>
+                      <TooltipPrimitive.Content className={styles.tooltipContent} side="top" sideOffset={5}>
+                        {patient.address}
+                        <TooltipPrimitive.Arrow className={styles.tooltipArrow} />
+                      </TooltipPrimitive.Content>
+                    </TooltipPrimitive.Portal>
+                  </TooltipPrimitive.Root>
+                </td>
               <td data-stop-row-click="true">
                 <DropdownMenu modal={false}>
                   <DropdownMenuTrigger asChild>
@@ -308,5 +362,6 @@ export function PatientTable({
         })}
       </tbody>
     </table>
+    </TooltipPrimitive.Provider>
   );
 }

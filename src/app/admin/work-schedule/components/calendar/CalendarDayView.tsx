@@ -2,6 +2,7 @@
 
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { format, isSameDay, addDays } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import React from 'react';
 
 import type { StaffSchedule } from '@/types/staff-schedule';
@@ -10,6 +11,7 @@ import styles from './calendar-day-view.module.css';
 import { MiniCalendar } from './MiniCalendar';
 import { ScheduleDetailPopover } from '../shared/ScheduleDetailPopover';
 import { CalendarSidebarExtra } from './CalendarSidebarExtra';
+import { getDaySummary } from './CalendarMonthView';
 
 
 // Generate hours from 12 AM to 11 PM
@@ -147,21 +149,53 @@ export function CalendarDayView({
             <div style={{ borderRight: '1px solid rgba(9, 30, 66, 0.14)' }} />
             {days.map((d) => {
               const isTodayDate = isSameDay(d, today);
+              const summary = getDaySummary(d, schedules);
               return (
-                <div key={d.toISOString()} style={{ 
-                  padding: '12px 0', 
-                  textAlign: 'center', 
-                  borderRight: '1px solid rgba(9, 30, 66, 0.14)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center'
-                }}>
-                  <div className={styles.headerTop}>
-                    <span className={styles.dayNumberLarge} style={{ color: isTodayDate ? '#ff7a00' : '#42526e', fontSize: '24px' }}>{format(d, 'd')}</span>
-                    <span className={styles.dayNameLarge} style={{ fontSize: '14px' }}>{dayLabels[d.getDay()]}</span>
-                  </div>
-                  <div className={styles.monthYearSub} style={{ fontSize: '11px' }}>{format(d, 'MMM yyyy')}</div>
-                </div>
+                <Tooltip.Root key={d.toISOString()}>
+                  <Tooltip.Trigger asChild>
+                    <div style={{ 
+                      padding: '12px 0', 
+                      textAlign: 'center', 
+                      borderRight: '1px solid rgba(9, 30, 66, 0.14)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      cursor: 'help'
+                    }}>
+                      <div className={styles.headerTop}>
+                        <span className={styles.dayNumberLarge} style={{ color: isTodayDate ? '#ff7a00' : '#42526e', fontSize: '24px' }}>{format(d, 'd')}</span>
+                        <span className={styles.dayNameLarge} style={{ fontSize: '14px' }}>{dayLabels[d.getDay()]}</span>
+                      </div>
+                      <div className={styles.monthYearSub} style={{ fontSize: '11px' }}>{format(d, 'MMM yyyy')}</div>
+                    </div>
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content className={styles.dayTooltipContent} side="bottom" sideOffset={10}>
+                      <div className={styles.dayTooltipHeader}>
+                        {format(d, "EEEE, 'Ngày' d 'Tháng' M, yyyy", { locale: vi })}
+                      </div>
+                      <div className={styles.dayTooltipStats}>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Tổng số công việc</span>
+                          <span className={styles.dayTooltipValue}>{summary.total}</span>
+                        </div>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Hoàn thành</span>
+                          <span className={`${styles.dayTooltipValue} text-emerald-600`}>{summary.done}</span>
+                        </div>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Bỏ lỡ / Hủy</span>
+                          <span className={`${styles.dayTooltipValue} text-red-600`}>{summary.missed + summary.cancelled}</span>
+                        </div>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Chờ thực hiện</span>
+                          <span className={`${styles.dayTooltipValue} text-blue-600`}>{summary.scheduled}</span>
+                        </div>
+                      </div>
+                      <Tooltip.Arrow className={styles.dayTooltipArrow} />
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
               );
             })}
           </div>
@@ -245,7 +279,7 @@ export function CalendarDayView({
                             >
                               <div className={styles.eventContent}>
                                 <span className={styles.eventTime} style={{ color: '#ff7a00' }}>
-                                  {formatTime(fs.startTime)}
+                                  {formatTime(fs.startTime)} - {formatTime(fs.endTime)}
                                 </span>
                                 <span className={styles.eventTitle}>
                                   {fs.activity}

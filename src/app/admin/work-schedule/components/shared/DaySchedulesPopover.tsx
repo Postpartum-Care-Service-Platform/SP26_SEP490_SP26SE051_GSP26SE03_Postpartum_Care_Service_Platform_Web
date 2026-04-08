@@ -113,7 +113,7 @@ export function DaySchedulesPopover({
                         tabIndex={0}
                       >
                         <span className={styles.itemTime}>
-                          {formatTime(item.familyScheduleResponse.startTime)}
+                          {formatTime(item.familyScheduleResponse.startTime)} - {formatTime(item.familyScheduleResponse.endTime)}
                         </span>
                         
                         <Tooltip.Root>

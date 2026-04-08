@@ -11,6 +11,7 @@ import type {
 } from '@/services/chat.service';
 
 import styles from './chat.module.css';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import { ChatConversation } from './components/ChatConversation';
 import { ChatHeader } from './components/ChatHeader';
 import { ChatList } from './components/ChatList';
@@ -218,6 +219,17 @@ export default function AdminChatPage() {
     return unsubscribe;
   }, [onSupportRequestAccepted]);
 
+  // Tự động chọn cuộc trò chuyện đầu tiên khi dữ liệu đã tải xong
+  useEffect(() => {
+    if (!activeChatId && !loading) {
+      if (pinnedChats.length > 0) {
+        handleChatClick(pinnedChats[0]);
+      } else if (allChats.length > 0) {
+        handleChatClick(allChats[0]);
+      }
+    }
+  }, [pinnedChats, allChats, activeChatId, loading]);
+
   const handleSearch = (query: string) => {
     console.log('Search:', query);
     // TODO: Implement search
@@ -318,90 +330,82 @@ export default function AdminChatPage() {
   };
 
   return (
-    <div className={styles.container}>
-      <ChatHeader />
-      <div className={styles.bottomSection}>
-        <ChatSidebar activeView={activeView} onViewChange={setActiveView} />
-        <div className={styles.mainContent}>
-          {activeView === 'chat' && (
-            <div className={styles.chatListContainer}>
-              {loading && <div className={styles.loading}>Đang tải...</div>}
-              <ChatList
-                pinnedChats={pinnedChats}
-                allChats={allChats}
-                activeChatId={activeChatId}
-                onChatClick={handleChatClick}
-                onSearch={handleSearch}
-                onNewChat={handleNewChat}
-              />
-            </div>
-          )}
-          {activeView === 'support-requests' && (
-            <div className={styles.chatListContainer}>
-              <SupportRequestsList
-                requests={supportRequests}
-                onAccept={handleAcceptSupport}
-                loading={loading}
-              />
-            </div>
-          )}
-          {activeView === 'contacts' && (
-            <div className={styles.chatListContainer}>
-              <ContactsList />
-            </div>
-          )}
-          {activeView === 'media' && (
-            <div className={styles.chatListContainer}>
-              <MediaView />
-            </div>
-          )}
-          {(activeView === 'archive' || activeView === 'settings') && (
-            <div className={styles.chatListContainer}>
-              <div className={styles.placeholder}>
-                {activeView.charAt(0).toUpperCase() + activeView.slice(1)} view
-                coming soon
-              </div>
-            </div>
-          )}
-          <div className={styles.chatArea}>
+    <AdminPageLayout
+      header={<ChatHeader />}
+      noCard
+      noScroll
+    >
+      <div className={styles.container}>
+        <div className={styles.bottomSection}>
+          <ChatSidebar activeView={activeView} onViewChange={setActiveView} />
+          <div className={styles.mainContent}>
             {activeView === 'chat' && (
-              <>
-                {activeConversation ? (
-                  <>
-                    <ChatConversation
-                      conversation={activeConversation}
-                      currentUserId={user?.id}
-                      onSendMessage={handleSendMessage}
-                      onInfoClick={handleInfoClick}
-                      onResolveSupport={handleResolveSupport}
-                      showResolveButton={!!activeSupportRequestId}
-                    />
-                    <RecentChatsSidebar
-                      chats={[...pinnedChats, ...allChats]}
-                      onChatSelect={handleRecentChatSelect}
-                      onNewChat={handleNewChat}
-                    />
-                  </>
-                ) : (
-                  <div className={styles.placeholder}>
-                    {isConnected ? (
-                      <div>
-                        <p>✅ Đã kết nối realtime</p>
-                        <p>Chọn một cuộc trò chuyện để bắt đầu</p>
-                      </div>
-                    ) : (
-                      <div>
-                        <p>❌ Chưa kết nối realtime</p>
-                        <p>Chọn một cuộc trò chuyện để bắt đầu</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </>
+              <div className={styles.chatListContainer}>
+                <ChatList
+                  pinnedChats={pinnedChats}
+                  allChats={allChats}
+                  activeChatId={activeChatId}
+                  onChatClick={handleChatClick}
+                  onSearch={handleSearch}
+                  onNewChat={handleNewChat}
+                />
+              </div>
             )}
+            {activeView === 'support-requests' && (
+              <div className={styles.chatListContainer}>
+                <SupportRequestsList
+                  requests={supportRequests}
+                  onAccept={handleAcceptSupport}
+                  loading={loading}
+                />
+              </div>
+            )}
+            {activeView === 'contacts' && (
+              <div className={styles.chatListContainer}>
+                <ContactsList />
+              </div>
+            )}
+            {activeView === 'media' && (
+              <div className={styles.chatListContainer}>
+                <MediaView />
+              </div>
+            )}
+            {(activeView === 'archive' || activeView === 'settings') && (
+              <div className={styles.chatListContainer}>
+                <div className={styles.placeholder}>
+                  {activeView.charAt(0).toUpperCase() + activeView.slice(1)} view
+                  coming soon
+                </div>
+              </div>
+            )}
+            <div className={styles.chatArea}>
+              {activeView === 'chat' && (
+                <>
+                  {activeConversation ? (
+                    <>
+                      <ChatConversation
+                        conversation={activeConversation}
+                        currentUserId={user?.id}
+                        onSendMessage={handleSendMessage}
+                        onInfoClick={handleInfoClick}
+                        onResolveSupport={handleResolveSupport}
+                        showResolveButton={!!activeSupportRequestId}
+                      />
+                      <RecentChatsSidebar
+                        chats={[...pinnedChats, ...allChats]}
+                        onChatSelect={handleRecentChatSelect}
+                        onNewChat={handleNewChat}
+                      />
+                    </>
+                  ) : (
+                    null
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </AdminPageLayout>
   );
 }

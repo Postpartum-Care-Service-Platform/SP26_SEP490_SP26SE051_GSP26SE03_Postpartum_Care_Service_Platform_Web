@@ -14,6 +14,8 @@ export interface FamilyScheduleResponse {
   status: 'Pending' | 'Completed' | 'Missed' | 'InProgress' | 'Done' | string;
   note: string | null;
   contractId: number | null;
+  amenityServiceId?: number | null;
+  title?: string;
 }
 
 export interface StaffSchedule {

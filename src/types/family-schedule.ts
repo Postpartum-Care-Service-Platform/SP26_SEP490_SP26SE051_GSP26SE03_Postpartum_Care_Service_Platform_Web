@@ -26,6 +26,8 @@ export interface FamilyScheduleItem {
   note: string | null;
   title: string;
   description: string;
+  amenityTicketId: number | null;
+  amenityServiceId: number | null;
   staffSchedules: StaffScheduleSummary[];
 }
 

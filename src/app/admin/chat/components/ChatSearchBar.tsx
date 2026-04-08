@@ -3,6 +3,12 @@
 import { MagnifyingGlassIcon, PlusIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
 import styles from './chat-search-bar.module.css';
 
 type Props = {
@@ -25,20 +31,27 @@ export function ChatSearchBar({ onSearch, onNewChat }: Props) {
         <MagnifyingGlassIcon className={styles.searchIcon} />
         <input
           type="text"
-          placeholder="Search Here.."
+          placeholder="Tìm kiếm..."
           className={styles.searchInput}
           value={searchQuery}
           onChange={handleSearchChange}
         />
       </div>
-      <button
-        type="button"
-        className={styles.newChatButton}
-        onClick={onNewChat}
-        aria-label="New chat"
-      >
-        <PlusIcon className={styles.plusIcon} />
-      </button>
+      <Tooltip delayDuration={300}>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className={styles.newChatButton}
+            onClick={onNewChat}
+            aria-label="New chat"
+          >
+            <PlusIcon className={styles.plusIcon} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          Cuộc trò chuyện mới
+        </TooltipContent>
+      </Tooltip>
     </div>
   );
 }

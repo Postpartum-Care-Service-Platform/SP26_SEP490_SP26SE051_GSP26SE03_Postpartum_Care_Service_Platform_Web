@@ -5,6 +5,7 @@ import Image from 'next/image';
 
 import styles from './message-bubble.module.css';
 import { formatMessageTime } from './utils/formatMessageTime';
+import { ChatMarkdownRenderer } from '@/components/chat/ChatMarkdownRenderer';
 
 import type { Message } from './types';
 
@@ -40,7 +41,9 @@ export function MessageBubble({ message, isOwn }: Props) {
       <div
         className={`${styles.bubble} ${isOwn ? styles.bubbleOwn : styles.bubbleOther}`}
       >
-        <p className={styles.content}>{message.content}</p>
+      <div className={styles.bubbleContent}>
+        <ChatMarkdownRenderer content={message.content} />
+      </div>
         <div className={styles.footer}>
           <span className={styles.timestamp}>{displayTime}</span>
           {isOwn && (

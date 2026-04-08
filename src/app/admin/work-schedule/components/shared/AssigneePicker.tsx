@@ -27,12 +27,14 @@ type Props = {
   onClose: () => void;
   hideSpecialOptions?: boolean;
   roleNameFilter?: string[];
+  customStaffList?: Assignee[];
 };
 
 
-const COLOR_PALETTE = ['#DE350B', '#FF8B00', '#0C66E4', '#6554C0', '#00875A', '#0065FF'];
+const COLOR_PALETTE = ['#0C66E4', '#FF8B00', '#DE350B', '#6554C0', '#00875A', '#0065FF'];
 
 function getInitials(name: string) {
+  if (!name || name === 'Chưa phân công') return '?';
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return '?';
   if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
@@ -40,6 +42,7 @@ function getInitials(name: string) {
 }
 
 function getColorFromId(id: string) {
+  if (!id) return '#EBECF0';
   let hash = 0;
   for (let i = 0; i < id.length; i += 1) {
     hash = (hash * 31 + id.charCodeAt(i)) | 0;
@@ -83,10 +86,14 @@ function UserAvatar({
   initials,
   color,
   avatarUrl,
+  name,
+  id,
 }: {
   initials?: string;
   color?: string;
   avatarUrl?: string | null;
+  name?: string;
+  id?: string;
 }) {
   if (avatarUrl) {
     return (
@@ -100,9 +107,13 @@ function UserAvatar({
       />
     );
   }
+
+  const displayInitials = initials || (name ? getInitials(name) : '?');
+  const bgColor = color || (id ? getColorFromId(id) : (name ? getColorFromId(name) : '#6554C0'));
+
   return (
-    <div className={styles.avatar} style={{ background: color || '#6554C0' }} aria-hidden="true">
-      {initials || '?'}
+    <div className={styles.avatar} style={{ background: bgColor }} aria-hidden="true">
+      {displayInitials}
     </div>
   );
 }
@@ -113,6 +124,7 @@ export function AssigneePicker({
   onClose,
   hideSpecialOptions = false,
   roleNameFilter,
+  customStaffList,
 }: Props) {
   const [query, setQuery] = React.useState('');
   const [users, setUsers] = React.useState<Assignee[]>([]);
@@ -128,6 +140,11 @@ export function AssigneePicker({
     let mounted = true;
 
     async function fetchUsers() {
+      if (customStaffList) {
+        setUsers(customStaffList);
+        return;
+      }
+
       setIsLoading(true);
       try {
         const staffs = await fetchStaffSchedules();
@@ -158,11 +175,12 @@ export function AssigneePicker({
     return () => {
       mounted = false;
     };
-  }, [roleNameFilter, toast]);
+  }, [roleNameFilter, toast, customStaffList]);
 
   const items = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    const base = users;
+    // Filter out items with no real name or '?' initials
+    const base = users.filter(a => a.name && a.name.trim() !== '' && a.name !== 'Chưa phân công' && a.initials !== '?');
     if (!q) return base;
 
     return base.filter((a) => `${a.name} ${a.email || ''}`.toLowerCase().includes(q));
@@ -245,7 +263,13 @@ export function AssigneePicker({
                   role="button"
                   tabIndex={0}
                 >
-                  <UserAvatar initials={a.initials} color={a.color} avatarUrl={a.avatarUrl} />
+                  <UserAvatar
+                    initials={a.initials}
+                    color={a.color}
+                    avatarUrl={a.avatarUrl}
+                    name={a.name}
+                    id={a.id}
+                  />
 
                   <div className={styles.userInfo}>
                     <div className={styles.userName}>{a.name}</div>

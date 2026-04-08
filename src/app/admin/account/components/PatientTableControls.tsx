@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown';
 import { useToast } from '@/components/ui/toast/use-toast';
 import roleService from '@/services/role.service';
+import userService from '@/services/user.service';
 import type { Role } from '@/types/role';
 
 import styles from './patient-table-controls.module.css';
@@ -25,6 +26,7 @@ type Props = {
   onStatusChange?: (status: string) => void;
   onRoleChange?: (roleId: number | null) => void;
   onNewPatient?: () => void;
+  onImport?: () => void;
 };
 
 const FILTER_OPTIONS = [
@@ -70,6 +72,7 @@ export function PatientTableControls({
   onStatusChange,
   onRoleChange,
   onNewPatient,
+  onImport,
 }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<string>('date-newest');
@@ -112,6 +115,7 @@ export function PatientTableControls({
   };
 
   const handleStatusSelect = (value: string) => {
+    // status: 'all' | 'true' | 'false'
     setSelectedStatus(value);
     onStatusChange?.(value);
 
@@ -120,6 +124,25 @@ export function PatientTableControls({
        setSelectedRoleId(null);
        onRoleChange?.(null);
      }
+  };
+
+  const handleExport = async () => {
+    try {
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'info' });
+      const blob = await userService.exportAccounts();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const dateStr = new Date().toISOString().split('T')[0];
+      link.setAttribute('download', `Accounts_${dateStr}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Xuất file thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Lỗi khi xuất file', description: err.message, variant: 'error' });
+    }
   };
 
   const selectedRoleLabel = selectedRoleId
@@ -215,11 +238,11 @@ export function PatientTableControls({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onImport}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>
@@ -234,4 +257,3 @@ export function PatientTableControls({
     </div>
   );
 }
-

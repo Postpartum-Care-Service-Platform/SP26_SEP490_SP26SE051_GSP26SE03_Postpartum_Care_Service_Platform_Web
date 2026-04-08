@@ -776,7 +776,7 @@ const MindmapContent: React.FC<FamilyMembersListProps> = ({ familyProfiles, load
         selectionMode={SelectionMode.Full}
         multiSelectionKeyCode="Shift"
       >
-        <Background variant={BackgroundVariant.Dots} gap={24} size={2} color="#94a3b8" bgColor="#ffffff" />
+        <Background variant={BackgroundVariant.Dots} gap={24} size={2} color="#94a3b8" bgColor="transparent" />
         <Controls />
         <Panel position="top-right">
           <div className={styles.flowPanel}>

@@ -38,13 +38,20 @@ const amenityTicketService = {
   },
 
   // Hoàn thành ticket
-  completeAmenityTicket: (id: number): Promise<void> => {
-    return apiClient.patch(`/AmenityTicket/complete/${id}`);
+  completeAmenityTicket: (id: number, staffId?: string): Promise<void> => {
+    return apiClient.patch(`/AmenityTicket/complete/${id}`, null, {
+      params: staffId ? { staffId } : undefined
+    });
   },
 
   // Lọc ticket theo ngày hoặc trạng thái
   filterByDateOrStatus: (params: { date?: string; status?: string }): Promise<AmenityTicket[]> => {
     return apiClient.get('/AmenityTicket/filter-by-date-or-status', { params });
+  },
+
+  // Lấy danh sách nhân viên để gán hoàn thành ticket
+  getAllStaff: (): Promise<{ id: string; fullName: string }[]> => {
+    return apiClient.get('/AmenityTicket/all-staff');
   },
 };
 

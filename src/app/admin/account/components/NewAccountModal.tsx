@@ -1,6 +1,7 @@
 'use client';
 
 import { Cross1Icon, ChevronDownIcon } from '@radix-ui/react-icons';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { forwardRef, useEffect, useState, useCallback } from 'react';
 
 import {
@@ -194,9 +195,21 @@ export function NewAccountModal({ open, onOpenChange, onSuccess }: Props) {
       <div className={styles.modalContent} role="dialog" aria-modal="true">
         <div className={styles.modalHeader}>
           <h2 className={styles.modalTitle}>Thêm tài khoản mới</h2>
-          <button onClick={() => onOpenChange(false)} className={styles.closeButton} aria-label="Close">
-            <Cross1Icon />
-          </button>
+          <Tooltip.Provider delayDuration={400}>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <button onClick={() => onOpenChange(false)} className={styles.closeButton} aria-label="Close">
+                  <Cross1Icon />
+                </button>
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Content className={styles.tooltip} side="bottom" align="center" sideOffset={6}>
+                  Đóng
+                  <Tooltip.Arrow className={styles.tooltipArrow} />
+                </Tooltip.Content>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+          </Tooltip.Provider>
         </div>
 
         <form onSubmit={handleSubmit}>

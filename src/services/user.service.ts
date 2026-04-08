@@ -38,6 +38,23 @@ const userService = {
   setRole: (id: string, roleId: number): Promise<Account> => {
     return apiClient.patch(`/Account/SetRole/${id}/role/${roleId}`);
   },
+
+  // Import/Export Excel
+  exportAccounts: (): Promise<Blob> => {
+    return apiClient.get('/Account/export', {
+      responseType: 'blob',
+    });
+  },
+
+  importAccounts: (file: File): Promise<any> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/Account/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 };
 
 export default userService;

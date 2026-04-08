@@ -9,11 +9,11 @@ export function formatRelativeTimestamp(timestamp: string): string {
   const isYesterday = diffInDays === 1 && now.toDateString() !== messageDate.toDateString();
 
   if (diffInMinutes < 1) {
-    return 'just now';
+    return 'Vừa xong';
   }
 
   if (diffInMinutes < 60) {
-    return `${diffInMinutes} min`;
+    return `${diffInMinutes} phút`;
   }
 
   if (isToday) {
@@ -21,23 +21,23 @@ export function formatRelativeTimestamp(timestamp: string): string {
   }
 
   if (isYesterday) {
-    return 'yesterday';
+    return 'hôm qua';
   }
 
   if (diffInDays < 7) {
-    return `${diffInDays} days ago`;
+    return `${diffInDays} ngày trước`;
   }
 
   const isSameYear = now.getFullYear() === messageDate.getFullYear();
   if (isSameYear) {
-    return messageDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return messageDate.toLocaleDateString('vi-VN', { month: 'short', day: 'numeric' });
   }
 
-  return messageDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return messageDate.toLocaleDateString('vi-VN', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 export function formatTime(timestamp: string): string {
   const date = new Date(timestamp);
-  return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  return date.toLocaleTimeString('vi-VN', { hour: 'numeric', minute: '2-digit', hour12: false });
 }
 

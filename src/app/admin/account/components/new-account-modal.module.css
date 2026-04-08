@@ -39,15 +39,21 @@
 .closeButton {
   background: transparent;
   border: none;
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1;
   color: #868e96;
   cursor: pointer;
-  padding: 0;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .closeButton:hover {
-  color: #343A40;
+  color: #dc3545;
+  background-color: #fff5f5;
 }
 
 /* Modal Body */
@@ -250,4 +256,49 @@
   font-size: 13px;
   color: #868e96;
   text-align: center;
+}
+
+/* ─── Tooltip ─── */
+.tooltip {
+  background-color: #343a40;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  user-select: none;
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  z-index: 10000;
+}
+
+.tooltipArrow {
+  fill: #343a40;
+}
+
+@keyframes slideUpAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tooltip[data-state='delayed-open'][data-side='top'] {
+  animation-name: slideUpAndFade;
+}
+.tooltip[data-state='delayed-open'][data-side='right'] {
+  animation-name: slideUpAndFade;
+}
+.tooltip[data-state='delayed-open'][data-side='bottom'] {
+  animation-name: slideUpAndFade;
+}
+.tooltip[data-state='delayed-open'][data-side='left'] {
+  animation-name: slideUpAndFade;
 }

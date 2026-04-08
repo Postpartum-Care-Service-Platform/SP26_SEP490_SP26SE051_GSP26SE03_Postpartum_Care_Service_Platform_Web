@@ -7,7 +7,7 @@ import userService from '@/services/user.service';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import { Pagination } from '@/components/ui/pagination';
 
-import { PatientListHeader, PatientTableControls, PatientTable, NewAccountModal } from './components';
+import { PatientListHeader, PatientTableControls, PatientTable, NewAccountModal, ImportExcelModal } from './components';
 import { mapAccountToPatient } from './components/patientUtils';
 
 import type { Patient } from './components/patientTypes';
@@ -27,6 +27,7 @@ export default function AdminPatientsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [isNewAccountOpen, setIsNewAccountOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const fetchPatients = useCallback(async () => {
     try {
@@ -152,6 +153,10 @@ export default function AdminPatientsPage() {
     setIsNewAccountOpen(true);
   };
 
+  const handleImport = () => {
+    setIsImportModalOpen(true);
+  };
+
   const handleSortChange = (sort: string) => {
     setSortKey(sort);
     setCurrentPage(1);
@@ -202,6 +207,7 @@ export default function AdminPatientsPage() {
             onStatusChange={handleStatusChange}
             onRoleChange={handleRoleChange}
             onNewPatient={handleNewPatient}
+            onImport={handleImport}
           />
         }
         pagination={
@@ -223,6 +229,11 @@ export default function AdminPatientsPage() {
         <NewAccountModal
           open={isNewAccountOpen}
           onOpenChange={setIsNewAccountOpen}
+          onSuccess={fetchPatients}
+        />
+        <ImportExcelModal
+          open={isImportModalOpen}
+          onOpenChange={setIsImportModalOpen}
           onSuccess={fetchPatients}
         />
       </AdminPageLayout>

@@ -29,4 +29,6 @@ export interface CreateStaffScheduleRangeRequest {
 export async function createStaffScheduleRange(data: CreateStaffScheduleRangeRequest): Promise<void> {
   return apiClient.post('/StaffSchedule/create-range', data);
 }
-
+export async function getStaffsByFamilyScheduleId(familyScheduleId: number): Promise<StaffSchedule[]> {
+  return apiClient.get(`/StaffSchedule/family-schedule/${familyScheduleId}/staffs`);
+}

@@ -2,6 +2,7 @@
 
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { addDays, format, isSameDay, isSameMonth, startOfMonth, startOfWeek } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import React from 'react';
 
 import type { StaffSchedule } from '@/types/staff-schedule';
@@ -12,6 +13,19 @@ import { MiniCalendar } from './MiniCalendar';
 import { ScheduleDetailPopover } from '../shared/ScheduleDetailPopover';
 import { DaySchedulesPopover } from '../shared/DaySchedulesPopover';
 import { CalendarSidebarExtra } from './CalendarSidebarExtra';
+ 
+export function getDaySummary(date: Date, events: StaffSchedule[]) {
+  const dateStr = format(date, 'yyyy-MM-dd');
+  const dayEvents = events.filter(e => e.familyScheduleResponse.workDate === dateStr);
+ 
+  return {
+    total: dayEvents.length,
+    done: dayEvents.filter(e => e.familyScheduleResponse.status === 'Done').length,
+    missed: dayEvents.filter(e => e.familyScheduleResponse.status === 'Missed').length,
+    cancelled: dayEvents.filter(e => e.familyScheduleResponse.status === 'Cancelled').length,
+    scheduled: dayEvents.filter(e => e.familyScheduleResponse.status === 'Scheduled').length,
+  };
+}
 
 
 const WEEKDAYS = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN'] as const;
@@ -219,102 +233,131 @@ export function CalendarMonthView({
               const { displayEvents: dayEvents, remainingCount } = getUpcomingEventsForDate(d, schedules, 3);
 
               return (
-                <div
-                  key={d.toISOString()}
-                  className={`${styles.dayCell} ${inMonth ? '' : styles.outside} ${isToday ? styles.today : ''} ${isSelected ? styles.selected : ''}`}
-                  role="gridcell"
-                  aria-label={format(d, 'yyyy-MM-dd')}
-                  onClick={(e) => handleDayClick(d, e)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <div className={styles.dayHeader}>
-                    <div className={styles.dayNumber}>{label}</div>
-                    <div className={styles.headerActions}>
-                      <CalendarQuickCreate
-                        open={openDayKey === d.toISOString()}
-                        onOpenChange={(open) => setOpenDayKey(open ? d.toISOString() : null)}
-                      >
-                        <button type="button" className={styles.createBtn} aria-label="Create work item">
-                          <svg fill="none" viewBox="0 0 16 16" role="presentation" width="16" height="16" aria-hidden="true">
-                            <path
-                              fill="currentColor"
-                              fillRule="evenodd"
-                              d="M7.25 8.75V15h1.5V8.75H15v-1.5H8.75V1h-1.5v6.25H1v1.5z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      </CalendarQuickCreate>
-                    </div>
-                  </div>
-                  <div className={styles.dayBody}>
-                    {dayEvents.map((schedule) => {
-                      const { familyScheduleResponse: fs } = schedule;
-                      const eventColor = getStatusColor(fs.status);
-                      
-                      return (
-                        <Tooltip.Root key={schedule.id}>
-                          <Tooltip.Trigger asChild>
-                            <div
-                              className={styles.eventChip}
-                              style={{ backgroundColor: eventColor, height: '24px' }}
-                              onClick={(e) => handleEventClick(schedule, e)}
-                              role="button"
-                              tabIndex={0}
-                            >
-                              <span className={styles.eventTime}>
-                                {formatTime(fs.startTime)}
-                              </span>
-                              <span className={styles.eventTitle}>
-                                {fs.activity}
-                              </span>
-                            </div>
-                          </Tooltip.Trigger>
-                          <Tooltip.Portal>
-                            <Tooltip.Content className={styles.tooltipContent} sideOffset={5}>
-                              <div className={styles.tooltipHeader}>
-                                <div className={styles.tooltipTitle}>{fs.activity}</div>
-                                <div 
-                                  className={styles.tooltipStatusBadge}
-                                  style={{ 
-                                    backgroundColor: 
-                                      fs.status === 'Done' ? '#CDEFE1' : 
-                                      fs.status === 'Missed' ? '#FBE2E4' : 
-                                      fs.status === 'Cancelled' ? '#F4F5F7' : '#DDEBFF',
-                                    color: 
-                                      fs.status === 'Done' ? '#006644' : 
-                                      fs.status === 'Missed' ? '#AE2E24' : 
-                                      fs.status === 'Cancelled' ? '#42526E' : '#0052CC'
-                                  }}
-                                >
-                                  {fs.status === 'Done' ? 'Đã hoàn thành' : 
-                                   fs.status === 'Missed' ? 'Đã bỏ lỡ' : 
-                                   fs.status === 'Cancelled' ? 'Đã hủy' : 'Đã lên lịch'}
-                                </div>
-                              </div>
-                              <div className={styles.tooltipCode}>{fs.customerName}</div>
-                              <div className={styles.tooltipTime}>
-                                {formatDateVN(fs.workDate)} • {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
-                              </div>
-                              <div className={styles.tooltipCode}>{fs.packageName}</div>
-                              {schedule.staffName && <div className={styles.tooltipCode}>{schedule.staffName}</div>}
-                              {fs.note && <div className={styles.tooltipCode}>{fs.note}</div>}
-                              <Tooltip.Arrow className={styles.tooltipArrow} />
-                            </Tooltip.Content>
-                          </Tooltip.Portal>
-                        </Tooltip.Root>
-                      );
-                    })}
-                    {remainingCount > 0 && (
-                      <div 
-                        className={styles.moreIndicator}
-                        onClick={(e) => handleMoreClick(d, e)}
-                      >
-                        Xem thêm ({remainingCount})
+                <Tooltip.Root key={d.toISOString()}>
+                  <Tooltip.Trigger asChild>
+                    <div
+                      className={`${styles.dayCell} ${inMonth ? '' : styles.outside} ${isToday ? styles.today : ''} ${isSelected ? styles.selected : ''}`}
+                      role="gridcell"
+                      aria-label={format(d, 'yyyy-MM-dd')}
+                      onClick={(e) => handleDayClick(d, e)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <div className={styles.dayHeader}>
+                        <div className={styles.dayNumber}>{label}</div>
+                        <div className={styles.headerActions}>
+                          <CalendarQuickCreate
+                            open={openDayKey === d.toISOString()}
+                            onOpenChange={(open) => setOpenDayKey(open ? d.toISOString() : null)}
+                          >
+                            <button type="button" className={styles.createBtn} aria-label="Create work item">
+                              <svg fill="none" viewBox="0 0 16 16" role="presentation" width="16" height="16" aria-hidden="true">
+                                <path
+                                  fill="currentColor"
+                                  fillRule="evenodd"
+                                  d="M7.25 8.75V15h1.5V8.75H15v-1.5H8.75V1h-1.5v6.25H1v1.5z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </button>
+                          </CalendarQuickCreate>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
+                      <div className={styles.dayBody}>
+                        {dayEvents.map((schedule) => {
+                          const { familyScheduleResponse: fs } = schedule;
+                          const eventColor = getStatusColor(fs.status);
+                          
+                          return (
+                            <Tooltip.Root key={schedule.id}>
+                              <Tooltip.Trigger asChild>
+                                <div
+                                  className={styles.eventChip}
+                                  style={{ backgroundColor: eventColor, height: '24px' }}
+                                  onClick={(e) => handleEventClick(schedule, e)}
+                                  role="button"
+                                  tabIndex={0}
+                                >
+                                  <span className={styles.eventTime}>
+                                    {formatTime(fs.startTime)} - {formatTime(fs.endTime)}
+                                  </span>
+                                  <span className={styles.eventTitle}>
+                                    {fs.activity}
+                                  </span>
+                                </div>
+                              </Tooltip.Trigger>
+                              <Tooltip.Portal>
+                                <Tooltip.Content className={styles.tooltipContent} sideOffset={5}>
+                                  <div className={styles.tooltipHeader}>
+                                    <div className={styles.tooltipTitle}>{fs.activity}</div>
+                                    <div 
+                                      className={styles.tooltipStatusBadge}
+                                      style={{ 
+                                        backgroundColor: 
+                                          fs.status === 'Done' ? '#CDEFE1' : 
+                                          fs.status === 'Missed' ? '#FBE2E4' : 
+                                          fs.status === 'Cancelled' ? '#F4F5F7' : '#DDEBFF',
+                                        color: 
+                                          fs.status === 'Done' ? '#006644' : 
+                                          fs.status === 'Missed' ? '#AE2E24' : 
+                                          fs.status === 'Cancelled' ? '#42526E' : '#0052CC'
+                                      }}
+                                    >
+                                      {fs.status === 'Done' ? 'Đã hoàn thành' : 
+                                       fs.status === 'Missed' ? 'Đã bỏ lỡ' : 
+                                       fs.status === 'Cancelled' ? 'Đã hủy' : 'Đã lên lịch'}
+                                    </div>
+                                  </div>
+                                  <div className={styles.tooltipCode}>{fs.customerName}</div>
+                                  <div className={styles.tooltipTime}>
+                                    {formatDateVN(fs.workDate)} • {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
+                                  </div>
+                                  <div className={styles.tooltipCode}>{fs.packageName}</div>
+                                  {schedule.staffName && <div className={styles.tooltipCode}>{schedule.staffName}</div>}
+                                  {fs.note && <div className={styles.tooltipCode}>{fs.note}</div>}
+                                  <Tooltip.Arrow className={styles.tooltipArrow} />
+                                </Tooltip.Content>
+                              </Tooltip.Portal>
+                            </Tooltip.Root>
+                          );
+                        })}
+                        {remainingCount > 0 && (
+                          <div 
+                            className={styles.moreIndicator}
+                            onClick={(e) => handleMoreClick(d, e)}
+                          >
+                            Xem thêm ({remainingCount})
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content className={styles.dayTooltipContent} side="top" sideOffset={8}>
+                      <div className={styles.dayTooltipHeader}>
+                        {format(d, "EEEE, 'Ngày' d 'Tháng' M, yyyy", { locale: vi })}
+                      </div>
+                      <div className={styles.dayTooltipStats}>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Tổng số công việc</span>
+                          <span className={styles.dayTooltipValue}>{getDaySummary(d, schedules).total}</span>
+                        </div>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Hoàn thành</span>
+                          <span className={`${styles.dayTooltipValue} text-emerald-600`}>{getDaySummary(d, schedules).done}</span>
+                        </div>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Bỏ lỡ / Hủy</span>
+                          <span className={`${styles.dayTooltipValue} text-red-600`}>{getDaySummary(d, schedules).missed + getDaySummary(d, schedules).cancelled}</span>
+                        </div>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Chờ thực hiện</span>
+                          <span className={`${styles.dayTooltipValue} text-blue-600`}>{getDaySummary(d, schedules).scheduled}</span>
+                        </div>
+                      </div>
+                      <Tooltip.Arrow className={styles.dayTooltipArrow} />
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
               );
             })}
           </div>

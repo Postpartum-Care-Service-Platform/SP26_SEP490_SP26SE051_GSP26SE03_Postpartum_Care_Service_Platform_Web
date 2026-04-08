@@ -42,6 +42,7 @@ export default function AdminAmenityTicketPage() {
   const [tickets, setTickets] = useState<AmenityTicket[]>([]);
   const [services, setServices] = useState<AmenityService[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [amenityStaff, setAmenityStaff] = useState<{ id: string; fullName: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,14 +57,16 @@ export default function AdminAmenityTicketPage() {
     try {
       setLoading(true);
       setError(null);
-      const [ticketData, serviceData, accountData] = await Promise.all([
+      const [ticketData, serviceData, accountData, staffData] = await Promise.all([
         amenityTicketService.getAllAmenityTickets(),
         amenityServiceService.getAllAmenityServices(),
         userService.getAllAccounts(),
+        amenityTicketService.getAllStaff(),
       ]);
       setTickets(ticketData);
       setServices(serviceData);
       setAccounts(accountData);
+      setAmenityStaff(staffData);
     } catch (err: unknown) {
       setError('Không thể tải dữ liệu ticket tiện ích');
       console.error(err);
@@ -96,9 +99,13 @@ export default function AdminAmenityTicketPage() {
     }
   };
 
-  const handleComplete = async (id: number) => {
+  const handleComplete = async (id: number, staffId: string) => {
     try {
-      await amenityTicketService.completeAmenityTicket(id);
+      if (!staffId) {
+        toast({ title: 'Cảnh báo', description: 'Vui lòng chọn nhân viên thực hiện.', variant: 'error' });
+        return;
+      }
+      await amenityTicketService.completeAmenityTicket(id, staffId);
       toast({ title: 'Thành công', description: 'Đã đánh dấu hoàn thành yêu cầu.', variant: 'success' });
       fetchData();
     } catch (error) {
@@ -106,11 +113,14 @@ export default function AdminAmenityTicketPage() {
     }
   };
 
-  const getServiceName = (id: number) => {
-    return services.find(s => s.id === id)?.name || `Dịch vụ #${id}`;
+  const getServiceName = (ticket: AmenityTicket) => {
+    if (ticket.amenityServiceName) return ticket.amenityServiceName;
+    return services.find(s => s.id === ticket.amenityServiceId)?.name || `Dịch vụ #${ticket.amenityServiceId}`;
   };
 
-  const getCustomerName = (id: string) => {
+  const getCustomerName = (ticket: AmenityTicket) => {
+    if (ticket.customerName) return ticket.customerName;
+    const id = ticket.customerId;
     const acc = accounts.find(a => a.id === id);
     if (!acc) return `Khách hàng #${id.slice(0, 8)}`;
     return acc.ownerProfile?.fullName || acc.email || acc.username || `Khách hàng #${id.slice(0, 8)}`;
@@ -122,8 +132,8 @@ export default function AdminAmenityTicketPage() {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(item => {
-        const serviceName = getServiceName(item.amenityServiceId).toLowerCase();
-        const customerName = getCustomerName(item.customerId).toLowerCase();
+        const serviceName = getServiceName(item).toLowerCase();
+        const customerName = getCustomerName(item).toLowerCase();
         return (
           serviceName.includes(q) ||
           customerName.includes(q) ||
@@ -200,45 +210,49 @@ export default function AdminAmenityTicketPage() {
                 />
               </div>
 
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                  <button type="button" className={styles.filterButton}>
-                    <span>{STATUS_OPTIONS.find(opt => opt.value === statusFilter)?.label || 'Trạng thái'}</span>
-                    <ChevronDownIcon className={styles.chevronIcon} />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className={styles.dropdownContent}>
-                  {STATUS_OPTIONS.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      className={`${styles.dropdownItem} ${statusFilter === option.value ? styles.dropdownItemActive : ''}`}
-                      onClick={() => setStatusFilter(option.value)}
-                    >
-                      {option.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className={styles.filterGroup}>
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <button type="button" className={styles.filterButton}>
+                      <span>{STATUS_OPTIONS.find(opt => opt.value === statusFilter)?.label}</span>
+                      <ChevronDownIcon className={styles.filterChevron} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className={styles.dropdownContent} align="start" sideOffset={6}>
+                    {STATUS_OPTIONS.map((option) => (
+                      <DropdownMenuItem
+                        key={option.value}
+                        className={`${styles.dropdownItem} ${statusFilter === option.value ? styles.dropdownItemActive : ''}`}
+                        onClick={() => setStatusFilter(option.value)}
+                      >
+                        {option.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                  <button type="button" className={styles.filterButton}>
-                    <span>{SORT_OPTIONS.find(opt => opt.value === sortKey)?.label || 'Sắp xếp'}</span>
-                    <ChevronDownIcon className={styles.chevronIcon} />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className={styles.dropdownContent}>
-                  {SORT_OPTIONS.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      className={`${styles.dropdownItem} ${sortKey === option.value ? styles.dropdownItemActive : ''}`}
-                      onClick={() => setSortKey(option.value)}
-                    >
-                      {option.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className={styles.filterGroup}>
+                <DropdownMenu modal={false}>
+                  <DropdownMenuTrigger asChild>
+                    <button type="button" className={styles.filterButton}>
+                      <span>{SORT_OPTIONS.find(opt => opt.value === sortKey)?.label || 'Sắp xếp'}</span>
+                      <ChevronDownIcon className={styles.filterChevron} />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className={styles.dropdownContent} align="start" sideOffset={6}>
+                    {SORT_OPTIONS.map((option) => (
+                      <DropdownMenuItem
+                        key={option.value}
+                        className={`${styles.dropdownItem} ${sortKey === option.value ? styles.dropdownItemActive : ''}`}
+                        onClick={() => setSortKey(option.value)}
+                      >
+                        {option.label}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
 
             <div className={styles.right}>
@@ -291,6 +305,7 @@ export default function AdminAmenityTicketPage() {
                 <th className={styles.dateCol}>Bắt đầu</th>
                 <th className={styles.dateCol}>Kết thúc</th>
                 <th className={styles.statusCol}>Trạng thái</th>
+                <th>Nhân viên</th>
                 <th className={styles.stickyActionsCol}>Thao tác</th>
               </tr>
             </thead>
@@ -318,14 +333,14 @@ export default function AdminAmenityTicketPage() {
                     <td className={styles.codeCol}><b>#{ticket.id}</b></td>
                     <td className={styles.customerCol}>
                       <div className={styles.tooltipWrapper}>
-                        <span className={styles.textTruncate}>{getCustomerName(ticket.customerId)}</span>
-                        <span className={styles.tooltip}>{getCustomerName(ticket.customerId)}</span>
+                        <span className={styles.textTruncate}>{getCustomerName(ticket)}</span>
+                        <span className={styles.tooltip}>{getCustomerName(ticket)}</span>
                       </div>
                     </td>
                     <td>
                       <div className={styles.tooltipWrapper}>
-                        <span className={styles.textTruncate}>{getServiceName(ticket.amenityServiceId)}</span>
-                        <span className={styles.tooltip}>{getServiceName(ticket.amenityServiceId)}</span>
+                        <span className={styles.textTruncate}>{getServiceName(ticket)}</span>
+                        <span className={styles.tooltip}>{getServiceName(ticket)}</span>
                       </div>
                     </td>
                     <td className={styles.dateCol}>{formatDateTime(ticket.date, ticket.startTime)}</td>
@@ -334,6 +349,15 @@ export default function AdminAmenityTicketPage() {
                       <span className={`${styles.statusBadge} ${styles[`status-${ticket.status}`]}`}>
                         {STATUS_OPTIONS.find(opt => opt.value === ticket.status)?.label || ticket.status}
                       </span>
+                    </td>
+                    <td className="text-xs font-medium text-slate-500 italic text-center">
+                      {ticket.amenityStaffName || (
+                        ticket.amenityStaffId || ticket.staffId ? (
+                          amenityStaff.find(s => s.id === (ticket.amenityStaffId || ticket.staffId))?.fullName ||
+                          accounts.find(a => a.id === (ticket.amenityStaffId || ticket.staffId))?.ownerProfile?.fullName ||
+                          'N/A'
+                        ) : '-'
+                      )}
                     </td>
                     <td className={styles.stickyActionsCol}>
                       <div className={styles.actions}>
@@ -347,8 +371,8 @@ export default function AdminAmenityTicketPage() {
                         {ticket.status === 'Booked' && (
                           <>
                             <div className={styles.tooltipWrapper}>
-                              <button 
-                                className={`${styles.actionButton} ${styles.acceptButton}`} 
+                              <button
+                                className={`${styles.actionButton} ${styles.acceptButton}`}
                                 type="button"
                                 onClick={() => handleAccept(ticket.id)}
                               >
@@ -357,8 +381,8 @@ export default function AdminAmenityTicketPage() {
                               <span className={styles.tooltip}>Chấp nhận</span>
                             </div>
                             <div className={styles.tooltipWrapper}>
-                              <button 
-                                className={`${styles.actionButton} ${styles.cancelButton}`} 
+                              <button
+                                className={`${styles.actionButton} ${styles.cancelButton}`}
                                 type="button"
                                 onClick={() => handleCancel(ticket.id)}
                               >
@@ -371,19 +395,53 @@ export default function AdminAmenityTicketPage() {
 
                         {ticket.status === 'Accepted' && (
                           <>
+                            <DropdownMenu modal={false}>
+                              <div className={styles.tooltipWrapper}>
+                                <DropdownMenuTrigger asChild>
+                                  <button
+                                    className={`${styles.actionButton} ${styles.completeButton}`}
+                                    type="button"
+                                  >
+                                    <CheckCircle size={16} />
+                                  </button>
+                                </DropdownMenuTrigger>
+                                <span className={styles.tooltip}>Hoàn thành</span>
+                              </div>
+                              <DropdownMenuContent className={styles.dropdownContent} align="end">
+                                <div className="px-2 py-1.5 text-xs font-bold text-gray-500 border-bottom border-gray-100 mb-1">
+                                  Chọn nhân viên thực hiện
+                                </div>
+                                {amenityStaff.map(staff => (
+                                  <DropdownMenuItem
+                                    key={staff.id}
+                                    className={styles.dropdownItem}
+                                    onClick={() => handleComplete(ticket.id, staff.id)}
+                                  >
+                                    <div className="flex items-center gap-2 py-0.5">
+                                      <div className="w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-[10px] text-blue-600 font-bold flex-shrink-0">
+                                        {staff.fullName?.charAt(0).toUpperCase()}
+                                      </div>
+                                      <div className="flex flex-col">
+                                        <div className="text-xs font-medium text-slate-700 leading-tight">
+                                          {staff.fullName}
+                                        </div>
+                                        <div className="text-[10px] text-slate-400 leading-none">
+                                          {staff.id.slice(0, 8)}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </DropdownMenuItem>
+                                ))}
+                                {amenityStaff.length === 0 && (
+                                  <div className="px-2 py-3 text-xs text-center text-gray-400 italic">
+                                    Không có nhân viên nào
+                                  </div>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                             <div className={styles.tooltipWrapper}>
-                              <button 
-                                className={`${styles.actionButton} ${styles.completeButton}`} 
-                                type="button"
-                                onClick={() => handleComplete(ticket.id)}
-                              >
-                                <CheckCircle size={16} />
-                              </button>
-                              <span className={styles.tooltip}>Hoàn thành</span>
-                            </div>
-                            <div className={styles.tooltipWrapper}>
-                              <button 
-                                className={`${styles.actionButton} ${styles.cancelButton}`} 
+                              <button
+                                className={`${styles.actionButton} ${styles.cancelButton}`}
                                 type="button"
                                 onClick={() => handleCancel(ticket.id)}
                               >

@@ -12,6 +12,12 @@ import Image from 'next/image';
 
 import LogoSymbol from '@/assets/images/Symbol-Orange-32x32.png';
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
 import styles from './chat-sidebar.module.css';
 
 type ChatNavItem = {
@@ -79,16 +85,21 @@ export function ChatSidebar({ activeView, onViewChange }: Props) {
           const Icon = item.icon;
           const isActive = activeView === item.id;
           return (
-            <button
-              key={item.id}
-              type="button"
-              className={`${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
-              onClick={item.onClick}
-              title={item.label}
-              aria-label={item.label}
-            >
-              <Icon size={20} className={styles.icon} />
-            </button>
+            <Tooltip key={item.id} delayDuration={300}>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className={`${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
+                  onClick={item.onClick}
+                  aria-label={item.label}
+                >
+                  <Icon size={20} className={styles.icon} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                {item.label}
+              </TooltipContent>
+            </Tooltip>
           );
         })}
       </nav>
@@ -96,15 +107,21 @@ export function ChatSidebar({ activeView, onViewChange }: Props) {
         const SettingsIcon = settingsItem.icon;
         return (
           <div className={styles.settingsWrapper}>
-            <button
-              type="button"
-              className={`${styles.navItem} ${activeView === settingsItem.id ? styles.navItemActive : ''}`}
-              onClick={settingsItem.onClick}
-              title={settingsItem.label}
-              aria-label={settingsItem.label}
-            >
-              <SettingsIcon size={20} className={styles.icon} />
-            </button>
+            <Tooltip delayDuration={300}>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className={`${styles.navItem} ${activeView === settingsItem.id ? styles.navItemActive : ''}`}
+                  onClick={settingsItem.onClick}
+                  aria-label={settingsItem.label}
+                >
+                  <SettingsIcon size={20} className={styles.icon} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                {settingsItem.label}
+              </TooltipContent>
+            </Tooltip>
           </div>
         );
       })()}

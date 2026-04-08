@@ -3,6 +3,7 @@
 import * as Popover from '@radix-ui/react-popover';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { addDays, format, startOfWeek, isSameDay, isBefore, startOfDay, isToday } from 'date-fns';
+import { vi } from 'date-fns/locale';
 import React from 'react';
 
 import staffScheduleService from '@/services/staff-schedule.service';
@@ -12,6 +13,7 @@ import styles from './calendar-week-view.module.css';
 import { MiniCalendar } from './MiniCalendar';
 import { ScheduleDetailPopover } from '../shared/ScheduleDetailPopover';
 import { CalendarSidebarExtra } from './CalendarSidebarExtra';
+import { getDaySummary } from './CalendarMonthView';
 
 
 // Generate hours - each slot represents 1 hour
@@ -160,11 +162,42 @@ export function CalendarWeekView({
             <div className={styles.headerCell} /> {/* Empty cell for time column */}
             {days.map((d, i) => {
               const isToday = isSameDay(d, today);
+              const summary = getDaySummary(d, schedules);
               return (
-                <div key={d.toISOString()} className={`${styles.headerCell} ${isToday ? styles.todayHeader : ''}`}>
-                  <span className={styles.dayName}>{dayLabels[i]}</span>
-                  <span className={`${styles.dayNumber} ${isToday ? styles.todayNumber : ''}`}>{format(d, 'd')}</span>
-                </div>
+                <Tooltip.Root key={d.toISOString()}>
+                  <Tooltip.Trigger asChild>
+                    <div className={`${styles.headerCell} ${isToday ? styles.todayHeader : ''}`} style={{ cursor: 'help' }}>
+                      <span className={styles.dayName}>{dayLabels[i]}</span>
+                      <span className={`${styles.dayNumber} ${isToday ? styles.todayNumber : ''}`}>{format(d, 'd')}</span>
+                    </div>
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Content className={styles.dayTooltipContent} side="bottom" sideOffset={10}>
+                      <div className={styles.dayTooltipHeader}>
+                        {format(d, "EEEE, 'Ngày' d 'Tháng' M, yyyy", { locale: vi })}
+                      </div>
+                      <div className={styles.dayTooltipStats}>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Tổng số công việc</span>
+                          <span className={styles.dayTooltipValue}>{summary.total}</span>
+                        </div>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Hoàn thành</span>
+                          <span className={`${styles.dayTooltipValue} text-emerald-600`}>{summary.done}</span>
+                        </div>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Bỏ lỡ / Hủy</span>
+                          <span className={`${styles.dayTooltipValue} text-red-600`}>{summary.missed + summary.cancelled}</span>
+                        </div>
+                        <div className={styles.dayTooltipStatItem}>
+                          <span className={styles.dayTooltipLabel}>Chờ thực hiện</span>
+                          <span className={`${styles.dayTooltipValue} text-blue-600`}>{summary.scheduled}</span>
+                        </div>
+                      </div>
+                      <Tooltip.Arrow className={styles.dayTooltipArrow} />
+                    </Tooltip.Content>
+                  </Tooltip.Portal>
+                </Tooltip.Root>
               );
             })}
           </div>

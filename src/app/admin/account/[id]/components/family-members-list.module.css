@@ -578,3 +578,38 @@
 .sharedDatePickerWrapper :global([class*="inputWrapper"]) {
   display: none !important;
 }
+
+.flowPanel {
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.panelBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #fa8314;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.panelBtn:hover {
+  background-color: #e67600;
+  box-shadow: 0 4px 10px rgba(250, 131, 20, 0.2);
+  transform: translateY(-1px);
+}
+
+.flowTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
