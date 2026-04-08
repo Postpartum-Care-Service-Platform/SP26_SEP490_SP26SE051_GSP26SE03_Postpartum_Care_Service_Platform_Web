@@ -39,9 +39,9 @@ export function ChatConversation({
   if (!conversation) {
     return (
       <div className={styles.conversation}>
-        <div className={styles.emptyState}>
-          <p>Select a conversation to start chatting</p>
-        </div>
+      <div className={styles.emptyState}>
+        <p>Chọn một cuộc trò chuyện để bắt đầu nhắn tin</p>
+      </div>
       </div>
     );
   }

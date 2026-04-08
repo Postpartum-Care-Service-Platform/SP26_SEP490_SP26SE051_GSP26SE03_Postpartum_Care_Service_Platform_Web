@@ -91,7 +91,7 @@ export function Pagination({
                   <ChevronDownIcon className={styles.pageSizeChevron} />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className={styles.pageSizeDropdown} align="start" sideOffset={6}>
+              <DropdownMenuContent className={styles.pageSizeDropdown} align="start" side="top" sideOffset={6}>
                 {pageSizeOptions.map((size) => (
                   <DropdownMenuItem
                     key={size}

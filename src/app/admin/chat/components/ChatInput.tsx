@@ -3,6 +3,12 @@
 import { Paperclip, Send } from 'lucide-react';
 import { useRef, useState } from 'react';
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
 import styles from './chat-input.module.css';
 
 type Props = {
@@ -46,28 +52,42 @@ export function ChatInput({ onSend }: Props) {
         accept="image/*,application/pdf,.doc,.docx"
         aria-label="Upload file"
       />
-      <button
-        type="button"
-        className={styles.attachmentButton}
-        onClick={handleAttachmentClick}
-        aria-label="Attach file"
-      >
-        <Paperclip size={20} className={styles.icon} />
-      </button>
+      <Tooltip delayDuration={300}>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            className={styles.attachmentButton}
+            onClick={handleAttachmentClick}
+            aria-label="Attach file"
+          >
+            <Paperclip size={20} className={styles.icon} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top">
+          Đính kèm tệp
+        </TooltipContent>
+      </Tooltip>
       <input
         type="text"
-        placeholder="Type a message..."
+        placeholder="Nhập tin nhắn..."
         className={styles.input}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
       />
-      <button
-        type="submit"
-        className={styles.sendButton}
-        aria-label="Send message"
-      >
-        <Send size={20} className={styles.icon} />
-      </button>
+      <Tooltip delayDuration={300}>
+        <TooltipTrigger asChild>
+          <button
+            type="submit"
+            className={styles.sendButton}
+            aria-label="Send message"
+          >
+            <Send size={20} className={styles.icon} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top">
+          Gửi tin nhắn
+        </TooltipContent>
+      </Tooltip>
     </form>
   );
 }

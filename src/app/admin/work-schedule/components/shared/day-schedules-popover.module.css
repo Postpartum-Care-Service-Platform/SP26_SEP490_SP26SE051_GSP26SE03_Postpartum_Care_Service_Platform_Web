@@ -1,5 +1,5 @@
 .content {
-  width: 320px;
+  width: 400px;
   max-height: 480px;
   background-color: white;
   border-radius: 4px;
@@ -113,8 +113,9 @@
   font-size: 13px;
   font-weight: 600;
   color: #374151;
-  width: 45px;
+  width: 90px;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .itemAvatarWrapper {

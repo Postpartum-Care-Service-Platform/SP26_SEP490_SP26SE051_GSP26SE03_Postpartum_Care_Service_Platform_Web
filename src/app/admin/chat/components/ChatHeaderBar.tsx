@@ -3,6 +3,12 @@
 import { Info, User } from 'lucide-react';
 import Image from 'next/image';
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
 import styles from './chat-header-bar.module.css';
 
 type Props = {
@@ -38,14 +44,21 @@ export function ChatHeaderBar({ name, avatar, isOnline, onInfoClick }: Props) {
         </div>
       </div>
       <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.actionButton}
-          onClick={onInfoClick}
-          aria-label="Info"
-        >
-          <Info size={20} className={styles.icon} />
-        </button>
+        <Tooltip delayDuration={300}>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              className={styles.actionButton}
+              onClick={onInfoClick}
+              aria-label="Info"
+            >
+              <Info size={20} className={styles.icon} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="bottom">
+            Thông tin chi tiết
+          </TooltipContent>
+        </Tooltip>
       </div>
     </div>
   );

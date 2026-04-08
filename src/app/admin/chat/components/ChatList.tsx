@@ -33,7 +33,7 @@ export function ChatList({
           <div className={styles.section}>
             <div className={styles.sectionHeader}>
               <Pin size={16} className={styles.sectionIcon} />
-              <span className={styles.sectionTitle}>Pinned</span>
+              <span className={styles.sectionTitle}>Đã ghim</span>
             </div>
             <div className={styles.entries}>
               {pinnedChats.slice(0, 2).map((entry) => (
@@ -51,7 +51,7 @@ export function ChatList({
         <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <MessageCircle size={16} className={styles.sectionIcon} />
-            <span className={styles.sectionTitle}>All chats</span>
+            <span className={styles.sectionTitle}>Tất cả cuộc trò chuyện</span>
           </div>
           <div className={styles.entries}>
             {allChats.map((entry) => (

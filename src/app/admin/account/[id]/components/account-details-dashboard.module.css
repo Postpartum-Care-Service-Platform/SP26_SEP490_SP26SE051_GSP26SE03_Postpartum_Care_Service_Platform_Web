@@ -1,11 +1,12 @@
 .container {
-  background-color: #fff;
-  border-radius: 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #f1f3f5;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   font-family: var(--font-body);
 }
 
@@ -51,11 +52,11 @@
 
 /* ── Content Area ── */
 .contentArea {
+  flex: 1;
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  flex: 1;
+  justify-content: flex-start;
 }
 
 /* ── Section Headers ── */
@@ -67,24 +68,27 @@
 }
 
 .sectionTitle {
-  margin: 0;
-  font-size: 16px;
+  font-family: var(--font-admin-title, 'Lexend Deca', sans-serif);
+  font-size: 15px;
   font-weight: 700;
   color: #1a1d23;
+  margin: 0;
 }
 
 .ratingButton {
+  font-family: var(--font-admin-title, 'Lexend Deca', sans-serif);
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 6px 12px;
+  background-color: #fff;
   border: 1px solid #e9ecef;
   border-radius: 4px;
-  background-color: #fff;
-  color: #fa8314;
   font-size: 13px;
   font-weight: 600;
+  color: #fa8314;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
 /* ── Ribbon Stage Progress ── */
@@ -96,16 +100,18 @@
 }
 
 .ribbonSegment {
+  font-family: var(--font-admin-title, 'Lexend Deca', sans-serif);
   flex: 1;
-  height: 40px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: #f8f9fa;
+  color: #adb5bd;
   font-size: 13px;
   font-weight: 600;
-  color: #8a92a4;
-  background-color: #f8f9fa;
   position: relative;
+  transition: all 0.2s;
   clip-path: polygon(0% 0%, 90% 0%, 100% 50%, 90% 100%, 0% 100%, 10% 50%);
   padding: 0 10px;
 }
@@ -116,13 +122,13 @@
 }
 
 .ribbonSegmentActive {
-  background-color: #3b82f6;
+  background-color: #fa8314;
   color: #fff;
 }
 
 .ribbonSegmentCompleted {
-  background-color: #eef2ff;
-  color: #3b82f6;
+  background-color: #fff7ed;
+  color: #fa8314;
 }
 
 /* ── Stage Info Grid ── */
@@ -156,7 +162,7 @@
   padding: 4px 12px;
   background-color: #fff8e6;
   color: #fa8314;
-  border-radius: 20px;
+  border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
   width: fit-content;
@@ -189,6 +195,80 @@
   cursor: not-allowed;
 }
 
+/* ── Amenity Services Section ── */
+.amenityList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.amenityCard {
+  background-color: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  padding: 0 16px;
+  height: 72px; /* Fixed height to ensure perfect alignment */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.amenityCard:hover {
+  border-color: #fa8314;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.amenityInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.amenityName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1d23;
+  margin: 0;
+}
+
+.amenityMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #8a92a4;
+}
+
+.dividerDot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: #dee2e6;
+}
+
+.amenityStatus {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 12px;
+  height: 24px; /* Fixed height for status badges */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.statusAccepted {
+  background-color: #f0fdf4;
+  color: #16a34a;
+}
+
+.statusCancelled {
+  background-color: #fef2f2;
+  color: #ef4444;
+}
+
 /* ── Notes Section ── */
 .notesList {
   display: flex;
@@ -196,20 +276,30 @@
   gap: 20px;
 }
 
-.noteItem {
-  display: flex;
-  gap: 16px;
-  padding: 16px;
-  border: 1px solid #f1f3f5;
+.noteCard {
+  background: #fff;
+  border: 1px solid #e9ecef;
   border-radius: 4px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.noteAvatarWrapper {
+  flex-shrink: 0;
 }
 
 .noteAvatar {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
+  border: 1.5px solid #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   object-fit: cover;
-  flex-shrink: 0;
 }
 
 .noteBody {
@@ -227,7 +317,32 @@
   font-size: 14px;
   font-weight: 700;
   color: #1a1d23;
-  margin: 0;
+  margin: 0 !important;
+  white-space: nowrap;
+}
+
+.noteHeaderRow {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px;
+  margin-bottom: 0;
+}
+
+.noteAuthorInfo {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 4px;
+  flex: 1;
+}
+
+.ratingStars {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 2px;
+  color: #fa8314;
 }
 
 .noteTime {
@@ -235,30 +350,102 @@
   color: #adb5bd;
 }
 
-.noteText {
-  font-size: 13px;
-  color: #495057;
-  line-height: 1.5;
-  margin: 0 0 12px 0;
-}
-
-.noteFooter {
+.noteMainContent {
   display: flex;
+  flex-direction: row;
   gap: 16px;
+  width: 100%;
+  align-items: flex-end;
 }
 
-.replyLink {
-  font-size: 12px;
-  font-weight: 700;
-  color: #3b82f6;
-  text-decoration: none;
+.noteTextWrapper {
+  flex: 1;
 }
 
-.replyLink:hover {
-  text-decoration: underline;
+.noteContent {
+  font-size: 13.5px;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Empty Tab States */
+.feedbackGallery {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  flex-shrink: 0;
+  max-width: 130px;
+  padding-bottom: 2px;
+}
+
+.feedbackGallery::-webkit-scrollbar {
+  display: none;
+}
+
+.feedbackImageWrapper {
+  flex-shrink: 0;
+  scroll-snap-align: start;
+}
+
+.feedbackImage {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid #e9ecef;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.imageModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  cursor: zoom-out;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalImageContainer {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  cursor: default;
+}
+
+.modalLargeImage {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  animation: scaleIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 .emptyTabState {
   display: flex;
   flex-direction: column;
@@ -267,27 +454,57 @@
   text-align: center;
   padding: 80px 40px;
   background-color: #fcfcfd;
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px dashed #e9ecef;
   min-height: 350px;
 }
 
 .emptyTabIcon {
-  color: #ffedd5; /* Very soft orange */
+  color: #ffedd5;
   margin-bottom: 24px;
 }
 
-.emptyTabState h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a1d23;
-  margin: 0 0 12px 0;
+.carouselContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
 }
 
-.emptyTabState p {
-  font-size: 14px;
-  color: #8a92a4;
-  max-width: 400px;
-  margin: 0;
-  line-height: 1.6;
+.feedbackAnimation {
+  animation: feedbackSmoothIn 2.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes feedbackSmoothIn {
+  from {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.carouselDots {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.dotActive {
+  background-color: #fa8314;
+  width: 16px;
+  border-radius: 4px;
 }

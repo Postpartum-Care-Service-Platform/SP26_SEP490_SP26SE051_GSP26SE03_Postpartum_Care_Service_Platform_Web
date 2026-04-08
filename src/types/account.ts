@@ -24,6 +24,14 @@ export interface AssignedStaff {
   email: string;
 }
 
+export interface BookingActivity {
+  familyScheduleId: number;
+  activityName: string;
+  startTime: string;
+  target: 'Mom' | 'Baby';
+  status: 'Done' | 'Missed' | 'Pending';
+}
+
 export interface ActiveBooking {
   id: number;
   bookingStatus: string;
@@ -38,6 +46,13 @@ export interface ActiveBooking {
   roomName: string;
   roomTypeName: string;
   assignedStaff: AssignedStaff[];
+  // Progress Fields
+  progressPercent: number;
+  totalActivities: number;
+  completedActivities: number;
+  missedActivities: number;
+  pendingActivities: number;
+  activities: BookingActivity[];
 }
 
 export interface CustomerDetail {

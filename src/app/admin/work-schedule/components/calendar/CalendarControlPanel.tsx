@@ -13,8 +13,9 @@ import { CalendarStatusDropdown, type CalendarStatusType } from './CalendarStatu
 import { CalendarViewDropdown, type CalendarViewMode } from './CalendarViewDropdown';
 import { MonthYearPicker } from './MonthYearPicker';
 import type { Assignee } from '../shared/AssigneePicker';
-import { AmenityServicePicker } from '../shared/AmenityServicePicker';
+import { ServicePicker } from '../shared/ServicePicker';
 import type { AmenityService } from '@/types/amenity-service';
+import type { Activity } from '@/types/activity';
 
 // Assignee type imported above from shared/AssigneePicker
 
@@ -122,6 +123,9 @@ type Props = {
   staffList?: StaffListMember[];
   amenityValue?: AmenityService | null;
   onAmenityChange?: (value: AmenityService | null) => void;
+  activityValue?: Activity | null;
+  onActivityChange?: (value: Activity | null) => void;
+  customStaffList?: Assignee[];
 };
 
 export function CalendarControlPanel({
@@ -146,6 +150,9 @@ export function CalendarControlPanel({
   staffList = [],
   amenityValue = null,
   onAmenityChange,
+  activityValue = null,
+  onActivityChange,
+  customStaffList,
 }: Props) {
   const [isTaskTypeOpen, setIsTaskTypeOpen] = React.useState(false);
   const selectedTaskType = taskType ?? TASK_TYPES[TASK_TYPES.length - 1];
@@ -170,11 +177,24 @@ export function CalendarControlPanel({
     }
   };
 
+  const COLOR_PALETTE = ['#0C66E4', '#FF8B00', '#DE350B', '#6554C0', '#00875A', '#0065FF'];
+
   const getInitials = (name: string) => {
-    if (!name) return '?';
-    const parts = name.trim().split(/\s+/);
+    if (!name || name === 'Chưa phân công') return '?';
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return '?';
     if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  const getColorFromId = (id: string) => {
+    if (!id) return '#EBECF0';
+    let hash = 0;
+    for (let i = 0; i < id.length; i += 1) {
+      hash = (hash * 31 + id.charCodeAt(i)) | 0;
+    }
+    const idx = Math.abs(hash) % COLOR_PALETTE.length;
+    return COLOR_PALETTE[idx];
   };
 
   const [isStatusOpen, setIsStatusOpen] = React.useState(false);
@@ -211,7 +231,7 @@ export function CalendarControlPanel({
           </div>
 
           <div className={styles.assigneeFilter}>
-            {staffList.slice(0, 3).map((staff) => (
+            {(customStaffList || []).slice(0, 3).map((staff) => (
               <button
                 key={staff.id}
                 type="button"
@@ -222,33 +242,33 @@ export function CalendarControlPanel({
                   } else {
                     onAssigneeChange?.({
                       id: staff.id,
-                      name: staff.fullName,
+                      name: staff.name,
                       avatarUrl: staff.avatarUrl,
                       type: 'user'
                     });
                   }
                 }}
-                title={staff.fullName}
+                title={staff.name}
               >
-                <div 
-                  className={styles.avatarCircle} 
-                  style={{ 
-                    background: staff.avatarUrl ? 'transparent' : '#EBECF0', 
-                    color: '#42526E',
-                    border: assigneeValue?.id === staff.id ? '2px solid #fff' : '2px solid #fff'
+                <div
+                  className={styles.avatarCircle}
+                  style={{
+                    background: staff.avatarUrl ? 'transparent' : getColorFromId(staff.id),
+                    color: '#fff',
+                    border: '2px solid #fff'
                   }}
                 >
                   {staff.avatarUrl ? (
                     <img src={staff.avatarUrl} alt="" className={styles.avatarImg} />
                   ) : (
-                    getInitials(staff.fullName)
+                    getInitials(staff.name)
                   )}
                 </div>
               </button>
             ))}
-            {staffList.length > 3 && (
+            {(customStaffList || []).length > 3 && (
               <div className={styles.avatarMoreBadge}>
-                +{staffList.length - 3}
+                +{(customStaffList || []).length - 3}
               </div>
             )}
           </div>
@@ -297,6 +317,7 @@ export function CalendarControlPanel({
                     setIsAssigneeIdOpen(false);
                   }}
                   onClose={() => setIsAssigneeIdOpen(false)}
+                  customStaffList={customStaffList}
                 />
               </Popover.Content>
             </Popover.Portal>
@@ -305,7 +326,7 @@ export function CalendarControlPanel({
           <Popover.Root open={isAmenityOpen} onOpenChange={setIsAmenityOpen}>
             <Popover.Trigger asChild>
               <button type="button" className={styles.filterBtn}>
-                <span>{amenityValue ? amenityValue.name : 'Tất cả tiện ích'}</span>
+                <span>{activityValue ? activityValue.name : (amenityValue ? amenityValue.name : 'Tất cả dịch vụ')}</span>
                 <ChevronDownIcon />
               </button>
             </Popover.Trigger>
@@ -318,10 +339,15 @@ export function CalendarControlPanel({
                 collisionPadding={12}
                 onOpenAutoFocus={(e) => e.preventDefault()}
               >
-                <AmenityServicePicker
-                  value={amenityValue}
-                  onChange={(a) => {
+                <ServicePicker
+                  amenityValue={amenityValue}
+                  activityValue={activityValue}
+                  onAmenityChange={(a) => {
                     onAmenityChange?.(a);
+                    setIsAmenityOpen(false);
+                  }}
+                  onActivityChange={(a) => {
+                    onActivityChange?.(a);
                     setIsAmenityOpen(false);
                   }}
                   onClose={() => setIsAmenityOpen(false)}
@@ -439,13 +465,17 @@ export function CalendarControlPanel({
             onChange={onViewModeChange || (() => { })}
           />
 
-          <button type="button" className={styles.iconBtn} aria-label="Duyệt tiện ích" title="Duyệt tiện ích" onClick={onAmenityBrowse}>
-            <ChecklistIcon />
-          </button>
+          {onAmenityBrowse && (
+            <button type="button" className={styles.iconBtn} aria-label="Duyệt tiện ích" title="Duyệt tiện ích" onClick={onAmenityBrowse}>
+              <ChecklistIcon />
+            </button>
+          )}
 
-          <button type="button" className={styles.iconBtn} aria-label="Tạo lịch mới" title="Tạo lịch mới" onClick={onSchedule}>
-            <CalendarPlusIcon />
-          </button>
+          {onSchedule && (
+            <button type="button" className={styles.iconBtn} aria-label="Tạo lịch mới" title="Tạo lịch mới" onClick={onSchedule}>
+              <CalendarPlusIcon />
+            </button>
+          )}
         </div>
       </div>
     </Tooltip.Provider>

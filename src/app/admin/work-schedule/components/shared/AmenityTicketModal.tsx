@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Search, Check, CheckCircle, X, Loader2 } from 'lucide-react';
+import { Search, Check, CheckCircle, X, Loader2, Users } from 'lucide-react';
 import { Cross1Icon, ChevronDownIcon } from '@radix-ui/react-icons';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import React from 'react';
+import Image from 'next/image';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import {
@@ -36,35 +37,74 @@ const STATUS_OPTIONS = [
   { value: 'Cancelled', label: 'Đã hủy' },
 ];
 
+const COLOR_PALETTE = ['#DE350B', '#FF8B00', '#0C66E4', '#6554C0', '#00875A', '#0065FF'];
+
+function getColorFromId(id: string) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i += 1) {
+    hash = (hash * 31 + id.charCodeAt(i)) | 0;
+  }
+  const idx = Math.abs(hash) % COLOR_PALETTE.length;
+  return COLOR_PALETTE[idx] ?? '#6554C0';
+}
+
 export function AmenityTicketModal({ open, onOpenChange }: Props) {
   const { toast } = useToast();
   const [tickets, setTickets] = useState<AmenityTicket[]>([]);
   const [services, setServices] = useState<AmenityService[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [amenityStaff, setAmenityStaff] = useState<{ id: string; fullName: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [staffSearchQuery, setStaffSearchQuery] = useState('');
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const [ticketData, serviceData, accountData] = await Promise.all([
-        amenityTicketService.getAllAmenityTickets(),
-        amenityServiceService.getAllAmenityServices(),
-        userService.getAllAccounts(),
-      ]);
-      setTickets(ticketData);
-      setServices(serviceData);
-      setAccounts(accountData);
+      console.log('AmenityTicketModal: Start fetching data...');
+
+      const ticketData = await amenityTicketService.getAllAmenityTickets().catch(err => {
+        console.error('AmenityTicketModal: AmenityTicket API failed', err);
+        return null;
+      });
+      console.log('AmenityTicketModal: ticketData response:', ticketData);
+
+      const serviceData = await amenityServiceService.getAllAmenityServices().catch(err => {
+        console.error('AmenityTicketModal: AmenityService API failed', err);
+        return null;
+      });
+      console.log('AmenityTicketModal: serviceData response:', serviceData);
+
+      const accountData = await userService.getAllAccounts().catch(err => {
+        console.error('AmenityTicketModal: Accounts API failed', err);
+        return null;
+      });
+      console.log('AmenityTicketModal: accountData response:', accountData);
+
+      const staffData = await amenityTicketService.getAllStaff().catch(err => {
+        console.error('AmenityTicketModal: AmenityStaff API failed', err);
+        return null;
+      });
+      console.log('AmenityTicketModal: staffData response:', staffData);
+
+      setTickets(Array.isArray(ticketData) ? ticketData : []);
+      setServices(Array.isArray(serviceData) ? serviceData : []);
+      setAccounts(Array.isArray(accountData) ? accountData : []);
+      setAmenityStaff(Array.isArray(staffData) ? staffData : []);
+
+      if (!ticketData) {
+        setError('Lỗi kết nối API chính. Vui lòng kiểm tra lại quyền truy cập hoặc đường truyền.');
+      }
     } catch (err: unknown) {
-      setError('Không thể tải dữ liệu ticket tiện ích');
-      console.error(err);
+      setError('Đã xảy ra lỗi không xác định khi tải dữ liệu.');
+      console.error('AmenityTicketModal: Global Error:', err);
     } finally {
       setLoading(false);
     }
@@ -102,9 +142,14 @@ export function AmenityTicketModal({ open, onOpenChange }: Props) {
     }
   };
 
-  const handleComplete = async (id: number) => {
+  const handleComplete = async (id: number, staffId: string) => {
     try {
-      await amenityTicketService.completeAmenityTicket(id);
+      if (!staffId) {
+        toast({ title: 'Cảnh báo', description: 'Vui lòng chọn nhân viên thực hiện.', variant: 'error' });
+        return;
+      }
+
+      await amenityTicketService.completeAmenityTicket(id, staffId);
       toast({ title: 'Thành công', description: 'Đã đánh dấu hoàn thành yêu cầu.', variant: 'success' });
       fetchData();
     } catch (error) {
@@ -112,15 +157,51 @@ export function AmenityTicketModal({ open, onOpenChange }: Props) {
     }
   };
 
-  const getServiceName = (id: number) => {
-    return services.find(s => s.id === id)?.name || `Dịch vụ #${id}`;
+  const getServiceName = (ticket: AmenityTicket) => {
+    if (ticket.amenityServiceName) return ticket.amenityServiceName;
+    return services.find(s => s.id === ticket.amenityServiceId)?.name || `Dịch vụ #${ticket.amenityServiceId}`;
   };
 
-  const getCustomerName = (id: string) => {
+  const getCustomerName = (ticket: AmenityTicket) => {
+    if (ticket.customerName) return ticket.customerName;
+    const id = ticket.customerId;
     const acc = accounts.find(a => a.id === id);
     if (!acc) return `Khách hàng #${id.slice(0, 8)}`;
     return acc.ownerProfile?.fullName || acc.email || acc.username || `Khách hàng #${id.slice(0, 8)}`;
   };
+
+  const getStaffDisplayName = (ticket: AmenityTicket) => {
+    if (ticket.amenityStaffName) return ticket.amenityStaffName;
+    const id = ticket.amenityStaffId || ticket.staffId;
+    if (!id) return '-';
+    // Try to find in specialized list first
+    const amStaff = amenityStaff.find(s => s.id === id);
+    if (amStaff) return amStaff.fullName;
+    // Fallback to accounts list
+    const acc = accounts.find(a => a.id === id);
+    if (!acc) return 'N/A';
+    return acc.ownerProfile?.fullName || acc.username || 'Staff';
+  };
+
+  const enrichedStaff = useMemo(() => {
+    return amenityStaff.map(s => {
+      const acc = accounts.find(a => a.id === s.id);
+      return {
+        ...s,
+        email: acc?.email || 'N/A',
+        avatarUrl: acc?.ownerProfile?.avatarUrl || '',
+      };
+    });
+  }, [amenityStaff, accounts]);
+
+  const filteredEnrichedStaff = useMemo(() => {
+    const q = staffSearchQuery.toLowerCase().trim();
+    if (!q) return enrichedStaff;
+    return enrichedStaff.filter(s =>
+      s.fullName.toLowerCase().includes(q) ||
+      s.email.toLowerCase().includes(q)
+    );
+  }, [enrichedStaff, staffSearchQuery]);
 
   const filteredTickets = useMemo(() => {
     let filtered = [...tickets];
@@ -128,8 +209,8 @@ export function AmenityTicketModal({ open, onOpenChange }: Props) {
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(item => {
-        const serviceName = getServiceName(item.amenityServiceId).toLowerCase();
-        const customerName = getCustomerName(item.customerId).toLowerCase();
+        const serviceName = getServiceName(item).toLowerCase();
+        const customerName = getCustomerName(item).toLowerCase();
         return (
           serviceName.includes(q) ||
           customerName.includes(q) ||
@@ -178,204 +259,303 @@ export function AmenityTicketModal({ open, onOpenChange }: Props) {
   if (!open) return null;
 
   return (
-    <Tooltip.Provider delayDuration={400}>
-    <div className={styles.modalOverlay} onClick={() => onOpenChange(false)}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Duyệt yêu cầu tiện ích</h2>
-          <Tooltip.Root>
-            <Tooltip.Trigger asChild>
-              <button className={styles.closeButton} onClick={() => onOpenChange(false)}>
-                <Cross1Icon />
-              </button>
-            </Tooltip.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Content className={styles.tooltip} side="bottom" sideOffset={5}>
-                Đóng
-                <Tooltip.Arrow className={styles.tooltipArrow} />
-              </Tooltip.Content>
-            </Tooltip.Portal>
-          </Tooltip.Root>
-        </div>
-
-        <div className={styles.modalBody}>
-          <div className={styles.controls}>
-            <div className={styles.left}>
-              <div className={styles.searchWrapper}>
-                <Search className={styles.searchIcon} size={16} />
-                <input
-                  type="text"
-                  placeholder="Tìm theo khách hàng, dịch vụ..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={styles.searchInput}
-                />
-              </div>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button type="button" className={styles.filterButton}>
-                    <span>{STATUS_OPTIONS.find(opt => opt.value === statusFilter)?.label}</span>
-                    <ChevronDownIcon style={{ width: '14px', height: '14px', color: '#64748b' }} />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className={styles.dropdownContent} align="start" sideOffset={4}>
-                  {STATUS_OPTIONS.map((option) => (
-                    <DropdownMenuItem
-                      key={option.value}
-                      className={`${styles.dropdownItem} ${statusFilter === option.value ? styles.dropdownItemActive : ''}`}
-                      onClick={() => setStatusFilter(option.value)}
-                    >
-                      {option.label}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-            <div className={styles.right}>
-               {loading && <Loader2 size={20} className="animate-spin text-gray-400" />}
-            </div>
+    <Tooltip.Provider delayDuration={100}>
+      <div className={styles.modalOverlay} onClick={() => onOpenChange(false)}>
+        <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalHeader}>
+            <h2 className={styles.modalTitle}>Duyệt yêu cầu tiện ích</h2>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <button className={styles.closeButton} onClick={() => onOpenChange(false)}>
+                  <Cross1Icon />
+                </button>
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Content className={styles.tooltip} side="bottom" sideOffset={5}>
+                  Đóng
+                  <Tooltip.Arrow className={styles.tooltipArrow} />
+                </Tooltip.Content>
+              </Tooltip.Portal>
+            </Tooltip.Root>
           </div>
 
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th className={styles.sttCol}>STT</th>
-                  <th className={styles.codeCol}>Mã</th>
-                  <th>Khách hàng</th>
-                  <th>Tiện ích</th>
-                  <th>Ngày</th>
-                  <th>Giờ</th>
-                  <th>Trạng thái</th>
-                  <th>Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading && tickets.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>Đang tải...</td>
-                  </tr>
-                ) : paginatedTickets.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>Không có yêu cầu nào</td>
-                  </tr>
-                ) : (
-                  paginatedTickets.map((ticket, index) => (
-                    <tr key={ticket.id}>
-                      <td className={styles.sttCol}>{(currentPage - 1) * pageSize + index + 1}</td>
-                      <td className={styles.codeCol}>#{ticket.id}</td>
-                      <td>{getCustomerName(ticket.customerId)}</td>
-                      <td>{getServiceName(ticket.amenityServiceId)}</td>
-                      <td>{formatDate(ticket.date)}</td>
-                      <td>{formatTime(ticket.startTime)} - {formatTime(ticket.endTime)}</td>
-                      <td>
-                        <span className={`${styles.statusBadge} ${styles[`status-${ticket.status}`]}`}>
-                          {STATUS_OPTIONS.find(opt => opt.value === ticket.status)?.label || ticket.status}
-                        </span>
-                      </td>
-                      <td>
-                        <div className={styles.actions}>
-                          {ticket.status === 'Booked' && (
-                            <>
-                              <Tooltip.Root>
-                                <Tooltip.Trigger asChild>
-                                  <button 
-                                    className={`${styles.actionButton} ${styles.acceptButton}`}
-                                    onClick={() => handleAccept(ticket.id)}
-                                  >
-                                    <Check size={14} />
-                                  </button>
-                                </Tooltip.Trigger>
-                                <Tooltip.Portal>
-                                  <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
-                                    Chấp nhận
-                                    <Tooltip.Arrow className={styles.tooltipArrow} />
-                                  </Tooltip.Content>
-                                </Tooltip.Portal>
-                              </Tooltip.Root>
+          <div className={styles.modalBody}>
+            <div className={styles.controls}>
+              <div className={styles.left}>
+                <div className={styles.searchWrapper}>
+                  <Search className={styles.searchIcon} size={16} />
+                  <input
+                    type="text"
+                    placeholder="Tìm theo khách hàng, dịch vụ..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className={styles.searchInput}
+                  />
+                </div>
 
-                              <Tooltip.Root>
-                                <Tooltip.Trigger asChild>
-                                  <button 
-                                    className={`${styles.actionButton} ${styles.cancelButton}`}
-                                    onClick={() => handleCancel(ticket.id)}
-                                  >
-                                    <X size={14} />
-                                  </button>
-                                </Tooltip.Trigger>
-                                <Tooltip.Portal>
-                                  <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
-                                    Hủy yêu cầu
-                                    <Tooltip.Arrow className={styles.tooltipArrow} />
-                                  </Tooltip.Content>
-                                </Tooltip.Portal>
-                              </Tooltip.Root>
-                            </>
-                          )}
-                          {ticket.status === 'Accepted' && (
-                            <>
-                              <Tooltip.Root>
-                                <Tooltip.Trigger asChild>
-                                  <button 
-                                    className={`${styles.actionButton} ${styles.completeButton}`}
-                                    onClick={() => handleComplete(ticket.id)}
-                                  >
-                                    <CheckCircle size={14} />
-                                  </button>
-                                </Tooltip.Trigger>
-                                <Tooltip.Portal>
-                                  <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
-                                    Hoàn thành
-                                    <Tooltip.Arrow className={styles.tooltipArrow} />
-                                  </Tooltip.Content>
-                                </Tooltip.Portal>
-                              </Tooltip.Root>
+                <div className={styles.filterGroup}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button type="button" className={styles.filterButton}>
+                        <span>{STATUS_OPTIONS.find(opt => opt.value === statusFilter)?.label}</span>
+                        <ChevronDownIcon className={styles.filterChevron} />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className={styles.dropdownContent} align="start" sideOffset={6}>
+                      {STATUS_OPTIONS.map((option) => (
+                        <DropdownMenuItem
+                          key={option.value}
+                          className={`${styles.dropdownItem} ${statusFilter === option.value ? styles.dropdownItemActive : ''}`}
+                          onClick={() => setStatusFilter(option.value)}
+                        >
+                          {option.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+              <div className={styles.right}>
+                {loading && <Loader2 size={20} className="animate-spin text-gray-400" />}
+              </div>
+            </div>
 
-                              <Tooltip.Root>
-                                <Tooltip.Trigger asChild>
-                                  <button 
-                                    className={`${styles.actionButton} ${styles.cancelButton}`}
-                                    onClick={() => handleCancel(ticket.id)}
-                                  >
-                                    <X size={14} />
-                                  </button>
-                                </Tooltip.Trigger>
-                                <Tooltip.Portal>
-                                  <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
-                                    Hủy yêu cầu
-                                    <Tooltip.Arrow className={styles.tooltipArrow} />
-                                  </Tooltip.Content>
-                                </Tooltip.Portal>
-                              </Tooltip.Root>
-                            </>
-                          )}
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md mb-4 text-sm flex items-center gap-2">
+                <X size={16} />
+                {error}
+              </div>
+            )}
+
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th className={styles.sttCol}>STT</th>
+                    <th className={styles.codeCol}>Mã</th>
+                    <th>Khách hàng</th>
+                    <th>Tiện ích</th>
+                    <th>Ngày</th>
+                    <th>Giờ</th>
+                    <th>Trạng thái</th>
+                    <th>Nhân viên</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loading && tickets.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} style={{ textAlign: 'center', padding: '40px' }}>
+                        <div className="flex items-center justify-center gap-2">
+                          <Loader2 className="animate-spin" size={18} />
+                          <span>Đang tải dữ liệu...</span>
                         </div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : paginatedTickets.length === 0 ? (
+                    <tr>
+                      <td colSpan={9} style={{ textAlign: 'center', padding: '40px' }}>Không có yêu cầu nào</td>
+                    </tr>
+                  ) : (
+                    paginatedTickets.map((ticket, index) => (
+                      <tr key={ticket.id}>
+                        <td className={styles.sttCol}>{(currentPage - 1) * pageSize + index + 1}</td>
+                        <td className={styles.codeCol}>#{ticket.id}</td>
+                        <td>{getCustomerName(ticket)}</td>
+                        <td>{getServiceName(ticket)}</td>
+                        <td>{formatDate(ticket.date)}</td>
+                        <td>{formatTime(ticket.startTime)} - {formatTime(ticket.endTime)}</td>
+                        <td>
+                          <span className={`${styles.statusBadge} ${styles[`status-${ticket.status}`]}`}>
+                            {STATUS_OPTIONS.find(opt => opt.value === ticket.status)?.label || ticket.status}
+                          </span>
+                        </td>
+                        <td className="text-xs font-medium text-slate-500 italic">
+                          {getStaffDisplayName(ticket)}
+                        </td>
+                        <td>
+                          <div className={styles.actions}>
+                            {ticket.status === 'Booked' && (
+                              <>
+                                <Tooltip.Root>
+                                  <Tooltip.Trigger asChild>
+                                    <button
+                                      className={`${styles.actionButton} ${styles.acceptButton}`}
+                                      onClick={() => handleAccept(ticket.id)}
+                                    >
+                                      <Check size={14} />
+                                    </button>
+                                  </Tooltip.Trigger>
+                                  <Tooltip.Portal>
+                                    <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
+                                      Chấp nhận
+                                      <Tooltip.Arrow className={styles.tooltipArrow} />
+                                    </Tooltip.Content>
+                                  </Tooltip.Portal>
+                                </Tooltip.Root>
+
+                                <Tooltip.Root>
+                                  <Tooltip.Trigger asChild>
+                                    <button
+                                      className={`${styles.actionButton} ${styles.cancelButton}`}
+                                      onClick={() => handleCancel(ticket.id)}
+                                    >
+                                      <X size={14} />
+                                    </button>
+                                  </Tooltip.Trigger>
+                                  <Tooltip.Portal>
+                                    <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
+                                      Hủy yêu cầu
+                                      <Tooltip.Arrow className={styles.tooltipArrow} />
+                                    </Tooltip.Content>
+                                  </Tooltip.Portal>
+                                </Tooltip.Root>
+                              </>
+                            )}
+                            {ticket.status === 'Accepted' && (
+                              <>
+                                <DropdownMenu>
+                                  <Tooltip.Root>
+                                    <Tooltip.Trigger asChild>
+                                      <DropdownMenuTrigger asChild>
+                                        <button className={`${styles.actionButton} ${styles.completeButton}`}>
+                                          <CheckCircle size={14} />
+                                        </button>
+                                      </DropdownMenuTrigger>
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Portal>
+                                      <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
+                                        Hoàn thành
+                                        <Tooltip.Arrow className={styles.tooltipArrow} />
+                                      </Tooltip.Content>
+                                    </Tooltip.Portal>
+                                  </Tooltip.Root>
+
+                                  <DropdownMenuContent className={styles.staffPopoverContent} align="end" sideOffset={8}>
+                                    <div className={styles.staffSearchWrapper}>
+                                      <div className={styles.staffSearchInputWrapper}>
+                                        <div className={styles.unassignedIcon} aria-hidden="true">
+                                          <svg fill="none" viewBox="-4 -4 24 24" width="16" height="16">
+                                            <path
+                                              fill="currentColor"
+                                              fillRule="evenodd"
+                                              d="M8 1.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4 4a4 4 0 1 1 8 0 4 4 0 0 1-8 0m-2 9a3.75 3.75 0 0 1 3.75-3.75h4.5A3.75 3.75 0 0 1 14 13v2h-1.5v-2a2.25 2.25 0 0 0-2.25-2.25h-4.5A2.25 2.25 0 0 0 3.5 13v2H2z"
+                                              clipRule="evenodd"
+                                            />
+                                          </svg>
+                                        </div>
+                                        <input
+                                          type="text"
+                                          placeholder="Tìm nhân viên..."
+                                          className={styles.staffSearchInput}
+                                          value={staffSearchQuery}
+                                          onChange={(e) => setStaffSearchQuery(e.target.value)}
+                                          autoFocus
+                                          onClick={(e) => e.stopPropagation()}
+                                        />
+                                      </div>
+                                    </div>
+
+                                    <div className={styles.staffUserList}>
+                                      {!staffSearchQuery && (
+                                        <div
+                                          className={styles.staffUserItem}
+                                          role="button"
+                                        >
+                                          <div className={styles.staffAvatar} style={{ background: '#7A869A' }} aria-hidden="true">
+                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '16px', height: '16px' }}>
+                                              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                              <circle cx="9" cy="7" r="4" />
+                                              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                            </svg>
+                                          </div>
+                                          <div className={styles.staffUserInfo}>
+                                            <div className={styles.staffUserName}>Tất cả nhân viên</div>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {filteredEnrichedStaff.map(staff => (
+                                        <DropdownMenuItem
+                                          key={staff.id}
+                                          className={styles.staffUserItem}
+                                          onClick={() => handleComplete(ticket.id, staff.id)}
+                                        >
+                                          <div className={styles.staffAvatar} style={{ background: getColorFromId(staff.id) }} aria-hidden="true">
+                                            {staff.avatarUrl ? (
+                                              <Image 
+                                                src={staff.avatarUrl} 
+                                                alt="" 
+                                                width={24} 
+                                                height={24} 
+                                                className="rounded-full object-cover"
+                                                unoptimized
+                                              />
+                                            ) : (
+                                              staff.fullName?.charAt(0).toUpperCase()
+                                            )}
+                                          </div>
+                                          <div className={styles.staffUserInfo}>
+                                            <div className={styles.staffUserName}>{staff.fullName}</div>
+                                            {staff.email && <div className={styles.staffUserEmail}>{staff.email}</div>}
+                                          </div>
+                                        </DropdownMenuItem>
+                                      ))}
+
+                                      {filteredEnrichedStaff.length === 0 && (
+                                        <div className={styles.noStaffFound}>
+                                          Không tìm thấy nhân viên
+                                        </div>
+                                      )}
+                                    </div>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+
+                                <Tooltip.Root>
+                                  <Tooltip.Trigger asChild>
+                                    <button
+                                      className={`${styles.actionButton} ${styles.cancelButton}`}
+                                      onClick={() => handleCancel(ticket.id)}
+                                    >
+                                      <X size={14} />
+                                    </button>
+                                  </Tooltip.Trigger>
+                                  <Tooltip.Portal>
+                                    <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
+                                      Hủy yêu cầu
+                                      <Tooltip.Arrow className={styles.tooltipArrow} />
+                                    </Tooltip.Content>
+                                  </Tooltip.Portal>
+                                </Tooltip.Root>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className={styles.footer}>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={filteredTickets.length}
+              onPageChange={setCurrentPage}
+              pageSizeOptions={[10, 20]}
+              onPageSizeChange={(size: number) => {
+                setPageSize(size);
+                setCurrentPage(1);
+              }}
+            />
           </div>
         </div>
-
-        <div className={styles.footer}>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            totalItems={filteredTickets.length}
-            onPageChange={setCurrentPage}
-            pageSizeOptions={[10, 20]}
-            onPageSizeChange={(size: number) => {
-              setPageSize(size);
-              setCurrentPage(1);
-            }}
-          />
-        </div>
       </div>
-    </div>
     </Tooltip.Provider>
   );
 }

@@ -137,6 +137,58 @@
   line-height: 1;
 }
 
+.rememberMeContainer {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: -8px;
+  /* Close the gap between password and checkbox */
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  background-color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s ease;
+  border-radius: 0;
+}
+
+.checkbox:checked {
+  background-color: rgb(250, 131, 20);
+  border-color: rgb(250, 131, 20);
+}
+
+.checkbox:checked::after {
+  content: '';
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) translateY(-1px);
+  position: absolute;
+}
+
+.checkboxText {
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: #111;
+}
+
 .submit {
   margin-top: 18px;
   width: 100%;
@@ -196,6 +248,60 @@
 .googleBtn:focus,
 .googleBtn:focus-visible {
   border: 1px solid rgb(250, 131, 20);
+}
+
+.customDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 9999;
+  margin-top: 4px;
+  animation: fadeIn 0.2s ease;
+}
+
+.dropdownEmpty {
+  padding: 14px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.5);
+  text-align: center;
+  font-style: italic;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdownHeader {
+  padding: 8px 14px;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.4);
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dropdownItem {
+  padding: 12px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dropdownItem:last-child {
+  border-bottom: none;
+}
+
+.dropdownItem:hover {
+  background: #fffbf4;
+  color: rgb(250, 131, 20);
+  padding-left: 18px;
 }
 
 .googleIcon {

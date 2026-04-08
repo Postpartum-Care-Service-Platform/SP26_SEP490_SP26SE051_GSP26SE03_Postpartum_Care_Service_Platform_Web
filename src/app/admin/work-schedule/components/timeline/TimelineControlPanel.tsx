@@ -135,179 +135,179 @@ export function TimelineControlPanel({
             />
           </div>
 
-        <div className={styles.avatars} aria-label="Assignees">
-          {staffList.slice(0, 3).map((staff) => (
-            <button
-              key={staff.id}
-              type="button"
-              className={`${styles.avatar} ${assigneeValue?.id === staff.id ? styles.avatarActive : ''}`}
-              title={staff.fullName}
-              onClick={() => {
-                if (assigneeValue?.id === staff.id) {
-                  onAssigneeChange?.(null);
-                } else {
-                  onAssigneeChange?.({
-                    id: staff.id,
-                    name: staff.fullName,
-                    avatarUrl: staff.avatarUrl,
-                    initials: getInitials(staff.fullName),
-                    type: 'user'
-                  });
-                }
-              }}
-            >
-              {staff.avatarUrl ? (
-                <img src={staff.avatarUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
-              ) : (
-                getInitials(staff.fullName)
-              )}
-            </button>
-          ))}
-          {staffList.length > 3 && (
-            <div className={styles.avatarMore}>
-              +{staffList.length - 3}
-            </div>
-          )}
-        </div>
-
-        <Popover.Root open={isAssigneeOpen} onOpenChange={setIsAssigneeOpen}>
-          <Tooltip.Root>
-            <Tooltip.Trigger asChild>
-              <Popover.Trigger asChild>
-                <button type="button" className={styles.filterBtn}>
-                  {assigneeValue && (
-                    <div className={styles.avatarCircle} style={{ background: '#ed8936', color: '#fff' }}>
-                      {assigneeValue.avatarUrl ? (
-                        <img src={assigneeValue.avatarUrl} alt="" className={styles.avatarImg} />
-                      ) : (
-                        getInitials(assigneeValue.name)
-                      )}
-                    </div>
-                  )}
-                  <span>{assigneeValue ? assigneeValue.name : 'Tất cả nhân viên'}</span>
-                  <ChevronDownIcon />
-                </button>
-              </Popover.Trigger>
-            </Tooltip.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
-                Lọc theo nhân viên
-                <Tooltip.Arrow className={styles.tooltipArrow} />
-              </Tooltip.Content>
-            </Tooltip.Portal>
-          </Tooltip.Root>
-          <Popover.Portal>
-            <Popover.Content
-              className={styles.popoverContent}
-              side="bottom"
-              align="start"
-              sideOffset={6}
-              collisionPadding={12}
-            >
-              <AssigneePicker
-                value={assigneeValue}
-                onChange={(a) => {
-                  onAssigneeChange?.(a);
-                  setIsAssigneeOpen(false);
+          <div className={styles.avatars} aria-label="Assignees">
+            {staffList.slice(0, 3).map((staff) => (
+              <button
+                key={staff.id}
+                type="button"
+                className={`${styles.avatar} ${assigneeValue?.id === staff.id ? styles.avatarActive : ''}`}
+                title={staff.fullName}
+                onClick={() => {
+                  if (assigneeValue?.id === staff.id) {
+                    onAssigneeChange?.(null);
+                  } else {
+                    onAssigneeChange?.({
+                      id: staff.id,
+                      name: staff.fullName,
+                      avatarUrl: staff.avatarUrl,
+                      initials: getInitials(staff.fullName),
+                      type: 'user'
+                    });
+                  }
                 }}
-                onClose={() => setIsAssigneeOpen(false)}
-              />
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
+              >
+                {staff.avatarUrl ? (
+                  <img src={staff.avatarUrl} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                ) : (
+                  getInitials(staff.fullName)
+                )}
+              </button>
+            ))}
+            {staffList.length > 3 && (
+              <div className={styles.avatarMore}>
+                +{staffList.length - 3}
+              </div>
+            )}
+          </div>
 
-        <Popover.Root open={isAmenityOpen} onOpenChange={setIsAmenityOpen}>
-          <Popover.Trigger asChild>
-            <button type="button" className={styles.filterBtn}>
-              <span>{amenityValue ? amenityValue.name : (epicLabel || 'Tất cả tiện ích')}</span>
+          <Popover.Root open={isAssigneeOpen} onOpenChange={setIsAssigneeOpen}>
+            <Tooltip.Root>
+              <Tooltip.Trigger asChild>
+                <Popover.Trigger asChild>
+                  <button type="button" className={styles.filterBtn}>
+                    {assigneeValue && (
+                      <div className={styles.avatarCircle} style={{ background: '#ed8936', color: '#fff' }}>
+                        {assigneeValue.avatarUrl ? (
+                          <img src={assigneeValue.avatarUrl} alt="" className={styles.avatarImg} />
+                        ) : (
+                          getInitials(assigneeValue.name)
+                        )}
+                      </div>
+                    )}
+                    <span>{assigneeValue ? assigneeValue.name : 'Tất cả nhân viên'}</span>
+                    <ChevronDownIcon />
+                  </button>
+                </Popover.Trigger>
+              </Tooltip.Trigger>
+              <Tooltip.Portal>
+                <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
+                  Lọc theo nhân viên
+                  <Tooltip.Arrow className={styles.tooltipArrow} />
+                </Tooltip.Content>
+              </Tooltip.Portal>
+            </Tooltip.Root>
+            <Popover.Portal>
+              <Popover.Content
+                className={styles.popoverContent}
+                side="bottom"
+                align="start"
+                sideOffset={6}
+                collisionPadding={12}
+              >
+                <AssigneePicker
+                  value={assigneeValue}
+                  onChange={(a) => {
+                    onAssigneeChange?.(a);
+                    setIsAssigneeOpen(false);
+                  }}
+                  onClose={() => setIsAssigneeOpen(false)}
+                />
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
+
+          <Popover.Root open={isAmenityOpen} onOpenChange={setIsAmenityOpen}>
+            <Popover.Trigger asChild>
+              <button type="button" className={styles.filterBtn}>
+                <span>{amenityValue ? amenityValue.name : (epicLabel || 'Tất cả tiện ích')}</span>
+                <ChevronDownIcon />
+              </button>
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Content
+                className={styles.popoverContent}
+                side="bottom"
+                align="start"
+                sideOffset={6}
+                collisionPadding={12}
+              >
+                <AmenityServicePicker
+                  value={amenityValue}
+                  onChange={(a) => {
+                    onAmenityChange?.(a);
+                    setIsAmenityOpen(false);
+                  }}
+                  onClose={() => setIsAmenityOpen(false)}
+                />
+              </Popover.Content>
+            </Popover.Portal>
+          </Popover.Root>
+
+          <div className={styles.statusWrap} ref={statusRef}>
+            <button
+              type="button"
+              className={`${styles.filterBtn} ${isStatusOpen ? styles.filterBtnActive : ''}`}
+              onClick={() => setIsStatusOpen(!isStatusOpen)}
+            >
+              <span>Trạng thái</span>
               <ChevronDownIcon />
             </button>
-          </Popover.Trigger>
-          <Popover.Portal>
-            <Popover.Content
-              className={styles.popoverContent}
-              side="bottom"
-              align="start"
-              sideOffset={6}
-              collisionPadding={12}
-            >
-              <AmenityServicePicker
-                value={amenityValue}
-                onChange={(a) => {
-                  onAmenityChange?.(a);
-                  setIsAmenityOpen(false);
-                }}
-                onClose={() => setIsAmenityOpen(false)}
-              />
-            </Popover.Content>
-          </Popover.Portal>
-        </Popover.Root>
 
-        <div className={styles.statusWrap} ref={statusRef}>
-          <button
-            type="button"
-            className={`${styles.filterBtn} ${isStatusOpen ? styles.filterBtnActive : ''}`}
-            onClick={() => setIsStatusOpen(!isStatusOpen)}
-          >
-            <span>Trạng thái</span>
-            <ChevronDownIcon />
+            {isStatusOpen && (
+              <div className={styles.dropdown}>
+                <div className={styles.dropdownSearch}>
+                  <span className={styles.dropdownSearchIcon}><SearchIcon /></span>
+                  <input
+                    type="text"
+                    className={styles.dropdownInput}
+                    placeholder="Tìm kiếm trạng thái"
+                    autoFocus
+                  />
+                </div>
+
+                <div className={styles.dropdownList}>
+                  <label className={styles.dropdownItem}>
+                    <input type="checkbox" defaultChecked />
+                    <span className={styles.checkText}>TẤT CẢ TRẠNG THÁI</span>
+                  </label>
+                  <label className={styles.dropdownItem}>
+                    <input type="checkbox" />
+                    <span className={`${styles.badge} ${styles.badgeScheduled}`}>ĐÃ LÊN LỊCH</span>
+                  </label>
+                  <label className={styles.dropdownItem}>
+                    <input type="checkbox" />
+                    <span className={`${styles.badge} ${styles.badgeCompleted}`}>HOÀN THÀNH</span>
+                  </label>
+                  <label className={styles.dropdownItem}>
+                    <input type="checkbox" />
+                    <span className={`${styles.badge} ${styles.badgeMissed}`}>ĐÃ BỎ LỠ</span>
+                  </label>
+                  <label className={styles.dropdownItem}>
+                    <input type="checkbox" />
+                    <span className={`${styles.badge} ${styles.badgeCancelled}`}>ĐÃ HỦY</span>
+                  </label>
+                </div>
+
+                <div className={styles.dropdownFooter}>
+                  5 trên 5
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className={styles.right}>
+          <button type="button" className={styles.iconBtn} aria-label="Duyệt tiện ích" title="Duyệt tiện ích" onClick={onAmenityBrowse}>
+            <ChecklistIcon />
           </button>
-
-          {isStatusOpen && (
-            <div className={styles.dropdown}>
-              <div className={styles.dropdownSearch}>
-                <span className={styles.dropdownSearchIcon}><SearchIcon /></span>
-                <input
-                  type="text"
-                  className={styles.dropdownInput}
-                  placeholder="Tìm kiếm trạng thái"
-                  autoFocus
-                />
-              </div>
-
-              <div className={styles.dropdownList}>
-                <label className={styles.dropdownItem}>
-                  <input type="checkbox" defaultChecked />
-                  <span className={styles.checkText}>TẤT CẢ TRẠNG THÁI</span>
-                </label>
-                <label className={styles.dropdownItem}>
-                  <input type="checkbox" />
-                  <span className={`${styles.badge} ${styles.badgeScheduled}`}>ĐÃ LÊN LỊCH</span>
-                </label>
-                <label className={styles.dropdownItem}>
-                  <input type="checkbox" />
-                  <span className={`${styles.badge} ${styles.badgeCompleted}`}>HOÀN THÀNH</span>
-                </label>
-                <label className={styles.dropdownItem}>
-                  <input type="checkbox" />
-                  <span className={`${styles.badge} ${styles.badgeMissed}`}>ĐÃ BỎ LỠ</span>
-                </label>
-                <label className={styles.dropdownItem}>
-                  <input type="checkbox" />
-                  <span className={`${styles.badge} ${styles.badgeCancelled}`}>ĐÃ HỦY</span>
-                </label>
-              </div>
-
-              <div className={styles.dropdownFooter}>
-                5 trên 5
-              </div>
-            </div>
-          )}
+          <button type="button" className={styles.iconBtn} aria-label="Controls">
+            <SlidersIcon />
+          </button>
+          <button type="button" className={styles.iconBtn} aria-label="More">
+            <MoreIcon />
+          </button>
         </div>
       </div>
-
-      <div className={styles.right}>
-        <button type="button" className={styles.iconBtn} aria-label="Duyệt tiện ích" title="Duyệt tiện ích" onClick={onAmenityBrowse}>
-          <ChecklistIcon />
-        </button>
-        <button type="button" className={styles.iconBtn} aria-label="Controls">
-          <SlidersIcon />
-        </button>
-        <button type="button" className={styles.iconBtn} aria-label="More">
-          <MoreIcon />
-        </button>
-      </div>
-    </div>
     </Tooltip.Provider>
   );
 }

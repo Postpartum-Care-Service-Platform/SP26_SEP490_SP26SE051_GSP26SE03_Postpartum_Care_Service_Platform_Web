@@ -12,6 +12,7 @@ import {
 import Image from 'next/image';
 import React from 'react';
 
+import type { BookingProgress } from '@/types/booking-progress';
 import type { Account, CustomerDetail } from '@/types/account';
 import type { FamilyProfile } from '@/types/family-profile';
 
@@ -21,6 +22,7 @@ interface UserProfileCardProps {
   familyProfile: FamilyProfile | null;
   account: Account | null;
   customerDetail: CustomerDetail | null;
+  bookingProgress?: BookingProgress | null;
   loading?: boolean;
 }
 
@@ -28,6 +30,7 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
   familyProfile,
   account,
   customerDetail,
+  bookingProgress,
   loading
 }) => {
   if (loading) {
@@ -47,8 +50,10 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
   const initials = name.substring(0, 2).toUpperCase();
 
   // Package and staff info from detail
-  const activeBooking = customerDetail?.activeBookings?.[0];
-  const staff = activeBooking?.assignedStaff?.[0];
+  // Use bookingProgress from API if available, fallback to customerDetail.activeBookings[0]
+  const activeBooking = (bookingProgress || customerDetail?.activeBookings?.[0]) as any;
+  // BookingProgress might not have assignedStaff, so fallback to customerDetail source
+  const allStaff = (activeBooking?.assignedStaff || customerDetail?.activeBookings?.[0]?.assignedStaff || []) as any[];
   const rating = customerDetail?.averageRating ?? 0;
   const feedbacks = customerDetail?.totalFeedbacks ?? 0;
 
@@ -78,7 +83,9 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
         <div className={styles.sectionHeader}>
           <span className={styles.sectionTitle}>Gói dịch vụ đang dùng</span>
           {activeBooking && (
-            <span className={styles.countdown}>Còn {activeBooking.remainingDays} ngày</span>
+            <span className={styles.countdownBadge}>
+              Còn {activeBooking.remainingDays ?? Math.ceil((new Date(activeBooking.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} ngày
+            </span>
           )}
         </div>
         {activeBooking ? (
@@ -91,8 +98,9 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
             <div className={styles.bookingDetails}>
               <div className={styles.bookingDetailItem}>
                 <span className={styles.detailLabel}>Trạng thái đặt lịch:</span>
-                <span className={`${styles.detailValue} ${styles.statusTag}`}>
-                  {activeBooking.bookingStatus === 'Confirmed' ? 'Đã xác nhận' : activeBooking.bookingStatus}
+                <span className={`${styles.statusValue} ${activeBooking.bookingStatus === 'InProgress' ? styles.statusInProgress : ''}`}>
+                  {activeBooking.bookingStatus === 'InProgress' ? 'Đang thực hiện' :
+                    activeBooking.bookingStatus === 'Confirmed' ? 'Đã xác nhận' : activeBooking.bookingStatus}
                 </span>
               </div>
               <div className={styles.bookingDetailItem}>
@@ -100,6 +108,35 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
                 <span className={styles.detailValue}>
                   {new Date(activeBooking.startDate).toLocaleDateString('vi-VN')} - {new Date(activeBooking.endDate).toLocaleDateString('vi-VN')}
                 </span>
+              </div>
+              <div className={styles.timelineRow}>
+                <div className={styles.timelineTrack}>
+                  <div
+                    className={styles.timelineProgress}
+                    style={{ width: `${activeBooking.progressPercent}%` }}
+                  />
+                </div>
+                <div className={styles.timelineStats}>
+                  <span className={styles.percentText}>
+                    {activeBooking.progressPercent}% ({activeBooking.completedActivities}/{activeBooking.totalActivities} hoạt động)
+                  </span>
+                  <span className={styles.remainingText}>Còn {activeBooking.remainingDays ?? Math.ceil((new Date(activeBooking.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} ngày</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.financialSummary}>
+              <div className={styles.finBadge}>
+                <span className={styles.finLabel}>Tổng tiền</span>
+                <span className={styles.finValue}>{(activeBooking?.totalPrice || 12500000).toLocaleString('vi-VN')}đ</span>
+              </div>
+              <div className={styles.finBadge} style={{ backgroundColor: '#f0fdf4', color: '#16a34a' }}>
+                <span className={styles.finLabel}>Đã trả</span>
+                <span className={styles.finValue}>{(activeBooking?.paidAmount || 12500000).toLocaleString('vi-VN')}đ</span>
+              </div>
+              <div className={styles.finBadge} style={{ backgroundColor: '#fff1f2', color: '#e11d48' }}>
+                <span className={styles.finLabel}>Còn lại</span>
+                <span className={styles.finValue}>{(activeBooking?.remainingAmount || 0).toLocaleString('vi-VN')}đ</span>
               </div>
             </div>
           </>
@@ -112,27 +149,39 @@ export const UserProfileCard: React.FC<UserProfileCardProps> = ({
       </div>
 
       <div className={styles.section}>
-        <span className={styles.sectionTitle}>Nhân viên phụ trách</span>
-        {staff ? (
-          <div className={styles.assignedStaff}>
-            {staff.avatarUrl ? (
-              <Image src={staff.avatarUrl} alt={staff.fullName} width={32} height={32} className={styles.staffAvatar} unoptimized />
-            ) : (
-              <div className={styles.staffAvatarPlaceholder}>
-                <UserIcon size={14} />
+        <span className={styles.sectionTitle}>Nhân viên phụ trách & Pháp lý</span>
+        <div className={styles.staffListContainer}>
+          {allStaff.length > 0 ? (
+            allStaff.slice(0, 2).map((staff, idx) => (
+              <div key={staff.id || idx} className={styles.assignedStaff}>
+                {staff.avatarUrl ? (
+                  <Image src={staff.avatarUrl} alt={staff.fullName} width={36} height={36} className={styles.staffAvatar} unoptimized />
+                ) : (
+                  <div className={styles.staffAvatarPlaceholder}>
+                    <UserIcon size={16} />
+                  </div>
+                )}
+                <div className={styles.staffInfo}>
+                  <h5 className={styles.staffName}>{staff.fullName}</h5>
+                  <div className={styles.staffContact}>
+                    <span className={styles.staffEmail}>{staff?.email}</span>
+                    <span className={styles.staffPhone}>{staff?.phone}</span>
+                  </div>
+                </div>
               </div>
-            )}
-            <div className={styles.staffInfo}>
-              <h5 className={styles.staffName}>{staff.fullName}</h5>
-              <p className={styles.staffRole}>{staff.email}</p>
+            ))
+          ) : (
+            <div className={styles.emptyStaffState}>
+              <UserIcon size={14} className={styles.emptyIcon} />
+              <span>Chưa có nhân viên phụ trách</span>
             </div>
-          </div>
-        ) : (
-          <div className={styles.emptyStaffState}>
-            <UserIcon size={14} className={styles.emptyIcon} />
-            <span>Chưa có nhân viên phụ trách</span>
-          </div>
-        )}
+          )}
+        </div>
+        
+        <button className={styles.contractButton}>
+          <ExternalLink size={14} style={{ marginRight: '8px' }} />
+          Xem hợp đồng pháp lý
+        </button>
       </div>
 
       <div className={styles.actions}>

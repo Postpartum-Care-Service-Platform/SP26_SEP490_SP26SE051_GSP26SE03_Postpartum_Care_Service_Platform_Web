@@ -3,6 +3,12 @@
 import { User } from 'lucide-react';
 import Image from 'next/image';
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
 import styles from './recent-chats-sidebar.module.css';
 
 import type { ChatEntry } from './types';
@@ -19,14 +25,21 @@ export function RecentChatsSidebar({ chats, onChatSelect, onNewChat }: Props) {
   return (
     <div className={styles.sidebar}>
       <div className={styles.header}>
-        <button
-          type="button"
-          className={styles.newChatButton}
-          onClick={onNewChat}
-          aria-label="New chat"
-        >
-          <span className={styles.plusIcon}>+</span>
-        </button>
+        <Tooltip delayDuration={300}>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              className={styles.newChatButton}
+              onClick={onNewChat}
+              aria-label="New chat"
+            >
+              <span className={styles.plusIcon}>+</span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="left">
+            Cuộc trò chuyện mới
+          </TooltipContent>
+        </Tooltip>
       </div>
       <div className={styles.chatsList}>
         {recentChats.map((chat) => (

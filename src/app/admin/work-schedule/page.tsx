@@ -80,8 +80,9 @@ const flattenSchedules = (res: StaffScheduleAllResponse[]): StaffSchedule[] => {
             endTime: activity.endTime,
             dayNo: activity.dayNo,
             activity: activity.activity,
-            target: activity.target,
-            status: activity.status,
+            title: activity.title,
+            target: activity.target as any,
+            status: activity.status as any,
             note: activity.note,
             contractId: null
           }
@@ -102,7 +103,28 @@ export default function WorkSchedulePage() {
   const [selectedStaffId, setSelectedStaffId] = React.useState<string | null>(null);
   const [selectedAssignee, setSelectedAssignee] = React.useState<Assignee | null>(null);
   const [selectedAmenity, setSelectedAmenity] = React.useState<AmenityService | null>(null);
+  const [selectedActivity, setSelectedActivity] = React.useState<any | null>(null);
   const [isAmenityModalOpen, setIsAmenityModalOpen] = React.useState(false);
+  const [rawDataSchedules, setRawDataSchedules] = React.useState<StaffScheduleAllResponse[]>([]);
+  const [customStaffList, setCustomStaffList] = React.useState<Assignee[]>([]);
+
+  React.useEffect(() => {
+    if (rawDataSchedules.length > 0) {
+      const allStaff = new Map<string, Assignee>();
+      rawDataSchedules.forEach((staff: StaffScheduleAllResponse) => {
+        allStaff.set(staff.staffId, {
+          id: staff.staffId,
+          name: staff.staffFullName,
+          avatarUrl: staff.staffAvatar,
+          type: 'user'
+        });
+      });
+      setCustomStaffList(Array.from(allStaff.values()));
+    }
+  }, [rawDataSchedules]);
+
+  const normalizeStr = (str: string) =>
+    str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
 
   const handleSelectStaff = React.useCallback((staffId: string | null) => {
     setSelectedStaffId(staffId);
@@ -117,6 +139,7 @@ export default function WorkSchedulePage() {
   }, []);
 
   const handleAmenityBrowse = React.useCallback(() => {
+    console.log('WorkSchedulePage: Amenity Browse clicked');
     setIsAmenityModalOpen(true);
   }, []);
 
@@ -139,7 +162,6 @@ export default function WorkSchedulePage() {
   const [calendarStatus, setCalendarStatus] = React.useState<CalendarStatusType>(null);
   const [calendarTaskType, setCalendarTaskType] = React.useState<TaskType | null>(TASK_TYPES[TASK_TYPES.length - 1]);
   const [schedules, setSchedules] = React.useState<StaffSchedule[]>([]);
-  const [rawDataSchedules, setRawDataSchedules] = React.useState<StaffScheduleAllResponse[]>([]);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = React.useState(false);
   const [staffList, setStaffList] = React.useState<StaffListMember[]>([]);
 
@@ -228,13 +250,26 @@ export default function WorkSchedulePage() {
     if (selectedAmenity) {
       result = result.filter(
         (schedule) =>
-          schedule.familyScheduleResponse.activity.toLowerCase().includes(selectedAmenity.name.toLowerCase()) ||
-          schedule.familyScheduleResponse.note?.toLowerCase().includes(selectedAmenity.name.toLowerCase())
+          normalizeStr(schedule.familyScheduleResponse.activity).includes(normalizeStr(selectedAmenity.name)) ||
+          (schedule.familyScheduleResponse.note && normalizeStr(schedule.familyScheduleResponse.note).includes(normalizeStr(selectedAmenity.name)))
       );
     }
 
+    if (selectedActivity) {
+      const q = normalizeStr(selectedActivity.name);
+      result = result.filter((s) => {
+        const act = normalizeStr(s.familyScheduleResponse?.activity || '');
+        const title = normalizeStr(s.familyScheduleResponse?.title || '');
+        return act.includes(q) || title.includes(q);
+      });
+    }
+
+    if (selectedAssignee) {
+      result = result.filter((s) => s.staffId === selectedAssignee.id);
+    }
+
     return result;
-  }, [schedules, calendarStatus, selectedAmenity]);
+  }, [schedules, calendarStatus, selectedAmenity, selectedActivity, selectedAssignee]);
 
   return (
     <div className="flex flex-col flex-1 h-full min-h-0">
@@ -325,8 +360,11 @@ export default function WorkSchedulePage() {
               assigneeValue={selectedAssignee}
               onAssigneeChange={handleAssigneeChange}
               staffList={staffList}
+              customStaffList={customStaffList}
               amenityValue={selectedAmenity}
               onAmenityChange={setSelectedAmenity}
+              activityValue={selectedActivity}
+              onActivityChange={setSelectedActivity}
               taskType={calendarTaskType}
               onTaskTypeChange={setCalendarTaskType}
               onTodayClick={handleTodayClick}

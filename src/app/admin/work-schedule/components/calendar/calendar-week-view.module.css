@@ -306,6 +306,58 @@
 }
 
 .quickCreateInput:focus {
+  border-color: #ff7a00;
+}
+
+.dayTooltipContent {
+  background: #ffffff;
+  color: #172b4d;
+  border-radius: 4.8px;
+  padding: 12px;
+  font-size: 13px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #E2E8F0;
+  z-index: 1000;
+  min-width: 200px;
+}
+
+.dayTooltipHeader {
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #172b4d;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 6px;
+}
+
+.dayTooltipStats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dayTooltipStatItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dayTooltipLabel {
+  font-size: 12px;
+  color: #6B778C;
+}
+
+.dayTooltipValue {
+  font-size: 12px;
+  font-weight: 600;
+  color: #172b4d;
+}
+
+.dayTooltipArrow {
+  fill: #E2E8F0;
+}
+
+.quickCreateInput:focus {
   border-color: #0052cc;
   box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.15);
 }

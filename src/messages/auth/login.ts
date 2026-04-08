@@ -5,5 +5,6 @@ export const AUTH_LOGIN_MESSAGES = {
   invalidCredentials: 'Email hoặc mật khẩu không đúng.',
   loginSuccess: 'Đăng nhập thành công.',
   requiredFieldsEmpty: 'Vui lòng không để trống các trường bắt buộc.',
+  rememberMe: 'Ghi nhớ đăng nhập',
+  savedAccounts: 'Tài khoản đã lưu',
 } as const;
-

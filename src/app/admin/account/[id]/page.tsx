@@ -3,11 +3,15 @@
 import { useParams } from 'next/navigation';
 import React from 'react';
 
+import bookingProgressService from '@/services/booking-progress.service';
 import familyProfileService from '@/services/family-profile.service';
+import feedbackService from '@/services/feedback.service';
 import userService from '@/services/user.service';
 
 import type { Account, CustomerDetail } from '@/types/account';
+import type { BookingProgress } from '@/types/booking-progress';
 import type { FamilyProfile } from '@/types/family-profile';
+import type { Feedback } from '@/types/feedback';
 
 import { AccountDetailsDashboard } from './components/AccountDetailsDashboard';
 import { AccountOverviewHeader } from './components/AccountOverviewHeader';
@@ -21,6 +25,8 @@ interface AccountOverviewData {
   familyProfiles: FamilyProfile[];
   account: Account | null;
   customerDetail: CustomerDetail | null;
+  bookingProgress: BookingProgress | null;
+  feedbacks: Feedback[];
 }
 
 export default function AccountOverviewPage() {
@@ -31,36 +37,43 @@ export default function AccountOverviewPage() {
     familyProfiles: [],
     account: null,
     customerDetail: null,
+    bookingProgress: null,
+    feedbacks: [],
   });
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    console.log('id from params:', id);
     if (id) {
       setLoading(true);
       setError(null);
 
-      // Fetch family profiles, account info, and customer summary detail
       Promise.all([
         familyProfileService.getFamilyProfilesByAccountId(id).catch(() => []),
         userService.getAccountById(id).catch(() => null),
-        userService.getCustomerDetail(id).catch(() => null)
+        userService.getCustomerDetail(id).catch(() => null),
+        bookingProgressService.getBookingProgressByAccountId(id).catch(() => null)
       ])
-        .then(([familyProfilesData, accountData, customerDetailData]) => {
-          console.log('Customer Detail API response:', customerDetailData);
-          console.log('Family Profiles API response:', familyProfilesData);
-          console.log('Account API response:', accountData);
+        .then(([familyProfilesData, accountData, customerDetailData, bookingProgressData]) => {
+          const customerId = customerDetailData?.id;
 
-          setData({
+          if (customerId) {
+            feedbackService.getFeedbacksByUserId(customerId)
+              .then(feedbacks => {
+                setData(prev => ({ ...prev, feedbacks: feedbacks || [] }));
+              })
+              .catch(err => console.error('Error fetching feedbacks:', err));
+          }
+
+          setData(prev => ({
+            ...prev,
             familyProfiles: familyProfilesData || [],
             account: accountData,
             customerDetail: customerDetailData,
-          });
+            bookingProgress: bookingProgressData,
+          }));
         })
         .catch((err) => {
-          console.error('Error fetching data:', err);
-          // Set error only for critical failures, but don't crash the whole UI
           setError(err.message || 'Failed to load initial data');
         })
         .finally(() => {
@@ -71,44 +84,54 @@ export default function AccountOverviewPage() {
 
   return (
     <div className={styles.pageContainer}>
-      <AccountOverviewHeader />
-
-      <div className={styles.contentRow}>
-        {/* Profile Sidebar Card */}
-        <UserProfileCard
-          familyProfile={data.familyProfiles.find(p => p.isOwner) || data.familyProfiles[0] || null}
-          account={data.account}
-          customerDetail={data.customerDetail}
-          loading={loading}
-        />
-
-        <div className={styles.leftColumn} style={{ flex: 2.5 }}>
-          <AccountDetailsDashboard
-            familyProfiles={data.familyProfiles}
-            account={data.account}
-            customerDetail={data.customerDetail}
-          />
-        </div>
+      <div className={styles.headerWrapper}>
+        <AccountOverviewHeader />
       </div>
 
-      {/* Section 1: Billing History (Hóa đơn) */}
-      <div style={{ paddingBottom: '32px' }}>
-        <TransactionHistory customerId={id} />
-      </div>
+      <div className={styles.mainScrollArea}>
+        <div className={styles.contentRow}>
+          <div className={styles.sidebarColumn}>
+            <UserProfileCard
+              familyProfile={data.familyProfiles.find(p => p.isOwner) || data.familyProfiles[0] || null}
+              account={data.account}
+              customerDetail={data.customerDetail}
+              bookingProgress={data.bookingProgress}
+              loading={loading}
+            />
+          </div>
 
-      {/* Section 2: Appointment Schedule (Lịch hẹn) */}
-      <div style={{ paddingBottom: '32px' }}>
-        <div style={{ padding: '0 24px 16px', borderBottom: '1px solid #dfe1e6', marginBottom: '16px' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#172b4d' }}>Lịch hẹn & Tiến trình chăm sóc</h2>
+          <div className={styles.mainColumn}>
+            <AccountDetailsDashboard
+              familyProfiles={data.familyProfiles}
+              account={data.account}
+              customerDetail={data.customerDetail}
+              bookingProgress={data.bookingProgress}
+              feedbacks={data.feedbacks}
+            />
+          </div>
         </div>
-        <AccountScheduleTab accountId={id} />
-      </div>
 
-      {error && (
-        <div style={{ padding: '16px', color: '#B91C1C', marginTop: '20px', background: '#FEF2F2', borderRadius: '4px', border: '1px solid #FEE2E2', fontSize: '14px' }}>
-          <strong>Lưu ý:</strong> {error}. Hệ thống đang hiển thị dữ liệu mẫu để bạn vẫn có thể xem được giao diện.
+        {/* Section: Transaction History */}
+        <div style={{ marginTop: '24px' }}>
+          <TransactionHistory customerId={id} />
         </div>
-      )}
+
+        {/* Section: Appointment & Progress Details */}
+        <div id="room-allotment-schedule" style={{ marginTop: '24px', paddingBottom: '40px' }}>
+          <div style={{ marginBottom: '16px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#172b4d', fontFamily: 'Lexend Deca, sans-serif' }}>
+              Lịch hẹn & Tiến trình chăm sóc chi tiết
+            </h2>
+          </div>
+          <AccountScheduleTab accountId={id} />
+        </div>
+
+        {error && (
+          <div style={{ padding: '16px', color: '#B91C1C', marginTop: '20px', background: '#FEF2F2', borderRadius: '4px', border: '1px solid #FEE2E2', fontSize: '14px' }}>
+            <strong>Lưu ý:</strong> {error}.
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 export function formatMessageTime(timestamp: string): string {
   const date = new Date(timestamp);
-  return date.toLocaleTimeString('en-US', {
+  return date.toLocaleTimeString('vi-VN', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
@@ -17,20 +17,21 @@ export function formatMessageDate(timestamp: string): string {
   const isYesterday = date.toDateString() === yesterday.toDateString();
 
   if (isToday) {
-    return 'Today';
+    return 'Hôm nay';
   }
 
   if (isYesterday) {
-    return 'Yesterday';
+    return 'Hôm qua';
   }
 
   const isSameYear = date.getFullYear() === today.getFullYear();
   if (isSameYear) {
-    return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    return date.toLocaleDateString('vi-VN', { month: 'long', day: 'numeric' });
   }
 
-  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  return date.toLocaleDateString('vi-VN', { month: 'long', day: 'numeric', year: 'numeric' });
 }
+
 
 export function shouldShowDateSeparator(
   currentMessage: string,
