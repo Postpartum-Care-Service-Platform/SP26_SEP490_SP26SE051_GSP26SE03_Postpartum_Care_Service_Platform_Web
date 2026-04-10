@@ -3,7 +3,7 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { MessageSquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useChatHub } from '@/hooks/useChatHub';
@@ -16,12 +16,14 @@ export function ChatNotification() {
   const { token, user } = useAuth();
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+  const isMounted = useRef(true);
 
   const fetchData = useCallback(async () => {
     if (!token || !user) return;
     try {
       const data = await chatService.getAllConversations();
-      // Handle the object format correctly
+      if (!isMounted.current) return;
+
       let count = 0;
       if (typeof data === 'object' && data !== null) {
         const rawData = data as any;
@@ -40,13 +42,22 @@ export function ChatNotification() {
   });
 
   useEffect(() => {
-    fetchData();
+    isMounted.current = true;
+    // Use an IIFE or separate call to avoid returning a promise to useEffect
+    const initFetch = async () => {
+      await fetchData();
+    };
+    initFetch();
+    
+    return () => {
+      isMounted.current = false;
+    };
   }, [fetchData]);
 
   // Poll as fallback or for other updates
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchData();
+      void fetchData();
     }, 60000); // Poll every minute
     return () => clearInterval(interval);
   }, [fetchData]);
@@ -55,12 +66,12 @@ export function ChatNotification() {
   useEffect(() => {
     const unsubReceive = onReceiveMessage((message) => {
       if (message.senderType === 'Customer') {
-        fetchData();
+        void fetchData();
       }
     });
     
     const unsubRead = onMessagesRead(() => {
-      fetchData();
+      void fetchData();
     });
 
     return () => {

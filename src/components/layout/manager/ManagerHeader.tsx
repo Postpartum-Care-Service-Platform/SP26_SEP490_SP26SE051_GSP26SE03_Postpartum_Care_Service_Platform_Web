@@ -3,6 +3,8 @@
 import { Bell, Menu, Search, User } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
+import { ChatNotification } from '../admin/ChatNotification';
+import { NotificationDropdown } from '../admin/NotificationDropdown';
 
 import styles from './manager-header.module.css';
 
@@ -35,10 +37,10 @@ export function ManagerHeader({ collapsed, onToggleCollapsed }: Props) {
       </div>
 
       <div className={styles.headerRight}>
-        <button type="button" className={styles.iconBtn} aria-label="Notifications">
-          <Bell size={20} />
-          <span className={styles.badge}>3</span>
-        </button>
+        <div className={styles.iconGroup}>
+          <ChatNotification />
+          <NotificationDropdown />
+        </div>
 
         <Link href="/dashboard/profile" className={styles.userBtn}>
           <div className={styles.avatar}>
