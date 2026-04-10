@@ -131,9 +131,9 @@ export function NewAppointmentModal({ open, onOpenChange, onSuccess }: Props) {
       onOpenChange(false);
       onSuccess?.();
     } catch (err: any) {
-      toast({ 
-        title: err?.message || 'Tạo lịch hẹn thất bại', 
-        variant: 'error' 
+      toast({
+        title: err?.message || 'Tạo lịch hẹn thất bại',
+        variant: 'error'
       });
     } finally {
       setIsSubmitting(false);

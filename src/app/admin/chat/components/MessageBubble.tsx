@@ -41,9 +41,9 @@ export function MessageBubble({ message, isOwn }: Props) {
       <div
         className={`${styles.bubble} ${isOwn ? styles.bubbleOwn : styles.bubbleOther}`}
       >
-      <div className={styles.bubbleContent}>
-        <ChatMarkdownRenderer content={message.content} />
-      </div>
+        <div className={styles.bubbleContent}>
+          <ChatMarkdownRenderer content={message.content} />
+        </div>
         <div className={styles.footer}>
           <span className={styles.timestamp}>{displayTime}</span>
           {isOwn && (

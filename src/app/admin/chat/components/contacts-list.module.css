@@ -2,16 +2,25 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  width: 100%;
   overflow: hidden;
+  background-color: var(--color-bg-subtle);
+}
+
+.contentContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   background-color: #fff;
+  overflow: hidden;
 }
 
 .searchBar {
-  padding: var(--spacing-sm);
+  padding: 24px 32px;
   background-color: #fff;
   border-bottom: 1px solid var(--color-border-default);
   flex-shrink: 0;
-  z-index: 1;
 }
 
 .searchWrapper {
@@ -94,6 +103,15 @@
   align-items: center;
   justify-content: center;
   color: var(--color-text-primary);
+  overflow: hidden;
+}
+
+.avatarImg {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
 
 .content {
@@ -131,6 +149,82 @@
   color: rgba(30, 30, 30, 0.5);
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.recentSection {
+  padding: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-border-default);
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(30, 30, 30, 0.5);
+  margin-bottom: var(--spacing-sm);
+  padding-left: 4px;
+}
+
+.recentList {
+  display: flex;
+  gap: var(--spacing-md);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 4px;
+}
+
+.recentList::-webkit-scrollbar {
+  display: none;
+}
+
+.recentItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 60px;
+  cursor: pointer;
+}
+
+.recentAvatarWrapper {
+  position: relative;
+  width: 52px;
+  height: 52px;
+}
+
+.recentAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--color-border-default);
+  display: block;
+}
+
+.onlineStatus {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  background-color: #22c55e;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+
+.recentName {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  max-width: 64px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .loading,

@@ -20,6 +20,10 @@
 }
 
 .table th {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: #f2f2f4;
   padding: 10px 14px;
   text-align: left;
   font-family: "Funnel Sans", sans-serif;
@@ -38,6 +42,14 @@
 
 .table tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.03) !important;
+  position: relative;
+  z-index: 2000;
+}
+
+.table tbody tr:hover .stickySttCol,
+.table tbody tr:hover .stickyActionsCol {
+  background-color: #f8f9fa;
+  z-index: 3000 !important;
 }
 
 .table tbody tr:last-child {
@@ -92,20 +104,22 @@
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + 10px);
   left: 50%;
-  transform: translateX(-50%) scale(0.85);
-  background-color: #343a40;
+  transform: translateX(-50%) translateY(5px) scale(0.95);
+  background-color: rgba(33, 37, 41, 0.95);
+  backdrop-filter: blur(4px);
   color: #fff;
   font-size: 11px;
-  font-family: var(--font-body);
+  font-weight: 500;
   white-space: nowrap;
-  padding: 4px 8px;
-  border-radius: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 .tooltipWrapper .tooltip::after {
@@ -115,12 +129,30 @@
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #343a40;
+  border-top-color: rgba(33, 37, 41, 0.95);
 }
 
 .tooltipWrapper:hover .tooltip {
   opacity: 1;
-  transform: translateX(-50%) scale(1);
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* ── Flip tooltips for the first 3 rows to avoid header overlap ── */
+.table tbody tr:nth-child(-n+3) .tooltip {
+  bottom: auto;
+  top: calc(100% + 10px);
+  transform: translateX(-50%) translateY(-5px) scale(0.95);
+}
+
+.table tbody tr:nth-child(-n+3) .tooltip::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: rgba(33, 37, 41, 0.95);
+}
+
+.table tbody tr:nth-child(-n+3) .tooltipWrapper:hover .tooltip {
+  transform: translateX(-50%) translateY(0) scale(1);
 }
 
 .editButton {
@@ -173,9 +205,17 @@
   box-shadow: 4px 0 8px rgba(0, 0, 0, 0.02);
 }
 
+.stickySttCol {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background-color: inherit;
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.02);
+}
+
 thead th.stickySttCol {
-  z-index: 25;
-  background-color: #f8f9fa !important;
+  z-index: 110;
+  background-color: #f2f2f4 !important;
 }
 
 .stickyActionsCol {
@@ -187,6 +227,6 @@ thead th.stickySttCol {
 }
 
 thead th.stickyActionsCol {
-  z-index: 25;
-  background-color: #f8f9fa !important;
+  z-index: 110;
+  background-color: #f2f2f4 !important;
 }

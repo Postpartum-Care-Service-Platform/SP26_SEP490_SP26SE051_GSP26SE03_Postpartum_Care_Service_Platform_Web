@@ -40,7 +40,7 @@ export function ChatHeaderBar({ name, avatar, isOnline, onInfoClick }: Props) {
         </div>
         <div className={styles.nameSection}>
           <span className={styles.name}>{name}</span>
-          {isOnline && <span className={styles.status}>Online</span>}
+          {isOnline && <span className={styles.status}>Trực tuyến</span>}
         </div>
       </div>
       <div className={styles.actions}>

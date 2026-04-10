@@ -14,7 +14,8 @@
 
 .table {
   width: 100%;
-  min-width: 1400px; /* Force overflow to trigger layout scrollbar */
+  min-width: 1400px;
+  /* Force overflow to trigger layout scrollbar */
   border-collapse: collapse;
   table-layout: fixed;
 }
@@ -44,16 +45,56 @@
   background-color: inherit;
 }
 
-.table th:nth-child(1) { width: 50px; } /* STT */
-.table th:nth-child(2) { width: 15%; } /* Tiêu đề */
-.table th:nth-child(3) { width: 25%; } /* Nội dung */
-.table th:nth-child(4) { width: 10%; } /* Loại thông báo */
-.table th:nth-child(5) { width: 10%; } /* Người gửi */
-.table th:nth-child(6) { width: 10%; } /* Người nhận */
-.table th:nth-child(7) { width: 100px; } /* Trạng thái */
-.table th:nth-child(8) { width: 100px; } /* Ngày tạo */
-.table th:nth-child(9) { width: 100px; } /* Ngày cập nhật */
-.table th:nth-child(10) { width: 100px; } /* Thao tác */
+.table th:nth-child(1) {
+  width: 50px;
+}
+
+/* STT */
+.table th:nth-child(2) {
+  width: 15%;
+}
+
+/* Tiêu đề */
+.table th:nth-child(3) {
+  width: 25%;
+}
+
+/* Nội dung */
+.table th:nth-child(4) {
+  width: 10%;
+}
+
+/* Loại thông báo */
+.table th:nth-child(5) {
+  width: 10%;
+}
+
+/* Người gửi */
+.table th:nth-child(6) {
+  width: 10%;
+}
+
+/* Người nhận */
+.table th:nth-child(7) {
+  width: 100px;
+}
+
+/* Trạng thái */
+.table th:nth-child(8) {
+  width: 100px;
+}
+
+/* Ngày tạo */
+.table th:nth-child(9) {
+  width: 100px;
+}
+
+/* Ngày cập nhật */
+.table th:nth-child(10) {
+  width: 100px;
+}
+
+/* Thao tác */
 
 
 .table tbody tr {
@@ -65,7 +106,7 @@
 .table tbody tr:hover {
   background-color: #f8f9fa;
   position: relative;
-  z-index: 100;
+  z-index: 2000;
 }
 
 
@@ -107,7 +148,9 @@
   white-space: nowrap;
 }
 
-.typeCell, .staffCell, .receiverCell {
+.typeCell,
+.staffCell,
+.receiverCell {
   min-width: 100px;
   max-width: 150px;
   overflow: hidden;
@@ -221,7 +264,7 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 1000;
+  z-index: 9999;
   line-height: 1.4;
 }
 
@@ -235,7 +278,8 @@
   border-top-color: #343a40;
 }
 
-.table:has(.tooltipWrapper:hover) thead th {
+.table:has(.tooltipWrapper:hover) thead th,
+.table:has(.tooltipWrapper:hover) thead th[class*="sticky"] {
   z-index: 1 !important;
 }
 
@@ -253,6 +297,19 @@
 .tooltipWrapper:hover .tooltip {
   opacity: 1;
   transform: translateX(-50%) scale(1);
+}
+
+/* ── Flip tooltips for the first 3 rows to avoid header overlap ── */
+.table tbody tr:nth-child(-n+3) .tooltip {
+  bottom: auto;
+  top: calc(100% + 10px);
+}
+
+.table tbody tr:nth-child(-n+3) .tooltip::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: #343a40;
 }
 
 /* ── Sticky Cột Thao tác ── */
@@ -276,7 +333,7 @@
 
 .table tbody tr:hover .stickyActionsCol {
   background-color: #f8f9fa;
-  z-index: 200;
+  z-index: 3000 !important;
 }
 
 
@@ -293,6 +350,7 @@
   padding: 16px 0 8px;
   border-top: 1px solid #f1f3f5;
 }
+
 .paginationWrapper :global(.container) {
   width: 100%;
   max-width: 100%;

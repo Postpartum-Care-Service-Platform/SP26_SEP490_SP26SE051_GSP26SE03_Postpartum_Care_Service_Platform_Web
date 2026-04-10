@@ -8,6 +8,7 @@ import styles from './admin-layout.module.css';
 import { adminNav } from '@/configs/adminNav';
 import { managerNav } from '@/configs/managerNav';
 import { NotificationDropdown } from './NotificationDropdown';
+import { ChatNotification } from './ChatNotification';
 import { UserDropdown } from './UserDropdown';
 
 type Props = {
@@ -63,6 +64,7 @@ export function AdminHeader({ collapsed, onToggleCollapsed, onOpenNotifications,
 
           <div className={styles.headerRight}>
             <div className={styles.iconGroup}>
+              <ChatNotification />
               <NotificationDropdown onViewAll={onOpenNotifications} isSidebarOpen={isNotificationSidebarOpen} />
             </div>
 

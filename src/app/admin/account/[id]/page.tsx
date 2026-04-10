@@ -117,7 +117,7 @@ export default function AccountOverviewPage() {
         </div>
 
         {/* Section: Appointment & Progress Details */}
-        <div id="room-allotment-schedule" style={{ marginTop: '24px', paddingBottom: '40px' }}>
+        <div id="room-allotment-schedule" style={{ paddingBottom: '8px' }}>
           <div style={{ marginBottom: '16px' }}>
             <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#172b4d', fontFamily: 'Lexend Deca, sans-serif' }}>
               Lịch hẹn & Tiến trình chăm sóc chi tiết

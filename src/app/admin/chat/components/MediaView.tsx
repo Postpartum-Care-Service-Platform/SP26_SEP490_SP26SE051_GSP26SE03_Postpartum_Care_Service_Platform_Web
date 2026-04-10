@@ -35,10 +35,10 @@ export function MediaView() {
             <Camera size={32} className={styles.cameraIcon} />
           </div>
         </div>
-        <h4 className={styles.sectionTitle}>Camera Active</h4>
+        <h4 className={styles.sectionTitle}>Camera đang hoạt động</h4>
         <p className={styles.instructions}>
-          Live camera feed is displayed above. Click the button below to capture
-          an image.
+          Hình ảnh từ camera trực tiếp được hiển thị phía trên. Nhấp vào nút bên
+          dưới để ghi lại hình ảnh.
         </p>
         <div className={styles.actionButtons}>
           <button
@@ -47,7 +47,7 @@ export function MediaView() {
             onClick={handleCapture}
           >
             <Camera size={18} className={styles.buttonIcon} />
-            Capture
+            Chụp ảnh
           </button>
           <button
             type="button"
@@ -55,13 +55,13 @@ export function MediaView() {
             onClick={handleUpload}
           >
             <Upload size={18} className={styles.buttonIcon} />
-            Upload
+            Tải lên
           </button>
         </div>
       </div>
 
       <div className={styles.imagesSection}>
-        <h4 className={styles.imagesTitle}>Your Images :</h4>
+        <h4 className={styles.imagesTitle}>Ảnh của bạn:</h4>
         <div className={styles.imageGrid}>
           {images.map((image, index) => (
             <div key={index} className={styles.imageItem}>

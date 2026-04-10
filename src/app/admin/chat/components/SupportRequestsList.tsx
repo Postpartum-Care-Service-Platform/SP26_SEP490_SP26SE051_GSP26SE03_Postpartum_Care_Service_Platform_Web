@@ -19,7 +19,7 @@ export function SupportRequestsList({ requests, onAccept, loading }: Props) {
     );
   }
 
-  if (requests.length === 0) {
+  if (!Array.isArray(requests) || requests.length === 0) {
     return (
       <div className={styles.container}>
         <div className={styles.empty}>

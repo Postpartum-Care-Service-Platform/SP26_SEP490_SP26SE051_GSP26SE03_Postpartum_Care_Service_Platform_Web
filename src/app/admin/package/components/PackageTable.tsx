@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
@@ -74,6 +75,8 @@ const translatePackageTypeName = (name?: string | null): string => {
 };
 
 export function PackageTable({ packages, onEdit, onDelete, deletingId, pagination }: Props) {
+  const [previewImage, setPreviewImage] = useState<{ url: string; name: string } | null>(null);
+
   return (
     <div className={styles.container}>
       <div className={styles.tableWrapper}>
@@ -121,12 +124,16 @@ export function PackageTable({ packages, onEdit, onDelete, deletingId, paginatio
                     </td>
                     <td>
                       {pkg.imageUrl ? (
-                        <div className={styles.imageCell}>
+                        <div 
+                          className={styles.imageCell}
+                          onClick={() => setPreviewImage({ url: pkg.imageUrl!, name: pkg.packageName })}
+                          title="Click để phóng to"
+                        >
                           <Image
                             src={pkg.imageUrl}
                             alt={pkg.packageName}
-                            width={60}
-                            height={60}
+                            width={64}
+                            height={64}
                             className={styles.packageImage}
                             unoptimized
                           />
@@ -211,6 +218,21 @@ export function PackageTable({ packages, onEdit, onDelete, deletingId, paginatio
             onPageSizeChange={pagination.onPageSizeChange}
             showResultCount={true}
           />
+        </div>
+      )}
+
+      {/* Image Preview Overlay (Feedback Style) */}
+      {previewImage && (
+        <div className={styles.imageModalOverlay} onClick={() => setPreviewImage(null)}>
+          <div className={styles.imageModalContent} onClick={(e) => e.stopPropagation()}>
+            <img 
+              src={previewImage.url} 
+              alt={previewImage.name} 
+              className={styles.fullImage} 
+            />
+            <div className={styles.imageModalTitle}>{previewImage.name}</div>
+            <button className={styles.closeModalButton} onClick={() => setPreviewImage(null)}>×</button>
+          </div>
         </div>
       )}
     </div>

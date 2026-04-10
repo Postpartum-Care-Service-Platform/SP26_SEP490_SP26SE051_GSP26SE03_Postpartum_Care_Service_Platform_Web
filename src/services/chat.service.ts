@@ -24,12 +24,23 @@ export interface MessageResponse {
     isRead: boolean;
 }
 
+export interface CustomerInfo {
+    id: string;
+    email: string;
+    username: string;
+    phone?: string;
+    avatarUrl?: string;
+    fullName?: string;
+}
+
 export interface ConversationResponse {
     id: number;
     name?: string;
     createdAt: string;
     messages: MessageResponse[];
     hasActiveSupport: boolean;
+    customerInfo?: CustomerInfo;
+    unreadCount: number;
 }
 
 export interface ChatResponse {
@@ -78,6 +89,7 @@ export interface SupportRequestResponse {
     conversationId: number;
     customerId: string;
     customerName: string;
+    customerAvatar?: string;
     reason?: string;
     status: string;
     createdAt: string;

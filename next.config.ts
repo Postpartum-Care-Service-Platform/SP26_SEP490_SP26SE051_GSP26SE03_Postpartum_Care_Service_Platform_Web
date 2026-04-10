@@ -27,6 +27,7 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'vominhtien0511.atlassian.net' },
+      { protocol: 'https', hostname: 'ui-avatars.com' },
     ],
   },
 

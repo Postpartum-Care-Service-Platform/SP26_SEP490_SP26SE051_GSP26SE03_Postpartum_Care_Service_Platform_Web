@@ -13,11 +13,11 @@ import { MiniCalendar } from './MiniCalendar';
 import { ScheduleDetailPopover } from '../shared/ScheduleDetailPopover';
 import { DaySchedulesPopover } from '../shared/DaySchedulesPopover';
 import { CalendarSidebarExtra } from './CalendarSidebarExtra';
- 
+
 export function getDaySummary(date: Date, events: StaffSchedule[]) {
   const dateStr = format(date, 'yyyy-MM-dd');
   const dayEvents = events.filter(e => e.familyScheduleResponse.workDate === dateStr);
- 
+
   return {
     total: dayEvents.length,
     done: dayEvents.filter(e => e.familyScheduleResponse.status === 'Done').length,
@@ -71,35 +71,35 @@ function formatDateVN(dateStr: string): string {
   return `${day}/${month}/${year}`;
 }
 
-function getUpcomingEventsForDate(date: Date, events: StaffSchedule[], maxEvents: number = 3): { 
-  displayEvents: StaffSchedule[]; 
+function getUpcomingEventsForDate(date: Date, events: StaffSchedule[], maxEvents: number = 3): {
+  displayEvents: StaffSchedule[];
   remainingCount: number;
 } {
   const dateStr = format(date, 'yyyy-MM-dd');
-  
-  const dayEvents = events.filter(event => 
+
+  const dayEvents = events.filter(event =>
     event.familyScheduleResponse.workDate === dateStr
   );
-  
-  const sortedEvents = [...dayEvents].sort((a, b) => 
+
+  const sortedEvents = [...dayEvents].sort((a, b) =>
     a.familyScheduleResponse.startTime.localeCompare(b.familyScheduleResponse.startTime)
   );
-  
+
   const displayEvents = sortedEvents.slice(0, maxEvents);
   const remainingCount = sortedEvents.length - maxEvents;
-  
+
   return { displayEvents, remainingCount: Math.max(0, remainingCount) };
 }
 
-export function CalendarMonthView({ 
-  monthCursor, 
-  selectedDate, 
-  onSelectedDateChange, 
+export function CalendarMonthView({
+  monthCursor,
+  selectedDate,
+  onSelectedDateChange,
   schedules,
   selectedStaffId,
   onStaffSelect,
-}: { 
-  monthCursor: Date; 
+}: {
+  monthCursor: Date;
   selectedDate?: Date;
   onSelectedDateChange?: (date: Date) => void;
   schedules: StaffSchedule[];
@@ -116,9 +116,9 @@ export function CalendarMonthView({
   const [isDayPopoverOpen, setIsDayPopoverOpen] = React.useState(false);
   const [dayPopoverDate, setDayPopoverDate] = React.useState<Date | null>(null);
   const [dayPopoverAnchorRect, setDayPopoverAnchorRect] = React.useState<DOMRect | null>(null);
-  
+
   const currentSelectedDate = selectedDate || internalSelectedDate;
-  
+
   const handleDateSelect = (date: Date) => {
     if (onSelectedDateChange) {
       onSelectedDateChange(date);
@@ -185,30 +185,30 @@ export function CalendarMonthView({
 
   return (
     <Tooltip.Provider delayDuration={350}>
-      <div style={{ display: 'flex', gap: '16px', height: 'calc(100vh - 220px)', overflow: 'hidden' }}>
-        <div style={{ 
-          flexShrink: 0, 
-          display: 'flex', 
-          flexDirection: 'column', 
-          width: '220px', 
+      <div style={{ display: 'flex', gap: '16px', height: 'calc(100vh - 196px)', overflow: 'hidden', paddingBottom: '8px' }}>
+        <div style={{
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          width: '220px',
           height: '100%',
-          overflow: 'hidden' 
+          overflow: 'hidden'
         }}>
           <div style={{ flexShrink: 0 }}>
-            <MiniCalendar 
-              selectedDate={currentSelectedDate} 
+            <MiniCalendar
+              selectedDate={currentSelectedDate}
               onDateSelect={handleDateSelect}
               currentMonth={monthCursor}
             />
           </div>
-          <div 
+          <div
             className={styles.sidebarList}
-            style={{ 
-              flex: 1, 
+            style={{
+              flex: 1,
               overflowY: 'auto'
             }}
           >
-            <CalendarSidebarExtra 
+            <CalendarSidebarExtra
               selectedDate={currentSelectedDate}
               schedules={schedules}
             />
@@ -217,11 +217,11 @@ export function CalendarMonthView({
 
         <div className={styles.wrap} style={{ flex: 1 }}>
           <div className={styles.headerRow}>
-          {WEEKDAYS.map((d) => (
-            <div key={d} className={styles.headerCell}>
-              {d}
-            </div>
-          ))}
+            {WEEKDAYS.map((d) => (
+              <div key={d} className={styles.headerCell}>
+                {d}
+              </div>
+            ))}
           </div>
 
           <div className={styles.grid} role="grid" aria-label="Calendar month">
@@ -266,7 +266,7 @@ export function CalendarMonthView({
                         {dayEvents.map((schedule) => {
                           const { familyScheduleResponse: fs } = schedule;
                           const eventColor = getStatusColor(fs.status);
-                          
+
                           return (
                             <Tooltip.Root key={schedule.id}>
                               <Tooltip.Trigger asChild>
@@ -289,22 +289,22 @@ export function CalendarMonthView({
                                 <Tooltip.Content className={styles.tooltipContent} sideOffset={5}>
                                   <div className={styles.tooltipHeader}>
                                     <div className={styles.tooltipTitle}>{fs.activity}</div>
-                                    <div 
+                                    <div
                                       className={styles.tooltipStatusBadge}
-                                      style={{ 
-                                        backgroundColor: 
-                                          fs.status === 'Done' ? '#CDEFE1' : 
-                                          fs.status === 'Missed' ? '#FBE2E4' : 
-                                          fs.status === 'Cancelled' ? '#F4F5F7' : '#DDEBFF',
-                                        color: 
-                                          fs.status === 'Done' ? '#006644' : 
-                                          fs.status === 'Missed' ? '#AE2E24' : 
-                                          fs.status === 'Cancelled' ? '#42526E' : '#0052CC'
+                                      style={{
+                                        backgroundColor:
+                                          fs.status === 'Done' ? '#CDEFE1' :
+                                            fs.status === 'Missed' ? '#FBE2E4' :
+                                              fs.status === 'Cancelled' ? '#F4F5F7' : '#DDEBFF',
+                                        color:
+                                          fs.status === 'Done' ? '#006644' :
+                                            fs.status === 'Missed' ? '#AE2E24' :
+                                              fs.status === 'Cancelled' ? '#42526E' : '#0052CC'
                                       }}
                                     >
-                                      {fs.status === 'Done' ? 'Đã hoàn thành' : 
-                                       fs.status === 'Missed' ? 'Đã bỏ lỡ' : 
-                                       fs.status === 'Cancelled' ? 'Đã hủy' : 'Đã lên lịch'}
+                                      {fs.status === 'Done' ? 'Đã hoàn thành' :
+                                        fs.status === 'Missed' ? 'Đã bỏ lỡ' :
+                                          fs.status === 'Cancelled' ? 'Đã hủy' : 'Đã lên lịch'}
                                     </div>
                                   </div>
                                   <div className={styles.tooltipCode}>{fs.customerName}</div>
@@ -321,7 +321,7 @@ export function CalendarMonthView({
                           );
                         })}
                         {remainingCount > 0 && (
-                          <div 
+                          <div
                             className={styles.moreIndicator}
                             onClick={(e) => handleMoreClick(d, e)}
                           >
@@ -363,7 +363,7 @@ export function CalendarMonthView({
           </div>
         </div>
 
-        <DaySchedulesPopover 
+        <DaySchedulesPopover
           open={isDayPopoverOpen}
           onOpenChange={setIsDayPopoverOpen}
           date={dayPopoverDate}
