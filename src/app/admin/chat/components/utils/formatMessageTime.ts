@@ -1,14 +1,17 @@
 export function formatMessageTime(timestamp: string): string {
-  const date = new Date(timestamp);
+  // Loại bỏ 'Z' ở cuối nếu có để tránh JS tự động chuyển đổi múi giờ (nếu server gửi giờ local kèm Z)
+  const normalizedTimestamp = timestamp.endsWith('Z') ? timestamp.slice(0, -1) : timestamp;
+  const date = new Date(normalizedTimestamp);
   return date.toLocaleTimeString('vi-VN', {
-    hour: 'numeric',
+    hour: '2-digit',
     minute: '2-digit',
-    hour12: true,
+    hour12: false,
   });
 }
 
 export function formatMessageDate(timestamp: string): string {
-  const date = new Date(timestamp);
+  const normalizedTimestamp = timestamp.endsWith('Z') ? timestamp.slice(0, -1) : timestamp;
+  const date = new Date(normalizedTimestamp);
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);

@@ -69,7 +69,15 @@ export default function AdminChatPage() {
     try {
       setLoading(true);
       const data = await chatService.getAllConversations();
-      setConversations(data);
+      // Handle various response formats (.value, .items, .$values, or direct array)
+      let conversationsData: ConversationResponse[] = [];
+      if (Array.isArray(data)) {
+        conversationsData = data;
+      } else if (data && typeof data === 'object') {
+        const rawData = data as any;
+        conversationsData = rawData.conversations || rawData.value || rawData.items || rawData.$values || rawData.data || [];
+      }
+      setConversations(Array.isArray(conversationsData) ? conversationsData : []);
     } catch (error) {
       console.error('Failed to load conversations:', error);
     } finally {
@@ -81,7 +89,14 @@ export default function AdminChatPage() {
   const loadSupportRequests = async () => {
     try {
       const data = await chatService.getPendingSupportRequests();
-      setSupportRequests(data);
+      let supportData: SupportRequestResponse[] = [];
+      if (Array.isArray(data)) {
+        supportData = data;
+      } else if (data && typeof data === 'object') {
+        const rawData = data as any;
+        supportData = rawData.supportRequests || rawData.value || rawData.items || rawData.$values || rawData.data || [];
+      }
+      setSupportRequests(Array.isArray(supportData) ? supportData : []);
     } catch (error) {
       console.error('Failed to load support requests:', error);
     }
@@ -100,18 +115,23 @@ export default function AdminChatPage() {
       const conversation: ChatConversationType = {
         id: String(data.id),
         participantId: 'customer',
-        participantName: data.name || 'Customer',
-        participantAvatar: null,
+        participantName: data.customerInfo?.fullName || data.customerInfo?.username || data.name || 'Customer',
+        participantAvatar: data.customerInfo?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.customerInfo?.fullName || data.customerInfo?.username || data.name || 'Customer')}&background=random&color=fff`,
         isOnline: true,
-        messages: data.messages.map((msg) => ({
-          id: String(msg.id),
-          senderId: msg.senderId ?? '', // null/undefined → empty string
-          senderName: msg.senderName || 'Unknown',
-          senderAvatar: null,
-          content: msg.content,
-          timestamp: msg.createdAt,
-          isRead: msg.isRead,
-        })),
+        messages: (data.messages || []).map((msg) => {
+          const isCustomer = msg.senderType === 'Customer';
+          const customerAvatar = data.customerInfo?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.customerInfo?.fullName || data.customerInfo?.username || 'Customer')}&background=random&color=fff`;
+          
+          return {
+            id: String(msg.id),
+            senderId: msg.senderId ?? '',
+            senderName: msg.senderName || 'Unknown',
+            senderAvatar: isCustomer ? customerAvatar : null,
+            content: msg.content,
+            timestamp: msg.createdAt,
+            isRead: msg.isRead,
+          };
+        }),
       };
 
       setActiveConversation(conversation);
@@ -139,6 +159,29 @@ export default function AdminChatPage() {
       if (isConnected) {
         await joinConversation(data.id);
       }
+
+      // Đánh dấu đã đọc
+      try {
+        await chatService.markAsRead(conversationId);
+        // Cập nhật local state để UI phản hồi ngay (xóa badge unread)
+        setConversations(prev => {
+          if (!Array.isArray(prev)) return [];
+          return prev.map(conv => {
+            if (conv.id === conversationId) {
+              return {
+                ...conv,
+                unreadCount: 0,
+                messages: Array.isArray(conv.messages) 
+                  ? conv.messages.map(m => ({ ...m, isRead: true }))
+                  : []
+              };
+            }
+            return conv;
+          });
+        });
+      } catch (error) {
+        console.error('Failed to mark as read:', error);
+      }
     } catch (error) {
       console.error('Failed to load conversation:', error);
     } finally {
@@ -148,20 +191,39 @@ export default function AdminChatPage() {
 
   // Convert conversations sang ChatEntry format
   const { pinnedChats, allChats } = useMemo(() => {
+    if (!Array.isArray(conversations)) {
+      return { pinnedChats: [], allChats: [] };
+    }
+
     const chatEntries: ChatEntry[] = conversations.map((conv) => {
-      const lastMessage = conv.messages[conv.messages.length - 1];
+      const lastMessage = conv.messages && Array.isArray(conv.messages) 
+        ? conv.messages[conv.messages.length - 1]
+        : null;
+      const displayName = conv.customerInfo?.fullName || conv.customerInfo?.username || conv.name || 'Conversation';
+      const displayAvatar = conv.customerInfo?.avatarUrl ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=random&color=fff`;
+
       return {
         id: String(conv.id),
-        name: conv.name || 'Conversation',
-        avatar: '',
-        lastMessage: lastMessage?.content || 'No messages',
+        name: displayName,
+        avatar: displayAvatar,
+        lastMessage: lastMessage?.content || 'Chưa có tin nhắn',
         timestamp: lastMessage
           ? new Date(lastMessage.createdAt).toISOString()
-          : new Date().toISOString(),
-        unreadCount: conv.messages.filter((m) => !m.isRead).length,
+          : conv.createdAt 
+            ? new Date(conv.createdAt).toISOString() 
+            : new Date(0).toISOString(), // Rất cũ nếu không có gì
+        unreadCount: conv.unreadCount,
         isPinned: false,
         isOnline: true,
       };
+    }).sort((a, b) => {
+      // 1. Ưu tiên cuộc hội thoại có tin nhắn chưa đọc lên đầu
+      if (a.unreadCount > 0 && b.unreadCount === 0) return -1;
+      if (a.unreadCount === 0 && b.unreadCount > 0) return 1;
+
+      // 2. Nếu cùng trạng thái (cùng unread hoặc cùng read), sắp xếp theo thời gian mới nhất
+      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
     });
 
     const pinned = chatEntries.filter((chat) => chat.isPinned);
@@ -169,26 +231,88 @@ export default function AdminChatPage() {
     return { pinnedChats: pinned, allChats: all };
   }, [conversations]);
 
+  // Lấy danh sách customer duy nhất cho sidebar bên phải (RecentChatsSidebar)
+  const uniqueCustomers = useMemo(() => {
+    if (!Array.isArray(conversations)) return [];
+    
+    const customersMap = new Map<string, ChatEntry>();
+    const allEntries = [...pinnedChats, ...allChats];
+
+    allEntries.forEach((entry) => {
+      const conv = conversations.find((c) => String(c.id) === entry.id);
+      const customerId = conv?.customerInfo?.id || entry.id;
+
+      // Chỉ giữ lại entry đầu tiên (thường là cái mới nhất do data order) cho mỗi customer
+      if (!customersMap.has(customerId)) {
+        customersMap.set(customerId, entry);
+      }
+    });
+
+    return Array.from(customersMap.values());
+  }, [pinnedChats, allChats, conversations]);
+
   // SignalR: Lắng nghe tin nhắn mới
   useEffect(() => {
     if (!activeConversationId) return;
 
     const unsubscribe = onReceiveMessage((message) => {
+      // 1. Luôn cập nhật danh sách conversations tổng (để hiện số tin nhắn mới, preview tin nhắn cuối)
+      setConversations((prev) => {
+        if (!Array.isArray(prev)) return [];
+        
+        return prev.map((conv) => {
+          if (String(conv.id) === String(message.conversationId)) {
+            // Kiểm tra xem tin nhắn đã tồn tại chưa để tránh bị lặp
+            const messages = Array.isArray(conv.messages) ? conv.messages : [];
+            const isExist = messages.some(m => String(m.id) === String(message.id));
+            if (isExist) return conv;
+
+            const isCurrentActive = String(message.conversationId) === activeConversationId;
+            
+            return {
+              ...conv,
+              unreadCount: isCurrentActive ? 0 : (conv.unreadCount || 0) + 1,
+              messages: [
+                ...(Array.isArray(conv.messages) ? conv.messages : []),
+                {
+                  id: message.id,
+                  content: message.content,
+                  senderType: message.senderType,
+                  senderId: message.senderId,
+                  senderName: message.senderName,
+                  senderAvatar: message.senderType === 'Customer' 
+                    ? (conv.customerInfo?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.customerInfo?.fullName || conv.customerInfo?.username || 'Customer')}&background=random&color=fff`)
+                    : null,
+                  createdAt: message.createdAt,
+                  isRead: isCurrentActive,
+                },
+              ],
+            };
+          }
+          return conv;
+        });
+      });
+
+      // 2. Nếu đang đứng ở đúng cuộc trò chuyện đó thì cập nhật khung chat chính
       if (String(message.conversationId) === activeConversationId) {
         setActiveConversation((prev: ChatConversationType | null) => {
           if (!prev) return null;
+          // Tránh lặp tin nhắn
+          const messages = Array.isArray(prev.messages) ? prev.messages : [];
+          if (messages.some(m => m.id === String(message.id))) return prev;
+
           return {
             ...prev,
             messages: [
-              ...prev.messages,
+              ...messages,
               {
                 id: String(message.id),
                 senderId: message.senderId || 'unknown',
                 senderName: message.senderName || 'Unknown',
-                senderAvatar: null,
+                senderAvatar: message.senderType === 'Customer' ? prev.participantAvatar : null,
                 content: message.content,
                 timestamp: message.createdAt,
-                isRead: false,
+                isRead: true,
               },
             ],
           };
@@ -244,6 +368,23 @@ export default function AdminChatPage() {
     setActiveChatId(entry.id);
     setActiveConversationId(entry.id);
     loadConversationDetail(Number(entry.id), true); // Check support request
+
+    // Cập nhật local state ngay lập tức cho mượt mà (xóa badge số lượng tin nhắn chưa đọc)
+    setConversations(prev => {
+      if (!Array.isArray(prev)) return [];
+      return prev.map(conv => {
+        if (String(conv.id) === String(entry.id)) {
+          return {
+            ...conv,
+            unreadCount: 0,
+            messages: Array.isArray(conv.messages) 
+              ? conv.messages.map(m => ({ ...m, isRead: true }))
+              : []
+          };
+        }
+        return conv;
+      });
+    });
   };
 
   const handleSendMessage = async (message: string) => {
@@ -293,6 +434,7 @@ export default function AdminChatPage() {
         setActiveConversationId(String(request.conversationId));
         setActiveSupportRequestId(requestId);
         await loadConversationDetail(request.conversationId, false); // Không cần check vì đã biết request ID
+        setActiveView('chat');
       }
     } catch (error) {
       console.error('Failed to accept support request:', error);
@@ -339,49 +481,47 @@ export default function AdminChatPage() {
         <div className={styles.bottomSection}>
           <ChatSidebar activeView={activeView} onViewChange={setActiveView} />
           <div className={styles.mainContent}>
-            {activeView === 'chat' && (
-              <div className={styles.chatListContainer}>
-                <ChatList
-                  pinnedChats={pinnedChats}
-                  allChats={allChats}
-                  activeChatId={activeChatId}
-                  onChatClick={handleChatClick}
-                  onSearch={handleSearch}
-                  onNewChat={handleNewChat}
-                />
+            {activeView === 'contacts' ? (
+              <div className={styles.contactsFullWidth}>
+                <ContactsList recentChats={uniqueCustomers} />
               </div>
-            )}
-            {activeView === 'support-requests' && (
-              <div className={styles.chatListContainer}>
-                <SupportRequestsList
-                  requests={supportRequests}
-                  onAccept={handleAcceptSupport}
-                  loading={loading}
-                />
-              </div>
-            )}
-            {activeView === 'contacts' && (
-              <div className={styles.chatListContainer}>
-                <ContactsList />
-              </div>
-            )}
-            {activeView === 'media' && (
-              <div className={styles.chatListContainer}>
-                <MediaView />
-              </div>
-            )}
-            {(activeView === 'archive' || activeView === 'settings') && (
-              <div className={styles.chatListContainer}>
-                <div className={styles.placeholder}>
-                  {activeView.charAt(0).toUpperCase() + activeView.slice(1)} view
-                  coming soon
-                </div>
-              </div>
-            )}
-            <div className={styles.chatArea}>
-              {activeView === 'chat' && (
-                <>
-                  {activeConversation ? (
+            ) : (
+              <>
+                {activeView === 'chat' && (
+                  <div className={styles.chatListContainer}>
+                    <ChatList
+                      pinnedChats={pinnedChats}
+                      allChats={allChats}
+                      activeChatId={activeChatId}
+                      onChatClick={handleChatClick}
+                      onSearch={handleSearch}
+                      onNewChat={handleNewChat}
+                    />
+                  </div>
+                )}
+                {activeView === 'support-requests' && (
+                  <div className={styles.chatListContainer}>
+                    <SupportRequestsList
+                      requests={supportRequests}
+                      onAccept={handleAcceptSupport}
+                      loading={loading}
+                    />
+                  </div>
+                )}
+                {activeView === 'media' && (
+                  <div className={styles.chatListContainer}>
+                    <MediaView />
+                  </div>
+                )}
+                {(activeView === 'archive' || activeView === 'settings') && (
+                  <div className={styles.chatListContainer}>
+                    <div className={styles.placeholder}>
+                      Giao diện {activeView === 'archive' ? 'Lưu trữ' : 'Cài đặt'} sẽ sớm ra mắt
+                    </div>
+                  </div>
+                )}
+                <div className={styles.chatArea}>
+                  {(activeView === 'chat' || activeView === 'support-requests') && activeConversation ? (
                     <>
                       <ChatConversation
                         conversation={activeConversation}
@@ -392,17 +532,21 @@ export default function AdminChatPage() {
                         showResolveButton={!!activeSupportRequestId}
                       />
                       <RecentChatsSidebar
-                        chats={[...pinnedChats, ...allChats]}
+                        chats={uniqueCustomers}
                         onChatSelect={handleRecentChatSelect}
                         onNewChat={handleNewChat}
                       />
                     </>
                   ) : (
-                    null
+                    <div className={styles.placeholder}>
+                      {activeView === 'chat' ? 'Chọn một cuộc trò chuyện để bắt đầu' : 
+                      activeView === 'support-requests' ? 'Chọn một yêu cầu hỗ trợ để tư vấn' :
+                      null}
+                    </div>
                   )}
-                </>
-              )}
-            </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

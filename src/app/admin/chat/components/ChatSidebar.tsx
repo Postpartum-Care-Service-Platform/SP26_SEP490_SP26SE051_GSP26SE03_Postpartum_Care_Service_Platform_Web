@@ -22,7 +22,7 @@ import styles from './chat-sidebar.module.css';
 
 type ChatNavItem = {
   id: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: React.ComponentType<{ size?: number | string; className?: string }>;
   label: string;
   onClick: () => void;
 };
@@ -37,37 +37,25 @@ export function ChatSidebar({ activeView, onViewChange }: Props) {
     {
       id: 'chat',
       icon: MessageCircle,
-      label: 'Chat',
+      label: 'Trò chuyện',
       onClick: () => onViewChange('chat'),
     },
     {
       id: 'support-requests',
       icon: Bell,
-      label: 'Yêu cầu chat',
+      label: 'Hỗ trợ trực tuyến',
       onClick: () => onViewChange('support-requests'),
     },
     {
       id: 'contacts',
       icon: Users,
-      label: 'Contacts',
+      label: 'Danh bạ',
       onClick: () => onViewChange('contacts'),
-    },
-    {
-      id: 'archive',
-      icon: Archive,
-      label: 'Archive',
-      onClick: () => onViewChange('archive'),
-    },
-    {
-      id: 'media',
-      icon: Camera,
-      label: 'Media',
-      onClick: () => onViewChange('media'),
     },
     {
       id: 'settings',
       icon: Settings,
-      label: 'Settings',
+      label: 'Cài đặt',
       onClick: () => onViewChange('settings'),
     },
   ];

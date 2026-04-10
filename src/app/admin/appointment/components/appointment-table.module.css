@@ -164,7 +164,7 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 20;
+  z-index: 9999;
 }
 
 .tooltipWrapper .tooltip::after {
@@ -182,8 +182,21 @@
   transform: translateX(-50%) scale(1);
 }
 
+/* ── Flip tooltips for the first 3 rows to avoid header overlap ── */
+.table tbody tr:nth-child(-n+3) .tooltip {
+  bottom: auto;
+  top: calc(100% + 10px);
+}
+
+.table tbody tr:nth-child(-n+3) .tooltip::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: #343a40;
+}
+
 .tooltipWrapper:hover {
-  z-index: 50;
+  z-index: 10000;
 }
 
 
@@ -280,6 +293,7 @@
 
 .table tbody tr:hover .stickyActionsCol {
   background-color: #f8f9fa;
+  z-index: 3000 !important;
 }
 
 .table tbody tr:nth-child(even) .stickyActionsCol {

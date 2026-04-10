@@ -331,12 +331,25 @@
   justify-content: center;
   padding: 4px;
   min-width: 80px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.imageCell:hover {
+  transform: scale(1.05);
 }
 
 .packageImage {
-  border-radius: 4px;
+  border-radius: 6px;
   object-fit: cover;
   border: 1px solid var(--color-border-default);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.imageCell:hover .packageImage {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-brand-accent);
 }
 
 .imagePlaceholder {
@@ -366,4 +379,81 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* ── Image Preview Overlay (Feedback Style) ── */
+.imageModalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  cursor: zoom-out;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.imageModalContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 90vw;
+  max-height: 90vh;
+  cursor: default;
+}
+
+.fullImage {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.imageModalTitle {
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  background: rgba(0,0,0,0.4);
+  padding: 6px 16px;
+  border-radius: 20px;
+}
+
+.closeModalButton {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.closeModalButton:hover {
+  transform: scale(1.2);
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }

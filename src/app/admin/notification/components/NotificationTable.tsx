@@ -112,7 +112,7 @@ export function NotificationTable({
             {notifications.length === 0 ? (
               <tr>
                 <td colSpan={10} className={styles.emptyState}>
-                   Chưa có thông báo nào
+                  Chưa có thông báo nào
                 </td>
               </tr>
             ) : (
@@ -143,9 +143,8 @@ export function NotificationTable({
                     </td>
                     <td>
                       <span
-                        className={`${styles.statusBadge} ${
-                          notification.status === 'Unread' ? styles.statusUnread : styles.statusRead
-                        }`}
+                        className={`${styles.statusBadge} ${notification.status === 'Unread' ? styles.statusUnread : styles.statusRead
+                          }`}
                       >
                         {notification.status === 'Unread' ? 'Chưa đọc' : 'Đã đọc'}
                       </span>

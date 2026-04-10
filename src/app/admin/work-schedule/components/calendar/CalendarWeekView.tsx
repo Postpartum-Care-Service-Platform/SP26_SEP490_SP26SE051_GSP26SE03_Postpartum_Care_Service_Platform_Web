@@ -54,9 +54,9 @@ function formatTime(time: string): string {
 
 function getEventsForDate(date: Date, events: StaffSchedule[]): StaffSchedule[] {
   const dateStr = format(date, 'yyyy-MM-dd');
-  return events.filter(event => 
+  return events.filter(event =>
     event.familyScheduleResponse.workDate === dateStr
-  ).sort((a, b) => 
+  ).sort((a, b) =>
     a.familyScheduleResponse.startTime.localeCompare(b.familyScheduleResponse.startTime)
   );
 }
@@ -85,15 +85,15 @@ function getCurrentTimePosition(): number {
   return (hours - START_HOUR) * 96 + (minutes / 60) * 96;
 }
 
-export function CalendarWeekView({ 
-  weekCursor, 
-  schedules, 
-  onEventCreated, 
+export function CalendarWeekView({
+  weekCursor,
+  schedules,
+  onEventCreated,
   onDateChange,
   selectedStaffId,
   onStaffSelect,
-}: { 
-  weekCursor: Date; 
+}: {
+  weekCursor: Date;
   schedules: StaffSchedule[];
   onEventCreated?: () => void;
   onDateChange?: (date: Date) => void;
@@ -143,15 +143,15 @@ export function CalendarWeekView({
 
   return (
     <Tooltip.Provider delayDuration={350}>
-      <div style={{ display: 'flex', gap: '16px' }}>
+      <div style={{ display: 'flex', gap: '16px', height: 'calc(100vh - 196px)', overflow: 'hidden', paddingBottom: '8px' }}>
         <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', width: '220px', overflowY: 'auto', overflowX: 'hidden' }}>
-          <MiniCalendar 
-            selectedDate={weekCursor} 
+          <MiniCalendar
+            selectedDate={weekCursor}
             onDateSelect={onDateChange}
             currentMonth={weekCursor}
             viewMode="Week"
           />
-          <CalendarSidebarExtra 
+          <CalendarSidebarExtra
             selectedDate={weekCursor}
             schedules={schedules}
           />
@@ -215,9 +215,9 @@ export function CalendarWeekView({
               {currentTimePosition >= 0 && (
                 <Tooltip.Root>
                   <Tooltip.Trigger asChild>
-                    <div 
+                    <div
                       className={styles.currentTimeDot}
-                      style={{ 
+                      style={{
                         top: `${currentTimePosition}px`,
                         backgroundColor: '#FF6B00',
                         cursor: 'help'
@@ -239,13 +239,13 @@ export function CalendarWeekView({
               const isTodayDate = isToday(d);
               const dayEvents = getEventsForDate(d, schedules);
               const dayKey = d.toISOString();
-              
+
               return (
                 <div key={dayKey} className={`${styles.dayColumn} ${isTodayDate ? styles.today : ''}`}>
                   {/* Hour grid lines - each slot = 1 hour (48px) */}
                   {HOURS.map((slotIndex) => (
-                    <div 
-                      key={slotIndex} 
+                    <div
+                      key={slotIndex}
                       className={styles.hourSlot}
                       onClick={(event) => handleCellClick(d, slotIndex, event)}
                       style={{ cursor: 'pointer' }}
@@ -254,19 +254,19 @@ export function CalendarWeekView({
                       <div className={styles.hourSlotBottom} />
                     </div>
                   ))}
-                  
+
                   {/* Current time line - only show on today */}
                   {isTodayDate && currentTimePosition >= 0 && (
-                    <div 
+                    <div
                       className={styles.currentTimeLine}
-                      style={{ 
+                      style={{
                         top: `${currentTimePosition}px`
                       }}
                     />
                   )}
                   {/* Dashed current time line for other days */}
                   {!isTodayDate && currentTimePosition >= 0 && (
-                    <div 
+                    <div
                       className={styles.currentTimeLineDashed}
                       style={{ top: `${currentTimePosition}px` }}
                     />
@@ -276,14 +276,14 @@ export function CalendarWeekView({
                     const { familyScheduleResponse: fs } = schedule;
                     const topPosition = getEventPosition(fs.startTime);
                     const height = getEventHeight(fs.startTime, fs.endTime);
-                    
+
                     return (
                       <Tooltip.Root key={schedule.id}>
                         <Tooltip.Trigger asChild>
                           <div
                             className={styles.eventChip}
                             onClick={(e) => handleEventClick(schedule, e)}
-                            style={{ 
+                            style={{
                               top: `${topPosition}px`,
                               height: `${height}px`,
                               cursor: 'pointer',
@@ -304,22 +304,22 @@ export function CalendarWeekView({
                           <Tooltip.Content className={styles.tooltipContent} sideOffset={5}>
                             <div className={styles.tooltipHeader}>
                               <div className={styles.tooltipTitle}>{fs.activity}</div>
-                              <div 
+                              <div
                                 className={styles.tooltipStatusBadge}
-                                style={{ 
-                                  backgroundColor: 
-                                    fs.status === 'Done' ? '#CDEFE1' : 
-                                    fs.status === 'Missed' ? '#FBE2E4' : 
-                                    fs.status === 'Cancelled' ? '#F4F5F7' : '#DDEBFF',
-                                  color: 
-                                    fs.status === 'Done' ? '#006644' : 
-                                    fs.status === 'Missed' ? '#AE2E24' : 
-                                    fs.status === 'Cancelled' ? '#42526E' : '#0052CC'
+                                style={{
+                                  backgroundColor:
+                                    fs.status === 'Done' ? '#CDEFE1' :
+                                      fs.status === 'Missed' ? '#FBE2E4' :
+                                        fs.status === 'Cancelled' ? '#F4F5F7' : '#DDEBFF',
+                                  color:
+                                    fs.status === 'Done' ? '#006644' :
+                                      fs.status === 'Missed' ? '#AE2E24' :
+                                        fs.status === 'Cancelled' ? '#42526E' : '#0052CC'
                                 }}
                               >
-                                {fs.status === 'Done' ? 'Đã hoàn thành' : 
-                                 fs.status === 'Missed' ? 'Đã bỏ lỡ' : 
-                                 fs.status === 'Cancelled' ? 'Đã hủy' : 'Đã lên lịch'}
+                                {fs.status === 'Done' ? 'Đã hoàn thành' :
+                                  fs.status === 'Missed' ? 'Đã bỏ lỡ' :
+                                    fs.status === 'Cancelled' ? 'Đã hủy' : 'Đã lên lịch'}
                               </div>
                             </div>
 
@@ -369,17 +369,17 @@ export function CalendarWeekView({
 }
 
 // Wrapper component for quick create with date/time
-function CalendarQuickCreateWrapper({ 
-  date, 
-  hour, 
+function CalendarQuickCreateWrapper({
+  date,
+  hour,
   anchorRect,
-  onClose, 
-  onSuccess 
-}: { 
-  date: Date; 
-  hour: number; 
+  onClose,
+  onSuccess
+}: {
+  date: Date;
+  hour: number;
   anchorRect: DOMRect;
-  onClose: () => void; 
+  onClose: () => void;
   onSuccess: () => void;
 }) {
   const [open, setOpen] = React.useState(true);
@@ -393,13 +393,13 @@ function CalendarQuickCreateWrapper({
 
   const handleCreate = async () => {
     if (!summary.trim()) return;
-    
+
     setLoading(true);
     try {
       const startTime = `${hour.toString().padStart(2, '0')}:00:00`;
       const endTime = `${(hour + TIME_SLOT_STEP).toString().padStart(2, '0')}:00:00`;
       const workDate = format(date, 'yyyy-MM-dd');
-      
+
       await staffScheduleService.createFamilySchedule({
         customerId: '',
         packageId: 0,
@@ -412,7 +412,7 @@ function CalendarQuickCreateWrapper({
         status: 'Pending',
         contractId: 0,
       });
-      
+
       handleClose();
       onSuccess();
     } catch (error) {
@@ -435,9 +435,9 @@ function CalendarQuickCreateWrapper({
         }}
       />
       <Popover.Portal>
-        <Popover.Content 
+        <Popover.Content
           className={styles.quickCreatePopover}
-          side="top" 
+          side="top"
           align="start"
           sideOffset={8}
           collisionPadding={12}
@@ -460,25 +460,25 @@ function CalendarQuickCreateWrapper({
               }}
             />
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px', gap: '8px' }}>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleClose}
                 style={{ padding: '6px 12px', borderRadius: '4px', border: '1px solid #ddd', background: '#fff', cursor: 'pointer' }}
               >
                 Hủy
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleCreate}
                 disabled={!summary.trim() || loading}
-                style={{ 
-                  padding: '6px 12px', 
-                  borderRadius: '4px', 
-                  border: 'none', 
-                  background: '#ff7a00', 
-                  color: '#fff', 
-                  cursor: summary.trim() && !loading ? 'pointer' : 'not-allowed', 
-                  opacity: summary.trim() && !loading ? 1 : 0.5 
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '4px',
+                  border: 'none',
+                  background: '#ff7a00',
+                  color: '#fff',
+                  cursor: summary.trim() && !loading ? 'pointer' : 'not-allowed',
+                  opacity: summary.trim() && !loading ? 1 : 0.5
                 }}
               >
                 {loading ? 'Đang tạo...' : 'Tạo'}

@@ -80,11 +80,11 @@ function getCurrentTimePosition(): number {
   return (hours - START_HOUR) * 96 + (minutes / 60) * 96;
 }
 
-export function CalendarDayView({ 
-  dayCursor, 
-  schedules, 
-  onDayChange, 
-  monthCursor, 
+export function CalendarDayView({
+  dayCursor,
+  schedules,
+  onDayChange,
+  monthCursor,
   dayCount = 1,
   selectedStaffId,
   onStaffSelect,
@@ -119,7 +119,7 @@ export function CalendarDayView({
 
   return (
     <Tooltip.Provider delayDuration={350}>
-      <div style={{ display: 'flex', gap: '16px' }}>
+      <div style={{ display: 'flex', gap: '16px', height: 'calc(100vh - 196px)', overflow: 'hidden', paddingBottom: '8px' }}>
         <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', width: '220px', overflowY: 'auto', overflowX: 'hidden' }}>
           <MiniCalendar
             selectedDate={dayCursor}
@@ -127,7 +127,7 @@ export function CalendarDayView({
             currentMonth={monthCursor}
             viewMode="Day"
           />
-          <CalendarSidebarExtra 
+          <CalendarSidebarExtra
             selectedDate={dayCursor}
             schedules={schedules}
           />
@@ -135,8 +135,8 @@ export function CalendarDayView({
 
         <div className={styles.wrap} style={{ flex: 1, overflow: 'auto' }}>
           {/* Header Row */}
-          <div className={styles.header} style={{ 
-            display: 'grid', 
+          <div className={styles.header} style={{
+            display: 'grid',
             gridTemplateColumns: `50px repeat(${dayCount}, 1fr)`,
             padding: 0,
             height: 'auto',
@@ -153,9 +153,9 @@ export function CalendarDayView({
               return (
                 <Tooltip.Root key={d.toISOString()}>
                   <Tooltip.Trigger asChild>
-                    <div style={{ 
-                      padding: '12px 0', 
-                      textAlign: 'center', 
+                    <div style={{
+                      padding: '12px 0',
+                      textAlign: 'center',
                       borderRight: '1px solid rgba(9, 30, 66, 0.14)',
                       display: 'flex',
                       flexDirection: 'column',
@@ -210,7 +210,7 @@ export function CalendarDayView({
                     {formatTimeSlot(hour)}
                   </div>
                 ))}
-                
+
                 {/* Current time indicator - dot with tooltip */}
                 {currentTimePosition >= 0 && (
                   <Tooltip.Root>
@@ -289,36 +289,36 @@ export function CalendarDayView({
                           </Tooltip.Trigger>
                           <Tooltip.Portal>
                             <Tooltip.Content className={styles.tooltipContent} sideOffset={5}>
-                            <div className={styles.tooltipHeader}>
-                              <div className={styles.tooltipTitle}>{fs.activity}</div>
-                              <div 
-                                className={styles.tooltipStatusBadge}
-                                style={{ 
-                                  backgroundColor: 
-                                    fs.status === 'Done' ? '#CDEFE1' : 
-                                    fs.status === 'Missed' ? '#FBE2E4' : 
-                                    fs.status === 'Cancelled' ? '#F4F5F7' : '#DDEBFF',
-                                  color: 
-                                    fs.status === 'Done' ? '#006644' : 
-                                    fs.status === 'Missed' ? '#AE2E24' : 
-                                    fs.status === 'Cancelled' ? '#42526E' : '#0052CC'
-                                }}
-                              >
-                                {fs.status === 'Done' ? 'Đã hoàn thành' : 
-                                 fs.status === 'Missed' ? 'Đã bỏ lỡ' : 
-                                 fs.status === 'Cancelled' ? 'Đã hủy' : 'Đã lên lịch'}
+                              <div className={styles.tooltipHeader}>
+                                <div className={styles.tooltipTitle}>{fs.activity}</div>
+                                <div
+                                  className={styles.tooltipStatusBadge}
+                                  style={{
+                                    backgroundColor:
+                                      fs.status === 'Done' ? '#CDEFE1' :
+                                        fs.status === 'Missed' ? '#FBE2E4' :
+                                          fs.status === 'Cancelled' ? '#F4F5F7' : '#DDEBFF',
+                                    color:
+                                      fs.status === 'Done' ? '#006644' :
+                                        fs.status === 'Missed' ? '#AE2E24' :
+                                          fs.status === 'Cancelled' ? '#42526E' : '#0052CC'
+                                  }}
+                                >
+                                  {fs.status === 'Done' ? 'Đã hoàn thành' :
+                                    fs.status === 'Missed' ? 'Đã bỏ lỡ' :
+                                      fs.status === 'Cancelled' ? 'Đã hủy' : 'Đã lên lịch'}
+                                </div>
                               </div>
-                            </div>
 
-                            <div className={styles.tooltipCode}>{fs.customerName}</div>
-                            <div className={styles.tooltipTime}>
-                              {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
-                            </div>
-                            <div className={styles.tooltipCode}>{fs.packageName}</div>
-                            {schedule.staffName && <div className={styles.tooltipCode}>{schedule.staffName}</div>}
-                            {fs.note && <div className={styles.tooltipCode}>{fs.note}</div>}
-                            <Tooltip.Arrow className={styles.tooltipArrow} />
-                          </Tooltip.Content>
+                              <div className={styles.tooltipCode}>{fs.customerName}</div>
+                              <div className={styles.tooltipTime}>
+                                {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
+                              </div>
+                              <div className={styles.tooltipCode}>{fs.packageName}</div>
+                              {schedule.staffName && <div className={styles.tooltipCode}>{schedule.staffName}</div>}
+                              {fs.note && <div className={styles.tooltipCode}>{fs.note}</div>}
+                              <Tooltip.Arrow className={styles.tooltipArrow} />
+                            </Tooltip.Content>
                           </Tooltip.Portal>
                         </Tooltip.Root>
                       );

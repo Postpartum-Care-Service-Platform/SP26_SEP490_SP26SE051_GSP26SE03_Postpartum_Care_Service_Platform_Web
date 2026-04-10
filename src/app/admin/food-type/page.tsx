@@ -303,7 +303,7 @@ export default function AdminFoodTypePage() {
               <th style={{ width: '50px' }}>STT</th>
               <th>Tên loại thực phẩm</th>
               <th>Trạng thái</th>
-              <th>Thao tác</th>
+              <th className={styles.stickyActionsCol}>Thao tác</th>
             </tr>
           </thead>
           <tbody>
@@ -350,7 +350,7 @@ export default function AdminFoodTypePage() {
                         </span>
                       </div>
                     </td>
-                    <td>
+                    <td className={styles.stickyActionsCol}>
                       <div className={styles.actions}>
                         <div className={styles.tooltipWrapper}>
                         <Button variant="outline" size="sm" className={styles.editButton}

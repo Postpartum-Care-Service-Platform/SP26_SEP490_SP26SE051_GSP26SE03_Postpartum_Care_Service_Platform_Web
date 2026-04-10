@@ -76,7 +76,8 @@
 .formControl {
   width: 100%;
   max-width: 100%;
-  box-sizing: border-box; /* Đảm bảo padding không làm input vượt quá container */
+  box-sizing: border-box;
+  /* Đảm bảo padding không làm input vượt quá container */
   padding: 8px 14px;
   background-color: #ffffff;
   border: 1px solid #dee2e6;
@@ -170,9 +171,9 @@
 }
 
 .formGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
 .fullWidth {
@@ -303,13 +304,15 @@
 }
 
 .buttonPrimary {
-  background-color: #fa8314; /* Orange */
+  background-color: #fa8314;
+  /* Orange */
   color: white;
   border-color: #fa8314;
 }
 
 .buttonPrimary:hover:not(:disabled) {
-  background-color: #e67310; /* Darker Orange */
+  background-color: #e67310;
+  /* Darker Orange */
   border-color: #d96d10;
 }
 
@@ -323,4 +326,3 @@
   background-color: #f8f9fa;
   color: #343a40;
 }
-
