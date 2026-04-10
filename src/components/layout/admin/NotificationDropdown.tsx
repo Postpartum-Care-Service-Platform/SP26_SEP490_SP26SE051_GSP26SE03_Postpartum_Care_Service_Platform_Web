@@ -73,7 +73,7 @@ export function NotificationDropdown({ onViewAll, isSidebarOpen }: { onViewAll?:
 
   // Fetch dữ liệu lần đầu khi mount và mỗi khi fetchData thay đổi
   React.useEffect(() => {
-    fetchData();
+    void fetchData();
   }, [fetchData]);
 
   // Tự động làm mới thông báo sau mỗi 30 giây để cập nhật badge count
