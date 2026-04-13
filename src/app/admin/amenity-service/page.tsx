@@ -17,6 +17,7 @@ import amenityServiceService from '@/services/amenity-service.service';
 import type { AmenityService } from '@/types/amenity-service';
 import { AmenityServiceListHeader } from './components/AmenityServiceListHeader';
 import { AmenityServiceModal } from './components/AmenityServiceModal';
+import { ImportAmenityServiceModal } from './components/ImportAmenityServiceModal';
 import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './amenity-service.module.css';
 
@@ -96,6 +97,9 @@ export default function AdminAmenityServicePage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<AmenityService | null>(null);
+
+  // Import modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -198,6 +202,15 @@ export default function AdminAmenityServicePage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      await amenityServiceService.exportAmenityServices();
+      toast({ title: 'Thành công', description: 'Đã xuất danh sách dịch vụ tiện ích ra file Excel.', variant: 'success' });
+    } catch (error) {
+      toast({ title: 'Thất bại', description: 'Không thể xuất file Excel.', variant: 'error' });
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1 h-full min-h-0">
       <AdminPageLayout
@@ -270,11 +283,11 @@ export default function AdminAmenityServicePage() {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className={styles.dropdownContent} align="end">
-                  <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+                  <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
                     <Upload size={16} className={styles.itemIcon} />
                     Nhập từ Excel
                   </DropdownMenuItem>
-                  <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+                  <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
                     <Download size={16} className={styles.itemIcon} />
                     Xuất ra Excel
                   </DropdownMenuItem>
@@ -437,6 +450,12 @@ export default function AdminAmenityServicePage() {
           </div>
         )}
       </AdminPageLayout>
+
+      <ImportAmenityServiceModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchAmenityServices}
+      />
     </div>
   );
 }

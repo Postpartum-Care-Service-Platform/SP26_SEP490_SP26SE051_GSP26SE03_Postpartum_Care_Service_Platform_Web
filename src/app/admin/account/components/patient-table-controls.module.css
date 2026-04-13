@@ -122,7 +122,8 @@
   padding: 10px 12px;
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
-  background-color: #f8f9fa; /* Thay đổi từ white sang #f8f9fa để giống các nút lọc */
+  background-color: #f8f9fa;
+  /* Thay đổi từ white sang #f8f9fa để giống các nút lọc */
   color: var(--color-text-primary);
   font-family: var(--font-body);
   font-size: 14px;
@@ -132,7 +133,8 @@
 }
 
 .exportButton:hover {
-  background-color: #e9ecef; /* Thay đổi để giống hover của filterButton */
+  background-color: #e9ecef;
+  /* Thay đổi để giống hover của filterButton */
   border-color: var(--color-brand-accent);
 }
 
@@ -443,4 +445,3 @@
     width: 100%;
   }
 }
-

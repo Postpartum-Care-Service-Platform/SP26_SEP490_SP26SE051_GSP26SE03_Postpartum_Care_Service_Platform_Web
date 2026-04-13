@@ -7,7 +7,8 @@ import packageService from '@/services/package.service';
 import type { Package } from '@/types/package';
 import { Pagination } from '@/components/ui/pagination';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
-import { NewPackageModal, PackageListHeader, PackageTable, PackageTableControls } from './components';
+import { ImportPackageModal, NewPackageModal, PackageListHeader, PackageTable, PackageTableControls } from './components';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './package.module.css';
 
 const sortPackages = (items: Package[], sort: string) => {
@@ -49,6 +50,13 @@ export default function AdminPackagePage() {
   const [pageSize, setPageSize] = useState(10);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  
+  // Confirm Modal state
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<Package | null>(null);
+
+  // Import Modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const fetchPackages = async () => {
     try {
@@ -123,10 +131,16 @@ export default function AdminPackagePage() {
     }
   };
 
-  const handleDelete = async (pkg: Package) => {
+  const handleDeleteTrigger = (pkg: Package) => {
+    setItemToDelete(pkg);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setDeletingId(pkg.id);
-      await packageService.deletePackage(pkg.id);
+      setDeletingId(itemToDelete.id);
+      await packageService.deletePackage(itemToDelete.id);
       toast({ title: 'Xóa gói dịch vụ thành công', variant: 'success' });
       await fetchPackages();
     } catch (err: unknown) {
@@ -142,6 +156,17 @@ export default function AdminPackagePage() {
       toast({ title: message, variant: 'error' });
     } finally {
       setDeletingId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await packageService.exportPackages();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: 'Xuất dữ liệu thất bại', variant: 'error' });
     }
   };
 
@@ -155,6 +180,8 @@ export default function AdminPackagePage() {
             onSortChange={(sort) => setSortKey(sort)}
             onStatusChange={(status) => setStatusFilter(status)}
             onNewPackage={() => setIsModalOpen(true)}
+            onImport={() => setIsImportModalOpen(true)}
+            onExport={handleExport}
           />
         }
         pagination={
@@ -187,7 +214,7 @@ export default function AdminPackagePage() {
           <PackageTable
             packages={paginatedPackages}
             onEdit={handleEdit}
-            onDelete={handleDelete}
+            onDelete={handleDeleteTrigger}
             deletingId={deletingId}
             pagination={{
               currentPage,
@@ -202,6 +229,20 @@ export default function AdminPackagePage() {
         onOpenChange={handleModalClose}
         onSuccess={fetchPackages}
         packageToEdit={editingPackage}
+      />
+
+      <ImportPackageModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchPackages}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa gói dịch vụ"
+        message={`Bạn có chắc chắn muốn xóa gói dịch vụ "${itemToDelete?.packageName}"? Hành động này không thể hoàn tác.`}
       />
     </>
   );

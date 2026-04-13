@@ -7,6 +7,7 @@ import carePlanDetailService from '@/services/care-plan-detail.service';
 import type { CarePlanDetail } from '@/types/care-plan-detail';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import { Pagination } from '@/components/ui/pagination';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 
 import styles from './care-plan-detail.module.css';
 import {
@@ -14,6 +15,7 @@ import {
   CarePlanDetailTable,
   CarePlanDetailTableControls,
   NewCarePlanDetailModal,
+  ImportCarePlanDetailModal,
 } from './components';
 
 const sortCarePlanDetails = (items: CarePlanDetail[], sort: string) => {
@@ -50,6 +52,11 @@ export default function AdminCarePlanDetailPage() {
   const [pageSize, setPageSize] = useState(10);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  // Modal states
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<CarePlanDetail | null>(null);
 
   const fetchCarePlanDetails = async () => {
     try {
@@ -117,10 +124,16 @@ export default function AdminCarePlanDetailPage() {
     }
   };
 
-  const handleDelete = async (carePlanDetail: CarePlanDetail) => {
+  const handleDeleteTrigger = (carePlanDetail: CarePlanDetail) => {
+    setItemToDelete(carePlanDetail);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setDeletingId(carePlanDetail.id);
-      await carePlanDetailService.deleteCarePlanDetail(carePlanDetail.id);
+      setDeletingId(itemToDelete.id);
+      await carePlanDetailService.deleteCarePlanDetail(itemToDelete.id);
       toast({ title: 'Xóa chi tiết kế hoạch chăm sóc thành công', variant: 'success' });
       await fetchCarePlanDetails();
     } catch (err: unknown) {
@@ -131,6 +144,17 @@ export default function AdminCarePlanDetailPage() {
       toast({ title: message, variant: 'error' });
     } finally {
       setDeletingId(null);
+      setIsConfirmModalOpen(false);
+      setItemToDelete(null);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await carePlanDetailService.exportCarePlanDetails();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: 'Xuất dữ liệu thất bại', variant: 'error' });
     }
   };
 
@@ -142,6 +166,8 @@ export default function AdminCarePlanDetailPage() {
           onSearch={(q) => setSearchQuery(q)}
           onSortChange={(sort) => setSortKey(sort)}
           onNewCarePlanDetail={() => setIsModalOpen(true)}
+          onImport={() => setIsImportModalOpen(true)}
+          onExport={handleExport}
         />
       }
       pagination={
@@ -175,7 +201,7 @@ export default function AdminCarePlanDetailPage() {
           <CarePlanDetailTable
             carePlanDetails={paginatedCarePlanDetails}
             onEdit={handleEdit}
-            onDelete={handleDelete}
+            onDelete={handleDeleteTrigger}
             deletingId={deletingId}
             currentPage={currentPage}
             pageSize={pageSize}
@@ -188,6 +214,23 @@ export default function AdminCarePlanDetailPage() {
         onOpenChange={handleModalClose}
         onSuccess={fetchCarePlanDetails}
         carePlanDetailToEdit={editingCarePlanDetail}
+      />
+
+      <ImportCarePlanDetailModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchCarePlanDetails}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa hoạt động"
+        message={`Bạn có chắc chắn muốn xóa hoạt động này? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
       />
     </AdminPageLayout>
   );

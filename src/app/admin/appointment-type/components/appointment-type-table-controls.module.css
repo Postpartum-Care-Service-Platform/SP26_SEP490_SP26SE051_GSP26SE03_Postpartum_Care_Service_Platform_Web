@@ -49,7 +49,7 @@
   border-color: var(--color-brand-accent);
 }
 
-.filterButton, .statusButton {
+.filterButton, .statusButton, .importExportButton {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -65,14 +65,18 @@
   transition: all 0.2s;
 }
 
-.filterButton:hover, .statusButton:hover {
+.filterButton:hover, .statusButton:hover, .importExportButton:hover {
   background-color: #e9ecef;
   border-color: var(--color-brand-accent);
 }
 
-.filterIcon {
+.filterIcon, .exportIcon, .itemIcon {
   width: 16px;
   height: 16px;
+}
+
+.itemIcon {
+  margin-right: 8px;
 }
 
 .chevronIcon {

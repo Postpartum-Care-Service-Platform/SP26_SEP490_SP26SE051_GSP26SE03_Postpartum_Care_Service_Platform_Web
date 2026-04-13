@@ -19,6 +19,8 @@ type Props = {
   onSortChange?: (sort: string) => void;
   onStatusChange?: (status: 'all' | 'active' | 'inactive') => void;
   onNewPackage?: () => void;
+  onImport?: () => void;
+  onExport?: () => void;
 };
 
 const SORT_OPTIONS = [
@@ -38,7 +40,7 @@ const STATUS_OPTIONS: Array<{ value: 'all' | 'active' | 'inactive'; label: strin
   { value: 'inactive', label: 'Tạm dừng' },
 ];
 
-export function PackageTableControls({ onSearch, onSortChange, onStatusChange, onNewPackage }: Props) {
+export function PackageTableControls({ onSearch, onSortChange, onStatusChange, onNewPackage, onImport, onExport }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState<string>('createdAt-desc');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'inactive'>('all');
@@ -128,11 +130,11 @@ export function PackageTableControls({ onSearch, onSortChange, onStatusChange, o
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onImport}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>

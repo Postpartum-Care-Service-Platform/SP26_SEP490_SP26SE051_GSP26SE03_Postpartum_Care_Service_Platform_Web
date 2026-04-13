@@ -16,8 +16,10 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import foodTypeService from '@/services/food-type.service';
 import type { FoodType } from '@/types/food-type';
 
-import styles from './food-type.module.css';
 import { FoodTypeModal } from './components/FoodTypeModal';
+import { ImportFoodTypeModal } from './components/ImportFoodTypeModal';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
+import styles from './food-type.module.css';
 
 /* ── SVG icons ── */
 const EditIcon = () => (
@@ -102,6 +104,13 @@ export default function AdminFoodTypePage() {
   const [editingItem, setEditingItem] = useState<FoodType | null>(null);
   const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
 
+  // Import Modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Confirm Modal state
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<FoodType | null>(null);
+
   const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
@@ -144,16 +153,24 @@ export default function AdminFoodTypePage() {
   const handleOpenEdit   = (item: FoodType) => { setEditingItem(item); setIsModalOpen(true); };
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingItem(null); };
 
-  const handleDelete = async (item: FoodType) => {
+  const handleDeleteTrigger = (item: FoodType) => {
+    setItemToDelete(item);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setDeletingId(item.id);
-      await foodTypeService.deleteFoodType(item.id);
+      setDeletingId(itemToDelete.id);
+      await foodTypeService.deleteFoodType(itemToDelete.id);
       await fetchData();
       toast({ title: 'Xóa loại thực phẩm thành công', variant: 'success' });
     } catch (err) {
       toast({ title: getErrorMessage(err, 'Xóa loại thực phẩm thất bại'), variant: 'error' });
     } finally {
       setDeletingId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
     }
   };
 
@@ -194,6 +211,15 @@ export default function AdminFoodTypePage() {
         next.delete(item.id);
         return next;
       });
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await foodTypeService.exportFoodTypes();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
     }
   };
 
@@ -242,11 +268,11 @@ export default function AdminFoodTypePage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>
@@ -362,7 +388,7 @@ export default function AdminFoodTypePage() {
                         {item.isActive ? (
                           <div className={styles.tooltipWrapper}>
                           <Button variant="outline" size="sm" className={styles.deleteButton}
-                              onClick={() => handleDelete(item)} disabled={deletingId === item.id}>
+                              onClick={() => handleDeleteTrigger(item)} disabled={deletingId === item.id}>
                             <TrashIcon />
                           </Button>
                             <span className={styles.tooltip}>Xóa</span>
@@ -390,6 +416,23 @@ export default function AdminFoodTypePage() {
         open={isModalOpen}
         onOpenChange={handleModalClose}
         item={editingItem}
+        onSuccess={fetchData}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa loại thực phẩm"
+        message={`Bạn có chắc chắn muốn xóa loại thực phẩm "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
+      />
+
+      <ImportFoodTypeModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
         onSuccess={fetchData}
       />
     </AdminPageLayout>

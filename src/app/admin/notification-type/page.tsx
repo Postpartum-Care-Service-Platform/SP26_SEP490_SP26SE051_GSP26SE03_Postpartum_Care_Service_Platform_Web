@@ -17,7 +17,9 @@ import notificationTypeService from '@/services/notification-type.service';
 import type { NotificationType } from '@/types/notification-type';
 
 import { NotificationTypeModal } from '../notification/components/NotificationTypeModal';
+import { ImportNotificationTypeModal } from './components/ImportNotificationTypeModal';
 import { translateNotificationTypeName } from '../notification/utils/notificationTypeTranslations';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './notification-types.module.css';
 
 /* ── SVG icons ── */
@@ -104,6 +106,13 @@ export default function AdminNotificationTypePage() {
   const [editingItem, setEditingItem] = useState<NotificationType | null>(null);
   const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
 
+  // Import Modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Confirm Modal state
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<NotificationType | null>(null);
+
   const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
@@ -147,16 +156,24 @@ export default function AdminNotificationTypePage() {
   const handleOpenEdit   = (item: NotificationType) => { setEditingItem(item); setIsModalOpen(true); };
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingItem(null); };
 
-  const handleDelete = async (item: NotificationType) => {
+  const handleDeleteTrigger = (item: NotificationType) => {
+    setItemToDelete(item);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setDeletingId(item.id);
-      await notificationTypeService.deleteNotificationType(item.id);
+      setDeletingId(itemToDelete.id);
+      await notificationTypeService.deleteNotificationType(itemToDelete.id);
       await fetchData();
       toast({ title: 'Xóa loại thông báo thành công', variant: 'success' });
     } catch (err) {
       toast({ title: getErrorMessage(err, 'Xóa loại thông báo thất bại'), variant: 'error' });
     } finally {
       setDeletingId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
     }
   };
 
@@ -197,6 +214,15 @@ export default function AdminNotificationTypePage() {
         next.delete(item.id);
         return next;
       });
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await notificationTypeService.exportNotificationTypes();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
     }
   };
 
@@ -249,11 +275,11 @@ export default function AdminNotificationTypePage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>
@@ -376,7 +402,7 @@ export default function AdminNotificationTypePage() {
                         {item.isActive ? (
                           <div className={styles.tooltipWrapper}>
                           <Button variant="outline" size="sm" className={styles.deleteButton}
-                              onClick={() => handleDelete(item)} disabled={deletingId === item.id}>
+                              onClick={() => handleDeleteTrigger(item)} disabled={deletingId === item.id}>
                             <TrashIcon />
                           </Button>
                             <span className={styles.tooltip}>Xóa</span>
@@ -404,6 +430,23 @@ export default function AdminNotificationTypePage() {
         open={isModalOpen}
         onOpenChange={handleModalClose}
         type={editingItem}
+        onSuccess={fetchData}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa loại thông báo"
+        message={`Bạn có chắc chắn muốn xóa loại thông báo "${translateNotificationTypeName(itemToDelete?.name || '')}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
+      />
+
+      <ImportNotificationTypeModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
         onSuccess={fetchData}
       />
     </AdminPageLayout>

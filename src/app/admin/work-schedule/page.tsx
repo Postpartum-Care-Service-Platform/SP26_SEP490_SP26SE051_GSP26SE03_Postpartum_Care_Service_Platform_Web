@@ -373,9 +373,9 @@ export default function WorkSchedulePage() {
               onSchedule={() => setIsScheduleModalOpen(true)}
               onAmenityBrowse={handleAmenityBrowse}
             />
-            <div style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
+            <div className="no-scrollbar" style={{ flex: 1, overflow: 'hidden', minHeight: 0 }}>
               {calendarViewMode === 'Month' ? (
-                <div style={{ height: '100%', overflow: 'auto' }}>
+                <div className="no-scrollbar" style={{ height: '100%', overflow: 'auto' }}>
                   <CalendarMonthView
                     monthCursor={calendarMonth}
                     selectedDate={calendarSelectedDate}

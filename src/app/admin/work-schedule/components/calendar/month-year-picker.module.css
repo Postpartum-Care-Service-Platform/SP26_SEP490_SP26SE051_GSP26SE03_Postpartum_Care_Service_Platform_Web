@@ -16,7 +16,7 @@
 
 .content {
   background-color: white;
-  border-radius: 8px;
+  border-radius: 4px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
   animation: fadeIn 150ms ease-out;
   padding: 0;

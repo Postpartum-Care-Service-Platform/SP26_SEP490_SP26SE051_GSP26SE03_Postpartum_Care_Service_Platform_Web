@@ -1,6 +1,6 @@
 'use client';
 
-import { MagnifyingGlassIcon, PlusIcon, MixerHorizontalIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+import { MagnifyingGlassIcon, PlusIcon, MixerHorizontalIcon, ChevronDownIcon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,8 @@ type Props = {
   onSearch?: (query: string) => void;
   onSortChange?: (sort: string) => void;
   onNewCarePlanDetail?: () => void;
+  onImport?: () => void;
+  onExport?: () => void;
 };
 
 const SORT_OPTIONS = [
@@ -28,7 +30,7 @@ const SORT_OPTIONS = [
   { value: 'packageName-desc', label: 'Tên gói Z-A' },
 ];
 
-export function CarePlanDetailTableControls({ onSearch, onSortChange, onNewCarePlanDetail }: Props) {
+export function CarePlanDetailTableControls({ onSearch, onSortChange, onNewCarePlanDetail, onImport, onExport }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState<string>('createdAt-desc');
 
@@ -82,6 +84,26 @@ export function CarePlanDetailTableControls({ onSearch, onSortChange, onNewCareP
       </div>
 
       <div className={styles.right}>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.exportButton}>
+              <DownloadIcon className={styles.exportIcon} />
+              Nhập/Xuất
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent} align="end">
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onImport}>
+              <UploadIcon className={styles.itemIcon} />
+              Nhập từ Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onExport}>
+              <DownloadIcon className={styles.itemIcon} />
+              Xuất ra Excel
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <Button variant="primary" size="sm" className={styles.newCarePlanDetailButton} onClick={onNewCarePlanDetail}>
           <PlusIcon className={styles.plusIcon} />
           Hoạt động mới

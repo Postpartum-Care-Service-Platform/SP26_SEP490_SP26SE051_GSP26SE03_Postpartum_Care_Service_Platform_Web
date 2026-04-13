@@ -25,6 +25,29 @@ const feedbackTypeService = {
   restoreFeedbackType: (id: number): Promise<FeedbackType> => {
     return apiClient.patch(`/FeedbackType/restore/${id}`);
   },
+
+  importFeedbackTypes: (file: File): Promise<void> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/FeedbackType/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
+  exportFeedbackTypes: async (): Promise<void> => {
+    const response = await apiClient.get('/FeedbackType/export', { responseType: 'blob' });
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Loai_phan_hoi_${new Date().getTime()}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };
 
 export default feedbackTypeService;

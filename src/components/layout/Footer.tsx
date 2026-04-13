@@ -38,8 +38,8 @@ export function Footer() {
                 src="/thejoyfulnest/food/Logo-Black.svg"
                 alt="The Joyful Nest"
                 width={180}
-                height={45}
-                style={{ height: 'auto', width: 'auto' }}
+                height={30}
+                className="footer__logo"
               />
             </div>
             <p>

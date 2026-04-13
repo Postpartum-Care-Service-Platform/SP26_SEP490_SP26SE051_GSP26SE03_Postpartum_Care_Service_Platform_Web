@@ -1,0 +1,212 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modalContent {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 4px;
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalHeader {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modalTitle {
+  font-family: var(--font-admin-title);
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.modalBody {
+  padding: 24px;
+}
+
+.dropZone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 4px;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.dropZoneActive {
+  border-color: #fa8314;
+  background-color: #fffaf0;
+}
+
+.uploadIconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  background-color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  margin-bottom: 16px;
+  transition: all 0.2s;
+}
+
+.dropZone:hover .uploadIconWrapper {
+  background-color: #fffaf0;
+  color: #fa8314;
+  transform: translateY(-2px);
+}
+
+.dropZoneTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.dropZoneDesc {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+.browseButton {
+  padding: 8px 16px;
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.browseButton:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.fileInfo {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.excelIconWrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  background-color: #dcfce7;
+  color: #16a34a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fileDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fileName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; display: block;
+}
+
+.fileSize {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.removeButton {
+  width: 28px; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #94a3b8; background: transparent; border: none; cursor: pointer; transition: all 0.2s;
+}
+
+.removeButton:hover { background-color: #fee2e2; color: #ef4444; }
+
+.templateSection { margin-top: 24px; padding: 16px; background-color: #fff7ed; border: 1px solid #ffedd5; border-radius: 4px; display: flex; align-items: flex-start; gap: 12px; }
+
+.infoIcon { color: #f97316; flex-shrink: 0; margin-top: 2px; }
+
+.templateText { display: flex; flex-direction: column; gap: 4px; }
+
+.templateTitle { font-size: 13px; font-weight: 600; color: #9a3412; }
+
+.templateDesc { font-size: 12px; color: #c2410c; line-height: 1.5; }
+
+.downloadLink { color: #ea580c; text-decoration: underline; font-weight: 600; cursor: pointer; }
+
+.downloadLink:hover { color: #9a3412; }
+
+.modalFooter { padding: 16px 24px; background-color: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+
+.button { height: 40px; padding: 0 16px; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-admin-title); }
+
+.buttonOutline { background-color: #fff; border: 1px solid #e2e8f0; color: #64748b; }
+
+.buttonOutline:hover:not(:disabled) { background-color: #f8fafc; border-color: #cbd5e1; color: #1e293b; }
+
+.buttonPrimary { background-color: #fa8314; border: 1px solid #fa8314; color: #fff; min-width: 120px; }
+
+.buttonPrimary:hover:not(:disabled) { background-color: #e6750f; border-color: #e6750f; box-shadow: 0 4px 12px rgba(250, 131, 20, 0.2); }
+
+.buttonPrimary:disabled { opacity: 0.7; cursor: not-allowed; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+@keyframes slideIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }

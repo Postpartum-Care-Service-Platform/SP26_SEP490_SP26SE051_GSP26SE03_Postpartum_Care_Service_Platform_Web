@@ -10,10 +10,8 @@ import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import { Pagination } from '@/components/ui/pagination';
 
 import { RoleListHeader, RoleModal, RoleTable, RoleTableControls } from './components';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './roles.module.css';
-
-
-
 
 const sortRoles = (items: Role[], sort: string) => {
   const arr = [...items];
@@ -46,6 +44,9 @@ export default function AdminRolesPage() {
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  // States for confirmation modal
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [roleToDelete, setRoleToDelete] = useState<Role | null>(null);
 
   const fetchRoles = async () => {
     try {
@@ -115,11 +116,18 @@ export default function AdminRolesPage() {
     }
   };
 
-  const handleDelete = async (role: Role) => {
+  const handleDeleteTrigger = (role: Role) => {
+    setRoleToDelete(role);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!roleToDelete) return;
+
     try {
-      setDeletingId(role.id);
-      await roleService.deleteRole(role.id);
-      toast({ title: 'Xoa vai tro thanh cong', variant: 'success' });
+      setDeletingId(roleToDelete.id);
+      await roleService.deleteRole(roleToDelete.id);
+      toast({ title: 'Xóa vai trò thành công', variant: 'success' });
       await fetchRoles();
     } catch (err: unknown) {
       const message =
@@ -130,10 +138,12 @@ export default function AdminRolesPage() {
               'message' in err &&
               typeof (err as { message?: unknown }).message === 'string'
             ? (err as { message: string }).message
-            : 'Xoa vai tro that bai';
+            : 'Xóa vai trò thất bại';
       toast({ title: message, variant: 'error' });
     } finally {
       setDeletingId(null);
+      setRoleToDelete(null);
+      setIsConfirmModalOpen(false);
     }
   };
 
@@ -182,7 +192,7 @@ export default function AdminRolesPage() {
           <RoleTable
             roles={paginatedRoles}
             onEdit={handleEdit}
-            onDelete={handleDelete}
+            onDelete={handleDeleteTrigger}
             deletingId={deletingId}
             pagination={{
               currentPage,
@@ -196,6 +206,14 @@ export default function AdminRolesPage() {
           onOpenChange={handleModalClose}
           onSuccess={fetchRoles}
           roleToEdit={editingRole}
+        />
+
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Xác nhận xóa vai trò"
+          message={`Bạn có chắc chắn muốn xóa vai trò "${roleToDelete?.roleName}"? Hành động này không thể hoàn tác.`}
         />
       </AdminPageLayout>
     </div>

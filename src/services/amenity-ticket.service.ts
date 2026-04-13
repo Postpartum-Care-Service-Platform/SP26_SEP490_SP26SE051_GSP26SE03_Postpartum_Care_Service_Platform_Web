@@ -53,6 +53,29 @@ const amenityTicketService = {
   getAllStaff: (): Promise<{ id: string; fullName: string }[]> => {
     return apiClient.get('/AmenityTicket/all-staff');
   },
+
+  importAmenityTickets: (file: File): Promise<void> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/AmenityTicket/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
+  exportAmenityTickets: async (): Promise<void> => {
+    const response = await apiClient.get('/AmenityTicket/export', { responseType: 'blob' });
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Dach_sach_Ve_Tien_Ich_${new Date().getTime()}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };
 
 export default amenityTicketService;

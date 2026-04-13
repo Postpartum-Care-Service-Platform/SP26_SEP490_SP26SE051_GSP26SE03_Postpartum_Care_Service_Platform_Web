@@ -176,23 +176,7 @@
   gap: 40px;
 }
 
-.packageCard {
-  background: #ffffff;
-  border-radius: 24px;
-  padding: 48px;
-  border: 1px solid rgba(14, 37, 107, 0.1);
-  display: flex;
-  flex-direction: column;
-  transition: all 0.4s ease;
-  position: relative;
-  overflow: hidden;
-}
 
-.packageCard:hover {
-  transform: translateY(-12px);
-  box-shadow: 0 40px 80px rgba(14, 37, 107, 0.08);
-  border-color: #fa8314;
-}
 
 .cardHeader {
   margin-bottom: 32px;
@@ -280,4 +264,390 @@
   .grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Packages Grid Section */
+.packagesGridSection {
+  background-color: #fffbf4;
+  padding: 80px 0;
+}
+
+.packagesContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.packageCardGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 60px;
+}
+
+.packageCard {
+  background: #ffffff;
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-radius: 0;
+}
+
+.cardIcon {
+  margin-bottom: 30px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardTitle {
+  font-family: 'Queens', serif;
+  font-size: 28px;
+  color: #1a1a1a;
+  margin-bottom: 15px;
+  font-weight: 400;
+}
+
+.cardSubtitle {
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 15px;
+  color: #1a1a1a;
+  font-style: italic;
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.cardDivider {
+  width: 40px;
+  height: 1.5px;
+  background-color: #fa8314;
+  margin-bottom: 25px;
+}
+
+.cardDescription {
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 15px;
+  color: #1a1a1a;
+  line-height: 1.7;
+  margin-bottom: 40px;
+  flex-grow: 1;
+}
+
+.cardPriceWrapper {
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.cardDividerLight {
+  width: 100%;
+  height: 1px;
+  background-color: #eeeeee;
+  margin-bottom: 25px;
+}
+
+.cardPrice {
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fa8314;
+}
+
+.usdPrice {
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.addToCartBtn {
+  width: 100%;
+  background-color: #fa8314;
+  color: #ffffff;
+  border: none;
+  padding: 16px 0;
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: none;
+  border-radius: 0;
+}
+
+/* What Is Inside TJN Section */
+.whatIsInside {
+  background-color: #fffbf4;
+  padding: 100px 0;
+  overflow: hidden;
+}
+
+.whatIsInsideContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.whatIsInsideGrid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.imageColumn {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1333 / 1000;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.whatImage {
+  object-fit: cover;
+}
+
+.textColumn {
+  display: flex;
+  flex-direction: column;
+}
+
+.whatTitle {
+  font-family: 'Queens', serif;
+  font-size: 40px;
+  color: #1a1a1a;
+  margin: 0 0 32px 0;
+  font-weight: 400;
+}
+
+.whatSubtitle {
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-style: italic;
+  font-size: 15px;
+  color: #444;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.whatDescription {
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 15px;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.whatList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 40px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.whatListItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 14.5px;
+  color: #444;
+  line-height: 1.5;
+}
+
+.bullet {
+  color: #1a1a1a;
+  font-size: 20px;
+  line-height: 14px;
+}
+
+.whatFooterText {
+  font-family: 'Queens', serif;
+  font-size: 18px;
+  color: #1a1a1a;
+  line-height: 1.4;
+  margin-top: 20px;
+}
+
+/* FAQ Section */
+.faqSection {
+  background-color: #fffbf4;
+  padding: 100px 0 20px;
+}
+
+.faqContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 140px;
+}
+
+.faqMainTitle {
+  font-family: 'Queens', serif;
+  font-size: 48px;
+  color: #1a1a1a;
+  margin-bottom: 32px;
+  font-weight: 400;
+  border-bottom: 1.5px solid #1a1a1a;
+  padding-bottom: 24px;
+}
+
+.faqItem {
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.faqHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 18px 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.faqQuestion {
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 16px;
+  color: #1e1e1e;
+  font-weight: 400;
+  transition: all 0.3s ease;
+}
+
+.faqHeader[data-active="true"] .faqQuestion {
+  color: #fa8314;
+}
+
+.faqIcon {
+  width: 14px;
+  height: 14px;
+  position: relative;
+  transition: transform 0.4s ease;
+}
+
+.faqIcon::before,
+.faqIcon::after {
+  content: '';
+  position: absolute;
+  background-color: #1a1a1a;
+  height: 1.5px;
+  width: 10px;
+  top: 50%;
+  transition: all 0.3s ease;
+}
+
+.faqHeader[data-active="true"] .faqIcon::before,
+.faqHeader[data-active="true"] .faqIcon::after {
+  background-color: #fa8314;
+}
+
+.faqIcon::before {
+  right: 6px;
+  transform: rotate(45deg);
+}
+
+.faqIcon::after {
+  right: 0px;
+  transform: rotate(-45deg);
+}
+
+.faqAnswer {
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 15px;
+  color: #000000;
+  line-height: 1.8;
+  font-style: italic;
+  margin: 4px 0;
+  padding-bottom: 8px;
+}
+
+.policyContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 12px;
+}
+
+.faqContent {
+  overflow: hidden;
+  transition: all 0.4s ease-in-out;
+}
+
+.policyGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.policySubTitle {
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 15px;
+  color: #1a1a1a;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin: 12px 0 4px;
+  text-transform: uppercase;
+}
+
+.policyList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.policyList li {
+  position: relative;
+  padding-left: 20px;
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 15px;
+  color: #000000;
+  line-height: 1.7;
+  margin: 2px 0;
+}
+
+.policyList li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #1a1a1a;
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+/* Conclusion Section */
+.conclusionSection {
+  background-color: #fffbf4;
+  padding-bottom: 0;
+}
+
+.conclusionTextWrapper {
+  padding: 32px 0 40px;
+}
+
+.conclusionHighlight {
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 15px;
+  color: #1e1e1e;
+  font-weight: 600;
+  font-style: italic;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.conclusionText {
+  font-family: 'ES Rebond Grotesque', sans-serif;
+  font-size: 15px;
+  color: #000000;
+  font-style: italic;
+  line-height: 1.7;
+  max-width: 900px;
+}
+
+.orangeBar {
+  width: 100%;
+  height: 80px;
+  background-color: #fa8314;
 }

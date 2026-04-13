@@ -8,7 +8,8 @@
   background-color: #f2f2f4;
   position: sticky;
   top: 0;
-  z-index: 100; /* Ensure header stays above everything */
+  z-index: 100;
+  /* Ensure header stays above everything */
 }
 
 .table th {
@@ -35,38 +36,89 @@
 }
 
 .table td {
-  padding: 16px 14px; /* Increased padding as requested */
+  padding: 16px 14px;
+  /* Increased padding as requested */
   color: var(--color-text-primary);
   font-family: var(--font-body);
   font-size: 14px;
-  overflow: visible !important; /* Prevent clipping tooltips */
+  overflow: visible !important;
+  /* Prevent clipping tooltips */
 }
 
 /* Base column widths */
 .table th:nth-child(1),
-.table td:nth-child(1) { width: 64px; min-width: 64px; text-align: center; }
+.table td:nth-child(1) {
+  width: 64px;
+  min-width: 64px;
+  text-align: center;
+}
+
 .table th:nth-child(2),
-.table td:nth-child(2) { width: 64px; min-width: 64px; }
+.table td:nth-child(2) {
+  width: 64px;
+  min-width: 64px;
+}
+
 .table th:nth-child(3),
-.table td:nth-child(3) { width: 180px; min-width: 180px; }
+.table td:nth-child(3) {
+  width: 180px;
+  min-width: 180px;
+}
+
 .table th:nth-child(4),
-.table td:nth-child(4) { width: 150px; min-width: 150px; }
+.table td:nth-child(4) {
+  width: 150px;
+  min-width: 150px;
+}
+
 .table th:nth-child(5),
-.table td:nth-child(5) { width: 230px; min-width: 230px; }
+.table td:nth-child(5) {
+  width: 230px;
+  min-width: 230px;
+}
+
 .table th:nth-child(6),
-.table td:nth-child(6) { width: 110px; min-width: 110px; }
+.table td:nth-child(6) {
+  width: 110px;
+  min-width: 110px;
+}
+
 .table th:nth-child(7),
-.table td:nth-child(7) { width: 120px; min-width: 120px; }
+.table td:nth-child(7) {
+  width: 120px;
+  min-width: 120px;
+}
+
 .table th:nth-child(8),
-.table td:nth-child(8) { width: 130px; min-width: 130px; }
+.table td:nth-child(8) {
+  width: 130px;
+  min-width: 130px;
+}
+
 .table th:nth-child(9),
-.table td:nth-child(9) { width: 250px; min-width: 250px; }
+.table td:nth-child(9) {
+  width: 250px;
+  min-width: 250px;
+}
+
 .table th:nth-child(10),
-.table td:nth-child(10) { width: 170px; min-width: 170px; }
+.table td:nth-child(10) {
+  width: 170px;
+  min-width: 170px;
+}
+
 .table th:nth-child(11),
-.table td:nth-child(11) { width: 140px; min-width: 140px; text-align: center; }
+.table td:nth-child(11) {
+  width: 140px;
+  min-width: 140px;
+  text-align: center;
+}
+
 .table th:nth-child(12),
-.table td:nth-child(12) { width: 120px; min-width: 120px; }
+.table td:nth-child(12) {
+  width: 120px;
+  min-width: 120px;
+}
 
 .stickyActionsCol {
   position: sticky;
@@ -74,11 +126,13 @@
   z-index: 20;
   background-color: #fff;
   box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
-  overflow: visible !important; /* Crucial for tooltips in sticky cells */
+  overflow: visible !important;
+  /* Crucial for tooltips in sticky cells */
 }
 
 thead th.stickyActionsCol {
-  z-index: 110; /* Must be higher than normal thead z-index */
+  z-index: 110;
+  /* Must be higher than normal thead z-index */
   background-color: #f2f2f4 !important;
 }
 
@@ -94,7 +148,8 @@ thead th.stickyActionsCol {
 .table tbody tr:hover {
   background-color: #f8f9fa;
   position: relative;
-  z-index: 90; /* Increased to stay above the row above it */
+  z-index: 90;
+  /* Increased to stay above the row above it */
 }
 
 .table tbody tr:hover td:nth-child(12) {
@@ -312,16 +367,19 @@ thead th.stickyActionsCol {
 .tooltipWrapper {
   position: relative;
   display: inline-flex;
-  z-index: 1; /* Initial z-index */
+  z-index: 1;
+  /* Initial z-index */
 }
 
 .tooltipWrapper:hover {
-  z-index: 1000; /* Higher than all rows */
+  z-index: 1000;
+  /* Higher than all rows */
 }
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  bottom: calc(100% + 8px); /* Default: point UP */
+  bottom: calc(100% + 8px);
+  /* Default: point UP */
   left: 50%;
   transform: translateX(-50%) scale(0.85);
   background-color: #343a40;
@@ -338,11 +396,13 @@ thead th.stickyActionsCol {
 .tooltipWrapper .tooltip::after {
   content: '';
   position: absolute;
-  top: 100%; /* Arrow at the bottom */
+  top: 100%;
+  /* Arrow at the bottom */
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: #343a40; /* Arrow pointing down */
+  border-top-color: #343a40;
+  /* Arrow pointing down */
 }
 
 /* SMART TOOLTIP: Switch direction to DOWN for first 3 rows to avoid sticky header clipping */
@@ -355,7 +415,8 @@ thead th.stickyActionsCol {
   top: auto;
   bottom: 100%;
   border-top-color: transparent;
-  border-bottom-color: #343a40; /* Arrow pointing up */
+  border-bottom-color: #343a40;
+  /* Arrow pointing up */
 }
 
 .tooltipWrapper:hover .tooltip {
@@ -378,7 +439,8 @@ thead th.stickyActionsCol {
   letter-spacing: 0.02em;
   color: #172B4D;
   background: rgba(9, 30, 66, 0.08);
-  white-space: nowrap; /* Prevent wrap */
+  white-space: nowrap;
+  /* Prevent wrap */
 }
 
 .roleTrigger:disabled {
@@ -763,6 +825,7 @@ thead th.stickyActionsCol {
     opacity: 0;
     transform: translateY(2px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -772,12 +835,15 @@ thead th.stickyActionsCol {
 .tooltipContent[data-state='delayed-open'][data-side='top'] {
   animation-name: slideUpAndFade;
 }
+
 .tooltipContent[data-state='delayed-open'][data-side='right'] {
   animation-name: slideUpAndFade;
 }
+
 .tooltipContent[data-state='delayed-open'][data-side='bottom'] {
   animation-name: slideUpAndFade;
 }
+
 .tooltipContent[data-state='delayed-open'][data-side='left'] {
   animation-name: slideUpAndFade;
 }

@@ -17,6 +17,8 @@ import feedbackTypeService from '@/services/feedback-type.service';
 import type { FeedbackType } from '@/types/feedback-type';
 
 import { FeedbackTypeModal } from './FeedbackTypeModal';
+import { ImportFeedbackTypeModal } from './components/ImportFeedbackTypeModal';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './feedback-types.module.css';
 
 /* ── SVG icons ── */
@@ -103,6 +105,13 @@ export default function AdminFeedbackTypesPage() {
   const [editingItem, setEditingItem] = useState<FeedbackType | null>(null);
   const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
 
+  // Import Modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Confirm Modal state
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<FeedbackType | null>(null);
+
   const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
@@ -149,16 +158,24 @@ export default function AdminFeedbackTypesPage() {
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingItem(null); };
 
   /* ── Delete ── */
-  const handleDelete = async (item: FeedbackType) => {
+  const handleDeleteTrigger = (item: FeedbackType) => {
+    setItemToDelete(item);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setDeletingId(item.id);
-      await feedbackTypeService.deleteFeedbackType(item.id);
+      setDeletingId(itemToDelete.id);
+      await feedbackTypeService.deleteFeedbackType(itemToDelete.id);
       await fetchData();
       toast({ title: 'Xóa loại phản hồi thành công', variant: 'success' });
     } catch (err) {
       toast({ title: getErrorMessage(err, 'Xóa loại phản hồi thất bại'), variant: 'error' });
     } finally {
       setDeletingId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
     }
   };
 
@@ -200,6 +217,15 @@ export default function AdminFeedbackTypesPage() {
         next.delete(item.id);
         return next;
       });
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await feedbackTypeService.exportFeedbackTypes();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
     }
   };
 
@@ -252,11 +278,11 @@ export default function AdminFeedbackTypesPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>
@@ -385,7 +411,7 @@ export default function AdminFeedbackTypesPage() {
                             variant="outline"
                             size="sm"
                             className={styles.deleteButton}
-                            onClick={() => handleDelete(item)}
+                            onClick={() => handleDeleteTrigger(item)}
                             disabled={deletingId === item.id}
                             aria-label={`Xóa ${item.name}`}
                           >
@@ -423,6 +449,23 @@ export default function AdminFeedbackTypesPage() {
         onOpenChange={handleModalClose}
         onSuccess={fetchData}
         itemToEdit={editingItem}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa loại phản hồi"
+        message={`Bạn có chắc chắn muốn xóa loại phản hồi "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
+      />
+
+      <ImportFeedbackTypeModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchData}
       />
     </AdminPageLayout>
   );

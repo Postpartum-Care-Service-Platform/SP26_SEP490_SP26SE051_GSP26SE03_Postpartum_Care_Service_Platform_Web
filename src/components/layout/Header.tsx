@@ -26,7 +26,7 @@ const MENU_ITEMS = [
   { label: 'Sức Khỏe', href: '/suc-khoe' },
   { label: 'Tiện Ích', href: '/tien-ich' },
   { label: 'Giới Thiệu', href: '/gioi-thieu' },
-  { label: 'Kiến Thức', href: '/kien-thuc' },
+  // { label: 'Kiến Thức', href: '/kien-thuc' },
 ];
 
 export function Header() {

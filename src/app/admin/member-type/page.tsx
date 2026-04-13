@@ -17,6 +17,8 @@ import memberTypeService from '@/services/member-type.service';
 import type { MemberType } from '@/services/member-type.service';
 
 import { MemberTypeModal } from './MemberTypeModal';
+import { ImportMemberTypeModal } from './components/ImportMemberTypeModal';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './member-types.module.css';
 
 /* ── Role name mapping ── */
@@ -113,6 +115,13 @@ export default function AdminMemberTypePage() {
   const [editingItem, setEditingItem] = useState<MemberType | null>(null);
   const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
 
+  // Import Modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Confirm Modal state
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<MemberType | null>(null);
+
   const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
@@ -159,16 +168,24 @@ export default function AdminMemberTypePage() {
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingItem(null); };
 
   /* ── Delete ── */
-  const handleDelete = async (item: MemberType) => {
+  const handleDeleteTrigger = (item: MemberType) => {
+    setItemToDelete(item);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setDeletingId(item.id);
-      await memberTypeService.delete(item.id);
+      setDeletingId(itemToDelete.id);
+      await memberTypeService.delete(itemToDelete.id);
       await fetchData();
       toast({ title: 'Xóa loại thành viên thành công', variant: 'success' });
     } catch (err) {
       toast({ title: getErrorMessage(err, 'Xóa loại thành viên thất bại'), variant: 'error' });
     } finally {
       setDeletingId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
     }
   };
 
@@ -202,6 +219,15 @@ export default function AdminMemberTypePage() {
         next.delete(item.id);
         return next;
       });
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await memberTypeService.exportMemberTypes();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
     }
   };
 
@@ -254,11 +280,11 @@ export default function AdminMemberTypePage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>
@@ -391,7 +417,7 @@ export default function AdminMemberTypePage() {
                           variant="outline"
                           size="sm"
                           className={styles.deleteButton}
-                          onClick={() => handleDelete(item)}
+                          onClick={() => handleDeleteTrigger(item)}
                           disabled={deletingId === item.id}
                         >
                           <TrashIcon />
@@ -413,6 +439,23 @@ export default function AdminMemberTypePage() {
         onOpenChange={handleModalClose}
         onSuccess={fetchData}
         itemToEdit={editingItem}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa loại thành viên"
+        message={`Bạn có chắc chắn muốn xóa loại thành viên "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
+      />
+
+      <ImportMemberTypeModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchData}
       />
     </AdminPageLayout>
   );
