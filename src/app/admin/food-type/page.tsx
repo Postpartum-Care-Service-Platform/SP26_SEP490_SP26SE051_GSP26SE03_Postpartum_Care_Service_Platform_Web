@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronDownIcon, MagnifyingGlassIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
 import { Download, Upload } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import { Pagination } from '@/components/ui/pagination';
 import { useToast } from '@/components/ui/toast/use-toast';
 import foodTypeService from '@/services/food-type.service';
@@ -18,7 +20,6 @@ import type { FoodType } from '@/types/food-type';
 
 import { FoodTypeModal } from './components/FoodTypeModal';
 import { ImportFoodTypeModal } from './components/ImportFoodTypeModal';
-import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './food-type.module.css';
 
 /* ── SVG icons ── */
@@ -86,7 +87,6 @@ const sortItems = (items: FoodType[], key: SortKey) => {
   }
 };
 
-import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 
 export default function AdminFoodTypePage() {
   const [items, setItems]         = useState<FoodType[]>([]);

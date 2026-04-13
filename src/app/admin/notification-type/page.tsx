@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronDownIcon, MagnifyingGlassIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
 import { Download, Upload } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import { Pagination } from '@/components/ui/pagination';
 import { useToast } from '@/components/ui/toast/use-toast';
 import notificationTypeService from '@/services/notification-type.service';
@@ -19,7 +21,6 @@ import type { NotificationType } from '@/types/notification-type';
 import { NotificationTypeModal } from '../notification/components/NotificationTypeModal';
 import { ImportNotificationTypeModal } from './components/ImportNotificationTypeModal';
 import { translateNotificationTypeName } from '../notification/utils/notificationTypeTranslations';
-import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './notification-types.module.css';
 
 /* ── SVG icons ── */
@@ -88,7 +89,6 @@ const sortItems = (items: NotificationType[], key: SortKey) => {
   }
 };
 
-import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 
 export default function AdminNotificationTypePage() {
   const [items, setItems]           = useState<NotificationType[]>([]);

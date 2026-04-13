@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Cross1Icon } from '@radix-ui/react-icons';
+import { useEffect, useState } from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
 import packageTypeService from '@/services/package-type.service';
@@ -16,9 +16,12 @@ type Props = {
   onSuccess?: () => void;
 };
 
-const getErrorMessage = (error: any, fallback: string): string => {
+const getErrorMessage = (error: unknown, fallback: string): string => {
   if (typeof error === 'string') return error;
-  return error?.message || error?.error || error?.data?.message || error?.data?.error || fallback;
+  if (error instanceof Error) return error.message;
+  
+  const errObj = error as Record<string, any>;
+  return errObj?.message || errObj?.error || errObj?.data?.message || errObj?.data?.error || fallback;
 };
 
 export function PackageTypeModal({ open, onOpenChange, item, onSuccess }: Props) {
@@ -30,7 +33,7 @@ export function PackageTypeModal({ open, onOpenChange, item, onSuccess }: Props)
 
   useEffect(() => {
     if (open) {
-      setName(item ? item.name : '');
+      setName(item ? item.typeName : '');
       setNameError('');
     }
   }, [open, item]);

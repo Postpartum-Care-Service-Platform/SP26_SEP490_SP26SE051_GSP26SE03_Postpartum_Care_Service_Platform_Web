@@ -17,7 +17,9 @@ import paymentTypeService from '@/services/payment-type.service';
 import type { PaymentType } from '@/types/payment-type';
 
 import { ImportPaymentTypeModal } from './components/ImportPaymentTypeModal';
+import { PaymentTypeModal } from './components/PaymentTypeModal';
 import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import styles from './payment-type.module.css';
 
 /* ── SVG icons ── */
@@ -52,8 +54,6 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'inactive', label: 'Tạm dừng' },
 ];
 
-import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
-
 export default function AdminPaymentTypePage() {
   const [items, setItems]         = useState<PaymentType[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -65,6 +65,9 @@ export default function AdminPaymentTypePage() {
   const [sortKey, setSortKey]           = useState<SortKey>('id-desc');
   const [currentPage, setCurrentPage]   = useState(1);
   const [pageSize, setPageSize]         = useState(DEFAULT_PAGE_SIZE);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<PaymentType | null>(null);
 
   // Import Modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -79,7 +82,6 @@ export default function AdminPaymentTypePage() {
     try {
       setLoading(true);
       setError(null);
-      // Mocking data if API fails to avoid empty UI for demo
       const data = await paymentTypeService.getAll().catch(() => [
         { id: 1, name: 'Tiền mặt', description: 'Thanh toán trực tiếp bằng tiền mặt', isActive: true, createdAt: new Date().toISOString() },
         { id: 2, name: 'Chuyển khoản', description: 'Chuyển khoản qua ngân hàng', isActive: true, createdAt: new Date().toISOString() },
@@ -123,6 +125,10 @@ export default function AdminPaymentTypePage() {
   }, [filteredItems, currentPage, pageSize]);
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);
+
+  const handleOpenCreate = () => { setEditingItem(null); setIsModalOpen(true); };
+  const handleOpenEdit   = (item: PaymentType) => { setEditingItem(item); setIsModalOpen(true); };
+  const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingItem(null); };
 
   const handleDeleteTrigger = (item: PaymentType) => {
     setItemToDelete(item);
@@ -227,7 +233,7 @@ export default function AdminPaymentTypePage() {
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button variant="primary" size="sm" className={styles.createButton} onClick={() => toast({ title: 'Chức năng đang phát triển' })}>
+        <Button variant="primary" size="sm" className={styles.createButton} onClick={handleOpenCreate}>
           <PlusIcon className={styles.plusIcon} />
           Loại mới
         </Button>
@@ -287,7 +293,7 @@ export default function AdminPaymentTypePage() {
                     <td>
                       <div className={styles.actions}>
                         <div className={styles.tooltipWrapper}>
-                          <Button variant="outline" size="sm" className={styles.editButton} onClick={() => toast({ title: 'Chức năng đang phát triển' })}>
+                          <Button variant="outline" size="sm" className={styles.editButton} onClick={() => handleOpenEdit(item)}>
                             <EditIcon />
                           </Button>
                           <span className={styles.tooltip}>Chỉnh sửa</span>
@@ -307,7 +313,13 @@ export default function AdminPaymentTypePage() {
           </tbody>
         </table>
       </div>
-      </div>
+
+      <PaymentTypeModal
+        open={isModalOpen}
+        onOpenChange={handleModalClose}
+        item={editingItem}
+        onSuccess={fetchData}
+      />
 
       <ConfirmModal
         isOpen={isConfirmModalOpen}
