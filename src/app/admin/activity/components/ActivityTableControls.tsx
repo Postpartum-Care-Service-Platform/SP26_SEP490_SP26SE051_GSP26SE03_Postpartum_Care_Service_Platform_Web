@@ -19,6 +19,7 @@ type Props = {
   onSortChange?: (sort: string) => void;
   onStatusChange?: (status: 'all' | 'active' | 'inactive') => void;
   onNewActivity?: () => void;
+  onImport?: () => void;
 };
 
 const SORT_OPTIONS = [
@@ -34,7 +35,7 @@ const STATUS_OPTIONS: Array<{ value: 'all' | 'active' | 'inactive'; label: strin
   { value: 'inactive', label: 'Tạm dừng' },
 ];
 
-export function ActivityTableControls({ onSearch, onSortChange, onStatusChange, onNewActivity }: Props) {
+export function ActivityTableControls({ onSearch, onSortChange, onStatusChange, onNewActivity, onImport }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState<string>('createdAt-desc');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'inactive'>('all');
@@ -124,7 +125,7 @@ export function ActivityTableControls({ onSearch, onSortChange, onStatusChange, 
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onImport}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>

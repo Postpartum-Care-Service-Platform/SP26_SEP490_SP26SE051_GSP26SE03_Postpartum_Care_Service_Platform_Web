@@ -52,6 +52,29 @@ const packageService = {
   deletePackage: (id: number): Promise<void> => {
     return apiClient.delete(`/Packages/${id}`);
   },
+
+  importPackages: (file: File): Promise<void> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/Packages/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
+  exportPackages: async (): Promise<void> => {
+    const response = await apiClient.get('/Packages/export', { responseType: 'blob' });
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Danh_sach_Goi_Dich_Vu_${new Date().getTime()}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };
 
 export default packageService;

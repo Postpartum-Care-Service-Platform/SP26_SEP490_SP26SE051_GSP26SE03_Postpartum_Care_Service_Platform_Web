@@ -27,6 +27,11 @@ export function UserDropdown() {
   const pathname = usePathname();
   const { logout, user } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isManager = pathname?.startsWith('/manager');
   
@@ -76,8 +81,8 @@ export function UserDropdown() {
     }
   };
 
-  const displayName = user?.username || '';
-  const displayEmail = user?.email || '';
+  const displayName = mounted ? (user?.username || '') : '';
+  const displayEmail = mounted ? (user?.email || '') : '';
   const avatarInitial = displayName ? displayName.charAt(0).toUpperCase() : '';
 
   return (

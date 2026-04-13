@@ -10,6 +10,13 @@
   position: relative;
   margin-top: 12px;
   z-index: 1;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.wrap::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
 }
 
 .header {
@@ -85,6 +92,16 @@
 
 .today {
   background: #fff;
+}
+
+.past {
+  opacity: 0.9;
+  background-color: #F8F9FA !important;
+}
+
+.past .eventChip {
+  opacity: 0.7;
+  filter: grayscale(0.5);
 }
 
 .hourSlot {

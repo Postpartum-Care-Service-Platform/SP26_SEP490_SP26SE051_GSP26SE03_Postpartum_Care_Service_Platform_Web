@@ -1,6 +1,6 @@
 'use client';
 
-import { MagnifyingGlassIcon, PlusIcon, MixerHorizontalIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+import { MagnifyingGlassIcon, PlusIcon, MixerHorizontalIcon, ChevronDownIcon, DownloadIcon, UploadIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,8 @@ type Props = {
   onSortChange?: (sort: string) => void;
   onStatusChange?: (status: 'all' | 'active' | 'inactive') => void;
   onNewAppointmentType?: () => void;
+  onImport?: () => void;
+  onExport?: () => void;
 };
 
 const SORT_OPTIONS = [
@@ -33,7 +35,7 @@ const STATUS_OPTIONS: Array<{ value: 'all' | 'active' | 'inactive'; label: strin
   { value: 'inactive', label: 'Tạm dừng' },
 ];
 
-export function AppointmentTypeTableControls({ onSearch, onSortChange, onStatusChange, onNewAppointmentType }: Props) {
+export function AppointmentTypeTableControls({ onSearch, onSortChange, onStatusChange, onNewAppointmentType, onImport, onExport }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState<string>('createdAt-desc');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'inactive'>('all');
@@ -94,6 +96,26 @@ export function AppointmentTypeTableControls({ onSearch, onSortChange, onStatusC
       </div>
 
       <div className={styles.right}>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.importExportButton}>
+              <DownloadIcon className={styles.exportIcon} />
+              Nhập/Xuất
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent} align="end">
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onImport}>
+              <UploadIcon className={styles.itemIcon} />
+              Nhập từ Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onExport}>
+              <DownloadIcon className={styles.itemIcon} />
+              Xuất ra Excel
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className={styles.statusButton}>

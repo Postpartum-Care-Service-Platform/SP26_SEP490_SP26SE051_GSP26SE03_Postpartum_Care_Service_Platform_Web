@@ -1,7 +1,7 @@
 'use client';
 
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { format, isSameDay, addDays } from 'date-fns';
+import { format, isSameDay, addDays, isBefore, startOfDay } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import React from 'react';
 
@@ -120,7 +120,7 @@ export function CalendarDayView({
   return (
     <Tooltip.Provider delayDuration={350}>
       <div style={{ display: 'flex', gap: '16px', height: 'calc(100vh - 196px)', overflow: 'hidden', paddingBottom: '8px' }}>
-        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', width: '220px', overflowY: 'auto', overflowX: 'hidden' }}>
+        <div className="no-scrollbar" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', width: '220px', overflowY: 'auto', overflowX: 'hidden' }}>
           <MiniCalendar
             selectedDate={dayCursor}
             onDateSelect={onDayChange}
@@ -133,7 +133,7 @@ export function CalendarDayView({
           />
         </div>
 
-        <div className={styles.wrap} style={{ flex: 1, overflow: 'auto' }}>
+        <div className={`${styles.wrap} no-scrollbar`} style={{ flex: 1, overflow: 'auto' }}>
           {/* Header Row */}
           <div className={styles.header} style={{
             display: 'grid',
@@ -239,7 +239,7 @@ export function CalendarDayView({
                 const isTodayDate = isSameDay(d, today);
                 const dayEvents = getEventsForDate(d, schedules);
                 return (
-                  <div key={d.toISOString()} className={`${styles.dayColumn} ${isTodayDate ? styles.today : ''}`} style={{ borderRight: '1px solid rgba(9, 30, 66, 0.14)', position: 'relative' }}>
+                  <div key={d.toISOString()} className={`${styles.dayColumn} ${isTodayDate ? styles.today : ''} ${isBefore(startOfDay(d), startOfDay(today)) ? styles.past : ''}`} style={{ borderRight: '1px solid rgba(9, 30, 66, 0.14)', position: 'relative' }}>
                     {/* Hour grid lines */}
                     {HOURS.map(hour => (
                       <div key={hour} className={styles.hourSlot} />

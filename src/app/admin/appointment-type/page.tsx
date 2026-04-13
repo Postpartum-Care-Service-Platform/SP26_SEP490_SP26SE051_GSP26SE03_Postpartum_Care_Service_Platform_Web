@@ -11,6 +11,8 @@ import type { AppointmentTypeDetail } from '@/types/appointment-type';
 import { AppointmentTypeTable } from './components/AppointmentTypeTable';
 import { AppointmentTypeTableControls } from './components/AppointmentTypeTableControls';
 import { AppointmentTypeModal } from './components/AppointmentTypeModal';
+import { ImportAppointmentTypeModal } from './components/ImportAppointmentTypeModal';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './appointment-type.module.css';
 
 const getErrorMessage = (error: unknown, fallback: string) => {
@@ -32,12 +34,20 @@ export default function AdminAppointmentTypePage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
 
+  // Search & Pagination states
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [sortKey, setSortKey] = useState('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
+
+  // Import Modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Confirm Modal state
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<AppointmentTypeDetail | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -104,16 +114,33 @@ export default function AdminAppointmentTypePage() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (item: AppointmentTypeDetail) => {
+  const handleDeleteTrigger = (item: AppointmentTypeDetail) => {
+    setItemToDelete(item);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setDeletingId(item.id);
-      await appointmentTypeService.deleteAppointmentType(item.id);
+      setDeletingId(itemToDelete.id);
+      await appointmentTypeService.deleteAppointmentType(itemToDelete.id);
       toast({ title: 'Xóa loại lịch hẹn thành công', variant: 'success' });
       await fetchData();
     } catch (err) {
       toast({ title: getErrorMessage(err, 'Xóa loại lịch hẹn thất bại'), variant: 'error' });
     } finally {
       setDeletingId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await appointmentTypeService.exportAppointmentTypes();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
     }
   };
 
@@ -144,6 +171,8 @@ export default function AdminAppointmentTypePage() {
             onSortChange={setSortKey}
             onStatusChange={setStatusFilter}
             onNewAppointmentType={handleOpenCreate}
+            onImport={() => setIsImportModalOpen(true)}
+            onExport={handleExport}
           />
         }
         pagination={
@@ -172,7 +201,7 @@ export default function AdminAppointmentTypePage() {
           <AppointmentTypeTable
             appointmentTypes={paginatedItems}
             onEdit={handleOpenEdit}
-            onDelete={handleDelete}
+            onDelete={handleDeleteTrigger}
             onToggleStatus={handleToggleStatus}
             deletingId={deletingId}
             updatingStatusIds={updatingStatusIds}
@@ -184,6 +213,23 @@ export default function AdminAppointmentTypePage() {
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
           item={editingItem}
+          onSuccess={fetchData}
+        />
+
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Xác nhận xóa loại lịch hẹn"
+          message={`Bạn có chắc chắn muốn xóa loại lịch hẹn "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
+          confirmLabel="Xóa ngay"
+          cancelLabel="Suy nghĩ lại"
+          variant="danger"
+        />
+
+        <ImportAppointmentTypeModal
+          open={isImportModalOpen}
+          onOpenChange={setIsImportModalOpen}
           onSuccess={fetchData}
         />
       </AdminPageLayout>

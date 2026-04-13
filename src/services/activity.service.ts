@@ -19,6 +19,21 @@ const activityService = {
   deleteActivity: (id: number): Promise<void> => {
     return apiClient.delete(`/Activities/${id}`);
   },
+  // Import/Export Excel
+  exportActivities: (): Promise<Blob> => {
+    return apiClient.get('/Activities/export', {
+      responseType: 'blob',
+    });
+  },
+  importActivities: (file: File): Promise<any> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/Activities/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 };
 
 export default activityService;

@@ -10,6 +10,7 @@ import { managerNav } from '@/configs/managerNav';
 import { NotificationDropdown } from './NotificationDropdown';
 import { ChatNotification } from './ChatNotification';
 import { UserDropdown } from './UserDropdown';
+import { FullscreenToggle } from './FullscreenToggle';
 
 type Props = {
   collapsed: boolean;
@@ -64,6 +65,7 @@ export function AdminHeader({ collapsed, onToggleCollapsed, onOpenNotifications,
 
           <div className={styles.headerRight}>
             <div className={styles.iconGroup}>
+              <FullscreenToggle />
               <ChatNotification />
               <NotificationDropdown onViewAll={onOpenNotifications} isSidebarOpen={isNotificationSidebarOpen} />
             </div>

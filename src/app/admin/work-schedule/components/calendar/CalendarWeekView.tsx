@@ -144,7 +144,7 @@ export function CalendarWeekView({
   return (
     <Tooltip.Provider delayDuration={350}>
       <div style={{ display: 'flex', gap: '16px', height: 'calc(100vh - 196px)', overflow: 'hidden', paddingBottom: '8px' }}>
-        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', width: '220px', overflowY: 'auto', overflowX: 'hidden' }}>
+        <div className="no-scrollbar" style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', width: '220px', overflowY: 'auto', overflowX: 'hidden' }}>
           <MiniCalendar
             selectedDate={weekCursor}
             onDateSelect={onDateChange}
@@ -157,7 +157,7 @@ export function CalendarWeekView({
           />
         </div>
 
-        <div className={styles.wrap} style={{ flex: 1, overflow: 'auto' }}>
+        <div className={`${styles.wrap} no-scrollbar`} style={{ flex: 1, overflow: 'auto' }}>
           <div className={styles.headerRow}>
             <div className={styles.headerCell} /> {/* Empty cell for time column */}
             {days.map((d, i) => {
@@ -166,7 +166,7 @@ export function CalendarWeekView({
               return (
                 <Tooltip.Root key={d.toISOString()}>
                   <Tooltip.Trigger asChild>
-                    <div className={`${styles.headerCell} ${isToday ? styles.todayHeader : ''}`} style={{ cursor: 'help' }}>
+                    <div className={`${styles.headerCell} ${isToday ? styles.todayHeader : ''} ${isBefore(startOfDay(d), startOfDay(today)) ? styles.past : ''}`} style={{ cursor: 'help' }}>
                       <span className={styles.dayName}>{dayLabels[i]}</span>
                       <span className={`${styles.dayNumber} ${isToday ? styles.todayNumber : ''}`}>{format(d, 'd')}</span>
                     </div>
@@ -241,7 +241,7 @@ export function CalendarWeekView({
               const dayKey = d.toISOString();
 
               return (
-                <div key={dayKey} className={`${styles.dayColumn} ${isTodayDate ? styles.today : ''}`}>
+                <div key={dayKey} className={`${styles.dayColumn} ${isTodayDate ? styles.today : ''} ${isBefore(startOfDay(d), startOfDay(today)) ? styles.past : ''}`}>
                   {/* Hour grid lines - each slot = 1 hour (48px) */}
                   {HOURS.map((slotIndex) => (
                     <div

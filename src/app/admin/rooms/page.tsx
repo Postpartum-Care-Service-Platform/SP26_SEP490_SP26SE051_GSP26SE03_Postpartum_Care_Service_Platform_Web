@@ -17,6 +17,8 @@ import roomTypeService from '@/services/room-type.service';
 import type { RoomType } from '@/types/room-type';
 
 import { RoomTypeModal } from './components/RoomTypeModal';
+import { ImportRoomTypeModal } from './components/ImportRoomTypeModal';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './rooms.module.css';
 
 /* ── SVG icons ── */
@@ -110,6 +112,13 @@ export default function AdminRoomsPage() {
   const [editingRoom, setEditingRoom]   = useState<RoomType | null>(null);
   const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
 
+  // Import Modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Confirm Modal state
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<RoomType | null>(null);
+
   const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
@@ -155,16 +164,24 @@ export default function AdminRoomsPage() {
   const handleOpenEdit   = (room: RoomType) => { setEditingRoom(room); setIsModalOpen(true); };
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingRoom(null); };
 
-  const handleDelete = async (room: RoomType) => {
+  const handleDeleteTrigger = (room: RoomType) => {
+    setItemToDelete(room);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setDeletingId(room.id);
-      await roomTypeService.deleteRoomType(room.id);
+      setDeletingId(itemToDelete.id);
+      await roomTypeService.deleteRoomType(itemToDelete.id);
       await fetchData();
       toast({ title: 'Xóa loại phòng thành công', variant: 'success' });
     } catch (err) {
       toast({ title: getErrorMessage(err, 'Xóa loại phòng thất bại'), variant: 'error' });
     } finally {
       setDeletingId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
     }
   };
 
@@ -205,6 +222,15 @@ export default function AdminRoomsPage() {
         next.delete(item.id);
         return next;
       });
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await roomTypeService.exportRoomTypes();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
     }
   };
 
@@ -277,11 +303,11 @@ export default function AdminRoomsPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>
@@ -407,7 +433,7 @@ export default function AdminRoomsPage() {
                             <Button
                               variant="outline" size="sm"
                               className={styles.deleteButton}
-                              onClick={() => handleDelete(room)}
+                              onClick={() => handleDeleteTrigger(room)}
                               disabled={deletingId === room.id}
                             >
                               <TrashIcon />
@@ -441,6 +467,23 @@ export default function AdminRoomsPage() {
         open={isModalOpen}
         onOpenChange={handleModalClose}
         room={editingRoom}
+        onSuccess={fetchData}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa loại phòng"
+        message={`Bạn có chắc chắn muốn xóa loại phòng "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
+      />
+
+      <ImportRoomTypeModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
         onSuccess={fetchData}
       />
     </AdminPageLayout>

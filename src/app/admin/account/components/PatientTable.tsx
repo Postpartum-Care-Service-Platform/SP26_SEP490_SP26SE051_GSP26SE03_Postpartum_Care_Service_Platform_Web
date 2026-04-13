@@ -268,100 +268,100 @@ export function PatientTable({
                     </TooltipPrimitive.Portal>
                   </TooltipPrimitive.Root>
                 </td>
-              <td data-stop-row-click="true">
-                <DropdownMenu modal={false}>
-                  <DropdownMenuTrigger asChild>
-                    <button
-                      type="button"
-                      className={`${styles.roleTrigger} ${getRoleBadgeClass(patient.role)}`}
-                      disabled={updatingRoleByAccountId[patient.accountId]}
-                    >
-                      <span>{getRoleLabel(patient.role)}</span>
-                      <ChevronDownIcon width={14} height={14} />
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className={styles.roleMenu} align="start" sideOffset={4}>
-                    {roles.map((role) => (
-                      <DropdownMenuItem
-                        key={role.id}
-                        className={`${styles.roleMenuItem} ${patient.roleId === role.id ? styles.roleMenuItemActive : ''}`}
-                        onClick={() => handleSetRole(patient, role.id)}
-                      >
-                        <span className={`${styles.roleOptionBadge} ${getRoleBadgeClass(role.roleName)}`}>
-                          {getRoleLabel(role.roleName)}
-                        </span>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </td>
-              <td data-stop-row-click="true" className={styles.centerCell}>
-                <div className={styles.tooltipWrapper}>
+                <td data-stop-row-click="true">
                   <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                       <button
                         type="button"
-                        className={`${styles.plainTrigger} ${patient.isActive ? styles.statusActive : styles.statusInactive}`}
-                        disabled={updatingStatusByAccountId[patient.accountId]}
+                        className={`${styles.roleTrigger} ${getRoleBadgeClass(patient.role)}`}
+                        disabled={updatingRoleByAccountId[patient.accountId]}
                       >
-                        <div className={`${styles.statusIndicator} ${styles.statusAnimated}`}>
-                          <span className={styles.statusCircle}></span>
-                        </div>
+                        <span>{getRoleLabel(patient.role)}</span>
+                        <ChevronDownIcon width={14} height={14} />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className={styles.roleMenu} align="start" sideOffset={4}>
-                      <DropdownMenuItem
-                        className={styles.roleMenuItem}
-                        onClick={() => handleSetAccountStatus(patient, true)}
-                      >
-                        Đang hoạt động
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className={styles.roleMenuItem}
-                        onClick={() => handleSetAccountStatus(patient, false)}
-                      >
-                        Đã khóa
-                      </DropdownMenuItem>
+                      {roles.map((role) => (
+                        <DropdownMenuItem
+                          key={role.id}
+                          className={`${styles.roleMenuItem} ${patient.roleId === role.id ? styles.roleMenuItemActive : ''}`}
+                          onClick={() => handleSetRole(patient, role.id)}
+                        >
+                          <span className={`${styles.roleOptionBadge} ${getRoleBadgeClass(role.roleName)}`}>
+                            {getRoleLabel(role.roleName)}
+                          </span>
+                        </DropdownMenuItem>
+                      ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <span className={styles.tooltip}>
-                    {patient.isActive ? 'Đã kích hoạt' : 'Chưa kích hoạt'}
-                  </span>
-                </div>
-              </td>
-              <td className={styles.stickyActionsCol}>
-                <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+                </td>
+                <td data-stop-row-click="true" className={styles.centerCell}>
                   <div className={styles.tooltipWrapper}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={styles.editButton}
-                      onClick={() => onViewProfile?.(patient)}
-                      aria-label={`Xem hồ sơ ${patient.name}`}
-                    >
-                      <Eye size={16} color="#3B82F6" />
-                    </Button>
-                    <span className={styles.tooltip}>Xem hồ sơ</span>
+                    <DropdownMenu modal={false}>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className={`${styles.plainTrigger} ${patient.isActive ? styles.statusActive : styles.statusInactive}`}
+                          disabled={updatingStatusByAccountId[patient.accountId]}
+                        >
+                          <div className={`${styles.statusIndicator} ${styles.statusAnimated}`}>
+                            <span className={styles.statusCircle}></span>
+                          </div>
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className={styles.roleMenu} align="start" sideOffset={4}>
+                        <DropdownMenuItem
+                          className={styles.roleMenuItem}
+                          onClick={() => handleSetAccountStatus(patient, true)}
+                        >
+                          Đang hoạt động
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className={styles.roleMenuItem}
+                          onClick={() => handleSetAccountStatus(patient, false)}
+                        >
+                          Đã khóa
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <span className={styles.tooltip}>
+                      {patient.isActive ? 'Đã kích hoạt' : 'Chưa kích hoạt'}
+                    </span>
                   </div>
-                  <div className={styles.tooltipWrapper}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className={styles.deleteButton}
-                      onClick={() => onChat?.(patient)}
-                      aria-label={`Chat với ${patient.name}`}
-                    >
-                      <MessageCircle size={16} color="#10B981" />
-                    </Button>
-                    <span className={styles.tooltip}>Chat</span>
+                </td>
+                <td className={styles.stickyActionsCol}>
+                  <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={styles.editButton}
+                        onClick={() => onViewProfile?.(patient)}
+                        aria-label={`Xem hồ sơ ${patient.name}`}
+                      >
+                        <Eye size={16} color="#3B82F6" />
+                      </Button>
+                      <span className={styles.tooltip}>Xem hồ sơ</span>
+                    </div>
+                    <div className={styles.tooltipWrapper}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={styles.deleteButton}
+                        onClick={() => onChat?.(patient)}
+                        aria-label={`Chat với ${patient.name}`}
+                      >
+                        <MessageCircle size={16} color="#10B981" />
+                      </Button>
+                      <span className={styles.tooltip}>Chat</span>
+                    </div>
                   </div>
-                </div>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </TooltipPrimitive.Provider>
   );
 }

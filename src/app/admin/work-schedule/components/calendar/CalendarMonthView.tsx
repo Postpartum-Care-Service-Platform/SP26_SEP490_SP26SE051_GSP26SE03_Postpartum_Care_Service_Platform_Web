@@ -1,7 +1,7 @@
 'use client';
 
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { addDays, format, isSameDay, isSameMonth, startOfMonth, startOfWeek } from 'date-fns';
+import { addDays, format, isSameDay, isSameMonth, startOfMonth, startOfWeek, isBefore, startOfDay } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import React from 'react';
 
@@ -186,7 +186,7 @@ export function CalendarMonthView({
   return (
     <Tooltip.Provider delayDuration={350}>
       <div style={{ display: 'flex', gap: '16px', height: 'calc(100vh - 196px)', overflow: 'hidden', paddingBottom: '8px' }}>
-        <div style={{
+        <div className="no-scrollbar" style={{
           flexShrink: 0,
           display: 'flex',
           flexDirection: 'column',
@@ -202,7 +202,7 @@ export function CalendarMonthView({
             />
           </div>
           <div
-            className={styles.sidebarList}
+            className={`${styles.sidebarList} no-scrollbar`}
             style={{
               flex: 1,
               overflowY: 'auto'
@@ -228,7 +228,8 @@ export function CalendarMonthView({
             {days.map((d) => {
               const inMonth = isSameMonth(d, monthStart);
               const label = inMonth ? format(d, 'd') : formatDateVietnamese(d, inMonth);
-              const isToday = format(d, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
+              const isToday = isSameDay(d, new Date());
+              const isPast = isBefore(startOfDay(d), startOfDay(new Date()));
               const isSelected = isSameDay(d, currentSelectedDate);
               const { displayEvents: dayEvents, remainingCount } = getUpcomingEventsForDate(d, schedules, 3);
 
@@ -236,7 +237,7 @@ export function CalendarMonthView({
                 <Tooltip.Root key={d.toISOString()}>
                   <Tooltip.Trigger asChild>
                     <div
-                      className={`${styles.dayCell} ${inMonth ? '' : styles.outside} ${isToday ? styles.today : ''} ${isSelected ? styles.selected : ''}`}
+                      className={`${styles.dayCell} ${inMonth ? '' : styles.outside} ${isToday ? styles.today : ''} ${isSelected ? styles.selected : ''} ${isPast ? styles.past : ''}`}
                       role="gridcell"
                       aria-label={format(d, 'yyyy-MM-dd')}
                       onClick={(e) => handleDayClick(d, e)}
@@ -277,9 +278,6 @@ export function CalendarMonthView({
                                   role="button"
                                   tabIndex={0}
                                 >
-                                  <span className={styles.eventTime}>
-                                    {formatTime(fs.startTime)} - {formatTime(fs.endTime)}
-                                  </span>
                                   <span className={styles.eventTitle}>
                                     {fs.activity}
                                   </span>
@@ -325,7 +323,7 @@ export function CalendarMonthView({
                             className={styles.moreIndicator}
                             onClick={(e) => handleMoreClick(d, e)}
                           >
-                            Xem thêm ({remainingCount})
+                            +{remainingCount}
                           </div>
                         )}
                       </div>

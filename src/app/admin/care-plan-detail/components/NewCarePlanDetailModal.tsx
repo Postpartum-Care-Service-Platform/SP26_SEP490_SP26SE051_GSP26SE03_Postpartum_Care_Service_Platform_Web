@@ -175,7 +175,7 @@ export function NewCarePlanDetailModal({ open, onOpenChange, onSuccess, carePlan
           dayNo: carePlanDetailToEdit.dayNo,
           startTime: carePlanDetailToEdit.startTime,
           endTime: carePlanDetailToEdit.endTime,
-          instruction: carePlanDetailToEdit.instruction,
+          instruction: carePlanDetailToEdit.instruction || '',
           sortOrder: carePlanDetailToEdit.sortOrder,
           homeServiceDate: carePlanDetailToEdit.homeServiceDate || '',
         });

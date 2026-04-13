@@ -7,7 +7,8 @@ import { Pagination } from '@/components/ui/pagination';
 import activityService from '@/services/activity.service';
 import type { Activity } from '@/types/activity';
 import styles from './activity.module.css';
-import { ActivityListHeader, ActivityTable, ActivityTableControls, NewActivityModal } from './components';
+import { ActivityListHeader, ActivityTable, ActivityTableControls, ImportActivityModal, NewActivityModal } from './components';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 
 const DEFAULT_PAGE_SIZE = 10;
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
@@ -37,13 +38,18 @@ export default function AdminActivityPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
-  const [sortKey, setSortKey] = useState<string>('createdAt-desc');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [sortKey, setSortKey] = useState('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<Activity | null>(null);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+
+  // Modal states
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
 
   const fetchActivities = async () => {
     try {
@@ -118,10 +124,16 @@ export default function AdminActivityPage() {
     }
   };
 
-  const handleDelete = async (activity: Activity) => {
+  const handleDeleteTrigger = (activity: Activity) => {
+    setItemToDelete(activity);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setDeletingId(activity.id);
-      await activityService.deleteActivity(activity.id);
+      setDeletingId(itemToDelete.id);
+      await activityService.deleteActivity(itemToDelete.id);
       toast({ title: 'Xóa hoạt động thành công', variant: 'success' });
       await fetchActivities();
     } catch (err: unknown) {
@@ -130,6 +142,8 @@ export default function AdminActivityPage() {
       toast({ title: message, variant: 'error' });
     } finally {
       setDeletingId(null);
+      setIsConfirmModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -143,6 +157,7 @@ export default function AdminActivityPage() {
             onSortChange={(sort) => setSortKey(sort)}
             onStatusChange={(status) => setStatusFilter(status)}
             onNewActivity={() => setIsModalOpen(true)}
+            onImport={() => setIsImportModalOpen(true)}
           />
         }
         pagination={
@@ -172,7 +187,7 @@ export default function AdminActivityPage() {
           <ActivityTable
             activities={paginatedActivities}
             onEdit={handleEdit}
-            onDelete={handleDelete}
+            onDelete={handleDeleteTrigger}
             deletingId={deletingId}
             currentPage={currentPage}
             pageSize={pageSize}
@@ -185,6 +200,20 @@ export default function AdminActivityPage() {
         onOpenChange={handleModalClose}
         onSuccess={fetchActivities}
         activityToEdit={editingActivity}
+      />
+
+      <ImportActivityModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchActivities}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa hoạt động"
+        message={`Bạn có chắc chắn muốn xóa hoạt động "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
       />
     </div>
   );

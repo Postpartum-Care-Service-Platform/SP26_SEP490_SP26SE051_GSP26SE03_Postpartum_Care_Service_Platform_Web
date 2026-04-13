@@ -20,6 +20,7 @@ import type { AmenityTicket } from '@/types/amenity-ticket';
 import type { AmenityService } from '@/types/amenity-service';
 import type { Account } from '@/types/account';
 import { AmenityTicketListHeader } from './components/AmenityTicketListHeader';
+import { ImportAmenityTicketModal } from './components/ImportAmenityTicketModal';
 import styles from './amenity-ticket.module.css';
 
 const STATUS_OPTIONS = [
@@ -52,6 +53,9 @@ export default function AdminAmenityTicketPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
+
+  // Import modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -110,6 +114,15 @@ export default function AdminAmenityTicketPage() {
       fetchData();
     } catch (error) {
       toast({ title: 'Thất bại', description: 'Không thể đánh dấu hoàn thành.', variant: 'error' });
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await amenityTicketService.exportAmenityTickets();
+      toast({ title: 'Thành công', description: 'Đã xuất danh sách vé tiện ích ra file Excel.', variant: 'success' });
+    } catch (error) {
+      toast({ title: 'Thất bại', description: 'Không thể xuất file Excel.', variant: 'error' });
     }
   };
 
@@ -265,11 +278,11 @@ export default function AdminAmenityTicketPage() {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className={styles.dropdownContent} align="end">
-                  <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+                  <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
                     <Upload size={16} className={styles.itemIcon} />
                     Nhập từ Excel
                   </DropdownMenuItem>
-                  <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+                  <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
                     <Download size={16} className={styles.itemIcon} />
                     Xuất ra Excel
                   </DropdownMenuItem>
@@ -460,6 +473,12 @@ export default function AdminAmenityTicketPage() {
           </table>
         </div>
       </AdminPageLayout>
+
+      <ImportAmenityTicketModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchData}
+      />
     </div>
   );
 }

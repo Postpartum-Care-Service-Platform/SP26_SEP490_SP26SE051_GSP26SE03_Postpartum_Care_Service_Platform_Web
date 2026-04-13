@@ -69,9 +69,9 @@ export function UserNav() {
 
   return (
     <div className="tjn-header__user-nav">
-      <NotificationDropdown />
+      {/* <NotificationDropdown /> */}
 
-      <DropdownMenu.Root modal={false}>
+      {/* <DropdownMenu.Root modal={false}>
         <DropdownMenu.Trigger asChild>
           <button className="tjn-header__avatar-button" aria-label="User menu">
             {!loading && avatarUrl ? (
@@ -83,7 +83,6 @@ export function UserNav() {
                 className="tjn-header__avatar-img"
                 unoptimized={avatarUrl.startsWith('http')}
                 onError={(e) => {
-                  // Fallback nếu ảnh lỗi
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
                   const fallback = target.parentElement?.querySelector('.tjn-header__avatar-fallback') as HTMLElement;
@@ -124,7 +123,7 @@ export function UserNav() {
             Đăng xuất
           </DropdownMenu.Item>
         </DropdownMenu.Content>
-      </DropdownMenu.Root>
+      </DropdownMenu.Root> */}
     </div>
   );
 }

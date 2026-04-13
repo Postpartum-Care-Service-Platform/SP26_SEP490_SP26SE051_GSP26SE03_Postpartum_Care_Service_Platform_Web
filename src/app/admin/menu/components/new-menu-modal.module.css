@@ -6,198 +6,519 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  backdrop-filter: blur(4px);
+  padding: 24px;
 }
 
 .modalContent {
   background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   width: 100%;
-  max-width: 600px;
+  max-width: 1200px;
   overflow: hidden;
-  max-height: 90vh;
+  height: 85vh;
+  max-height: calc(100vh - 64px);
   display: flex;
   flex-direction: column;
+  animation: modalEnter 0.3s ease-out;
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .modalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid #e9ecef;
+  padding: 12px 24px;
+  border-bottom: 1px solid #F1F3F5;
   flex-shrink: 0;
 }
 
+.formWrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .modalTitle {
-  color: #343A40;
-  font-family: "Funnel Sans", sans-serif;
-  font-size: 13px;
-  font-weight: 600;
+  color: #1A1A1A;
+  font-family: 'Lexend Deca', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
   margin: 0;
 }
 
 .closeButton {
   background: transparent;
   border: none;
-  font-size: 24px;
-  line-height: 1;
-  color: #868e96;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #868E96;
   cursor: pointer;
-  padding: 0;
+  transition: all 0.2s;
 }
 
 .closeButton:hover {
-  color: #343A40;
+  color: #FA5252;
 }
 
 .modalBody {
-  padding: 16px 16px 0;
-  overflow-y: auto;
+  padding: 16px;
+  overflow: hidden;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.dualColumnLayout {
+  display: flex;
+  gap: 16px;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.leftColumn {
+  flex: 2.3;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+
+.rightColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Reduced from 16px */
+  padding-left: 24px;
+  border-left: 1px solid #F1F3F5;
+  min-width: 0;
+  height: 100%;
+}
+
+.searchSection {
+  margin-bottom: 12px;
+}
+
+.searchSection label,
+.formGroup label,
+.selectedFoodsHeader label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 4px;
 }
 
 .formGroup {
-  margin-bottom: 16px;
-}
-
-.formGroup label {
-  display: block;
-  color: #343A40;
-  font-family: "Funnel Sans", sans-serif;
-  font-size: 13px;
-  margin: 0px 0px 6px;
-  font-weight: 600;
+  margin-bottom: 12px;
 }
 
 .required {
-  color: #dc3545;
+  color: #FA5252;
 }
 
 .formControl {
   width: 100%;
-  padding: 8px 14px;
-  background-color: #F6F7F9;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border: 1px solid #DEE2E6;
+  border-radius: 4px; /* Reset from 4.8px */
   font-size: 14px;
-  color: #495057;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.formControl[data-type='textarea'] {
-  resize: vertical;
-  min-height: 80px;
+  transition: all 0.2s;
+  background-color: #fff;
 }
 
 .formControl:focus {
+  border-color: var(--color-brand-accent);
   outline: none;
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  box-shadow: 0 0 0 3px rgba(250, 131, 20, 0.1);
+  background-color: #fff;
 }
 
-.formControl.invalid {
-  border-color: #dc3545;
+.filterSection {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.formControl:disabled {
-  opacity: 0.6;
+.filterSection::-webkit-scrollbar {
+  display: none;
+}
+
+.filterBtn {
+  padding: 6px 14px;
+  border-radius: 4px;
+  border: 1px solid #DEE2E6;
+  background: white;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6C757D;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filterBtnActive {
+  background: var(--color-brand-accent) !important;
+  border-color: var(--color-brand-accent) !important;
+  color: white !important;
+}
+
+.foodGridContainer {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-right: 4px;
+  background: transparent;
+  padding: 0 0 8px 0; /* Removed top padding */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.foodGridContainer::-webkit-scrollbar {
+  display: none;
+}
+
+.foodGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px 8px;
+}
+
+.categorySection {
+  margin-bottom: 24px; /* Reduced from 32px */
+}
+
+.categoryTitle {
+  font-family: 'Lexend Deca', sans-serif;
+  font-size: 15px; /* Slightly smaller */
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 12px; /* Reduced from 16px */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.foodCard {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 0;
+}
+
+.foodCard:hover {
+  transform: translateY(-2px);
+}
+
+.foodItemContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.circularImageWrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  position: relative;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.foodCardSelected .circularImageWrapper {
+  border-color: var(--color-brand-accent);
+  box-shadow: 0 0 0 3px rgba(250, 131, 20, 0.2);
+}
+
+.circularImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.circleSelectionOverlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(250, 131, 20, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circleCheckIcon {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.foodLabelInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.foodLabelName {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343A40;
+  width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.foodLabelType {
+  font-size: 10px;
+  color: #868E96;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.selectedFoodsSection {
+  margin-top: 4px; /* Reduced from auto or 24px */
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  border-top: 1px solid #F1F3F5;
+  padding-top: 12px;
+}
+
+.selectedFoodsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.badge {
+  background-color: var(--color-brand-accent);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.selectedList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 4px;
+  scrollbar-width: none; /* Hide for Firefox */
+  -ms-overflow-style: none; /* Hide for IE/Edge */
+}
+
+.selectedList::-webkit-scrollbar {
+  display: none; /* Hide for Chrome/Safari */
+}
+
+.emptySelected {
+  font-size: 13px;
+  color: #ADB5BD;
+  text-align: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  border: 1px dashed #DEE2E6;
+}
+
+.selectedCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #E9ECEF;
+  border-radius: 4px;
+  animation: cardIn 0.2s ease-out;
+  transition: all 0.2s;
+}
+
+.selectedCard:hover {
+  border-color: var(--color-brand-accent);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.quantitySelector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  padding: 0;
+  border-radius: 6px;
+}
+
+.qtyBtn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #868E96;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.qtyBtn:hover:not(:disabled) {
+  color: var(--color-brand-accent);
+}
+
+.qtyBtn:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
-.errorMessage {
-  color: #dc3545;
-  font-size: 12px;
-  margin-top: 4px;
-}
-
-.formGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.fullWidth {
-  grid-column: 1 / -1;
-}
-
-.foodList {
-  max-height: 200px;
-  overflow-y: auto;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 8px;
-  background-color: #F6F7F9;
-}
-
-.foodItem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.foodItem:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.checkbox {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
-.loadingText {
+.qtyValue {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1A1A1A;
+  min-width: 20px;
   text-align: center;
-  color: #6c757d;
-  padding: 16px;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.selectedThumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.selectedName {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: #343A40;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  color: #ADB5BD;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.removeBtn:hover {
+  color: #FA5252;
 }
 
 .modalFooter {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 12px;
   padding: 16px;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid #F1F3F5;
   flex-shrink: 0;
+  background: #fff;
 }
 
 .button {
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 8px 24px;
+  border-radius: 4px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  border: 1px solid transparent;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-}
-
-.button:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
+  transition: all 0.2s;
+  font-family: 'Lexend Deca', sans-serif;
 }
 
 .buttonPrimary {
-  background-color: #fa8314;
+  background-color: var(--color-brand-accent);
   color: white;
-  border-color: #fa8314;
-}
-
-.buttonPrimary:hover:not(:disabled) {
-  background-color: #e67310;
-  border-color: #d96d10;
+  border: none;
 }
 
 .buttonOutline {
   background-color: white;
-  color: #6c757d;
-  border-color: #ced4da;
+  color: #495057;
+  border: 1px solid #DEE2E6;
 }
 
-.buttonOutline:hover:not(:disabled) {
-  background-color: #f8f9fa;
-  color: #343a40;
+.errorMessage {
+  color: #FA5252;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  gap: 12px;
+}
+
+.loader {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #E9ECEF;
+  border-top-color: var(--color-brand-accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.invalid {
+  border-color: #FA5252 !important;
 }

@@ -280,6 +280,18 @@ a:hover {
   color: #ffffff;
 }
 
+/* Utility to hide scrollbar */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
 /* ── Template Chip Styling (for rich text editor) ── */
 .template-chip {
   display: inline-flex;
@@ -333,4 +345,17 @@ a:hover {
 
 .template-chip .chip-remove svg {
   display: block;
+}
+
+/* Hide Next.js Development Indicator permanently */
+nextjs-portal,
+#nextjs-portal,
+[data-nextjs-portal],
+[data-nextjs-toast-wrapper],
+#nextjs_dev_indicator_portal,
+wc-nextjs-dev-indicator {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
 }

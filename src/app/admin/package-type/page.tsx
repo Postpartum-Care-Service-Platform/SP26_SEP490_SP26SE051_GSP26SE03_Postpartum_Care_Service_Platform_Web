@@ -16,8 +16,10 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import packageTypeService from '@/services/package-type.service';
 import type { PackageType } from '@/types/package-type';
 
-import styles from './package-type.module.css';
 import { PackageTypeModal } from './components/PackageTypeModal';
+import { ImportPackageTypeModal } from './components/ImportPackageTypeModal';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
+import styles from './package-type.module.css';
 
 /* ── SVG icons ── */
 const EditIcon = () => (
@@ -102,6 +104,13 @@ export default function AdminPackageTypePage() {
   const [editingItem, setEditingItem] = useState<PackageType | null>(null);
   const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
 
+  // Import Modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Confirm Modal state
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<PackageType | null>(null);
+
   const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
@@ -144,16 +153,24 @@ export default function AdminPackageTypePage() {
   const handleOpenEdit   = (item: PackageType) => { setEditingItem(item); setIsModalOpen(true); };
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingItem(null); };
 
-  const handleDelete = async (item: PackageType) => {
+  const handleDeleteTrigger = (item: PackageType) => {
+    setItemToDelete(item);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setDeletingId(item.id);
-      await packageTypeService.deletePackageType(item.id);
+      setDeletingId(itemToDelete.id);
+      await packageTypeService.deletePackageType(itemToDelete.id);
       await fetchData();
       toast({ title: 'Xóa loại gói dịch vụ thành công', variant: 'success' });
     } catch (err) {
       toast({ title: getErrorMessage(err, 'Xóa loại gói dịch vụ thất bại'), variant: 'error' });
     } finally {
       setDeletingId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
     }
   };
 
@@ -194,6 +211,15 @@ export default function AdminPackageTypePage() {
         next.delete(item.id);
         return next;
       });
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await packageTypeService.exportPackageTypes();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
     }
   };
 
@@ -242,11 +268,11 @@ export default function AdminPackageTypePage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>
@@ -362,7 +388,7 @@ export default function AdminPackageTypePage() {
                         {item.isActive ? (
                           <div className={styles.tooltipWrapper}>
                             <Button variant="outline" size="sm" className={styles.deleteButton}
-                              onClick={() => handleDelete(item)} disabled={deletingId === item.id}>
+                              onClick={() => handleDeleteTrigger(item)} disabled={deletingId === item.id}>
                               <TrashIcon />
                             </Button>
                             <span className={styles.tooltip}>Xóa</span>
@@ -390,6 +416,23 @@ export default function AdminPackageTypePage() {
         open={isModalOpen}
         onOpenChange={handleModalClose}
         item={editingItem}
+        onSuccess={fetchData}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa loại gói dịch vụ"
+        message={`Bạn có chắc chắn muốn xóa loại gói dịch vụ "${itemToDelete?.typeName}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
+      />
+
+      <ImportPackageTypeModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
         onSuccess={fetchData}
       />
     </AdminPageLayout>

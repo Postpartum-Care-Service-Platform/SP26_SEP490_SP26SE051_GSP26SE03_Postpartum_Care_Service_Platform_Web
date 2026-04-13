@@ -12,11 +12,12 @@
 /* Modal Content */
 .modalContent {
   background-color: white;
-  border-radius: 8px;
+  border-radius: 4px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 500px;
   max-width: 500px;
   overflow: hidden;
+  font-family: var(--font-admin-title), sans-serif;
 }
 
 /* Modal Header */
@@ -30,7 +31,7 @@
 
 .modalTitle {
   color: #343A40;
-  font-family: "Funnel Sans", sans-serif;
+  font-family: var(--font-admin-title), sans-serif;
   font-size: 13px;
   font-weight: 600;
   margin: 0;
@@ -107,7 +108,7 @@
 .formGroup label {
   display: block;
   color: #343A40;
-  font-family: "Funnel Sans", sans-serif;
+  font-family: var(--font-admin-title), sans-serif;
   font-size: 13px;
   margin: 0px 0px 6px;
   font-weight: 600;
@@ -168,7 +169,7 @@
 
 .button {
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 4px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;

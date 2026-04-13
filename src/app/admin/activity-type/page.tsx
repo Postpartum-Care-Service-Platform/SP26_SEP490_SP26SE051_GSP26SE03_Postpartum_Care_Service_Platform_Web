@@ -16,8 +16,9 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import activityTypeService from '@/services/activity-type.service';
 import type { ActivityType } from '@/types/activity-type';
 
+import { ActivityTypeModal, ActivityTypeListHeader, ImportActivityTypeModal } from './components';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './activity-type.module.css';
-import { ActivityTypeModal, ActivityTypeListHeader } from './components';
 
 /* ── SVG icons ── */
 const EditIcon = () => (
@@ -89,6 +90,13 @@ export default function AdminActivityTypePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ActivityType | null>(null);
 
+  // Import Modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Confirm Modal state
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<ActivityType | null>(null);
+
   const { toast } = useToast();
 
   const fetchData = useCallback(async () => {
@@ -131,16 +139,33 @@ export default function AdminActivityTypePage() {
   const handleOpenEdit = (item: ActivityType) => { setEditingItem(item); setIsModalOpen(true); };
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingItem(null); };
 
-  const handleDelete = async (item: ActivityType) => {
+  const handleDeleteTrigger = (item: ActivityType) => {
+    setItemToDelete(item);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setDeletingId(item.id);
-      await activityTypeService.deleteActivityType(item.id);
+      setDeletingId(itemToDelete.id);
+      await activityTypeService.deleteActivityType(itemToDelete.id);
       await fetchData();
       toast({ title: 'Xóa loại hoạt động thành công', variant: 'success' });
     } catch (err) {
       toast({ title: getErrorMessage(err, 'Xóa loại hoạt động thất bại'), variant: 'error' });
     } finally {
       setDeletingId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await activityTypeService.exportActivityTypes();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
     }
   };
 
@@ -188,11 +213,11 @@ export default function AdminActivityTypePage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>
@@ -265,7 +290,7 @@ export default function AdminActivityTypePage() {
                           </div>
                           <div className={styles.tooltipWrapper}>
                             <Button variant="outline" size="sm" className={styles.deleteButton}
-                              onClick={() => handleDelete(item)} disabled={deletingId === item.id}>
+                              onClick={() => handleDeleteTrigger(item)} disabled={deletingId === item.id}>
                               <TrashIcon />
                             </Button>
                             <span className={styles.tooltip}>Xóa</span>
@@ -284,6 +309,23 @@ export default function AdminActivityTypePage() {
           open={isModalOpen}
           onOpenChange={handleModalClose}
           item={editingItem}
+          onSuccess={fetchData}
+        />
+
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Xác nhận xóa loại hoạt động"
+          message={`Bạn có chắc chắn muốn xóa loại hoạt động "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
+          confirmLabel="Xóa ngay"
+          cancelLabel="Suy nghĩ lại"
+          variant="danger"
+        />
+
+        <ImportActivityTypeModal
+          open={isImportModalOpen}
+          onOpenChange={setIsImportModalOpen}
           onSuccess={fetchData}
         />
       </AdminPageLayout>

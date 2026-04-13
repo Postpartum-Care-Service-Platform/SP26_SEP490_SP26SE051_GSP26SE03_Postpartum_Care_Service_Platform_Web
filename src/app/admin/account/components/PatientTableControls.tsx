@@ -119,11 +119,11 @@ export function PatientTableControls({
     setSelectedStatus(value);
     onStatusChange?.(value);
 
-     // Nếu chọn "Tất cả" thì reset luôn filter vai trò để không lọc gì nữa
-     if (value === 'all') {
-       setSelectedRoleId(null);
-       onRoleChange?.(null);
-     }
+    // Nếu chọn "Tất cả" thì reset luôn filter vai trò để không lọc gì nữa
+    if (value === 'all') {
+      setSelectedRoleId(null);
+      onRoleChange?.(null);
+    }
   };
 
   const handleExport = async () => {

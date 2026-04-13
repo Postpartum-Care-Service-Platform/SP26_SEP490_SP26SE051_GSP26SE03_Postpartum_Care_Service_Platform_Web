@@ -40,12 +40,13 @@
   overflow-y: auto;
   flex: 1;
   box-sizing: border-box;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 .grid::-webkit-scrollbar {
-  display: none;
+  display: none !important;
+  width: 0 !important;
 }
 
 .dayCell {
@@ -138,6 +139,16 @@
   font-weight: 600;
 }
 
+.past {
+  opacity: 0.9;
+  background-color: #F8F9FA;
+}
+
+.past .eventChip {
+  opacity: 0.7;
+  filter: grayscale(0.5);
+}
+
 .dayBody {
   margin-top: 8px;
   display: flex;
@@ -189,23 +200,23 @@
 
 .moreIndicator {
   font-size: 11px;
-  color: #FF7A00;
-  font-weight: 600;
-  padding: 4px 8px;
-  background: #F4F5F7;
+  color: #6B778C;
+  font-weight: 500;
+  padding: 2px 4px;
+  background: transparent;
   border-radius: 3px;
   margin-top: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  border: 1px solid rgba(9, 30, 66, 0.08);
+  border: none;
   transition: all 0.2s;
 }
 
 .moreIndicator:hover {
-  background: #EBECF0;
-  color: #E66E00;
+  background: #F4F5F7;
+  color: #44546F;
 }
 
 .tooltipContent {
@@ -257,12 +268,13 @@
 }
 
 .sidebarList {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
 }
 
 .sidebarList::-webkit-scrollbar {
-  display: none;
+  display: none !important;
+  width: 0 !important;
 }
 
 .dayTooltipContent {

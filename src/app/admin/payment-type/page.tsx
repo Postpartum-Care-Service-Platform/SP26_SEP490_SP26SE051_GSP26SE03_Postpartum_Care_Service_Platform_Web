@@ -16,6 +16,8 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import paymentTypeService from '@/services/payment-type.service';
 import type { PaymentType } from '@/types/payment-type';
 
+import { ImportPaymentTypeModal } from './components/ImportPaymentTypeModal';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './payment-type.module.css';
 
 /* ── SVG icons ── */
@@ -63,6 +65,13 @@ export default function AdminPaymentTypePage() {
   const [sortKey, setSortKey]           = useState<SortKey>('id-desc');
   const [currentPage, setCurrentPage]   = useState(1);
   const [pageSize, setPageSize]         = useState(DEFAULT_PAGE_SIZE);
+
+  // Import Modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Confirm Modal state
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<PaymentType | null>(null);
 
   const { toast } = useToast();
 
@@ -115,6 +124,36 @@ export default function AdminPaymentTypePage() {
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);
 
+  const handleDeleteTrigger = (item: PaymentType) => {
+    setItemToDelete(item);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      setDeletingId(itemToDelete.id);
+      await paymentTypeService.delete(itemToDelete.id);
+      await fetchData();
+      toast({ title: 'Xóa loại thanh toán thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: 'Xóa loại thanh toán thất bại', variant: 'error' });
+    } finally {
+      setDeletingId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await paymentTypeService.exportPaymentTypes();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: 'Xuất dữ liệu thất bại', variant: 'error' });
+    }
+  };
+
   const selectedSortLabel   = SORT_OPTIONS.find((o) => o.value === sortKey)?.label ?? 'Sắp xếp';
   const selectedStatusLabel = STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? 'Tất cả';
 
@@ -160,11 +199,11 @@ export default function AdminPaymentTypePage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>
@@ -254,7 +293,7 @@ export default function AdminPaymentTypePage() {
                           <span className={styles.tooltip}>Chỉnh sửa</span>
                         </div>
                         <div className={styles.tooltipWrapper}>
-                          <Button variant="outline" size="sm" className={styles.deleteButton} onClick={() => toast({ title: 'Chức năng đang phát triển' })}>
+                          <Button variant="outline" size="sm" className={styles.deleteButton} onClick={() => handleDeleteTrigger(item)}>
                             <TrashIcon />
                           </Button>
                           <span className={styles.tooltip}>Xóa</span>
@@ -268,6 +307,24 @@ export default function AdminPaymentTypePage() {
           </tbody>
         </table>
       </div>
+      </div>
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa loại thanh toán"
+        message={`Bạn có chắc chắn muốn xóa loại thanh toán "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
+      />
+
+      <ImportPaymentTypeModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchData}
+      />
     </AdminPageLayout>
   );
 }

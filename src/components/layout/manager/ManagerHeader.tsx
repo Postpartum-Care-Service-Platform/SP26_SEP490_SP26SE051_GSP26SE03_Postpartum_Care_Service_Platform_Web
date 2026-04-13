@@ -5,6 +5,7 @@ import Link from 'next/link';
 import React from 'react';
 import { ChatNotification } from '../admin/ChatNotification';
 import { NotificationDropdown } from '../admin/NotificationDropdown';
+import { FullscreenToggle } from '../admin/FullscreenToggle';
 
 import styles from './manager-header.module.css';
 
@@ -38,6 +39,7 @@ export function ManagerHeader({ collapsed, onToggleCollapsed }: Props) {
 
       <div className={styles.headerRight}>
         <div className={styles.iconGroup}>
+          <FullscreenToggle className={styles.iconBtn} />
           <ChatNotification />
           <NotificationDropdown />
         </div>
