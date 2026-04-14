@@ -25,7 +25,7 @@
   overflow: hidden;
   z-index: 1100;
   display: grid;
-  grid-template-rows: 56px 1fr 64px;
+  grid-template-rows: 56px 1fr minmax(64px, auto);
   border: 1px solid var(--chat-border);
   transition: all 0.3s ease;
 }
@@ -108,7 +108,13 @@
 
 .chatbox__messages {
   padding: 14px 12px;
-  overflow: auto;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.chatbox__messages::-webkit-scrollbar {
+  display: none;
 }
 
 .chatbox__bubble-row {
@@ -214,15 +220,20 @@
 
 .chatbox__composer-input {
   width: 100%;
-  height: 42px;
-  border-radius: 9999px;
+  border-radius: 4.8px;
   border: 1px solid var(--chat-border);
   background: #fff;
-  padding: 0 14px;
+  padding: 10px 14px;
   color: var(--chat-text);
   outline: none;
   font-family: var(--font-body);
   font-size: 14px;
+}
+
+.chatbox__composer-editable:empty:before {
+  content: attr(data-placeholder);
+  color: #a0a0a0;
+  pointer-events: none;
 }
 
 .chatbox__composer-input:focus {

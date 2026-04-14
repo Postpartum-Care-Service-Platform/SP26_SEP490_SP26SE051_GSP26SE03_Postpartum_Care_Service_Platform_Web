@@ -15,13 +15,13 @@ type Props = {
 
 const renderStars = (rating: number) => {
   const max = 5;
-  const value = Math.round(Math.min(Math.max(rating / 2, 0), max));
+  const value = Math.round(Math.min(Math.max(rating, 0), max));
   return (
     <span>
       {Array.from({ length: max }, (_, i) => (
         <span key={i} style={{ color: i < value ? '#f59e0b' : '#d1d5db', fontSize: 20 }}>★</span>
       ))}
-      <span style={{ fontSize: 13, color: '#6c757d', marginLeft: 6 }}>({rating}/10)</span>
+      <span style={{ fontSize: 13, color: '#6c757d', marginLeft: 6 }}>({rating}/5)</span>
     </span>
   );
 };
@@ -76,9 +76,15 @@ export function FeedbackDetailModal({ open, onOpenChange, feedback }: Props) {
               <span className={styles.metaValue}>{date}</span>
             </div>
             <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>Trạng thái</span>
+              <span className={styles.metaLabel}>Trạng thái ẩn</span>
               <span className={`${styles.statusBadge} ${feedback.isDeleted ? styles.statusDeleted : styles.statusActive}`}>
                 {feedback.isDeleted ? 'Đã ẩn' : 'Hiển thị'}
+              </span>
+            </div>
+            <div className={styles.metaItem}>
+              <span className={styles.metaLabel}>Đăng trang chủ</span>
+              <span className={`${styles.statusBadge} ${feedback.isPosted ? styles.statusPosted : styles.statusNotPosted}`}>
+                {feedback.isPosted ? 'Đã đăng' : 'Chưa đăng'}
               </span>
             </div>
           </div>

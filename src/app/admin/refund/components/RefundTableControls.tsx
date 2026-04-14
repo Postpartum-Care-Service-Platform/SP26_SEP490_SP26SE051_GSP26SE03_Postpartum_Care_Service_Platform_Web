@@ -1,7 +1,7 @@
 'use client';
 
 import { MagnifyingGlassIcon, MixerHorizontalIcon, ChevronDownIcon } from '@radix-ui/react-icons';
-import { Download } from 'lucide-react';
+import { Download, Upload } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -12,56 +12,54 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
 
-import styles from './booking-table-controls.module.css';
+import styles from './refund-table-controls.module.css';
 
-type Props = {
-  onSearch?: (query: string) => void;
-  onStatusChange?: (status: string) => void;
-  onSortChange?: (sort: string) => void;
-  onExportClick?: () => void;
-};
+interface Props {
+  onSearch: (q: string) => void;
+  onSortChange: (sort: string) => void;
+  onStatusChange: (status: string) => void;
+  onImport: () => void;
+  onExport: () => void;
+}
+
+const SORT_OPTIONS = [
+  { value: 'date-desc', label: 'Ngày yêu cầu: mới nhất' },
+  { value: 'date-asc', label: 'Ngày yêu cầu: cũ nhất' },
+  { value: 'amount-desc', label: 'Số tiền: cao nhất' },
+  { value: 'amount-asc', label: 'Số tiền: thấp nhất' },
+];
 
 const STATUS_OPTIONS = [
   { value: 'all', label: 'Tất cả trạng thái' },
-  { value: 'Pending', label: 'Đang chờ' },
-  { value: 'Confirmed', label: 'Đã xác nhận' },
-  { value: 'CheckedIn', label: 'Đã nhận phòng' },
-  { value: 'CheckedOut', label: 'Đã trả phòng' },
-  { value: 'Completed', label: 'Hoàn thành' },
-  { value: 'Cancelled', label: 'Đã hủy' },
+  { value: 'Pending', label: 'Chờ duyệt' },
+  { value: 'Approved', label: 'Đã duyệt' },
+  { value: 'Rejected', label: 'Đã từ chối' },
+  { value: 'Processed', label: 'Đã xử lý' },
 ];
 
-const SORT_OPTIONS = [
-  { value: 'newest', label: 'Ngày đặt: Mới nhất' },
-  { value: 'oldest', label: 'Ngày đặt: Cũ nhất' },
-  { value: 'startDate-asc', label: 'Ngày bắt đầu: Gần nhất' },
-  { value: 'price-desc', label: 'Giá: Cao nhất' },
-  { value: 'price-asc', label: 'Giá: Thấp nhất' },
-];
-
-export function BookingTableControls({ onSearch, onStatusChange, onSortChange, onExportClick }: Props) {
+export function RefundTableControls({ onSearch, onSortChange, onStatusChange, onImport, onExport }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSort, setSelectedSort] = useState('date-desc');
   const [selectedStatus, setSelectedStatus] = useState('all');
-  const [selectedSort, setSelectedSort] = useState('newest');
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
-    onSearch?.(value);
+    onSearch(value);
   };
 
-  const handleStatusSelect = (status: string) => {
-    setSelectedStatus(status);
-    onStatusChange?.(status);
+  const handleSortSelect = (value: string) => {
+    setSelectedSort(value);
+    onSortChange(value);
   };
 
-  const handleSortSelect = (sort: string) => {
-    setSelectedSort(sort);
-    onSortChange?.(sort);
+  const handleStatusSelect = (value: string) => {
+    setSelectedStatus(value);
+    onStatusChange(value);
   };
 
-  const selectedStatusLabel = STATUS_OPTIONS.find((opt) => opt.value === selectedStatus)?.label || 'Trạng thái';
   const selectedSortLabel = SORT_OPTIONS.find((opt) => opt.value === selectedSort)?.label || 'Sắp xếp';
+  const selectedStatusLabel = STATUS_OPTIONS.find((opt) => opt.value === selectedStatus)?.label || 'Tất cả';
 
   return (
     <div className={styles.controls}>
@@ -70,7 +68,7 @@ export function BookingTableControls({ onSearch, onStatusChange, onSortChange, o
           <MagnifyingGlassIcon className={styles.searchIcon} />
           <input
             type="text"
-            placeholder="Tìm kiếm khách hàng, SĐT, mã booking..."
+            placeholder="Tìm kiếm yêu cầu hoàn tiền..."
             className={styles.searchInput}
             value={searchQuery}
             onChange={handleSearchChange}
@@ -100,16 +98,6 @@ export function BookingTableControls({ onSearch, onStatusChange, onSortChange, o
       </div>
 
       <div className={styles.right}>
-        <Button
-          variant="outline"
-          size="sm"
-          className={styles.exportButton}
-          onClick={onExportClick}
-        >
-          <Download size={16} className={styles.exportIcon} />
-          Xuất file
-        </Button>
-
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className={styles.statusButton}>
@@ -127,6 +115,26 @@ export function BookingTableControls({ onSearch, onStatusChange, onSortChange, o
                 {option.label}
               </DropdownMenuItem>
             ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.exportButton}>
+              <Download size={16} className={styles.exportIcon} />
+              Nhập/Xuất
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent} align="end">
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onImport}>
+              <Upload size={16} className={styles.itemIcon} />
+              Nhập từ Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onExport}>
+              <Download size={16} className={styles.itemIcon} />
+              Xuất ra Excel
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

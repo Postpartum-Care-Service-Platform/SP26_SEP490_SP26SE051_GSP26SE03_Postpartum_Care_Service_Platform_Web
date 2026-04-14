@@ -18,6 +18,8 @@ import type { AppointmentStatus } from './types';
 type Props = {
   onStatusChange?: (status: AppointmentStatus | 'all') => void;
   onAddClick?: () => void;
+  onImportClick?: () => void;
+  onExportClick?: () => void;
 };
 
 const STATUS_OPTIONS: Array<{ value: AppointmentStatus | 'all'; label: string }> = [
@@ -28,7 +30,7 @@ const STATUS_OPTIONS: Array<{ value: AppointmentStatus | 'all'; label: string }>
   { value: 'Cancelled', label: 'Đã hủy' },
 ];
 
-export function AppointmentTableControls({ onStatusChange, onAddClick }: Props) {
+export function AppointmentTableControls({ onStatusChange, onAddClick, onImportClick, onExportClick }: Props) {
   const [selectedStatus, setSelectedStatus] = useState<AppointmentStatus | 'all'>('all');
 
   const handleStatusSelect = (value: AppointmentStatus | 'all') => {
@@ -83,11 +85,11 @@ export function AppointmentTableControls({ onStatusChange, onAddClick }: Props) 
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className={styles.dropdownContent} align="end">
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+              <DropdownMenuItem className={styles.dropdownItem} onClick={onImportClick}>
                 <Upload size={16} className={styles.itemIcon} />
                 Nhập từ Excel
               </DropdownMenuItem>
-              <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+              <DropdownMenuItem className={styles.dropdownItem} onClick={onExportClick}>
                 <Download size={16} className={styles.itemIcon} />
                 Xuất ra Excel
               </DropdownMenuItem>

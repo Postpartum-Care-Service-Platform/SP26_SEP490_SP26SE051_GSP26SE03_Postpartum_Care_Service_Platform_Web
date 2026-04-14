@@ -24,6 +24,8 @@
 .statusBadge { display: inline-flex; align-items: center; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 600; width: fit-content; }
 .statusActive  { background-color: rgba(21, 128, 61, 0.1); color: #15803d; }
 .statusDeleted { background-color: rgba(185, 28, 28, 0.1); color: #b91c1c; }
+.statusPosted  { background-color: rgba(59, 130, 246, 0.1); color: #2563eb; }
+.statusNotPosted { background-color: rgba(107, 114, 128, 0.1); color: #4b5563; }
 
 /* Images */
 .imagesSection { display: flex; flex-direction: column; gap: 8px; }

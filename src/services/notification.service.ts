@@ -26,6 +26,10 @@ const notificationService = {
   markAsRead: (id: number): Promise<Notification> => {
     return apiClient.put(`/Notification/mark-as-read/${id}`);
   },
+
+  deleteNotification: (id: number): Promise<void> => {
+    return apiClient.delete(`/Notification/${id}`);
+  },
 };
 
 export default notificationService;

@@ -1,6 +1,7 @@
 'use client';
 
 import { ChatBubbleIcon, Cross1Icon } from '@radix-ui/react-icons';
+import { usePathname } from 'next/navigation';
 import React from 'react';
 
 import { ChatBox } from '@/components/chat/ChatBox';
@@ -43,8 +44,11 @@ function toFEMessage(msg: MessageResponse, chatId: string, structuredData?: AiSt
 }
 
 export function SupportWidget() {
+  const pathname = usePathname();
   const { token, user } = useAuth();
   const [open, setOpen] = React.useState(false);
+  
+  if (pathname === '/ai-chat') return null;
   const [activeChat, setActiveChat] = React.useState<ChatMode | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [isTyping, setIsTyping] = React.useState(false);

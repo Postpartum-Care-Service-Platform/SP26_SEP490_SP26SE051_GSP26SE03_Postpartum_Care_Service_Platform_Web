@@ -24,6 +24,29 @@ const feedbackService = {
   getFeedbacksByUserId: (userId: string): Promise<Feedback[]> => {
     return apiClient.get(`/Feedback/user/${userId}`);
   },
+
+  importFeedbacks: (file: File): Promise<void> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/Feedback/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
+  exportFeedbacks: async (): Promise<void> => {
+    const response = await apiClient.get('/Feedback/export', { responseType: 'blob' });
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Danh_sach_phan_hoi_${new Date().getTime()}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };
 
 export default feedbackService;

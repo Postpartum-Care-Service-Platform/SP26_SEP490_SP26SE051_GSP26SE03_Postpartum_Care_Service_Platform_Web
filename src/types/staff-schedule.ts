@@ -23,6 +23,8 @@ export interface StaffSchedule {
   staffId: string;
   staffName: string;
   staffAvatar: string | null;
+  staffRole?: string;
+  staffMemberType?: string;
   roomId: number | null;
   roomName: string | null;
   managerId: string;
@@ -31,6 +33,7 @@ export interface StaffSchedule {
   isChecked: boolean;
   checkedAt: string | null;
   familyScheduleResponse: FamilyScheduleResponse;
+  images: string[];
 }
 
 export interface GetStaffScheduleParams {
@@ -57,6 +60,7 @@ export interface ActivityInSchedule {
   status: string;
   note: string | null;
   scheduledDate: string;
+  images: string[];
 }
 
 export interface BookingInSchedule {

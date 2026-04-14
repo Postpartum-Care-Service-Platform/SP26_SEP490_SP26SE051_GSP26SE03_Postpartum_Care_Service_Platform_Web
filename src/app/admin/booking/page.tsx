@@ -137,6 +137,15 @@ export default function AdminBookingPage() {
     router.push(`${baseRoute}/booking/${booking.id}`);
   };
 
+  const handleExport = async () => {
+    try {
+      await bookingService.exportBookings();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: 'Xuất dữ liệu thất bại', variant: 'error' });
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1 h-full min-h-0">
       <AdminPageLayout
@@ -146,6 +155,7 @@ export default function AdminBookingPage() {
             onSearch={setSearchQuery}
             onStatusChange={setStatusFilter}
             onSortChange={setSortKey}
+            onExportClick={handleExport}
           />
         }
         pagination={

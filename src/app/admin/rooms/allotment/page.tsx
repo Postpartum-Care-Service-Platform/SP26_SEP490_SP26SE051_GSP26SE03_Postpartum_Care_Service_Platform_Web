@@ -5,6 +5,7 @@ import { ChevronDownIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-
 import { Download, Upload } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import { Pagination } from '@/components/ui/pagination';
 import { useToast } from '@/components/ui/toast/use-toast';
 import roomAllotmentService from '@/services/room-allotment.service';
@@ -13,6 +14,7 @@ import type { Room, RoomStatus } from '@/types/room-allotment';
 
 import styles from './allotment.module.css';
 import { RoomAllotmentModal } from './components/RoomAllotmentModal';
+import { ImportRoomModal } from './components/ImportRoomModal';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import { RoomTable } from './components/RoomTable';
 import { RoomTableControls } from './components/RoomTableControls';
@@ -87,10 +89,38 @@ export default function AddRoomAllotmentPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<Room | null>(null);
 
   const handleOpenCreate = () => { setEditingRoom(null); setIsModalOpen(true); };
   const handleOpenEdit = (room: Room) => { setEditingRoom(room); setIsModalOpen(true); };
   const { toast } = useToast();
+
+  const handleExport = async () => {
+    try {
+      await roomAllotmentService.exportRooms();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: 'Xuất dữ liệu thất bại', variant: 'error' });
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      setActionId(itemToDelete.id);
+      await roomAllotmentService.deleteRoom(itemToDelete.id);
+      await fetchData();
+      toast({ title: 'Xóa phòng thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Xóa phòng thất bại'), variant: 'error' });
+    } finally {
+      setActionId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
+    }
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -144,17 +174,8 @@ export default function AddRoomAllotmentPage() {
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingRoom(null); };
 
   const handleDelete = async (room: Room) => {
-    if (!window.confirm(`Bạn có chắc muốn xóa phòng "${room.name}"?`)) return;
-    try {
-      setActionId(room.id);
-      await roomAllotmentService.deleteRoom(room.id);
-      await fetchData();
-      toast({ title: 'Xóa phòng thành công', variant: 'success' });
-    } catch (err) {
-      toast({ title: getErrorMessage(err, 'Xóa phòng thất bại'), variant: 'error' });
-    } finally {
-      setActionId(null);
-    }
+    setItemToDelete(room);
+    setIsConfirmModalOpen(true);
   };
 
   const handleMaintain = async (room: Room) => {
@@ -197,6 +218,8 @@ export default function AddRoomAllotmentPage() {
             onSortChange={setSortKey}
             onActiveFilterChange={setActiveFilter}
             onNewRoom={handleOpenCreate}
+            onImportClick={() => setIsImportModalOpen(true)}
+            onExportClick={handleExport}
             activeSortKey={sortKey}
             activeFilter={activeFilter}
           />
@@ -235,6 +258,23 @@ export default function AddRoomAllotmentPage() {
           onOpenChange={handleModalClose}
           room={editingRoom}
           onSuccess={fetchData}
+        />
+
+        <ImportRoomModal
+          open={isImportModalOpen}
+          onOpenChange={setIsImportModalOpen}
+          onSuccess={fetchData}
+        />
+
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Xác nhận xóa phòng"
+          message={`Bạn có chắc chắn muốn xóa phòng "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
+          confirmLabel="Xóa ngay"
+          cancelLabel="Suy nghĩ lại"
+          variant="danger"
         />
       </AdminPageLayout>
     </div>
