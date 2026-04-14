@@ -105,6 +105,14 @@ const statisticsService = {
   getFeedbackRatingDistribution: (): Promise<any> => {
     return apiClient.get('/Statistics/feedback/rating-distribution');
   },
+  /**
+   * Lấy danh sách cuộc hẹn theo ngày
+   */
+  getAppointmentsByDate: (date: string): Promise<any> => {
+    return apiClient.get('/Statistics/appointments', {
+      params: { date }
+    });
+  },
 };
 
 export default statisticsService;

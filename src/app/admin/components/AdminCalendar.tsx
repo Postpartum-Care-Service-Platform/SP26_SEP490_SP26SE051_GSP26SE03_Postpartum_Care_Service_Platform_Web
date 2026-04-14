@@ -2,7 +2,7 @@
 
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday, isPast, addMonths, subMonths, isWithinInterval } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import styles from './admin-calendar.module.css';
 
@@ -18,21 +18,37 @@ type CalendarEvent = {
 
 type AdminCalendarProps = {
   events?: CalendarEvent[];
+  selectedDate?: Date;
   onDateSelect?: (date: Date) => void;
   onRangeSelect?: (range: DateRange) => void;
 };
 
-export function AdminCalendar({ events = [], onDateSelect, onRangeSelect }: AdminCalendarProps) {
+export function AdminCalendar({ 
+  events = [], 
+  selectedDate,
+  onDateSelect, 
+  onRangeSelect 
+}: AdminCalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedRange, setSelectedRange] = useState<DateRange>({ from: null, to: null });
+  const [selectedRange, setSelectedRange] = useState<DateRange>({ 
+    from: selectedDate || null, 
+    to: null 
+  });
+
+  useEffect(() => {
+    if (selectedDate) {
+      setCurrentMonth(selectedDate);
+      setSelectedRange({ from: selectedDate, to: null });
+    }
+  }, [selectedDate]);
 
   const weekDays = ['CN', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7'];
 
   const calendarDays = useMemo(() => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
-    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 });
-    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
 
     return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
   }, [currentMonth]);

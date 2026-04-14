@@ -43,7 +43,7 @@ const mockAppointments: Appointment[] = [
 ];
 
 export function AppointmentCarousel({
-  appointments = mockAppointments,
+  appointments = [],
 }: AppointmentCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -53,6 +53,8 @@ export function AppointmentCarousel({
       intervalRef.current = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % appointments.length);
       }, 3000);
+    } else {
+      setCurrentIndex(0);
     }
 
     return () => {
@@ -63,10 +65,18 @@ export function AppointmentCarousel({
   }, [appointments.length]);
 
   if (appointments.length === 0) {
-    return null;
+    return (
+      <div className={styles.emptyState}>
+        <p>Không có lịch hẹn trong ngày này</p>
+      </div>
+    );
   }
 
   const currentAppointment = appointments[currentIndex];
+
+  const initials = currentAppointment.specialty
+    ? currentAppointment.specialty.charAt(0).toUpperCase()
+    : (currentAppointment.doctorName?.charAt(0) || '?').toUpperCase();
 
   return (
     <div className={styles.carouselContainer}>
@@ -83,7 +93,7 @@ export function AppointmentCarousel({
               />
             ) : (
               <div className={styles.avatarPlaceholder}>
-                <span>{currentAppointment.doctorName.charAt(0)}</span>
+                <span>{initials}</span>
               </div>
             )}
           </div>
@@ -108,7 +118,7 @@ export function AppointmentCarousel({
               onClick={() => {
                 setCurrentIndex(index);
               }}
-              aria-label={`Go to appointment ${index + 1}`}
+              aria-label={`Đi đến lịch hẹn ${index + 1}`}
               type="button"
             />
           ))}

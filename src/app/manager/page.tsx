@@ -1,7 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { format } from 'date-fns';
 
+import statisticsService from '@/services/statistics.service';
 import styles from '../admin/admin-dashboard.module.css';
 import { AdminCalendar } from '../admin/components/AdminCalendar';
 import { AppointmentCarousel } from '../admin/components/AppointmentCarousel';
@@ -34,10 +36,25 @@ export default function ManagerPage() {
     bedOccupancy: 78,
   });
   const [loading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedDateAppointments, setSelectedDateAppointments] = useState<any[]>([]);
 
   useEffect(() => {
     // TODO: fetch manager-specific dashboard data
   }, []);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const dateStr = format(selectedDate, 'yyyy-MM-dd');
+        const res = await statisticsService.getAppointmentsByDate(dateStr);
+        setSelectedDateAppointments(res.appointments || []);
+      } catch (error) {
+        console.error('Failed to fetch appointments by date', error);
+      }
+    };
+    fetchAppointments();
+  }, [selectedDate]);
 
   if (loading) {
     return (
@@ -58,17 +75,26 @@ export default function ManagerPage() {
         <div className={styles.topRow}>
           <div className={styles.leftColumn}>
             <div className={styles.calendarSection}>
-              <CalendarHeader />
+              <CalendarHeader onDateSelect={(date) => setSelectedDate(date)} />
               <AdminCalendar
                 events={[]}
+                selectedDate={selectedDate}
                 onDateSelect={(date) => {
-                  console.log('Date selected:', date);
+                  setSelectedDate(date);
                 }}
                 onRangeSelect={(range) => {
                   console.log('Range selected:', range);
                 }}
               />
-              <AppointmentCarousel />
+              <AppointmentCarousel
+                appointments={selectedDateAppointments.map(app => ({
+                  id: String(app.id),
+                  doctorName: app.appointmentTypeName,
+                  specialty: app.customerName,
+                  room: app.staffName,
+                  time: app.appointmentTime.substring(0, 5)
+                }))}
+              />
             </div>
           </div>
           <div className={styles.middleColumn}>
