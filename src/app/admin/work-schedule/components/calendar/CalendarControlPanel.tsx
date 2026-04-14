@@ -279,7 +279,13 @@ export function CalendarControlPanel({
                 <Popover.Trigger asChild>
                   <button type="button" className={styles.filterBtn}>
                     {assigneeValue && (
-                      <div className={styles.avatarCircle} style={{ background: '#ff7a00', color: '#fff' }}>
+                      <div 
+                        className={styles.avatarCircle} 
+                        style={{ 
+                          background: assigneeValue.avatarUrl ? 'transparent' : getColorFromId(assigneeValue.id), 
+                          color: '#fff' 
+                        }}
+                      >
                         {assigneeValue.avatarUrl ? (
                           <img src={assigneeValue.avatarUrl} alt="" className={styles.avatarImg} />
                         ) : (
