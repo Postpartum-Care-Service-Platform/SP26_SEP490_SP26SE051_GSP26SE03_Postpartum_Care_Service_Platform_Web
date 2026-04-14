@@ -22,10 +22,17 @@ const START_HOUR = 0; // Schedule starts at 12 AM
 const TIME_SLOT_STEP = 1; // Each slot represents 1 hour
 
 const STATUS_COLORS: Record<string, string> = {
-  Scheduled: '#DDEBFF',
+  Scheduled: '#EBF2FA',
   Done: '#CDEFE1',
   Missed: '#FBE2E4',
-  Cancelled: '#FBE2E4',
+  Cancelled: '#F4F5F7',
+};
+
+const STATUS_TEXT_COLORS: Record<string, string> = {
+  Scheduled: '#0052CC',
+  Done: '#006644',
+  Missed: '#AE2E24',
+  Cancelled: '#42526E',
 };
 
 function getStatusColor(status: string): string {
@@ -34,16 +41,16 @@ function getStatusColor(status: string): string {
 
 function formatTimeSlot(slotIndex: number): string {
   const hour = START_HOUR + slotIndex * TIME_SLOT_STEP;
-  if (hour === 0) return '12 AM';
-  if (hour === 12) return '12 PM';
-  if (hour < 12) return `${hour} AM`;
-  return `${hour - 12} PM`;
+  if (hour === 0) return '12 SA';
+  if (hour === 12) return '12 CH';
+  if (hour < 12) return `${hour} SA`;
+  return `${hour - 12} CH`;
 }
 
 function formatEventTime(time: string): string {
   const [hours, minutes] = time.split(':').map(Number);
   const hour = hours % 12 || 12;
-  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const ampm = hours >= 12 ? 'CH' : 'SA';
   return `${hour}:${minutes.toString().padStart(2, '0')} ${ampm}`;
 }
 
@@ -288,7 +295,8 @@ export function CalendarWeekView({
                               height: `${height}px`,
                               cursor: 'pointer',
                               backgroundColor: getStatusColor(fs.status),
-                            }}
+                              '--status-accent-color': STATUS_TEXT_COLORS[fs.status] || '#0052CC'
+                            } as React.CSSProperties}
                           >
                             <div className={styles.eventContent}>
                               <span className={styles.eventTime} style={{ color: '#ff7a00' }}>

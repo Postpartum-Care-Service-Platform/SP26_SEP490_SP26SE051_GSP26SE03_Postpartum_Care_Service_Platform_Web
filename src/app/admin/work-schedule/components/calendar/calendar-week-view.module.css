@@ -27,7 +27,7 @@
   background: #fff;
   position: sticky;
   top: 0;
-  z-index: 3;
+  z-index: 30;
 }
 
 .headerCell {
@@ -161,7 +161,7 @@
   margin-top: -3px; /* Center dot vertically on the exact minute line */
   background: #FF6B00 !important;
   border-radius: 50%;
-  z-index: 2; /* Still below header which is 3 */
+  z-index: 15;
   pointer-events: auto; /* Enable hover for tooltip */
 }
 
@@ -171,7 +171,7 @@
   right: 0;
   height: 3px;
   background: #FF6B00 !important;
-  z-index: 2;
+  z-index: 15;
   pointer-events: none;
 }
 
@@ -182,7 +182,7 @@
   height: 0;
   border-top: 1.5px dashed #FF6B00;
   opacity: 0.4;
-  z-index: 2;
+  z-index: 15;
   pointer-events: none;
 }
 
@@ -193,14 +193,32 @@
   padding: 6px 8px;
   border-radius: 4px;
   background-color: #EBF2FA; /* Light blue background */
-  border: 1px dashed #0052CC; /* Dashed blue border */
-  border-left: 4px solid #0052CC; /* Solid blue left accent */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
   z-index: 5;
   transition: opacity 0.1s;
+  border: 1px dashed rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.eventChip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--status-accent-color);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.35) 2px,
+    rgba(255, 255, 255, 0.35) 4px
+  );
+  z-index: 1;
 }
 
 .eventChip:hover {

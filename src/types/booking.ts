@@ -3,6 +3,7 @@ export interface BookingCustomer {
   email: string;
   username: string;
   phone: string;
+  avatarUrl: string | null;
 }
 
 export interface BookingPackage {
