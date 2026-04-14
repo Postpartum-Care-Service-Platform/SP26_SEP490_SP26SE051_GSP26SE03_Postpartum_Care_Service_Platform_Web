@@ -1,10 +1,10 @@
 'use client';
 
-import { 
-  Cross1Icon, 
-  CalendarIcon, 
-  MobileIcon, 
-  EnvelopeClosedIcon, 
+import {
+  Cross1Icon,
+  CalendarIcon,
+  MobileIcon,
+  EnvelopeClosedIcon,
   MagnifyingGlassIcon,
   PersonIcon,
   CheckIcon
@@ -51,7 +51,7 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
   const [selectedContract, setSelectedContract] = useState<Contract | null>(null);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
-  
+
   const [loadingStaffs, setLoadingStaffs] = useState(false);
   const [loadingContracts, setLoadingContracts] = useState(false);
   const [loadingBooking, setLoadingBooking] = useState(false);
@@ -115,9 +115,9 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
   };
 
   const handleStaffToggle = (staffId: string) => {
-    setSelectedStaffIds(prev => 
-      prev.includes(staffId) 
-        ? prev.filter(id => id !== staffId) 
+    setSelectedStaffIds(prev =>
+      prev.includes(staffId)
+        ? prev.filter(id => id !== staffId)
         : [...prev, staffId]
     );
   };
@@ -142,13 +142,13 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
       onOpenChange(false);
     } catch (error: any) {
       console.error('Failed to create range schedule:', error);
-      
+
       let errorMsg = 'Không thể tạo lịch làm việc. Vui lòng thử lại.';
-      
+
       // Handle the specific error message with raw ID
       const rawMessage = error?.response?.data || error?.message || '';
       const idMatch = rawMessage.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
-      
+
       if (idMatch) {
         const staffId = idMatch[0];
         const staffName = staffs.find(s => s.id === staffId)?.fullName || staffId;
@@ -157,10 +157,10 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
         errorMsg = rawMessage;
       }
 
-      toast({ 
-        title: 'Lỗi phân công', 
-        description: errorMsg, 
-        variant: 'error' 
+      toast({
+        title: 'Lỗi phân công',
+        description: errorMsg,
+        variant: 'error'
       });
     } finally {
       setIsSaving(false);
@@ -171,8 +171,8 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
 
   return (
     <div className={styles.modalOverlay} onClick={() => onOpenChange(false)}>
-      <div 
-        className={styles.modalContent} 
+      <div
+        className={styles.modalContent}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -182,9 +182,9 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
             <CalendarIcon width={20} height={20} color="#fa8314" />
             <h2 className={styles.modalTitle}>Phân lịch làm việc</h2>
           </div>
-          <button 
-            type="button" 
-            className={styles.closeButton} 
+          <button
+            type="button"
+            className={styles.closeButton}
             onClick={() => onOpenChange(false)}
             aria-label="Đóng"
           >
@@ -201,11 +201,11 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
               <>
                 <div className={styles.customerInfo}>
                   <div className={styles.customerAvatar}>
-                    <Image 
-                      src={selectedContract.fileUrl || "/avatar-staff.jpg"} 
-                      alt="Customer" 
-                      width={52} 
-                      height={52} 
+                    <Image
+                      src={selectedContract.fileUrl || "/avatar-staff.jpg"}
+                      alt="Customer"
+                      width={52}
+                      height={52}
                       style={{ objectFit: 'cover' }}
                     />
                   </div>
@@ -264,7 +264,7 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
                   <input type="text" placeholder="Tìm hợp đồng..." className={styles.searchInput} />
                 </div>
               </div>
-              
+
               <div className={styles.contractList}>
                 {loadingContracts ? (
                   <div style={{ textAlign: 'center', padding: '20px', color: '#94a3b8' }}>Đang tải...</div>
@@ -272,15 +272,15 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
                   <div style={{ textAlign: 'center', padding: '20px', color: '#94a3b8' }}>Không có hợp đồng mới</div>
                 ) : (
                   contracts.map((contract) => (
-                    <div 
-                      key={contract.id} 
+                    <div
+                      key={contract.id}
                       className={`${styles.contractCard} ${selectedContract?.id === contract.id ? styles.contractCardActive : ''}`}
                       onClick={() => setSelectedContract(contract)}
                     >
                       <div className={styles.contractID}>{contract.contractCode}</div>
                       <div className={styles.contractCustomer}>Lịch cho {formatDate(contract.effectiveFrom)}</div>
                       <div className={styles.contractDates}>
-                        <CalendarIcon style={{ width: '12px', height: '12px' }} /> 
+                        <CalendarIcon style={{ width: '12px', height: '12px' }} />
                         {formatDate(contract.effectiveFrom)} - {formatDate(contract.effectiveTo)}
                       </div>
                     </div>
@@ -312,41 +312,51 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
                     </div>
                   ) : (
                     staffs.map((staff) => {
-                          const isActive = selectedStaffIds.includes(staff.id);
-                          return (
-                            <div 
-                              key={staff.id} 
-                              className={`${styles.staffCard} ${isActive ? styles.staffCardActive : ''}`}
-                              onClick={() => handleStaffToggle(staff.id)}
-                            >
-                              <div className={styles.staffInfo}>
-                                <div className={styles.staffAvatar}>
+                      const isActive = selectedStaffIds.includes(staff.id);
+                      const isBusy = staff.isScheduled;
+                      return (
+                        <div
+                          key={staff.id}
+                          className={`${styles.staffCard} ${isActive ? styles.staffCardActive : ''} ${isBusy ? styles.staffCardDisabled : ''}`}
+                          onClick={() => !isBusy && handleStaffToggle(staff.id)}
+                        >
+                          <div className={styles.staffInfo}>
+                            <div className={styles.staffAvatar}>
                               {staff.avatarUrl ? (
-                                <Image 
-                                  src={staff.avatarUrl} 
-                                  alt={staff.fullName} 
-                                  width={48} 
-                                  height={48} 
+                                <Image
+                                  src={staff.avatarUrl}
+                                  alt={staff.fullName}
+                                  width={48}
+                                  height={48}
                                   style={{ borderRadius: '50%', objectFit: 'cover' }}
                                 />
                               ) : (
                                 getInitials(staff.fullName)
                               )}
                             </div>
-                            <div>
-                              <div className={styles.staffName}>{staff.fullName}</div>
+                            <div style={{ flex: 1 }}>
+                              <div className={styles.staffNameRow}>
+                                <div className={styles.staffName}>{staff.fullName}</div>
+                                {isBusy && <span className={styles.busyLabel}>Đã có lịch</span>}
+                              </div>
                               <div className={styles.staffRole}>{staff.memberTypeName}</div>
                             </div>
                           </div>
-                          
+
                           <div className={styles.staffMeta}>
                             <div className={styles.metaRow}>
-                              <MobileIcon style={{ color: '#fa8314' }} /> {staff.phone}
+                              <MobileIcon style={{ color: isBusy ? '#94a3b8' : '#fa8314' }} /> {staff.phone}
                             </div>
                             <div className={styles.metaRow}>
-                              <EnvelopeClosedIcon style={{ color: '#fa8314' }} /> {staff.email}
+                              <EnvelopeClosedIcon style={{ color: isBusy ? '#94a3b8' : '#fa8314' }} /> {staff.email}
                             </div>
                           </div>
+                          {isBusy && staff.scheduledAt && staff.scheduledUntil && (
+                            <div className={styles.busyTimeInfo}>
+                              <CalendarIcon style={{ width: '12px', height: '12px' }} />
+                              {formatDate(staff.scheduledAt)} - {formatDate(staff.scheduledUntil)}
+                            </div>
+                          )}
                         </div>
                       );
                     })
@@ -358,14 +368,14 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
         </div>
 
         <div className={styles.modalFooter}>
-          <button 
-            className={`${styles.button} ${styles.buttonOutline}`} 
+          <button
+            className={`${styles.button} ${styles.buttonOutline}`}
             onClick={() => onOpenChange(false)}
             disabled={isSaving}
           >
             Hủy bỏ
           </button>
-          <button 
+          <button
             className={`${styles.button} ${styles.buttonPrimary}`}
             onClick={handleSave}
             disabled={isSaving || !selectedContract || selectedStaffIds.length === 0}

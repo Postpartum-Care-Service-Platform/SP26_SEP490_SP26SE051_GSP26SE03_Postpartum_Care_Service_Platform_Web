@@ -137,7 +137,7 @@
   text-overflow: ellipsis;
 }
 
-.userEmail {
+.userEmail, .userMemberType {
   font-size: 12px;
   color: #6B778C;
   white-space: nowrap;

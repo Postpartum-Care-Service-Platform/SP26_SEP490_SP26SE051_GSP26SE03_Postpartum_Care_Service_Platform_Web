@@ -148,7 +148,10 @@ export function AssigneePicker({
       setIsLoading(true);
       try {
         const staffs = await fetchStaffSchedules();
-        const activeStaffs = staffs.filter((staff) => staff.isActive);
+        const activeStaffs = staffs.filter((staff) => {
+          const mType = staff.memberTypeName?.toLowerCase() || '';
+          return staff.isActive && !mType.includes('admin') && !mType.includes('manager');
+        });
 
         const normalizedRoleFilter = roleNameFilter?.map((r) => r.trim().toLowerCase()).filter(Boolean);
         const filteredStaffs = normalizedRoleFilter?.length
@@ -273,6 +276,7 @@ export function AssigneePicker({
 
                   <div className={styles.userInfo}>
                     <div className={styles.userName}>{a.name}</div>
+                    {a.memberTypeName && <div className={styles.userMemberType}>{a.memberTypeName}</div>}
                     {a.email && <div className={styles.userEmail}>{a.email}</div>}
                   </div>
                 </div>

@@ -111,20 +111,6 @@ export default function WorkSchedulePage() {
   const [rawDataSchedules, setRawDataSchedules] = React.useState<StaffScheduleAllResponse[]>([]);
   const [customStaffList, setCustomStaffList] = React.useState<Assignee[]>([]);
 
-  React.useEffect(() => {
-    if (rawDataSchedules.length > 0) {
-      const allStaff = new Map<string, Assignee>();
-      rawDataSchedules.forEach((staff: StaffScheduleAllResponse) => {
-        allStaff.set(staff.staffId, {
-          id: staff.staffId,
-          name: staff.staffFullName,
-          avatarUrl: staff.staffAvatar,
-          type: 'user'
-        });
-      });
-      setCustomStaffList(Array.from(allStaff.values()));
-    }
-  }, [rawDataSchedules]);
 
   const normalizeStr = (str: string) =>
     str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
@@ -202,6 +188,22 @@ export default function WorkSchedulePage() {
 
       const rawData = await staffScheduleService.getAllSchedules(from, to);
       setRawDataSchedules(rawData);
+
+      // Use the existing staffList (all staff) for the customStaffList in dropdown
+      // but convert it to the Assignee format and filter out Admin/Manager
+      const allStaffAssignees: Assignee[] = staffList
+        .filter(s => {
+          const mType = s.memberTypeName?.toLowerCase() || '';
+          return !mType.includes('admin') && !mType.includes('manager');
+        })
+        .map(s => ({
+          id: s.id,
+          name: s.fullName,
+          avatarUrl: s.avatarUrl,
+          memberTypeName: s.memberTypeName,
+          type: 'user' as const
+        }));
+      setCustomStaffList(allStaffAssignees);
 
       let flattened = flattenSchedules(rawData);
 
