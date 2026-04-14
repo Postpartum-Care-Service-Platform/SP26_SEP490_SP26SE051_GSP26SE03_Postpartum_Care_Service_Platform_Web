@@ -3,6 +3,7 @@ export interface ContractCustomer {
   email: string;
   username: string;
   phone: string;
+  avatarUrl: string | null;
 }
 
 export type ContractStatus = 'Sent' | 'Signed' | 'Cancelled' | 'Expired' | string;

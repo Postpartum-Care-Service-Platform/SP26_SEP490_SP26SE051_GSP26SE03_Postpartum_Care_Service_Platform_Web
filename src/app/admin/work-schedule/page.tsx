@@ -47,7 +47,7 @@ import type { AmenityService } from '@/types/amenity-service';
 
 const tabs = [
   { key: 'summary', label: 'Tóm tắt', icon: <SummaryIcon /> },
-  { key: 'timeline', label: 'Dòng thời gian', icon: <TimelineIcon /> },
+  // { key: 'timeline', label: 'Dòng thời gian', icon: <TimelineIcon /> },
   { key: 'calendar', label: 'Lịch', icon: <CalendarIcon /> },
 ];
 

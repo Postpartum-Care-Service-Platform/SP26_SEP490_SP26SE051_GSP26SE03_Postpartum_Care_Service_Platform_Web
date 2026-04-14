@@ -200,14 +200,30 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
             ) : selectedContract ? (
               <>
                 <div className={styles.customerInfo}>
-                  <div className={styles.customerAvatar}>
-                    <Image
-                      src={selectedContract.fileUrl || "/avatar-staff.jpg"}
-                      alt="Customer"
-                      width={52}
-                      height={52}
-                      style={{ objectFit: 'cover' }}
-                    />
+                  <div className={styles.customerAvatar} style={{
+                    backgroundColor: !selectedBooking?.customer?.avatarUrl ? '#e2e8f0' : 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    width: '52px',
+                    height: '52px',
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    color: '#64748b'
+                  }}>
+                    {selectedBooking?.customer?.avatarUrl ? (
+                      <Image
+                        src={selectedBooking.customer.avatarUrl}
+                        alt="Customer"
+                        width={52}
+                        height={52}
+                        style={{ objectFit: 'cover' }}
+                      />
+                    ) : (
+                      getInitials(selectedBooking?.customer?.username || 'Khách hàng')
+                    )}
                   </div>
                   <div className={styles.customerDetails}>
                     <h4 className={styles.lexendFont}>{selectedBooking?.customer?.username || 'Khách hàng'}</h4>

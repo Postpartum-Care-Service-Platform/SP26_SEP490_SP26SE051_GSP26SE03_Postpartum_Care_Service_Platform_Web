@@ -19,10 +19,10 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const START_HOUR = 0;
 
 const STATUS_COLORS: Record<string, string> = {
-  Scheduled: '#DDEBFF',
+  Scheduled: '#EBF2FA',
   Done: '#CDEFE1',
   Missed: '#FBE2E4',
-  Cancelled: '#FBE2E4',
+  Cancelled: '#F4F5F7',
 };
 
 function getStatusColor(status: string): string {
@@ -31,16 +31,16 @@ function getStatusColor(status: string): string {
 
 function formatTimeSlot(slotIndex: number): number | string {
   const hour = START_HOUR + slotIndex;
-  if (hour === 0) return '12 AM';
-  if (hour === 12) return '12 PM';
-  if (hour < 12) return `${hour} AM`;
-  return `${hour - 12} PM`;
+  if (hour === 0) return '12 SA';
+  if (hour === 12) return '12 CH';
+  if (hour < 12) return `${hour} SA`;
+  return `${hour - 12} CH`;
 }
 
 function formatEventTime(time: string): string {
   const [hours, minutes] = time.split(':').map(Number);
   const hour = hours % 12 || 12;
-  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const ampm = hours >= 12 ? 'CH' : 'SA';
   return `${hour}:${minutes.toString().padStart(2, '0')} ${ampm}`;
 }
 
@@ -106,7 +106,7 @@ export function CalendarDayView({
     return Array.from({ length: dayCount }, (_, i) => addDays(dayCursor, i));
   }, [dayCursor, dayCount]);
 
-  const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+  const dayLabels = ['CN', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'] as const;
   const today = new Date();
   const currentTimePosition = getCurrentTimePosition();
 
@@ -166,7 +166,7 @@ export function CalendarDayView({
                         <span className={styles.dayNumberLarge} style={{ color: isTodayDate ? '#ff7a00' : '#42526e', fontSize: '24px' }}>{format(d, 'd')}</span>
                         <span className={styles.dayNameLarge} style={{ fontSize: '14px' }}>{dayLabels[d.getDay()]}</span>
                       </div>
-                      <div className={styles.monthYearSub} style={{ fontSize: '11px' }}>{format(d, 'MMM yyyy')}</div>
+                      <div className={styles.monthYearSub} style={{ fontSize: '11px' }}>Tháng {format(d, 'M, yyyy')}</div>
                     </div>
                   </Tooltip.Trigger>
                   <Tooltip.Portal>
