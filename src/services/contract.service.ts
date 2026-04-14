@@ -52,6 +52,32 @@ const contractService = {
       },
     });
   },
+  deleteContract: (id: number): Promise<void> => {
+    return apiClient.delete(`/Contract/${id}`);
+  },
+
+  importContracts: (file: File): Promise<void> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/Contract/import', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
+  exportContracts: async (): Promise<void> => {
+    const response = await apiClient.get('/Contract/export', { responseType: 'blob' });
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Danh_sach_hop_dong_${new Date().getTime()}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };
 
 export default contractService;

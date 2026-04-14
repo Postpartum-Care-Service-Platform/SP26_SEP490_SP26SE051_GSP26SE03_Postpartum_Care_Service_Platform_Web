@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import React from 'react';
 
 import type { ChatMessage } from '@/types/chat';
@@ -36,19 +37,23 @@ export function ChatBox({
   disabled,
   isTyping,
 }: ChatBoxProps) {
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  const router = useRouter();
 
   if (!open) return null;
 
+  const handleExpand = () => {
+    router.push('/ai-chat');
+  };
+
   return (
-    <section className={`chatbox ${isExpanded ? 'chatbox--expanded' : ''}`} aria-label={title}>
+    <section className="chatbox" aria-label={title}>
       <ChatHeader
         title={title}
         subtitle={subtitle}
         onClose={onClose}
         onMinimize={onMinimize}
-        onExpand={() => setIsExpanded((v) => !v)}
-        isExpanded={isExpanded}
+        onExpand={handleExpand}
+        isExpanded={false}
         leftAvatar={leftAvatar}
         rightActions={rightActions}
       />

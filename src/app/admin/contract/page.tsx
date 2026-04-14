@@ -3,10 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { Pagination } from '@/components/ui/pagination';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
+import { useToast } from '@/components/ui/toast/use-toast';
 import contractService from '@/services/contract.service';
 import type { Contract } from '@/types/contract';
 
 import { AddContractModal } from './components/AddContractModal';
+import { ImportContractModal } from './ImportContractModal';
 import { ContractCustomerInfo } from './components/ContractCustomerInfo';
 import { ContractList } from './components/ContractList';
 import { ContractTableControls } from './components/ContractTableControls';
@@ -28,9 +31,41 @@ export default function AdminContractPage() {
   const [sortBy, setSortBy] = useState('date-newest');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<Contract | null>(null);
+  const [actionId, setActionId] = useState<number | null>(null);
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
+
+  const { toast } = useToast();
+
+  const handleExport = async () => {
+    try {
+      await contractService.exportContracts();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: 'Xuất dữ liệu thất bại', variant: 'error' });
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      setActionId(itemToDelete.id);
+      await contractService.deleteContract(itemToDelete.id);
+      await fetchContracts();
+      toast({ title: 'Xóa hợp đồng thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Xóa hợp đồng thất bại'), variant: 'error' });
+    } finally {
+      setActionId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
+    }
+  };
 
   useEffect(() => {
     fetchContracts();
@@ -126,6 +161,8 @@ export default function AdminContractPage() {
             sortBy={sortBy}
             onSortChange={handleSortChange}
             onAddContract={handleAddContract}
+            onImportClick={() => setIsImportModalOpen(true)}
+            onExportClick={handleExport}
             searchQuery={searchQuery}
             onSearchChange={(val: string) => { setSearchQuery(val); setCurrentPage(1); }}
           />
@@ -160,7 +197,8 @@ export default function AdminContractPage() {
                   console.log('Edit contract:', contract);
                 }}
                 onDelete={(contract) => {
-                  console.log('Delete contract:', contract);
+                  setItemToDelete(contract);
+                  setIsConfirmModalOpen(true);
                 }}
               />
             )}
@@ -177,6 +215,23 @@ export default function AdminContractPage() {
           open={isAddModalOpen}
           onOpenChange={setIsAddModalOpen}
           onSuccess={handleAddSuccess}
+        />
+
+        <ImportContractModal
+          open={isImportModalOpen}
+          onOpenChange={setIsImportModalOpen}
+          onSuccess={fetchContracts}
+        />
+
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Xác nhận xóa hợp đồng"
+          message={`Bạn có chắc chắn muốn xóa hợp đồng "${itemToDelete?.contractCode}"? Hành động này không thể hoàn tác.`}
+          confirmLabel="Xóa ngay"
+          cancelLabel="Suy nghĩ lại"
+          variant="danger"
         />
       </AdminPageLayout>
     </div>

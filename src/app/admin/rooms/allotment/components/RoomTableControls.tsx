@@ -36,6 +36,8 @@ interface RoomTableControlsProps {
   onSortChange: (key: SortKey) => void;
   onActiveFilterChange: (filter: 'all' | 'active' | 'inactive') => void;
   onNewRoom: () => void;
+  onImportClick: () => void;
+  onExportClick: () => void;
   activeSortKey: SortKey;
   activeFilter: 'all' | 'active' | 'inactive';
 }
@@ -45,6 +47,8 @@ export function RoomTableControls({
   onSortChange,
   onActiveFilterChange,
   onNewRoom,
+  onImportClick,
+  onExportClick,
   activeSortKey,
   activeFilter,
 }: RoomTableControlsProps) {
@@ -125,11 +129,11 @@ export function RoomTableControls({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onImportClick}>
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onExportClick}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>

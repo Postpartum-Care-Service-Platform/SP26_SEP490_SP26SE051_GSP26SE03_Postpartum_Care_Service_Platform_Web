@@ -61,6 +61,8 @@ const flattenSchedules = (res: StaffScheduleAllResponse[]): StaffSchedule[] => {
           staffId: staff.staffId,
           staffName: staff.staffFullName,
           staffAvatar: staff.staffAvatar,
+          staffRole: staff.staffRole,
+          staffMemberType: staff.staffMemberType,
           roomId: booking.roomId,
           roomName: booking.roomName,
           managerId: activity.managerId,
@@ -68,6 +70,7 @@ const flattenSchedules = (res: StaffScheduleAllResponse[]): StaffSchedule[] => {
           familyScheduleId: activity.familyScheduleId,
           isChecked: activity.isChecked,
           checkedAt: activity.checkedAt,
+          images: activity.images || [],
           familyScheduleResponse: {
             id: activity.familyScheduleId,
             customerId: booking.customerId,

@@ -10,12 +10,25 @@ type ChatComposerProps = {
 
 export function ChatComposer({ onSend, disabled }: ChatComposerProps) {
   const [text, setText] = React.useState('');
+  const editableRef = React.useRef<HTMLDivElement>(null);
 
   const submit = async () => {
-    const v = text.trim();
+    const v = editableRef.current?.innerText.trim();
     if (!v) return;
+    if (editableRef.current) editableRef.current.innerText = '';
     setText('');
     await onSend(v);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submit();
+    }
+  };
+
+  const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+    setText(e.currentTarget.innerText);
   };
 
   return (
@@ -24,18 +37,25 @@ export function ChatComposer({ onSend, disabled }: ChatComposerProps) {
         <PlusIcon />
       </button>
 
-      <input
-        className="chatbox__composer-input"
-        placeholder="Nhập tin nhắn..."
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            submit();
-          }
+      <div
+        ref={editableRef}
+        contentEditable={!disabled}
+        className="chatbox__composer-input chatbox__composer-editable"
+        onInput={handleInput}
+        onKeyDown={handleKeyDown}
+        data-placeholder="Nhập tin nhắn..."
+        style={{ 
+          paddingTop: '10px', 
+          paddingBottom: '10px',
+          minHeight: '42px',
+          maxHeight: '120px',
+          overflowY: 'auto',
+          lineHeight: '20px',
+          outline: 'none',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+          background: disabled ? '#f5f5f5' : '#fff'
         }}
-        disabled={disabled}
       />
 
       <button
@@ -43,7 +63,7 @@ export function ChatComposer({ onSend, disabled }: ChatComposerProps) {
         className="chatbox__composer-btn chatbox__composer-btn--send"
         onClick={submit}
         aria-label="Gửi"
-        disabled={disabled}
+        disabled={disabled || !text.trim()}
       >
         <PaperPlaneIcon />
       </button>

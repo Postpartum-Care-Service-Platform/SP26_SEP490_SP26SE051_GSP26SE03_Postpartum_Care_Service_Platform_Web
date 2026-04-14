@@ -11,6 +11,7 @@ import LogoSymbol from '@/assets/images/Symbol-Orange-180x180.png';
 import { useAuth } from '@/contexts/AuthContext';
 import { ROUTES } from '@/routes/routes';
 
+import chatService, { ConversationResponse, MessageResponse } from '@/services/chat.service';
 import styles from './AiChat.module.css';
 
 const SUGGESTIONS = ['Tôi đang stress', 'Tôi cần lời khuyên', 'Tôi chỉ muốn tâm sự', 'Hôm nay mình thấy mệt'];
@@ -66,15 +67,29 @@ export default function AiChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLDivElement>(null);
 
   const [isThreadsOpen, setIsThreadsOpen] = useState(false);
-  const [threads] = useState<ChatThread[]>([
-    { id: 't-1', title: 'Tâm sự hôm nay', pinned: true },
-    { id: 't-2', title: 'Căng thẳng & mệt mỏi' },
-    { id: 't-3', title: 'Ngủ ngon hơn' },
-  ]);
+  const [threads, setThreads] = useState<ConversationResponse[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const hasStarted = messages.length > 0;
+  const fetchThreads = async () => {
+    try {
+      const data = await chatService.getConversations();
+      setThreads(data);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchThreads();
+    }
+  }, [token]);
+
+  const hasStarted = messages.length > 0 || activeConversationId !== null;
 
   useEffect(() => {
     if (!getNextIdRef.current) {
@@ -89,9 +104,7 @@ export default function AiChatPage() {
   }, [token, router]);
 
   const orderedThreads = useMemo(() => {
-    const pinned = threads.filter((t) => t.pinned);
-    const rest = threads.filter((t) => !t.pinned);
-    return [...pinned, ...rest];
+    return [...threads].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [threads]);
 
   useEffect(() => {
@@ -100,29 +113,59 @@ export default function AiChatPage() {
     }
   }, [messages]);
 
-  const handleSend = (text: string) => {
+  const handleSend = async (text: string) => {
     const trimmedText = text.trim();
-    if (!trimmedText) return;
+    if (!trimmedText || isLoading) return;
 
-    const getNextId = getNextIdRef.current ?? createIdGenerator();
+    let convId = activeConversationId;
 
-    const newUserMessage: Message = {
-      id: getNextId(),
-      text: trimmedText,
-      sender: 'user',
-    };
+    try {
+      setIsLoading(true);
+      
+      // Nếu chưa có conversation, tạo mới
+      if (!convId) {
+        const newConv = await chatService.createConversation();
+        convId = newConv.id;
+        setActiveConversationId(convId);
+        fetchThreads(); // Refresh list sidebar
+      }
 
-    setMessages((prev) => [...prev, newUserMessage]);
-    setInput('');
+      // Tạm thời hiển thị tin nhắn của user
+      const tempUserMsg: Message = {
+        id: Date.now(),
+        text: trimmedText,
+        sender: 'user',
+      };
+      setMessages((prev) => [...prev, tempUserMsg]);
+      setInput('');
+      if (textareaRef.current) {
+        textareaRef.current.innerText = '';
+      }
 
-    setTimeout(() => {
-      const aiResponse: Message = {
-        id: getNextId(),
-        text: `Cảm ơn bạn đã chia sẻ. Mình nghe thấy bạn nói "${trimmedText}".`,
+      // Gửi tin nhắn và chờ AI phản hồi
+      const response = await chatService.sendMessage(convId, trimmedText);
+
+      // Cập nhật messages thực tế từ BE
+      const aiMsg: Message = {
+        id: response.aiMessage.id,
+        text: response.aiMessage.content,
         sender: 'ai',
       };
-      setMessages((prev) => [...prev, aiResponse]);
-    }, 900);
+
+      setMessages((prev) => [
+        ...prev.filter((m) => m.id !== tempUserMsg.id),
+        {
+          id: response.userMessage.id,
+          text: response.userMessage.content,
+          sender: 'user',
+        },
+        aiMsg,
+      ]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -187,18 +230,43 @@ export default function AiChatPage() {
           </div>
 
           <div className={styles.threadsList}>
+            <button
+              type="button"
+              className={styles.newChatThread}
+              onClick={() => {
+                setMessages([]);
+                setActiveConversationId(null);
+                setIsThreadsOpen(false);
+              }}
+            >
+              + Đoạn chat mới
+            </button>
             {orderedThreads.map((t) => (
               <button
                 key={t.id}
                 type="button"
-                className={styles.threadSelect}
-                onClick={() => {
-                  setIsThreadsOpen(false);
-                  console.log('Select thread', t.id);
+                className={`${styles.threadSelect} ${activeConversationId === t.id ? styles.threadActive : ''}`}
+                onClick={async () => {
+                  try {
+                    setIsThreadsOpen(false);
+                    setActiveConversationId(t.id);
+                    setIsLoading(true);
+                    const detail = await chatService.getConversation(t.id);
+                    const mappedMsgs: Message[] = detail.messages.map(m => ({
+                      id: m.id,
+                      text: m.content,
+                      sender: m.senderType === 'Customer' ? 'user' : 'ai'
+                    }));
+                    setMessages(mappedMsgs);
+                  } catch (err) {
+                    console.error('Load thread error', err);
+                  } finally {
+                    setIsLoading(false);
+                  }
                 }}
               >
-                <span className={styles.threadName}>{t.title}</span>
-                {t.pinned ? <span className={styles.threadPinnedTag}>Pinned</span> : null}
+                <span className={styles.threadName}>{t.name || `Đoạn chat #${t.id}`}</span>
+                <span className={styles.threadTime}>{new Date(t.createdAt).toLocaleDateString('vi-VN')}</span>
               </button>
             ))}
           </div>
@@ -224,14 +292,20 @@ export default function AiChatPage() {
               </div>
 
               <form onSubmit={handleSubmit} className={styles.chatInputForm}>
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
+                <div
+                  ref={textareaRef}
+                  contentEditable={!isLoading}
+                  onInput={(e) => setInput(e.currentTarget.innerText)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend(textareaRef.current?.innerText || '');
+                    }
+                  }}
                   className={styles.chatInput}
-                  placeholder={hasStarted ? 'Gõ tin nhắn…' : 'Hôm nay bạn đang thấy thế nào?'}
+                  data-placeholder={hasStarted ? 'Gõ tin nhắn…' : 'Hôm nay bạn đang thấy thế nào?'}
                 />
-                <button type="submit" className={styles.sendButton} aria-label="Gửi">
+                <button type="submit" className={styles.sendButton} aria-label="Gửi" disabled={isLoading || !input.trim()}>
                   <svg
                     width="20"
                     height="20"
@@ -264,6 +338,13 @@ export default function AiChatPage() {
                   {msg.text}
                 </div>
               ))}
+              {isLoading && (
+                <div className={`${styles.message} ${styles.ai} ${styles.loading}`}>
+                  <span className={styles.dot}>.</span>
+                  <span className={styles.dot}>.</span>
+                  <span className={styles.dot}>.</span>
+                </div>
+              )}
             </div>
           </div>
         </main>

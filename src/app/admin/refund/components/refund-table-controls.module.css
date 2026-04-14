@@ -1,0 +1,121 @@
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eae9eb;
+  gap: 12px;
+  background-color: #fff;
+  padding: 16px;
+  border-radius: 4px;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 400px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  width: 18px;
+  height: 18px;
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 12px 10px 40px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  background-color: #f8f9fa;
+  transition: border-color 0.2s;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #fa8314;
+}
+
+.filterButton, .statusButton, .exportButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filterButton:hover, .statusButton:hover, .exportButton:hover {
+  background-color: #e9ecef;
+  border-color: #fa8314;
+}
+
+.filterIcon, .exportIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.chevronIcon {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dropdownContent {
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  padding: 4px;
+  min-width: 200px;
+  z-index: 2000 !important;
+}
+
+.dropdownItem {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.dropdownItem:hover {
+  background-color: rgba(250, 131, 20, 0.1);
+}
+
+.dropdownItemActive {
+  color: #fa8314;
+  background-color: rgba(250, 131, 20, 0.1);
+}
+
+.itemIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+}

@@ -11,6 +11,8 @@ export interface Feedback {
   createdAt: string;
   updatedAt: string;
   isDeleted: boolean;
+  isPosted: boolean;
+  bookingId: number;
 }
 
 export interface CreateFeedbackRequest {

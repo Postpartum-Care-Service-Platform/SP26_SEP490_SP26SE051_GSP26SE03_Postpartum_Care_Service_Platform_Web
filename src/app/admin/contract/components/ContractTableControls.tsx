@@ -27,9 +27,11 @@ type Props = {
   onAddContract?: () => void;
   searchQuery?: string;
   onSearchChange?: (value: string) => void;
+  onImportClick?: () => void;
+  onExportClick?: () => void;
 };
 
-export function ContractTableControls({ sortBy = 'date-newest', onSortChange, onAddContract, searchQuery = '', onSearchChange }: Props) {
+export function ContractTableControls({ sortBy = 'date-newest', onSortChange, onAddContract, searchQuery = '', onSearchChange, onImportClick, onExportClick }: Props) {
   const selectedSortLabel = SORT_OPTIONS.find((opt) => opt.value === sortBy)?.label || 'Sắp xếp';
 
   const handleSortSelect = (value: string) => {
@@ -69,15 +71,25 @@ export function ContractTableControls({ sortBy = 'date-newest', onSortChange, on
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button
-          variant="outline"
-          size="sm"
-          className={styles.exportButton}
-          onClick={() => console.log('Export Contract')}
-        >
-          <Download size={16} className={styles.exportIcon} />
-          Xuất file
-        </Button>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.exportButton}>
+              <Download size={16} className={styles.exportIcon} />
+              Nhập/Xuất
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent} align="end">
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onImportClick}>
+              <img src="https://res.public.onecdn.static.microsoft/assets/fluentui-resources/1.1.0/app-min/assets/item-types/20/xlsx.svg" alt="Import" className={styles.itemIcon} style={{ width: 16, height: 16, marginRight: 8 }} />
+              Nhập từ Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onExportClick}>
+              <Download size={16} className={styles.itemIcon} style={{ marginRight: 8 }} />
+              Xuất ra Excel
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <Button variant="primary" size="sm" className={styles.addButton} onClick={onAddContract}>
           <PlusIcon className={styles.plusIcon} />

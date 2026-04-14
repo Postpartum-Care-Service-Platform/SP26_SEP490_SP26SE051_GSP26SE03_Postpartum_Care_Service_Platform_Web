@@ -53,6 +53,21 @@ const TARGET_LABELS = {
   Both: 'Mẹ & Em bé',
 } as const;
 
+const normalizeImages = (images: any): string[] => {
+  if (!images) return [];
+  if (Array.isArray(images)) return images;
+  if (typeof images === 'string') {
+    try {
+      const parsed = JSON.parse(images);
+      return normalizeImages(parsed);
+    } catch {
+      return [images];
+    }
+  }
+  if (typeof images === 'object') return Object.values(images) as string[];
+  return [];
+};
+
 export function ScheduleDetailPopover({ 
   open, 
   onOpenChange, 
@@ -215,7 +230,7 @@ function ScheduleContent({ schedule }: { schedule: StaffSchedule }) {
             <span className={styles.infoLabel} style={{ color: '#6366F1' }}>Nhân viên thực hiện</span>
             <span className={styles.customerNameText}>{schedule.staffName || 'Chưa phân công'}</span>
           </div>
-          <span className={styles.staffRoleBadge}>Nhân viên kỹ thuật</span>
+          <span className={styles.staffRoleBadge}>{schedule.staffMemberType || 'Chưa xác định'}</span>
         </div>
       </div>
 
@@ -235,6 +250,49 @@ function ScheduleContent({ schedule }: { schedule: StaffSchedule }) {
           </div>
         </div>
       </>
+
+      {/* Checkout Pictures Section - Only for completed tasks */}
+      {schedule.isChecked && (
+        <>
+          <div className={styles.divider} />
+          <div className={styles.imagesSection}>
+            <div className={styles.metaLabel} style={{ marginBottom: '8px', color: '#10B981' }}>Hình ảnh hoàn thành công việc</div>
+            {(() => {
+              const images = normalizeImages(schedule.images);
+              if (images.length > 0) {
+                const displayImages = images.slice(0, 4);
+                const hasMore = images.length > 4;
+                
+                return (
+                  <div className={styles.imagesGrid}>
+                    {displayImages.map((img, i) => {
+                      const isLast = i === 3 && hasMore;
+                      return (
+                        <div key={i} className={styles.imageWrapperCheckout}>
+                          <img src={img} alt={`Checkout proof ${i + 1}`} className={styles.thumbnail} />
+                          {isLast && (
+                            <div className={styles.imageOverlayBadge}>
+                              +{images.length - 3}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              }
+              return (
+                <div className={styles.emptyStateImages}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}>
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  <span>Chưa có ảnh hoàn thành</span>
+                </div>
+              );
+            })()}
+          </div>
+        </>
+      )}
 
       {/* Check Status Section */}
       <div className={styles.statusBadgeSection}>

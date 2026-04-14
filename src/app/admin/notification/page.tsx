@@ -9,6 +9,7 @@ import type { NotificationType } from '@/types/notification-type';
 import notificationTypeService from '@/services/notification-type.service';
 
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import { Pagination } from '@/components/ui/pagination';
 
 import { NotificationListHeader } from './components/NotificationListHeader';
@@ -43,6 +44,8 @@ export default function AdminNotificationPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<Notification | null>(null);
   const [filteredNotifications, setFilteredNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
@@ -112,12 +115,22 @@ export default function AdminNotificationPage() {
     setIsNotificationModalOpen(true);
   };
 
-  const handleDeleteNotification = async (notification: Notification) => {
+  const handleDeleteNotification = (notification: Notification) => {
+    setItemToDelete(notification);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
     try {
-      setNotifications((prev) => prev.filter((n) => n.id !== notification.id));
+      await notificationService.deleteNotification(itemToDelete.id);
+      setNotifications((prev) => prev.filter((n) => n.id !== itemToDelete.id));
       toast({ title: 'Xóa thông báo thành công', variant: 'success' });
     } catch (err: unknown) {
       toast({ title: getErrorMessage(err, 'Xóa thông báo thất bại'), variant: 'error' });
+    } finally {
+      setIsConfirmModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -181,6 +194,17 @@ export default function AdminNotificationPage() {
           notification={selectedNotification}
           notificationTypes={notificationTypes}
           onSuccess={fetchData}
+        />
+
+        <ConfirmModal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setIsConfirmModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          title="Xác nhận xóa thông báo"
+          message={`Bạn có chắc chắn muốn xóa thông báo "${itemToDelete?.title || itemToDelete?.id}"? Hành động này không thể hoàn tác.`}
+          confirmLabel="Xóa ngay"
+          cancelLabel="Suy nghĩ lại"
+          variant="danger"
         />
       </AdminPageLayout>
     </div>

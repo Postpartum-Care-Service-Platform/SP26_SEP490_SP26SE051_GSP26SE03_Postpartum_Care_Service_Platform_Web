@@ -23,6 +23,25 @@ const bookingService = {
   cancelBooking: (id: number): Promise<{ message: string }> => {
     return apiClient.put(`/Booking/${id}/cancel`);
   },
+
+  deleteBooking: (id: number): Promise<void> => {
+    return apiClient.delete(`/Booking/${id}`);
+  },
+
+  exportBookings: async (): Promise<void> => {
+    const response = await apiClient.get('/Booking/export', { responseType: 'blob' });
+    const blob = new Blob([response.data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `Danh_sach_dat_phong_${new Date().getTime()}.xlsx`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };
 
 export default bookingService;

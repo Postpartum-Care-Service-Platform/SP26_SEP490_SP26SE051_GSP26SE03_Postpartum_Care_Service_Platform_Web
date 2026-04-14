@@ -27,6 +27,7 @@ import {
   CreditCard,
   Settings,
   Shield,
+  Undo2,
 } from 'lucide-react';
 
 export type AdminNavItem = {
@@ -34,9 +35,9 @@ export type AdminNavItem = {
   label: string;
   href?: string;
   icon?: React.ComponentType<{ size?: number | string; className?: string }>;
-  children?: Array<{ 
-    key: string; 
-    label: string; 
+  children?: Array<{
+    key: string;
+    label: string;
     href: string;
     icon?: React.ComponentType<{ size?: number | string; className?: string }>;
   }>;
@@ -113,6 +114,12 @@ export const adminNav: AdminNavSection[] = [
         label: 'Phản hồi',
         href: '/admin/feedback',
         icon: MessageSquare,
+      },
+      {
+        key: 'refund',
+        label: 'Hoàn tiền',
+        href: '/admin/refund',
+        icon: Undo2,
       },
     ],
   },

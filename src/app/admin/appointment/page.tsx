@@ -6,12 +6,14 @@ import appointmentService from '@/services/appointment.service';
 import type { Appointment as ApiAppointment } from '@/types/appointment';
 
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import { Pagination } from '@/components/ui/pagination';
 import styles from './appointment.module.css';
 import { AppointmentHeader } from './components/AppointmentHeader';
 import { AppointmentTable } from './components/AppointmentTable';
 import { AppointmentTableControls } from './components/AppointmentTableControls';
 import { EditAppointmentModal } from './components/EditAppointmentModal';
+import { ImportAppointmentModal } from './components/ImportAppointmentModal';
 import { NewAppointmentModal } from './components/NewAppointmentModal';
 import type { Appointment, AppointmentStatus } from './components/types';
 
@@ -27,6 +29,9 @@ export default function AdminAppointmentPage() {
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<Appointment | null>(null);
 
   // ... (mapStatus, formatDateTime, formatDate, formatDateOnly, formatTimeOnly functions)
 
@@ -146,7 +151,31 @@ export default function AdminAppointmentPage() {
   };
 
   const handleDelete = (appointment: Appointment) => {
-    console.log('Delete appointment:', appointment);
+    setItemToDelete(appointment);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      await appointmentService.deleteAppointment(itemToDelete.id);
+      toast({ title: 'Xóa lịch hẹn thành công', variant: 'success' });
+      fetchAppointments();
+    } catch (err) {
+      toast({ title: 'Xóa lịch hẹn thất bại', variant: 'error' });
+    } finally {
+      setIsConfirmModalOpen(false);
+      setItemToDelete(null);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      await appointmentService.exportAppointments();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: 'Xuất dữ liệu thất bại', variant: 'error' });
+    }
   };
 
   const header = <AppointmentHeader />;
@@ -155,6 +184,8 @@ export default function AdminAppointmentPage() {
     <AppointmentTableControls 
       onStatusChange={handleStatusChange}
       onAddClick={() => setIsNewModalOpen(true)}
+      onImportClick={() => setIsImportModalOpen(true)}
+      onExportClick={handleExport}
     />
   );
 
@@ -211,6 +242,23 @@ export default function AdminAppointmentPage() {
             }}
             appointment={editingAppointment}
             onSuccess={fetchAppointments}
+          />
+
+          <ImportAppointmentModal
+            open={isImportModalOpen}
+            onOpenChange={setIsImportModalOpen}
+            onSuccess={fetchAppointments}
+          />
+
+          <ConfirmModal
+            isOpen={isConfirmModalOpen}
+            onClose={() => setIsConfirmModalOpen(false)}
+            onConfirm={handleConfirmDelete}
+            title="Xác nhận xóa lịch hẹn"
+            message={`Bạn có chắc chắn muốn xóa lịch hẹn của bệnh nhân "${itemToDelete?.patientName || ''}" vào ngày ${itemToDelete?.date || ''}? Hành động này không thể hoàn tác.`}
+            confirmLabel="Xóa ngay"
+            cancelLabel="Suy nghĩ lại"
+            variant="danger"
           />
         </>
       )}

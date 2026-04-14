@@ -7,6 +7,7 @@ import { Download, Upload, Eye } from 'lucide-react';
 
 import { Breadcrumbs } from '@/components/ui/breadcrumbs';
 import { Button } from '@/components/ui/button';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +22,7 @@ import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 
 import styles from './feedback.module.css';
 import { FeedbackDetailModal } from './FeedbackDetailModal';
+import { ImportFeedbackModal } from './ImportFeedbackModal';
 
 /* ── SVG icons ── */
 const EyeIcon = ({ size = 16 }: { size?: number }) => (
@@ -95,7 +97,7 @@ const sortItems = (items: Feedback[], key: SortKey) => {
 
 const renderStars = (rating: number) => {
   const max = 5;
-  const value = Math.round(Math.min(Math.max(rating / 2, 0), max));
+  const value = Math.round(Math.min(Math.max(rating, 0), max));
   return (
     <div style={{ display: 'flex', gap: '2px' }}>
       {Array.from({ length: max }, (_, i) => (
@@ -127,9 +129,37 @@ export default function AdminFeedbackPage() {
 
   const [viewingItem, setViewingItem] = useState<Feedback | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<Feedback | null>(null);
   const [previewImage, setPreviewImage] = useState<{ url: string; title: string } | null>(null);
 
   const { toast } = useToast();
+
+  const handleExport = async () => {
+    try {
+      await feedbackService.exportFeedbacks();
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: 'Xuất dữ liệu thất bại', variant: 'error' });
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      setActionId(itemToDelete.id);
+      await feedbackService.deleteFeedback(itemToDelete.id);
+      await fetchData();
+      toast({ title: 'Ẩn phản hồi thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Ẩn phản hồi thất bại'), variant: 'error' });
+    } finally {
+      setActionId(null);
+      setItemToDelete(null);
+      setIsConfirmModalOpen(false);
+    }
+  };
 
   const fetchData = useCallback(async () => {
     try {
@@ -176,17 +206,8 @@ export default function AdminFeedbackPage() {
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setViewingItem(null); };
 
   const handleDelete = async (item: Feedback) => {
-    if (!window.confirm(`Bạn có chắc muốn ẩn phản hồi "${item.title || `#${item.id}`}"?`)) return;
-    try {
-      setActionId(item.id);
-      await feedbackService.deleteFeedback(item.id);
-      await fetchData();
-      toast({ title: 'Ẩn phản hồi thành công', variant: 'success' });
-    } catch (err) {
-      toast({ title: getErrorMessage(err, 'Ẩn phản hồi thất bại'), variant: 'error' });
-    } finally {
-      setActionId(null);
-    }
+    setItemToDelete(item);
+    setIsConfirmModalOpen(true);
   };
 
   const handleRestore = async (item: Feedback) => {
@@ -258,11 +279,11 @@ export default function AdminFeedbackPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className={styles.dropdownContent} align="end">
-                <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Import')}>
+                <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
                   <Upload size={16} className={styles.itemIcon} />
                   Nhập từ Excel
                 </DropdownMenuItem>
-                <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+                <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
                   <Download size={16} className={styles.itemIcon} />
                   Xuất ra Excel
                 </DropdownMenuItem>
@@ -325,22 +346,23 @@ export default function AdminFeedbackPage() {
                   <th>Nội dung</th>
                   <th>Đánh giá</th>
                   <th>Hình ảnh</th>
+                  <th>Đăng</th>
                   <th>Ngày tạo</th>
-                  <th>Trạng thái</th>
+                  <th>Trạng thái ẩn</th>
                   <th className={styles.stickyActionsCol}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedItems.length === 0 ? (
-                  <tr><td colSpan={10} className={styles.emptyState}>
+                  <tr><td colSpan={11} className={styles.emptyState}>
                     {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có phản hồi nào.'}
                   </td></tr>
                 ) : (
                   paginatedItems.map((item, index) => {
                     const stt = (currentPage - 1) * pageSize + index + 1;
                     const date = item.createdAt
-                      ? new Date(item.createdAt).toLocaleDateString('vi-VN')
-                      : '—';
+                       ? new Date(item.createdAt).toLocaleDateString('vi-VN')
+                       : '—';
                     return (
                       <tr key={item.id}>
                         <td className={styles.stickySTTCol}><span className={styles.sttCell} title={`ID gốc: ${item.id}`}>{stt}</span></td>
@@ -378,6 +400,12 @@ export default function AdminFeedbackPage() {
                               </div>
                             );
                           })()}
+                        </td>
+                        <td>
+                          <div className={styles.tooltipWrapper}>
+                            <span className={`${styles.postedDot} ${item.isPosted ? styles.postedOn : styles.postedOff}`} />
+                            <span className={styles.tooltip}>{item.isPosted ? 'Đã đăng trang chủ' : 'Chưa đăng trang chủ'}</span>
+                          </div>
                         </td>
                         <td className={styles.dateCell}>{date}</td>
                         <td>
@@ -420,6 +448,23 @@ export default function AdminFeedbackPage() {
         open={isModalOpen}
         onOpenChange={handleModalClose}
         feedback={viewingItem}
+      />
+
+      <ImportFeedbackModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchData}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận ẩn phản hồi"
+        message={`Bạn có chắc chắn muốn ẩn phản hồi "${itemToDelete?.title || `#${itemToDelete?.id || ''}`}"? Dữ liệu này sẽ bị ẩn khỏi trang của khách hàng.`}
+        confirmLabel="Ẩn ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
       />
 
       {previewImage && (
