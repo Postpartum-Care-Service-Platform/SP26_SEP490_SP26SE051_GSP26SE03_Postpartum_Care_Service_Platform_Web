@@ -28,8 +28,9 @@
   width: 90%;
   max-width: 1200px;
   max-height: 90vh;
-  border-radius: 4px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: none;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -49,8 +50,8 @@
 }
 
 .modalHeader {
-  padding: 16px 24px;
-  border-bottom: 1px solid #f1f1f1;
+  padding: 20px 24px;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -62,6 +63,64 @@
   font-weight: 600;
   color: #1a1a1a;
   font-family: var(--font-admin-title), sans-serif;
+}
+
+.emptyState {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 8px;
+  border: 1px dashed #e2e8f0;
+  margin: 20px;
+}
+
+.emptyIconWrapper {
+  width: 80px;
+  height: 80px;
+  background-color: #f8fafc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  margin-bottom: 20px;
+}
+
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.emptyDescription {
+  font-size: 14px;
+  color: #64748b;
+  max-width: 320px;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.clearFiltersButton {
+  padding: 8px 16px;
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearFiltersButton:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 .closeButton {
@@ -146,8 +205,15 @@
 }
 
 @keyframes dropdownFadeIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dropdownItem {
@@ -230,90 +296,228 @@
   color: #fa8314;
 }
 
-.tableWrapper {
+.cardList {
   flex: 1;
-  overflow: auto;
-  padding: 0 24px;
+  overflow-y: auto;
+  padding: 0 24px 20px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  background-color: #f8fafc;
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table thead th {
-  position: sticky;
-  top: 0;
+.ticketCard {
   background-color: #fff;
-  padding: 12px 16px;
-  text-align: left;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  height: 110px;
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.ticketCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  border-color: #e2e8f0;
+}
+
+.cardImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background-color: #f1f5f9;
+  z-index: 1;
+}
+
+.cardImage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.1) 80%, rgba(255, 255, 255, 1) 100%);
+  z-index: 2;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  background-color: #f8fafc;
+}
+
+.cardInfo {
+  position: relative;
+  z-index: 3;
+  width: 50%;
+  margin-left: auto;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 10%);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.mainInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ticketStt {
   font-size: 13px;
-  font-weight: 600;
-  color: #64748b;
-  border-bottom: 1px solid #f1f1f1;
-  z-index: 10;
-  font-family: var(--font-admin-title), sans-serif;
+  font-weight: 500;
+  color: #94a3b8;
 }
 
-.table tbody td {
-  padding: 12px 16px;
+.ticketCode {
   font-size: 14px;
+  font-weight: 700;
   color: #1e293b;
-  border-bottom: 1px solid #f8fafc;
 }
 
-.sttCol {
-  width: 50px;
-  text-align: center;
+.ticketBuyer {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1.2;
 }
 
-.codeCol {
-  width: 100px;
-  font-weight: 600;
+.cardDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1.4;
+}
+
+.label {
+  color: #64748b;
+  min-width: 80px;
+}
+
+.value {
+  font-size: 13px;
+  color: #475569;
+}
+
+.staffValue {
+  color: #64748b;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.staffDisplay {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.staffMiniAvatar {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  flex-shrink: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.cardActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 4px;
 }
 
 .statusBadge {
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: 4px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .status-Accepted {
-  background-color: #dcfce7;
-  color: #15803d;
+  background-color: #ecfdf5;
+  color: #059669;
 }
 
 .status-Booked {
-  background-color: #fef9c3;
-  color: #a16207;
+  background-color: #fffbeb;
+  color: #d97706;
 }
 
 .status-Cancelled {
-  background-color: #fee2e2;
-  color: #b91c1c;
+  background-color: #fef2f2;
+  color: #dc2626;
 }
 
 .status-Completed {
-  background-color: #dbeafe;
-  color: #1d4ed8;
+  background-color: #eff6ff;
+  color: #2563eb;
 }
 
 .actions {
   display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.completedBadge {
+  display: flex;
+  align-items: center;
   gap: 8px;
+  background-color: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.badgeIcon {
+  color: #64748b;
+  display: flex;
+  align-items: center;
+}
+
+.badgeLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
 }
 
 .actionButton {
-  width: 28px;
-  height: 28px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 4px;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
   border: none;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .acceptButton {
@@ -348,7 +552,7 @@
 
 .footer {
   padding: 16px 24px;
-  border-top: 1px solid #f1f1f1;
+  border: none;
   display: flex;
   justify-content: flex-end;
 }
@@ -386,6 +590,7 @@
     opacity: 0;
     transform: translateY(2px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

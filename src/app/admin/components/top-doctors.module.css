@@ -1,60 +1,62 @@
 .container {
   width: 100%;
-  height: 474.27px;
+  height: 100%;
+  /* Ép card lấp đầy chiều cao của cột */
   background-color: #ffffff;
   border-radius: 4px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .header {
-  padding: 16px;
+  padding: 16px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .title {
-  font-family: 'Funnel Sans', sans-serif;
-  font-size: 13px;
+  font-family: inherit;
+  font-size: 14px;
   font-weight: 600;
-  color: #343a40;
+  color: #333;
   margin: 0;
 }
 
 .seeAllLink {
-  font-family: 'Funnel Sans', sans-serif;
-  font-size: 13px;
-  color: #343a40;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6c757d;
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 4px;
-  transition: opacity 0.2s;
+  transition: color 0.2s;
 }
 
 .seeAllLink:hover {
-  opacity: 0.7;
-}
-
-.arrow {
-  font-size: 14px;
+  color: #fa8314;
 }
 
 .body {
-  padding: 16px;
+  padding: 10px 20px;
   flex: 1;
   overflow-y: auto;
-  min-height: 0;
 }
 
 .doctorItem {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 0;
+  gap: 15px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.doctorItem:last-child {
+  border-bottom: none;
 }
 
 .avatarContainer {
@@ -62,49 +64,67 @@
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid #eee;
 }
 
 .avatarPlaceholder {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background-color: #f2f2f4;
+  background-color: #f8f9fa;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Funnel Sans', sans-serif;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
-  color: #343a40;
+  color: #333;
+  border: 1px solid #eee;
 }
 
 .doctorInfo {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .doctorName {
-  font-family: 'Funnel Sans', sans-serif;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  color: #343a40;
-  margin: 0 0 4px 0;
+  color: #111;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .specialty {
-  font-family: 'Funnel Sans', sans-serif;
   font-size: 12px;
-  color: #6c757d;
+  color: #888;
   margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-weight: 400;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.revenueBadge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #fa8314;
+  background-color: rgba(250, 131, 20, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px; /* Chuyển về 4px theo yêu cầu */
+  border: 1px solid rgba(250, 131, 20, 0.2);
   white-space: nowrap;
 }
 
@@ -112,22 +132,37 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 7px 8px;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  font-family: 'Funnel Sans', sans-serif;
-  font-size: 12px;
-  color: #343a40;
+  gap: 6px;
+  padding: 6px 10px;
+  background-color: #fff;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.doctorItem:hover .ratingBadge {
+  border-color: #ffc107;
+  background-color: #fffdf5;
 }
 
 .star {
   color: #ffc107;
   font-size: 14px;
-  line-height: 1;
 }
 
 .rating {
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.loadingState,
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  font-size: 13px;
+  color: #aaa;
+  text-align: center;
 }

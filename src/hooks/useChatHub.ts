@@ -215,8 +215,12 @@ export const useChatHub = (options: UseChatHubOptions) => {
      * Subscribe to new support request event (Staff)
      */
     const onNewSupportRequest = useCallback((callback: (event: SupportRequestEvent) => void) => {
-        signalRRef.current.onNewSupportRequest(callback);
-        return () => signalRRef.current.off('NewSupportRequest', callback as (...args: unknown[]) => void);
+        const enhancedCallback = (event: SupportRequestEvent) => {
+            console.log('[useChatHub] NewSupportRequest event triggered', event);
+            callback(event);
+        };
+        signalRRef.current.onNewSupportRequest(enhancedCallback);
+        return () => signalRRef.current.off('NewSupportRequest', enhancedCallback as (...args: unknown[]) => void);
     }, []);
 
     /**

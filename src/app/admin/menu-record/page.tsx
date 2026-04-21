@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import menuRecordService from '@/services/menu-record.service';
 import type { MenuRecord } from '@/types/menu-record';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import { Pagination } from '@/components/ui/pagination';
 import userService from '@/services/user.service';
 import menuService from '@/services/menu.service';
@@ -58,6 +59,11 @@ export default function AdminMenuRecordPage() {
   const [pageSize, setPageSize] = useState(10);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [menuRecordToDelete, setMenuRecordToDelete] = useState<MenuRecord | null>(null);
+
+  const [view, setView] = useState<'table' | 'ui'>('table');
 
   const fetchMenuRecords = async () => {
     try {
@@ -127,10 +133,16 @@ export default function AdminMenuRecordPage() {
     }
   };
 
-  const handleDelete = async (menuRecord: MenuRecord) => {
+  const handleDelete = (menuRecord: MenuRecord) => {
+    setMenuRecordToDelete(menuRecord);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!menuRecordToDelete) return;
     try {
-      setDeletingId(menuRecord.id);
-      await menuRecordService.deleteMenuRecord(menuRecord.id);
+      setDeletingId(menuRecordToDelete.id);
+      await menuRecordService.deleteMenuRecord(menuRecordToDelete.id);
       toast({ title: 'Xóa bản ghi thực đơn thành công', variant: 'success' });
       await fetchMenuRecords();
     } catch (error: unknown) {
@@ -140,22 +152,27 @@ export default function AdminMenuRecordPage() {
       });
     } finally {
       setDeletingId(null);
+      setMenuRecordToDelete(null);
+      setIsConfirmModalOpen(false);
     }
   };
 
   return (
     <AdminPageLayout
-      header={<MenuRecordListHeader />}
+      noCard={view === 'ui'}
+      header={<MenuRecordListHeader view={view} onViewChange={setView} />}
       controlPanel={
-        <MenuRecordTableControls
-          onSearch={(q) => setSearchQuery(q)}
-          onSortChange={(sort) => setSortKey(sort)}
-          onStatusChange={(status) => setStatusFilter(status)}
-          onNewMenuRecord={() => setIsModalOpen(true)}
-        />
+        view === 'table' ? (
+          <MenuRecordTableControls
+            onSearch={(q) => setSearchQuery(q)}
+            onSortChange={(sort) => setSortKey(sort)}
+            onStatusChange={(status) => setStatusFilter(status)}
+            onNewMenuRecord={() => setIsModalOpen(true)}
+          />
+        ) : null
       }
       pagination={
-        filteredMenuRecords.length > 0 ? (
+        view === 'table' && filteredMenuRecords.length > 0 ? (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -181,7 +198,7 @@ export default function AdminMenuRecordPage() {
           <div className={styles.error}>
             <p>{error}</p>
           </div>
-        ) : (
+        ) : view === 'table' ? (
           <MenuRecordTable
             menuRecords={paginatedMenuRecords}
             accounts={accounts}
@@ -192,6 +209,10 @@ export default function AdminMenuRecordPage() {
             currentPage={currentPage}
             pageSize={pageSize}
           />
+        ) : (
+          <div className={styles.emptyState}>
+            <p>Dạng xem UI đang được cập nhật...</p>
+          </div>
         )}
       </div>
 
@@ -200,6 +221,17 @@ export default function AdminMenuRecordPage() {
         onOpenChange={handleModalClose}
         onSuccess={fetchMenuRecords}
         menuRecordToEdit={editingMenuRecord}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa bản ghi thực đơn"
+        message={`Bạn có chắc chắn muốn xóa bản ghi thực đơn "${menuRecordToDelete?.name}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
       />
     </AdminPageLayout>
   );

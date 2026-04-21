@@ -29,27 +29,18 @@ const feedbackTypeService = {
   importFeedbackTypes: (file: File): Promise<void> => {
     const formData = new FormData();
     formData.append('file', file);
-    return apiClient.post('/FeedbackType/import', formData, {
+    return apiClient.post('/MasterDataExport/import/feedback-types', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
-  exportFeedbackTypes: async (): Promise<void> => {
-    const response = await apiClient.get('/FeedbackType/export', { responseType: 'blob' });
-    const blob = new Blob([response.data], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `Loai_phan_hoi_${new Date().getTime()}.xlsx`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
+  exportFeedbackTypes: (): Promise<Blob> => {
+    return apiClient.get('/MasterDataExport/export/feedback-types', { responseType: 'blob' });
+  },
+
+  downloadTemplateFeedbackTypes: (): Promise<Blob> => {
+    return apiClient.get('/MasterDataExport/template/feedback-types', { responseType: 'blob' });
   },
 };
 
 export default feedbackTypeService;
-
-

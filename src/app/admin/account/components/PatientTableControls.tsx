@@ -128,7 +128,7 @@ export function PatientTableControls({
 
   const handleExport = async () => {
     try {
-      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'info' });
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
       const blob = await userService.exportAccounts();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');

@@ -1,7 +1,5 @@
 .tableWrapper {
   background-color: #fff;
-  flex: 1;
-  min-height: 0;
 }
 
 .table {
@@ -140,7 +138,8 @@
   color: #059669;
 }
 
-.menuTypeBadge[class*="typeChiều"], .menuTypeBadge[class*="typeTối"] {
+.menuTypeBadge[class*="typeChiều"],
+.menuTypeBadge[class*="typeTối"] {
   background-color: #eff6ff;
   color: #2563eb;
 }

@@ -145,3 +145,31 @@
   width: 16px;
   height: 16px;
 }
+
+.exportButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.exportButton:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.exportIcon {
+  color: #6b7280;
+}
+
+.itemIcon {
+  margin-right: 8px;
+  color: #6b7280;
+}

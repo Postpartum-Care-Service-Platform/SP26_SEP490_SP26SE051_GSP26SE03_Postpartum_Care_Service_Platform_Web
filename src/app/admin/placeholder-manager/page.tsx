@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { MagnifyingGlassIcon, PlusIcon, ChevronDownIcon } from '@radix-ui/react-icons';
+import { Download, Upload, FileIcon } from 'lucide-react';
 
 import { Pagination } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
@@ -12,23 +13,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
-import apiClient from '@/services/apiClient';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { useToast } from '@/components/ui/toast/use-toast';
+import placeholderService, { PlaceholderItem } from '@/services/placeholder.service';
+import apiClient from '@/services/apiClient';
 
 import styles from './placeholder-manager.module.css';
-
-export interface PlaceholderItem {
-  id: number;
-  key: string;
-  label: string;
-  table: string;
-  description?: string;
-  templateType: number; // 1 = Contract, 2 = Email
-  displayOrder?: number;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import { ImportPlaceholderModal } from './ImportPlaceholderModal';
 
 interface PlaceholderFormData {
   key: string;
@@ -76,6 +67,7 @@ const initialFormData: PlaceholderFormData = {
 };
 
 export default function PlaceholderManagerPage() {
+  const { toast } = useToast();
   const [placeholders, setPlaceholders] = useState<PlaceholderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>('all');
@@ -86,6 +78,7 @@ export default function PlaceholderManagerPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
   const filterTypeOptions = [
@@ -97,8 +90,8 @@ export default function PlaceholderManagerPage() {
   const fetchPlaceholders = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await apiClient.get<PlaceholderItem[]>('/template-placeholders');
-      setPlaceholders(Array.isArray(res) ? res : []);
+      const data = await placeholderService.getAll();
+      setPlaceholders(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching placeholders:', error);
       setPlaceholders([]);
@@ -174,15 +167,9 @@ export default function PlaceholderManagerPage() {
       }
       await fetchPlaceholders();
       handleCloseModal();
-    } catch (error: unknown) {
-      const message =
-        typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        typeof (error as { response?: { data?: { message?: string } } }).response?.data?.message === 'string'
-          ? (error as { response: { data: { message: string } } }).response.data.message
-          : 'Có lỗi xảy ra';
-      alert(message);
+      toast({ title: 'Lưu placeholder thành công', variant: 'success' });
+    } catch (error: any) {
+      toast({ title: 'Lỗi khi lưu placeholder', description: error.message, variant: 'error' });
     } finally {
       setSaving(false);
     }
@@ -194,9 +181,10 @@ export default function PlaceholderManagerPage() {
     try {
       await apiClient.delete(`/template-placeholders/${id}`);
       setPlaceholders((prev) => prev.filter((p) => p.id !== id));
+      toast({ title: 'Xóa placeholder thành công', variant: 'success' });
     } catch (error) {
       console.error('Error deleting placeholder:', error);
-      alert('Có lỗi xảy ra khi xóa');
+      toast({ title: 'Có lỗi xảy ra khi xóa', variant: 'error' });
     }
   };
 
@@ -206,6 +194,42 @@ export default function PlaceholderManagerPage() {
       await fetchPlaceholders();
     } catch (error) {
       console.error('Error toggling placeholder:', error);
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
+      const blob = await placeholderService.exportPlaceholders();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Placeholder_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Xuất dữ liệu thất bại', description: err.message, variant: 'error' });
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      toast({ title: 'Đang tải file mẫu...', variant: 'default' });
+      const blob = await placeholderService.downloadTemplatePlaceholders();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Mau_nhap_placeholder.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Tải file mẫu thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Tải file mẫu thất bại', description: err.message, variant: 'error' });
     }
   };
 
@@ -253,6 +277,30 @@ export default function PlaceholderManagerPage() {
       </div>
 
       <div className={styles.right}>
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.importExportButton}>
+              <Download size={16} className={styles.exportIcon} />
+              Nhập/Xuất
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent} align="end">
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
+              <Upload size={16} className={styles.itemIcon} />
+              Nhập từ Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
+              <Download size={16} className={styles.itemIcon} />
+              Xuất ra Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleDownloadTemplate}>
+              <FileIcon size={16} className={styles.itemIcon} />
+              Tải file mẫu
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <Button variant="primary" size="sm" className={styles.addButton} onClick={() => handleOpenModal()}>
           <PlusIcon className={styles.plusIcon} />
           Placeholder mới
@@ -261,7 +309,7 @@ export default function PlaceholderManagerPage() {
     </div>
   );
 
-  const pagination = (
+  const paginationComp = (
     <div className={styles.paginationWrapper}>
       <Pagination
         currentPage={currentPage}
@@ -280,7 +328,7 @@ export default function PlaceholderManagerPage() {
   );
 
   return (
-    <AdminPageLayout header={header} controlPanel={controlPanel} pagination={pagination}>
+    <AdminPageLayout header={header} controlPanel={controlPanel} pagination={paginationComp}>
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
@@ -300,13 +348,13 @@ export default function PlaceholderManagerPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className={styles.emptyState}>
+                <td colSpan={8} className={styles.emptyState}>
                   Đang tải...
                 </td>
               </tr>
             ) : filteredPlaceholders.length === 0 ? (
               <tr>
-                <td colSpan={7} className={styles.emptyState}>
+                <td colSpan={8} className={styles.emptyState}>
                   Không có dữ liệu
                 </td>
               </tr>
@@ -477,6 +525,12 @@ export default function PlaceholderManagerPage() {
           </div>
         </div>
       )}
+
+      <ImportPlaceholderModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchPlaceholders}
+      />
     </AdminPageLayout>
   );
 }

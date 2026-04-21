@@ -9,7 +9,7 @@ import type { Role } from '@/types/role';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
 import { Pagination } from '@/components/ui/pagination';
 
-import { RoleListHeader, RoleModal, RoleTable, RoleTableControls } from './components';
+import { RoleImportModal, RoleListHeader, RoleModal, RoleTable, RoleTableControls } from './components';
 import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './roles.module.css';
 
@@ -37,6 +37,7 @@ export default function AdminRolesPage() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<Role | null>(null);
   const [sortKey, setSortKey] = useState<string>('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -116,6 +117,10 @@ export default function AdminRolesPage() {
     }
   };
 
+  const handleImport = () => {
+    setIsImportModalOpen(true);
+  };
+
   const handleDeleteTrigger = (role: Role) => {
     setRoleToDelete(role);
     setIsConfirmModalOpen(true);
@@ -160,6 +165,7 @@ export default function AdminRolesPage() {
             onSearch={(q) => setSearchQuery(q)}
             onSortChange={(sort) => setSortKey(sort)}
             onNewRole={() => setIsModalOpen(true)}
+            onImport={handleImport}
           />
         }
         pagination={
@@ -206,6 +212,12 @@ export default function AdminRolesPage() {
           onOpenChange={handleModalClose}
           onSuccess={fetchRoles}
           roleToEdit={editingRole}
+        />
+
+        <RoleImportModal
+          open={isImportModalOpen}
+          onOpenChange={setIsImportModalOpen}
+          onSuccess={fetchRoles}
         />
 
         <ConfirmModal

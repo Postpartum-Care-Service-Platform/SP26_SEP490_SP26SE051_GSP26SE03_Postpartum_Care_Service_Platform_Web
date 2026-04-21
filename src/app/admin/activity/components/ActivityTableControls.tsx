@@ -1,7 +1,7 @@
 'use client';
 
 import { MagnifyingGlassIcon, PlusIcon, MixerHorizontalIcon, ChevronDownIcon } from '@radix-ui/react-icons';
-import { Download, Upload } from 'lucide-react';
+import { Download, Upload, FileIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,8 @@ type Props = {
   onStatusChange?: (status: 'all' | 'active' | 'inactive') => void;
   onNewActivity?: () => void;
   onImport?: () => void;
+  onExport?: () => void;
+  onDownloadTemplate?: () => void;
 };
 
 const SORT_OPTIONS = [
@@ -35,7 +37,7 @@ const STATUS_OPTIONS: Array<{ value: 'all' | 'active' | 'inactive'; label: strin
   { value: 'inactive', label: 'Tạm dừng' },
 ];
 
-export function ActivityTableControls({ onSearch, onSortChange, onStatusChange, onNewActivity, onImport }: Props) {
+export function ActivityTableControls({ onSearch, onSortChange, onStatusChange, onNewActivity, onImport, onExport, onDownloadTemplate }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState<string>('createdAt-desc');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'inactive'>('all');
@@ -129,9 +131,13 @@ export function ActivityTableControls({ onSearch, onSortChange, onStatusChange, 
               <Upload size={16} className={styles.itemIcon} />
               Nhập từ Excel
             </DropdownMenuItem>
-            <DropdownMenuItem className={styles.dropdownItem} onClick={() => console.log('Export')}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onDownloadTemplate}>
+              <FileIcon size={16} className={styles.itemIcon} />
+              Tải file mẫu
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

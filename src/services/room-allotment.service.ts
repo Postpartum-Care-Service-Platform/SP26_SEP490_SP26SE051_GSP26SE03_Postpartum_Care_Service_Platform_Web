@@ -1,5 +1,4 @@
 import type { CreateRoomRequest, Room, UpdateRoomRequest } from '@/types/room-allotment';
-
 import apiClient from './apiClient';
 
 const roomAllotmentService = {
@@ -22,29 +21,28 @@ const roomAllotmentService = {
     return apiClient.patch(`/Room/activate/${id}`);
   },
 
-  importRooms: (file: File): Promise<void> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    return apiClient.post('/Room/import', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+  // Standardized Master Data Export/Import
+  exportRooms: (): Promise<Blob> => {
+    return apiClient.get('/MasterDataExport/export/rooms', {
+      responseType: 'blob',
     });
   },
 
-  exportRooms: async (): Promise<void> => {
-    const response = await apiClient.get('/Room/export', { responseType: 'blob' });
-    const blob = new Blob([response.data], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  importRooms: (file: File): Promise<any> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/MasterDataExport/import/rooms', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `Danh_sach_phong_${new Date().getTime()}.xlsx`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
+  },
+
+  downloadTemplateRooms: (): Promise<Blob> => {
+    return apiClient.get('/MasterDataExport/template/rooms', {
+      responseType: 'blob',
+    });
   },
 };
 
 export default roomAllotmentService;
-

@@ -325,23 +325,27 @@ export default function AdminChatPage() {
 
   // SignalR: Lắng nghe support request mới
   useEffect(() => {
+    if (!isConnected) return;
+
     const unsubscribe = onNewSupportRequest((event) => {
       console.log('New support request:', event);
-      loadSupportRequests();
+      void loadSupportRequests();
     });
 
     return unsubscribe;
-  }, [onNewSupportRequest]);
+  }, [isConnected, onNewSupportRequest]);
 
   // SignalR: Lắng nghe support request accepted
   useEffect(() => {
+    if (!isConnected) return;
+
     const unsubscribe = onSupportRequestAccepted((event) => {
       console.log('Support request accepted:', event);
-      loadSupportRequests();
+      void loadSupportRequests();
     });
 
     return unsubscribe;
-  }, [onSupportRequestAccepted]);
+  }, [isConnected, onSupportRequestAccepted]);
 
   // Tự động chọn cuộc trò chuyện đầu tiên khi dữ liệu đã tải xong
   useEffect(() => {
@@ -479,7 +483,11 @@ export default function AdminChatPage() {
     >
       <div className={styles.container}>
         <div className={styles.bottomSection}>
-          <ChatSidebar activeView={activeView} onViewChange={setActiveView} />
+          <ChatSidebar
+            activeView={activeView}
+            onViewChange={setActiveView}
+            supportRequestsBadgeCount={supportRequests.length}
+          />
           <div className={styles.mainContent}>
             {activeView === 'contacts' ? (
               <div className={styles.contactsFullWidth}>

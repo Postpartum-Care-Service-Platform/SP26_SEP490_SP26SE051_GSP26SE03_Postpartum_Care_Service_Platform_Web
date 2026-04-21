@@ -9,8 +9,10 @@
   min-height: 0;
 
   /* Ẩn thanh cuộn nhưng vẫn cho phép cuộn */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE và Edge */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE và Edge */
 }
 
 /* Ẩn thanh cuộn cho Chrome, Safari và Opera */
@@ -33,14 +35,10 @@
 }
 
 .revenueChartWrapper {
-  flex: 5;
+  flex: 1;
   min-width: 0;
 }
 
-.categoryChartWrapper {
-  flex: 3;
-  min-width: 0;
-}
 
 .bottomSection {
   display: flex;
@@ -142,17 +140,20 @@
 .middleRow {
   display: flex;
   gap: 15px;
-  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.heatmapSection {
+  margin-bottom: 24px;
   width: 100%;
-  margin-top: 15px;
 }
 
 .popularityWrapperSide {
-  flex: 1;
-  min-width: 0;
+  flex: 0 0 341px;
+  min-width: 341px;
 }
 
 .cashflowWrapper {
-  flex: 2;
+  flex: 1;
   min-width: 0;
 }

@@ -1,5 +1,4 @@
 import type { Food, CreateFoodRequest, UpdateFoodRequest } from '@/types/food';
-
 import apiClient from './apiClient';
 
 const foodService = {
@@ -53,7 +52,29 @@ const foodService = {
   restoreFood: (id: number): Promise<Food> => {
     return apiClient.patch(`/Food/${id}/restore`);
   },
+
+  // Standardized Master Data Export/Import
+  exportFoods: (): Promise<Blob> => {
+    return apiClient.get('/MasterDataExport/export/foods', {
+      responseType: 'blob',
+    });
+  },
+
+  importFoods: (file: File): Promise<any> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/MasterDataExport/import/foods', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  downloadTemplateFoods: (): Promise<Blob> => {
+    return apiClient.get('/MasterDataExport/template/foods', {
+      responseType: 'blob',
+    });
+  },
 };
 
 export default foodService;
-

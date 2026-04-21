@@ -6,21 +6,23 @@ import { format } from 'date-fns';
 import styles from './admin-dashboard.module.css';
 import { AdminCalendar } from './components/AdminCalendar';
 import { AppointmentCarousel } from './components/AppointmentCarousel';
-import { AppointmentsList } from './components/AppointmentsList';
+import { AppointmentAnalytics } from './components/AppointmentAnalytics';
 import { AveragePatientVisit } from './components/AveragePatientVisit';
 import { CalendarHeader } from './components/CalendarHeader';
 import { DashboardHeader } from './components/DashboardHeader';
 import { DashboardStatsCards } from './components/DashboardStatsCards';
+import { PerformanceBulletCharts } from './components/PerformanceBulletCharts';
 import { GenderStatsCard } from './components/GenderStatsCard';
 import { InvoiceList } from './components/InvoiceList';
-import { PatientByAge } from './components/PatientByAge';
 import { PatientVisitByGender } from './components/PatientVisitByGender';
 import { RevenueChart } from './components/RevenueChart';
 import { CategoryRevenueChart } from './components/CategoryRevenueChart';
 import { ServicePopularityChart } from './components/ServicePopularityChart';
 import { CashflowChart } from './components/CashflowChart';
+import { ContractStatusChart } from './components/ContractStatusChart';
 import { TeamProductivity } from './components/TeamProductivity';
 import { TopDoctors } from './components/TopDoctors';
+import { AppointmentHeatmap } from './components/AppointmentHeatmap';
 
 import statisticsService from '@/services/statistics.service';
 
@@ -45,6 +47,11 @@ export default function AdminPage() {
   });
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activityComp, setActivityComp] = useState<any>(null);
+  const [rateHistory, setRateHistory] = useState<{ completion: { value: number }[], missed: { value: number }[] }>({
+    completion: [],
+    missed: []
+  });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedDateAppointments, setSelectedDateAppointments] = useState<any[]>([]);
 
@@ -57,13 +64,15 @@ export default function AdminPage() {
           weeklyAppointmentsRes, 
           outstandingRes, 
           newPatientsRes,
-          transactionsRes
+          transactionsRes,
+          activityCompRes
         ] = await Promise.all([
-          statisticsService.getActivePatients(),
+          statisticsService.getActiveCustomers(),
           statisticsService.getWeeklyAppointments(),
           statisticsService.getOutstandingBalance(),
-          statisticsService.getNewPatients(),
-          transactionService.getAllTransactions()
+          statisticsService.getNewCustomers(),
+          transactionService.getAllTransactions(),
+          statisticsService.getActivityCompletionRate()
         ]);
 
         setStats({
@@ -74,10 +83,30 @@ export default function AdminPage() {
           bedOccupancy: 78,
         });
 
-        // Set top 10 latest transactions for dashboard
-        if (Array.isArray(transactionsRes)) {
-          setTransactions(transactionsRes.slice(0, 10));
-        }
+        setActivityComp(activityCompRes);
+
+        // Fetch historical rates for small charts (last 8 months)
+        const now = new Date();
+        const months = Array.from({ length: 8 }, (_, i) => {
+          const d = new Date(now.getFullYear(), now.getMonth() - (7 - i), 1);
+          return {
+            label: format(d, 'MM/yyyy'),
+            start: format(d, 'yyyy-MM-01'),
+            end: format(new Date(d.getFullYear(), d.getMonth() + 1, 0), 'yyyy-MM-dd')
+          };
+        });
+
+        const historicalRes = await Promise.all(
+          months.map(m => statisticsService.getActivityCompletionRate({ startDate: m.start, endDate: m.end }))
+        );
+
+        const completionTrend = historicalRes.map(res => ({ value: res?.completionRate ?? 0 }));
+        const missedTrend = historicalRes.map(res => ({ value: res?.missedRate ?? 0 }));
+
+        setRateHistory({
+          completion: completionTrend,
+          missed: missedTrend
+        });
       } catch (error) {
         console.error('Failed to load dashboard data', error);
       } finally {
@@ -119,9 +148,6 @@ export default function AdminPage() {
       <div className={styles.chartSection}>
         <div className={styles.revenueChartWrapper}>
           <RevenueChart />
-        </div>
-        <div className={styles.categoryChartWrapper}>
-          <CategoryRevenueChart />
         </div>
       </div>
 
@@ -168,6 +194,10 @@ export default function AdminPage() {
           </div>
         </div>
 
+        <div className={styles.heatmapSection}>
+          <AppointmentHeatmap />
+        </div>
+
         <div className={styles.bottomRow}>
           <div className={styles.patientVisitByGenderWrapper}>
             <PatientVisitByGender />
@@ -175,18 +205,20 @@ export default function AdminPage() {
           <div className={styles.rightColumn}>
             <div className={styles.genderStatsRow}>
               <GenderStatsCard
-                title="Total Male"
-                value="51.34%"
-                trend="3.5%"
-                trendColor="#f5d178"
-                chartColor="#f5d178"
+                title="Tỉ lệ Hoàn thành"
+                value={`${activityComp?.completionRate ?? 0}%`}
+                trend=""
+                trendColor="#4ec5ad"
+                chartColor="#4ec5ad"
+                data={rateHistory.completion}
               />
               <GenderStatsCard
-                title="Total Female"
-                value="31.54%"
-                trend="2.5%"
-                trendColor="#a47bc8"
-                chartColor="#a47bc8"
+                title="Tỉ lệ Bỏ lỡ"
+                value={`${activityComp?.missedRate ?? 0}%`}
+                trend=""
+                trendColor="#fd6161"
+                chartColor="#fd6161"
+                data={rateHistory.missed}
               />
             </div>
             <div className={styles.teamProductivityWrapper}>
@@ -194,13 +226,12 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
+        <PerformanceBulletCharts />
         <div className={styles.invoiceRow}>
           <InvoiceList transactions={transactions} />
         </div>
-        <div className={styles.appointmentsRow}>
-          <AppointmentsList />
-          <PatientByAge />
-        </div>
+
+        
       </div>
     </div>
   );

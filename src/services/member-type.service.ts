@@ -39,24 +39,17 @@ const memberTypeService = {
   importMemberTypes: (file: File): Promise<void> => {
     const formData = new FormData();
     formData.append('file', file);
-    return apiClient.post('/MemberType/import', formData, {
+    return apiClient.post('/MasterDataExport/import/member-types', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
-  exportMemberTypes: async (): Promise<void> => {
-    const response = await apiClient.get('/MemberType/export', { responseType: 'blob' });
-    const blob = new Blob([response.data], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `Loai_thanh_vien_${new Date().getTime()}.xlsx`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
+  exportMemberTypes: (): Promise<Blob> => {
+    return apiClient.get('/MasterDataExport/export/member-types', { responseType: 'blob' });
+  },
+
+  downloadTemplateMemberTypes: (): Promise<Blob> => {
+    return apiClient.get('/MasterDataExport/template/member-types', { responseType: 'blob' });
   },
 };
 

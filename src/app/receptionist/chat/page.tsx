@@ -70,7 +70,9 @@ export default function ReceptionistChatPage() {
   const loadConversations = async () => {
     try {
       setLoading(true);
+      console.log('[ReceptionistChatPage] Loading all conversations...');
       const data = await chatService.getAllConversations();
+      console.log(`[ReceptionistChatPage] Loaded ${data.length} conversations`);
       setConversations(data);
     } catch (error) {
       console.error('Failed to load conversations:', error);
@@ -82,7 +84,9 @@ export default function ReceptionistChatPage() {
   // Load support requests
   const loadSupportRequests = async () => {
     try {
+      console.log('[ReceptionistChatPage] Loading pending support requests...');
       const data = await chatService.getPendingSupportRequests();
+      console.log(`[ReceptionistChatPage] Loaded ${data.length} pending support requests`);
       setSupportRequests(data);
     } catch (error) {
       console.error('Failed to load support requests:', error);
@@ -202,21 +206,33 @@ export default function ReceptionistChatPage() {
 
   // SignalR: Lắng nghe support request mới
   useEffect(() => {
-    const unsubscribe = onNewSupportRequest(() => {
+    if (!isConnected) {
+      console.log('[ReceptionistChatPage] SignalR not connected yet, skipping support request listener');
+      return;
+    }
+
+    console.log('[ReceptionistChatPage] Subscribing to NewSupportRequest events');
+    const unsubscribe = onNewSupportRequest((event) => {
+      console.log('[ReceptionistChatPage] EVENT RECEIVED: NewSupportRequest', event);
       loadSupportRequests();
     });
 
-    return unsubscribe;
-  }, [onNewSupportRequest]);
+    return () => {
+      console.log('[ReceptionistChatPage] Unsubscribing from NewSupportRequest events');
+      unsubscribe();
+    };
+  }, [isConnected, onNewSupportRequest]);
 
   // SignalR: Lắng nghe support request accepted
   useEffect(() => {
+    if (!isConnected) return;
+
     const unsubscribe = onSupportRequestAccepted(() => {
       loadSupportRequests();
     });
 
     return unsubscribe;
-  }, [onSupportRequestAccepted]);
+  }, [isConnected, onSupportRequestAccepted]);
 
   // Tự động chọn cuộc trò chuyện đầu tiên khi dữ liệu đã tải xong
   useEffect(() => {
@@ -322,7 +338,11 @@ export default function ReceptionistChatPage() {
     >
       <div className={styles.container}>
         <div className={styles.bottomSection}>
-          <ChatSidebar activeView={activeView} onViewChange={setActiveView} />
+          <ChatSidebar 
+            activeView={activeView} 
+            onViewChange={setActiveView} 
+            supportRequestsBadgeCount={supportRequests.length}
+          />
           <div className={styles.mainContent}>
             {activeView === 'chat' && (
               <div className={styles.chatListContainer}>

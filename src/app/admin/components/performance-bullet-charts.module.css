@@ -1,0 +1,211 @@
+.container {
+  background-color: #ffffff;
+  border-radius: 4px;
+  padding: 24px;
+  border: 1px solid #f2f2f2;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-family: 'Lexend Deca', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legend {
+  display: flex;
+  gap: 20px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.dotThis {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background-color: #fa8314; /* Brand Orange */
+}
+
+.dotLast {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background-color: #ffdfba; /* Very Light Orange */
+}
+
+.lineTarget {
+  width: 4px;
+  height: 12px;
+  background-color: #333;
+  border-radius: 1px;
+}
+
+.chartList {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.chartRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+.labelSection {
+  display: flex;
+  flex-direction: column;
+  width: 150px;
+  min-width: 150px;
+  padding-top: 4px;
+}
+
+.mainLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.subLabel {
+  font-size: 11px;
+  color: #999;
+}
+
+.barSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.track {
+  position: relative;
+  height: 32px;
+  width: 100%;
+  background-color: #f0f0f0; /* Darkest qualitative range */
+  border-radius: 4px;
+  overflow: visible;
+}
+
+.rangeAverage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 70%;
+  height: 100%;
+  background-color: #f8f8f8; /* Mid qualitative range */
+  border-radius: 4px;
+}
+
+.rangeGood {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background-color: #fdfdfd; /* Lightest qualitative range */
+  border-radius: 4px;
+}
+
+.barLastMonth {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 0;
+  background-color: #ffdfba; /* Light Brand Orange */
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.barCurrent {
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 0;
+  background-color: #fa8314; /* Primary Brand Orange */
+  border-radius: 2px;
+  z-index: 2;
+  box-shadow: 0 2px 4px rgba(250, 131, 20, 0.2);
+}
+
+.targetLine {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 4px;
+  background-color: #333;
+  z-index: 3;
+  border-radius: 1px;
+}
+
+.axis {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.axis span {
+  font-size: 10px;
+  color: #bbb;
+  font-weight: 500;
+}
+
+.barCurrent:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(-10px);
+}
+
+.tooltip {
+  visibility: hidden;
+  position: absolute;
+  bottom: 100%;
+  left: 100%;
+  transform: translateX(-50%) translateY(0);
+  background-color: #333;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: all 0.2s ease;
+  z-index: 10;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.loading, .noData {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #999;
+  font-size: 14px;
+}

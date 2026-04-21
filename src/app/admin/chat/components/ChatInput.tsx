@@ -1,7 +1,7 @@
 'use client';
 
 import { Paperclip, Send } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   Tooltip,
@@ -18,6 +18,20 @@ type Props = {
 export function ChatInput({ onSend }: Props) {
   const [message, setMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = 'auto';
+    const nextHeight = Math.min(textarea.scrollHeight, 140);
+    textarea.style.height = `${nextHeight}px`;
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [message]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +54,16 @@ export function ChatInput({ onSend }: Props) {
 
   const handleAttachmentClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (message.trim()) {
+        onSend?.(message.trim());
+        setMessage('');
+      }
+    }
   };
 
   return (
@@ -67,12 +91,14 @@ export function ChatInput({ onSend }: Props) {
           Đính kèm tệp
         </TooltipContent>
       </Tooltip>
-      <input
-        type="text"
+      <textarea
+        ref={textareaRef}
         placeholder="Nhập tin nhắn..."
         className={styles.input}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={handleKeyDown}
+        rows={1}
       />
       <Tooltip delayDuration={300}>
         <TooltipTrigger asChild>

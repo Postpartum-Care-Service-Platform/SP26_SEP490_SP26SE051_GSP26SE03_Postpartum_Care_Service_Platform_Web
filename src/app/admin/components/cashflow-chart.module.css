@@ -77,42 +77,56 @@
   transition: transform 0.2s;
 }
 
-.body {
+.headerLeft {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 20px;
-  flex: 1;
-  min-height: 0;
 }
 
 .balanceBlock {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 130px;
-  flex-shrink: 0;
-  margin-bottom: auto;
-  margin-top: 10px;
+  align-items: baseline;
+  gap: 8px;
+  background-color: #fcfcfc;
+  padding: 4px 12px;
+  border-radius: 4px;
 }
 
 .balanceLabel {
   font-size: 11px;
   font-weight: 500;
   color: #888;
-  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .balanceValue {
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 700;
   color: #204642;
+}
+
+.body {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  margin-top: 10px;
 }
 
 .chartContainer {
   flex: 1;
   min-width: 0;
-  height: 220px;
+  height: 320px;
   position: relative;
+  outline: none;
+}
+
+.chartContainer :global(.recharts-wrapper) {
+  outline: none !important;
+}
+
+.chartContainer :global(.recharts-surface) {
+  outline: none !important;
 }
 
 .tooltip {

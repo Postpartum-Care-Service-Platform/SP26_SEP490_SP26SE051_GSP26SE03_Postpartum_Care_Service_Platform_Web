@@ -1,9 +1,7 @@
 'use client';
 
 import {
-  Archive,
   Bell,
-  Camera,
   MessageCircle,
   Settings,
   Users,
@@ -30,9 +28,14 @@ type ChatNavItem = {
 type Props = {
   activeView: string;
   onViewChange: (view: string) => void;
+  supportRequestsBadgeCount?: number;
 };
 
-export function ChatSidebar({ activeView, onViewChange }: Props) {
+export function ChatSidebar({
+  activeView,
+  onViewChange,
+  supportRequestsBadgeCount = 0,
+}: Props) {
   const navItems: ChatNavItem[] = [
     {
       id: 'chat',
@@ -82,6 +85,11 @@ export function ChatSidebar({ activeView, onViewChange }: Props) {
                   aria-label={item.label}
                 >
                   <Icon size={20} className={styles.icon} />
+                  {item.id === 'support-requests' && supportRequestsBadgeCount > 0 && (
+                    <span className={styles.badge} aria-hidden="true">
+                      {supportRequestsBadgeCount > 99 ? '99+' : supportRequestsBadgeCount}
+                    </span>
+                  )}
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right">

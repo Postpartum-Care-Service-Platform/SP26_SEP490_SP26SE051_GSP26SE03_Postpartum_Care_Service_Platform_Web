@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronDownIcon, MagnifyingGlassIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
-import { Download, Upload } from 'lucide-react';
+import { Download, Upload, FileIcon } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
@@ -126,7 +126,14 @@ export default function AdminRoomsPage() {
       setLoading(true);
       setError(null);
       const data = await roomTypeService.getAdminRoomTypes();
-      setRooms(data);
+      // Robust data extraction
+      let roomsList = [];
+      if (Array.isArray(data)) {
+        roomsList = data;
+      } else if (data && typeof data === 'object') {
+        roomsList = (data as any).data || (data as any).$values || [];
+      }
+      setRooms(Array.isArray(roomsList) ? roomsList : []);
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Không thể tải danh sách loại phòng'));
     } finally {
@@ -227,10 +234,37 @@ export default function AdminRoomsPage() {
 
   const handleExport = async () => {
     try {
-      await roomTypeService.exportRoomTypes();
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
+      const blob = await roomTypeService.exportRoomTypes();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Loai_phong_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
       toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
-    } catch (err) {
-      toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
+    } catch (err: any) {
+      toast({ title: 'Xuất dữ liệu thất bại', description: err.message, variant: 'error' });
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      toast({ title: 'Đang tải file mẫu...', variant: 'default' });
+      const blob = await roomTypeService.downloadTemplateRoomTypes();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Mau_nhap_loai_phong.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Tải file mẫu thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Tải file mẫu thất bại', description: err.message, variant: 'error' });
     }
   };
 
@@ -310,6 +344,10 @@ export default function AdminRoomsPage() {
             <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleDownloadTemplate}>
+              <FileIcon size={16} className={styles.itemIcon} />
+              Tải file mẫu
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

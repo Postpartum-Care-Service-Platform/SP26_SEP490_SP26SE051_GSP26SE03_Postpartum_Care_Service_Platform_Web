@@ -1,9 +1,6 @@
 .pageContainer {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  height: 100%;
 }
 
 .loading,
@@ -17,4 +14,15 @@
 
 .error {
   color: #dc2626;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  background: white;
+  border-radius: 8px;
+  color: #6b7280;
+  font-size: 14px;
 }
