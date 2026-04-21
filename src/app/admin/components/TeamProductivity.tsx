@@ -1,67 +1,41 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  CartesianGrid,
   Legend,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown';
-
+import statisticsService from '@/services/statistics.service';
 import { CountUp } from './CountUp';
 import styles from './team-productivity.module.css';
 
-type TeamProductivityPoint = {
-  month: string;
-  team: number;
-  productivity: number;
+type StaffPerformancePoint = {
+  staffId: string;
+  staffName: string;
+  totalHours: number;
+  serviceCount: number;
+  avgRating: number | null;
 };
 
-const data: TeamProductivityPoint[] = [
-  { month: 'Jan', team: 12, productivity: 52 },
-  { month: 'Feb', team: 12, productivity: 52 },
-  { month: 'Mar', team: 25, productivity: 30 },
-  { month: 'Apr', team: 25, productivity: 30 },
-  { month: 'May', team: 37, productivity: 20 },
-  { month: 'Jun', team: 37, productivity: 20 },
-  { month: 'Jul', team: 20, productivity: 40 },
-  { month: 'Aug', team: 20, productivity: 40 },
-  { month: 'Sep', team: 40, productivity: 55 },
-  { month: 'Oct', team: 40, productivity: 55 },
-  { month: 'Nov', team: 22, productivity: 35 },
-  { month: 'Dec', team: 22, productivity: 35 },
-];
-
-type TeamProductivityTooltipItem = {
-  color?: string;
-  name?: string;
-  value?: number;
-  payload?: TeamProductivityPoint;
-};
-
-type TeamProductivityTooltipProps = {
+type PerformanceTooltipProps = {
   active?: boolean;
-  payload?: TeamProductivityTooltipItem[];
+  payload?: any[];
 };
 
-const CustomTooltip = ({ active, payload }: TeamProductivityTooltipProps) => {
+const CustomTooltip = ({ active, payload }: PerformanceTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className={styles.tooltip}>
-        <p className={styles.tooltipLabel}>{payload[0].payload?.month}</p>
+        <p className={styles.tooltipLabel}>{payload[0].payload?.staffName}</p>
         <div className={styles.tooltipContent}>
-          {payload.map((entry, index) => (
+          {payload.map((entry: any, index: number) => (
             <div key={index} className={styles.tooltipItem}>
               <span
                 className={styles.tooltipDot}
@@ -80,74 +54,77 @@ const CustomTooltip = ({ active, payload }: TeamProductivityTooltipProps) => {
 };
 
 export function TeamProductivity() {
-  const [period, setPeriod] = useState('Monthly');
+  const [data, setData] = useState<StaffPerformancePoint[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totals, setTotals] = useState({
+    services: 0,
+    hours: 0,
+    rating: 0
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await statisticsService.getStaffPerformance();
+        if (Array.isArray(res)) {
+          setData(res);
+          
+          const sumServices = res.reduce((sum, item) => sum + (item.serviceCount || 0), 0);
+          const sumHours = res.reduce((sum, item) => sum + (item.totalHours || 0), 0);
+          const ratedStaff = res.filter(item => item.avgRating !== null);
+          const avgRating = ratedStaff.length > 0 
+            ? ratedStaff.reduce((sum, item) => sum + (item.avgRating || 0), 0) / ratedStaff.length 
+            : 0;
+
+          setTotals({
+            services: sumServices,
+            hours: Math.round(sumHours),
+            rating: Number(avgRating.toFixed(1))
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch staff performance', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.loading}>Đang tải dữ liệu...</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h3 className={styles.title}>Team & Productivity</h3>
-        <div className={styles.headerRight}>
-          <DropdownMenu>
-            <DropdownMenuTrigger className={styles.periodButton}>
-              {period}
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                className={styles.chevron}
-              >
-                <path
-                  d="M3 4.5L6 7.5L9 4.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className={styles.dropdownContent} align="end">
-              <DropdownMenuItem
-                className={styles.dropdownItem}
-                onClick={() => setPeriod('Weekly')}
-              >
-                Weekly
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className={styles.dropdownItem}
-                onClick={() => setPeriod('Monthly')}
-              >
-                Monthly
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className={styles.dropdownItem}
-                onClick={() => setPeriod('Yearly')}
-              >
-                Yearly
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <h3 className={styles.title}>Hiệu suất Nhân viên</h3>
       </div>
       <div className={styles.contentWrapper}>
         <div className={styles.statsRow}>
           <div className={styles.statItem}>
             <div className={styles.statValue}>
-              <CountUp value={320} format="number" />
+              <CountUp value={totals.services} format="number" />
             </div>
-            <p className={styles.statLabel}>Total Deals</p>
+            <p className={styles.statLabel}>Tổng Dịch vụ</p>
           </div>
           <div className={styles.statItem}>
             <div className={styles.statValue}>
-              <CountUp value={185} format="number" />
+              <CountUp value={totals.hours} format="number" />
             </div>
-            <p className={styles.statLabel}>Calls Made</p>
+            <p className={styles.statLabel}>Tổng Giờ làm</p>
           </div>
           <div className={styles.statItem}>
             <div className={styles.statValue}>
-              <CountUp value={72} format="number" />
+              <CountUp value={totals.rating} format="number" />
             </div>
-            <p className={styles.statLabel}>Meetings</p>
+            <p className={styles.statLabel}>Đánh giá TB</p>
           </div>
         </div>
         <div className={styles.body}>
@@ -155,25 +132,50 @@ export function TeamProductivity() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={data}
-                margin={{ top: 5, right: 10, left: 0, bottom: 0 }}
+                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
               >
-                <CartesianGrid 
-                  strokeDasharray="3 3" 
-                  stroke="#f0f0f0" 
-                  vertical={false} 
-                  horizontal={true} 
+                {[30, 60, 90, 120, 150].map((v) => (
+                  <ReferenceLine
+                    key={v}
+                    yAxisId="left"
+                    y={v}
+                    stroke="#ddd"
+                    strokeDasharray="4 4"
+                    strokeWidth={1}
+                  />
+                ))}
+                <ReferenceLine
+                  yAxisId="left"
+                  y={0}
+                  stroke="#ddd"
+                  strokeWidth={1}
                 />
                 <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 12, fill: '#373d3f' }}
+                  dataKey="staffName"
+                  tick={{ fontSize: 11, fill: '#373d3f' }}
                   tickLine={false}
                   axisLine={false}
                 />
                 <YAxis
+                  yAxisId="left"
+                  width={40}
+                  domain={[0, 150]}
+                  ticks={[0, 30, 60, 90, 120, 150]}
+                  interval={0}
                   tick={{ fontSize: 11, fill: '#373d3f' }}
                   tickLine={false}
                   axisLine={false}
-                  domain={[0, 60]}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  width={40}
+                  domain={[0, 5]}
+                  ticks={[0, 1, 2, 3, 4, 5]}
+                  interval={0}
+                  tick={{ fontSize: 11, fill: '#373d3f' }}
+                  tickLine={false}
+                  axisLine={false}
                 />
                 <Tooltip
                   content={<CustomTooltip />}
@@ -186,26 +188,28 @@ export function TeamProductivity() {
                   iconType="circle"
                   wrapperStyle={{ paddingTop: '10px' }}
                   formatter={(value) => (
-                    <span style={{ fontSize: '12px', color: '#373d3f' }}>
+                    <span style={{ fontSize: '11px', color: '#373d3f' }}>
                       {value}
                     </span>
                   )}
                 />
                 <Line
+                  yAxisId="right"
                   type="monotone"
-                  dataKey="team"
-                  name="Team"
+                  dataKey="serviceCount"
+                  name="Số dịch vụ"
                   stroke="#fd6161"
                   strokeWidth={2}
-                  dot={false}
+                  dot={true}
                 />
                 <Line
+                  yAxisId="left"
                   type="monotone"
-                  dataKey="productivity"
-                  name="Productivity"
+                  dataKey="totalHours"
+                  name="Số giờ"
                   stroke="#4ec5ad"
                   strokeWidth={2}
-                  dot={false}
+                  dot={true}
                 />
               </LineChart>
             </ResponsiveContainer>

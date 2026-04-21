@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Search, Check, CheckCircle, X, Loader2, Users } from 'lucide-react';
+import { Search, Check, CheckCircle, X, Loader2, Users, Inbox } from 'lucide-react';
 import { Cross1Icon, ChevronDownIcon } from '@radix-ui/react-icons';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import React from 'react';
@@ -127,8 +127,9 @@ export function AmenityTicketModal({ open, onOpenChange }: Props) {
       await amenityTicketService.acceptAmenityTicket(id);
       toast({ title: 'Thành công', description: 'Đã chấp nhận yêu cầu của khách hàng.', variant: 'success' });
       fetchData();
-    } catch (error) {
-      toast({ title: 'Thất bại', description: 'Không thể chấp nhận yêu cầu.', variant: 'error' });
+    } catch (error: any) {
+      const message = error?.response?.data?.message || error?.response?.data?.Message || 'Không thể chấp nhận yêu cầu.';
+      toast({ title: 'Thất bại', description: message, variant: 'error' });
     }
   };
 
@@ -137,8 +138,9 @@ export function AmenityTicketModal({ open, onOpenChange }: Props) {
       await amenityTicketService.cancelAmenityTicket(id);
       toast({ title: 'Thành công', description: 'Đã hủy yêu cầu thành công.', variant: 'success' });
       fetchData();
-    } catch (error) {
-      toast({ title: 'Thất bại', description: 'Không thể hủy yêu cầu.', variant: 'error' });
+    } catch (error: any) {
+      const message = error?.response?.data?.message || error?.response?.data?.Message || 'Không thể hủy yêu cầu.';
+      toast({ title: 'Thất bại', description: message, variant: 'error' });
     }
   };
 
@@ -152,8 +154,9 @@ export function AmenityTicketModal({ open, onOpenChange }: Props) {
       await amenityTicketService.completeAmenityTicket(id, staffId);
       toast({ title: 'Thành công', description: 'Đã đánh dấu hoàn thành yêu cầu.', variant: 'success' });
       fetchData();
-    } catch (error) {
-      toast({ title: 'Thất bại', description: 'Không thể đánh dấu hoàn thành.', variant: 'error' });
+    } catch (error: any) {
+      const message = error?.response?.data?.message || error?.response?.data?.Message || 'Không thể đánh dấu hoàn thành.';
+      toast({ title: 'Thất bại', description: message, variant: 'error' });
     }
   };
 
@@ -170,10 +173,17 @@ export function AmenityTicketModal({ open, onOpenChange }: Props) {
     return acc.ownerProfile?.fullName || acc.email || acc.username || `Khách hàng #${id.slice(0, 8)}`;
   };
 
+  const getStaffAvatarUrl = (ticket: AmenityTicket) => {
+    const id = ticket.amenityStaffId || ticket.staffId;
+    if (!id) return null;
+    const acc = accounts.find(a => a.id === id);
+    return acc?.ownerProfile?.avatarUrl;
+  };
+
   const getStaffDisplayName = (ticket: AmenityTicket) => {
     if (ticket.amenityStaffName) return ticket.amenityStaffName;
     const id = ticket.amenityStaffId || ticket.staffId;
-    if (!id) return '-';
+    if (!id) return 'Chưa phân công';
     // Try to find in specialized list first
     const amStaff = amenityStaff.find(s => s.id === id);
     if (amStaff) return amStaff.fullName;
@@ -327,216 +337,216 @@ export function AmenityTicketModal({ open, onOpenChange }: Props) {
               </div>
             )}
 
-            <div className={styles.tableWrapper}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th className={styles.sttCol}>STT</th>
-                    <th className={styles.codeCol}>Mã</th>
-                    <th>Khách hàng</th>
-                    <th>Tiện ích</th>
-                    <th>Ngày</th>
-                    <th>Giờ</th>
-                    <th>Trạng thái</th>
-                    <th>Nhân viên</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loading && tickets.length === 0 ? (
-                    <tr>
-                      <td colSpan={9} style={{ textAlign: 'center', padding: '40px' }}>
-                        <div className="flex items-center justify-center gap-2">
-                          <Loader2 className="animate-spin" size={18} />
-                          <span>Đang tải dữ liệu...</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ) : paginatedTickets.length === 0 ? (
-                    <tr>
-                      <td colSpan={9} style={{ textAlign: 'center', padding: '40px' }}>Không có yêu cầu nào</td>
-                    </tr>
-                  ) : (
-                    paginatedTickets.map((ticket, index) => (
-                      <tr key={ticket.id}>
-                        <td className={styles.sttCol}>{(currentPage - 1) * pageSize + index + 1}</td>
-                        <td className={styles.codeCol}>#{ticket.id}</td>
-                        <td>{getCustomerName(ticket)}</td>
-                        <td>{getServiceName(ticket)}</td>
-                        <td>{formatDate(ticket.date)}</td>
-                        <td>{formatTime(ticket.startTime)} - {formatTime(ticket.endTime)}</td>
-                        <td>
+            <div className={styles.cardList}>
+              {loading && tickets.length === 0 ? (
+                <div className={styles.loadingState}>
+                  <Loader2 className="animate-spin" size={24} />
+                  <span>Đang tải dữ liệu...</span>
+                </div>
+              ) : paginatedTickets.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyIconWrapper}>
+                    <Inbox size={48} strokeWidth={1} />
+                  </div>
+                  <h3 className={styles.emptyTitle}>Không tìm thấy yêu cầu</h3>
+                  <p className={styles.emptyDescription}>
+                    {searchQuery || statusFilter !== 'all' 
+                      ? 'Không có yêu cầu nào khớp với bộ lọc hiện tại của bạn.' 
+                      : 'Hiện chưa có yêu cầu dịch vụ tiện ích nào trong hệ thống.'}
+                  </p>
+                  {(searchQuery || statusFilter !== 'all') && (
+                    <button 
+                      className={styles.clearFiltersButton}
+                      onClick={() => {
+                        setSearchQuery('');
+                        setStatusFilter('all');
+                      }}
+                    >
+                      Xóa tất cả bộ lọc
+                    </button>
+                  )}
+                </div>
+              ) : (
+                paginatedTickets.map((ticket) => {
+                  const service = services.find(s => s.id === ticket.amenityServiceId);
+                  const imageUrl = ticket.imageUrl || service?.imageUrl;
+
+                  return (
+                    <div key={ticket.id} className={styles.ticketCard}>
+                      <div className={styles.cardImage}>
+                        {imageUrl ? (
+                          <Image
+                            src={imageUrl}
+                            alt={getServiceName(ticket)}
+                            fill
+                            className="object-cover"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className={styles.imagePlaceholder}>
+                            <Users size={32} />
+                          </div>
+                        )}
+                      </div>
+                      <div className={styles.cardInfo}>
+                        <div className={styles.cardHeader}>
+                          <div className={styles.mainInfo}>
+                            <h3 className={styles.ticketBuyer}>{getCustomerName(ticket)}</h3>
+                          </div>
                           <span className={`${styles.statusBadge} ${styles[`status-${ticket.status}`]}`}>
                             {STATUS_OPTIONS.find(opt => opt.value === ticket.status)?.label || ticket.status}
                           </span>
-                        </td>
-                        <td className="text-xs font-medium text-slate-500 italic">
-                          {getStaffDisplayName(ticket)}
-                        </td>
-                        <td>
-                          <div className={styles.actions}>
-                            {ticket.status === 'Booked' && (
-                              <>
-                                <Tooltip.Root>
-                                  <Tooltip.Trigger asChild>
-                                    <button
-                                      className={`${styles.actionButton} ${styles.acceptButton}`}
-                                      onClick={() => handleAccept(ticket.id)}
-                                    >
-                                      <Check size={14} />
-                                    </button>
-                                  </Tooltip.Trigger>
-                                  <Tooltip.Portal>
-                                    <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
-                                      Chấp nhận
-                                      <Tooltip.Arrow className={styles.tooltipArrow} />
-                                    </Tooltip.Content>
-                                  </Tooltip.Portal>
-                                </Tooltip.Root>
+                        </div>
 
-                                <Tooltip.Root>
-                                  <Tooltip.Trigger asChild>
-                                    <button
-                                      className={`${styles.actionButton} ${styles.cancelButton}`}
-                                      onClick={() => handleCancel(ticket.id)}
-                                    >
-                                      <X size={14} />
-                                    </button>
-                                  </Tooltip.Trigger>
-                                  <Tooltip.Portal>
-                                    <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
-                                      Hủy yêu cầu
-                                      <Tooltip.Arrow className={styles.tooltipArrow} />
-                                    </Tooltip.Content>
-                                  </Tooltip.Portal>
-                                </Tooltip.Root>
-                              </>
-                            )}
-                            {ticket.status === 'Accepted' && (
+                        <div className={styles.cardDetails}>
+                          <div className={styles.detailRow}>
+                            <span className={styles.value}>{getServiceName(ticket)}</span>
+                          </div>
+                          <div className={styles.detailRow}>
+                            <span className={styles.value}>
+                              {formatDate(ticket.date)} | {formatTime(ticket.startTime)} - {formatTime(ticket.endTime)}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className={styles.cardActions}>
+                          <div className={styles.actions}>
+                            {/* Actions for Booked or Accepted status */}
+                            {(ticket.status === 'Booked' || ticket.status === 'Accepted') ? (
                               <>
-                                <DropdownMenu>
+                                {/* Primary Action */}
+                                {ticket.status === 'Booked' ? (
                                   <Tooltip.Root>
                                     <Tooltip.Trigger asChild>
-                                      <DropdownMenuTrigger asChild>
-                                        <button className={`${styles.actionButton} ${styles.completeButton}`}>
-                                          <CheckCircle size={14} />
-                                        </button>
-                                      </DropdownMenuTrigger>
+                                      <button
+                                        className={`${styles.actionButton} ${styles.acceptButton}`}
+                                        onClick={() => handleAccept(ticket.id)}
+                                      >
+                                        <Check size={16} />
+                                        <span>Chấp nhận</span>
+                                      </button>
                                     </Tooltip.Trigger>
                                     <Tooltip.Portal>
                                       <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
-                                        Hoàn thành
+                                        Chấp nhận yêu cầu
                                         <Tooltip.Arrow className={styles.tooltipArrow} />
                                       </Tooltip.Content>
                                     </Tooltip.Portal>
                                   </Tooltip.Root>
-
-                                  <DropdownMenuContent className={styles.staffPopoverContent} align="end" sideOffset={8}>
-                                    <div className={styles.staffSearchWrapper}>
-                                      <div className={styles.staffSearchInputWrapper}>
-                                        <div className={styles.unassignedIcon} aria-hidden="true">
-                                          <svg fill="none" viewBox="-4 -4 24 24" width="16" height="16">
-                                            <path
-                                              fill="currentColor"
-                                              fillRule="evenodd"
-                                              d="M8 1.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4 4a4 4 0 1 1 8 0 4 4 0 0 1-8 0m-2 9a3.75 3.75 0 0 1 3.75-3.75h4.5A3.75 3.75 0 0 1 14 13v2h-1.5v-2a2.25 2.25 0 0 0-2.25-2.25h-4.5A2.25 2.25 0 0 0 3.5 13v2H2z"
-                                              clipRule="evenodd"
-                                            />
-                                          </svg>
+                                ) : (
+                                  <DropdownMenu>
+                                    <Tooltip.Root>
+                                      <Tooltip.Trigger asChild>
+                                        <DropdownMenuTrigger asChild>
+                                          <button className={`${styles.actionButton} ${styles.completeButton}`}>
+                                            <CheckCircle size={16} />
+                                            <span>Hoàn thành</span>
+                                          </button>
+                                        </DropdownMenuTrigger>
+                                      </Tooltip.Trigger>
+                                      <Tooltip.Portal>
+                                        <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
+                                          Hoàn thành & Chọn nhân viên
+                                          <Tooltip.Arrow className={styles.tooltipArrow} />
+                                        </Tooltip.Content>
+                                      </Tooltip.Portal>
+                                    </Tooltip.Root>
+                                    <DropdownMenuContent className={styles.staffPopoverContent} align="end" sideOffset={8}>
+                                      <div className={styles.staffSearchWrapper}>
+                                        <div className={styles.staffSearchInputWrapper}>
+                                          <div className={styles.unassignedIcon} aria-hidden="true">
+                                            <Users size={14} />
+                                          </div>
+                                          <input
+                                            type="text"
+                                            placeholder="Tìm nhân viên..."
+                                            className={styles.staffSearchInput}
+                                            value={staffSearchQuery}
+                                            onChange={(e) => setStaffSearchQuery(e.target.value)}
+                                            autoFocus
+                                            onClick={(e) => e.stopPropagation()}
+                                          />
                                         </div>
-                                        <input
-                                          type="text"
-                                          placeholder="Tìm nhân viên..."
-                                          className={styles.staffSearchInput}
-                                          value={staffSearchQuery}
-                                          onChange={(e) => setStaffSearchQuery(e.target.value)}
-                                          autoFocus
-                                          onClick={(e) => e.stopPropagation()}
-                                        />
                                       </div>
-                                    </div>
-
-                                    <div className={styles.staffUserList}>
-                                      {!staffSearchQuery && (
-                                        <div
-                                          className={styles.staffUserItem}
-                                          role="button"
-                                        >
-                                          <div className={styles.staffAvatar} style={{ background: '#7A869A' }} aria-hidden="true">
-                                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: '16px', height: '16px' }}>
-                                              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                              <circle cx="9" cy="7" r="4" />
-                                              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                            </svg>
+                                      <div className={styles.staffUserList}>
+                                        {!staffSearchQuery && (
+                                          <div className={styles.staffUserItem} role="button">
+                                            <div className={styles.staffAvatar} style={{ background: '#7A869A' }} aria-hidden="true">
+                                              <Users size={16} />
+                                            </div>
+                                            <div className={styles.staffUserInfo}>
+                                              <div className={styles.staffUserName}>Tất cả nhân viên</div>
+                                            </div>
                                           </div>
-                                          <div className={styles.staffUserInfo}>
-                                            <div className={styles.staffUserName}>Tất cả nhân viên</div>
-                                          </div>
-                                        </div>
-                                      )}
+                                        )}
+                                        {filteredEnrichedStaff.map(staff => (
+                                          <DropdownMenuItem
+                                            key={staff.id}
+                                            className={styles.staffUserItem}
+                                            onClick={() => handleComplete(ticket.id, staff.id)}
+                                          >
+                                            <div className={styles.staffAvatar} style={{ background: getColorFromId(staff.id) }} aria-hidden="true">
+                                              {staff.avatarUrl ? (
+                                                <Image 
+                                                  src={staff.avatarUrl} 
+                                                  alt="" 
+                                                  width={24} 
+                                                  height={24} 
+                                                  className="rounded-full object-cover"
+                                                  unoptimized
+                                                />
+                                              ) : (
+                                                staff.fullName?.charAt(0).toUpperCase()
+                                              )}
+                                            </div>
+                                            <div className={styles.staffUserInfo}>
+                                              <div className={styles.staffUserName}>{staff.fullName}</div>
+                                              {staff.email && <div className={styles.staffUserEmail}>{staff.email}</div>}
+                                            </div>
+                                          </DropdownMenuItem>
+                                        ))}
+                                      </div>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                )}
 
-                                      {filteredEnrichedStaff.map(staff => (
-                                        <DropdownMenuItem
-                                          key={staff.id}
-                                          className={styles.staffUserItem}
-                                          onClick={() => handleComplete(ticket.id, staff.id)}
-                                        >
-                                          <div className={styles.staffAvatar} style={{ background: getColorFromId(staff.id) }} aria-hidden="true">
-                                            {staff.avatarUrl ? (
-                                              <Image 
-                                                src={staff.avatarUrl} 
-                                                alt="" 
-                                                width={24} 
-                                                height={24} 
-                                                className="rounded-full object-cover"
-                                                unoptimized
-                                              />
-                                            ) : (
-                                              staff.fullName?.charAt(0).toUpperCase()
-                                            )}
-                                          </div>
-                                          <div className={styles.staffUserInfo}>
-                                            <div className={styles.staffUserName}>{staff.fullName}</div>
-                                            {staff.email && <div className={styles.staffUserEmail}>{staff.email}</div>}
-                                          </div>
-                                        </DropdownMenuItem>
-                                      ))}
-
-                                      {filteredEnrichedStaff.length === 0 && (
-                                        <div className={styles.noStaffFound}>
-                                          Không tìm thấy nhân viên
-                                        </div>
-                                      )}
-                                    </div>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-
+                                {/* Secondary Action */}
                                 <Tooltip.Root>
                                   <Tooltip.Trigger asChild>
                                     <button
                                       className={`${styles.actionButton} ${styles.cancelButton}`}
                                       onClick={() => handleCancel(ticket.id)}
                                     >
-                                      <X size={14} />
+                                      <X size={16} />
+                                      <span>{ticket.status === 'Booked' ? 'Từ chối' : 'Hủy bỏ'}</span>
                                     </button>
                                   </Tooltip.Trigger>
                                   <Tooltip.Portal>
                                     <Tooltip.Content className={styles.tooltip} side="top" sideOffset={5}>
-                                      Hủy yêu cầu
+                                      {ticket.status === 'Booked' ? 'Từ chối yêu cầu' : 'Hủy bỏ yêu cầu'}
                                       <Tooltip.Arrow className={styles.tooltipArrow} />
                                     </Tooltip.Content>
                                   </Tooltip.Portal>
                                 </Tooltip.Root>
                               </>
-                            )}
+                            ) : ticket.status === 'Completed' ? (
+                              /* Show staff badge for completed tickets */
+                              <div className={styles.completedBadge}>
+                                <div className={styles.badgeIcon}>
+                                  <Users size={14} />
+                                </div>
+                                <span className={styles.badgeLabel}>
+                                  Nhân viên: {getStaffDisplayName(ticket)}
+                                </span>
+                              </div>
+                            ) : null}
                           </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 

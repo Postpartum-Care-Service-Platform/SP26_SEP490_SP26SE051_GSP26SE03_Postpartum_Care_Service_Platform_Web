@@ -46,6 +46,8 @@ export default function AdminActivityPage() {
   const [itemToDelete, setItemToDelete] = useState<Activity | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
+  const [view, setView] = useState<'table' | 'ui'>('table');
+
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
@@ -147,21 +149,62 @@ export default function AdminActivityPage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
+      const blob = await activityService.exportActivities();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Danh_sach_hoat_dong_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Xuất dữ liệu thất bại', description: err.message, variant: 'error' });
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      toast({ title: 'Đang tải file mẫu...', variant: 'default' });
+      const blob = await activityService.downloadTemplateActivities();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Mau_nhap_hoat_dong.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Tải file mẫu thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Tải file mẫu thất bại', description: err.message, variant: 'error' });
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1 h-full min-h-0">
       <AdminPageLayout
-        header={<ActivityListHeader />}
+        noCard={view === 'ui'}
+        header={<ActivityListHeader view={view} onViewChange={setView} />}
         controlPanel={
-          <ActivityTableControls
-            onSearch={(q) => setSearchQuery(q)}
-            onSortChange={(sort) => setSortKey(sort)}
-            onStatusChange={(status) => setStatusFilter(status)}
-            onNewActivity={() => setIsModalOpen(true)}
-            onImport={() => setIsImportModalOpen(true)}
-          />
+          view === 'table' ? (
+            <ActivityTableControls
+              onSearch={(q) => setSearchQuery(q)}
+              onSortChange={(sort) => setSortKey(sort)}
+              onStatusChange={(status) => setStatusFilter(status as any)}
+              onNewActivity={() => setIsModalOpen(true)}
+              onImport={() => setIsImportModalOpen(true)}
+              onExport={handleExport}
+              onDownloadTemplate={handleDownloadTemplate}
+            />
+          ) : null
         }
         pagination={
-          totalPages > 0 ? (
+          view === 'table' && totalPages > 0 ? (
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -183,7 +226,7 @@ export default function AdminActivityPage() {
           <div className={styles.errorState}>
             <p>{error}</p>
           </div>
-        ) : (
+        ) : view === 'table' ? (
           <ActivityTable
             activities={paginatedActivities}
             onEdit={handleEdit}
@@ -192,6 +235,10 @@ export default function AdminActivityPage() {
             currentPage={currentPage}
             pageSize={pageSize}
           />
+        ) : (
+          <div className={styles.emptyState}>
+            <p>Dạng xem UI đang được cập nhật...</p>
+          </div>
         )}
       </AdminPageLayout>
 
@@ -202,18 +249,18 @@ export default function AdminActivityPage() {
         activityToEdit={editingActivity}
       />
 
-      <ImportActivityModal
-        open={isImportModalOpen}
-        onOpenChange={setIsImportModalOpen}
-        onSuccess={fetchActivities}
-      />
-
       <ConfirmModal
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={handleConfirmDelete}
         title="Xác nhận xóa hoạt động"
         message={`Bạn có chắc chắn muốn xóa hoạt động "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
+      />
+
+      <ImportActivityModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchActivities}
       />
     </div>
   );

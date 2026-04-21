@@ -2,19 +2,45 @@
   background: white;
   border-radius: 4px;
   padding: 16px 24px;
-  border: 1px solid #eaeaea;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   font-family: inherit;
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 100%;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
 .chartTitle {
   font-size: 14px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 20px;
+}
+
+.filterButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Giãn đều chữ và icon */
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6c757d;
+  background: #ffffff;
+  padding: 4px 10px;
+  border-radius: 4px; /* Bo góc 4px theo yêu cầu */
+  border: 1px solid #e9ecef;
+  transition: all 0.2s;
+  width: 130px; /* Cố định chiều rộng để không bị thay đổi theo chữ */
+}
+
+.filterButton:hover {
+  background: #e9ecef;
 }
 
 .chartWrapper {
@@ -26,6 +52,13 @@
   align-items: center;
 }
 
+/* Xóa viền đen khi click vào biểu đồ */
+.chartWrapper :global(.recharts-wrapper):focus,
+.chartWrapper :global(.recharts-surface):focus,
+.chartWrapper :global(.recharts-sector):focus {
+  outline: none !important;
+}
+
 .centerLayer {
   position: absolute;
   top: 50%;
@@ -35,12 +68,13 @@
   height: 130px;
   background-color: white;
   border-radius: 50%;
-  box-shadow: inset 0 0 16px rgba(0,0,0,0.04), 0 4px 20px rgba(0,0,0,0.05);
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.04), 0 4px 20px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 1;
+  /* Thấp nhất để nhường chỗ cho Tooltip */
   pointer-events: none;
 }
 
@@ -59,22 +93,135 @@
 
 .legendContainer {
   display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 10px;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 15px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Scrollbar styling */
+.legendContainer::-webkit-scrollbar {
+  width: 4px;
+}
+
+.legendContainer::-webkit-scrollbar-thumb {
+  background: #e9ecef;
+  border-radius: 4px;
 }
 
 .legendItem {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #555;
+  gap: 10px;
 }
 
 .legendDot {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legendInfo {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 12px;
+}
+
+.legendName {
+  font-weight: 500;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.legendValue {
+  color: #888;
+  font-weight: 600;
+}
+
+.emptyState {
+  text-align: center;
+  font-size: 12px;
+  color: #adb5bd;
+  padding: 20px 0;
+}
+
+.dropdownContent {
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  min-width: 120px;
+  padding: 4px;
+}
+
+.dropdownItem {
+  font-size: 12px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.dropdownItem:hover {
+  background-color: #f8f9fa;
+  outline: none;
+}
+
+.customTooltip {
+  position: fixed;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeIn 0.15s ease-out;
+}
+
+.chartTooltip {
+  background: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tooltipName {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+}
+
+.tooltipDetails {
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

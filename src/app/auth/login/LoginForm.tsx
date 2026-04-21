@@ -14,6 +14,7 @@ import { AUTH_LOGIN_REGEX } from '@/messages/auth/login.regex';
 import { ROUTES } from '@/routes/routes';
 import authService from '@/services/auth.service';
 
+import { LogoLoader } from '@/components/ui/logo-loader';
 import styles from './login.module.css';
 
 type ApiError = {
@@ -303,7 +304,14 @@ export function LoginForm() {
         </div>
 
         <button type="submit" className={styles.submit} disabled={isLoading}>
-          {isLoading ? 'Đang xử lý...' : 'Đăng nhập'}
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <LogoLoader size="sm" />
+              <span>Đang xử lý...</span>
+            </div>
+          ) : (
+            'Đăng nhập'
+          )}
         </button>
       </form>
 

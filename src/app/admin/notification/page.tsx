@@ -16,6 +16,7 @@ import { NotificationListHeader } from './components/NotificationListHeader';
 import { NotificationModal } from './components/NotificationModal';
 import { NotificationTable } from './components/NotificationTable';
 import { NotificationTableControls } from './components/NotificationTableControls';
+import { ImportNotificationModal } from './components/ImportNotificationModal';
 import styles from './notification.module.css';
 
 const getErrorMessage = (error: unknown, fallback: string) => {
@@ -43,6 +44,7 @@ export default function AdminNotificationPage() {
   const [sortKey, setSortKey] = useState<'createdAt-desc' | 'createdAt-asc'>('createdAt-desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<Notification | null>(null);
@@ -134,6 +136,42 @@ export default function AdminNotificationPage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
+      const blob = await notificationService.exportNotifications();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Thong_bao_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Xuất dữ liệu thất bại', description: err.message, variant: 'error' });
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      toast({ title: 'Đang tải file mẫu...', variant: 'default' });
+      const blob = await notificationService.downloadTemplateNotifications();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Mau_nhap_thong_bao.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Tải file mẫu thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Tải file mẫu thất bại', description: err.message, variant: 'error' });
+    }
+  };
+
   const paginatedNotifications = (() => {
     const start = (currentPage - 1) * pageSize;
     return filteredNotifications.slice(start, start + pageSize);
@@ -151,6 +189,9 @@ export default function AdminNotificationPage() {
             onSearch={setSearchQuery}
             onStatusChange={(status) => setStatusFilter(status)}
             onSortChange={(sort) => setSortKey(sort)}
+            onImport={() => setIsImportModalOpen(true)}
+            onExport={handleExport}
+            onDownloadTemplate={handleDownloadTemplate}
           />
         }
         pagination={
@@ -193,6 +234,12 @@ export default function AdminNotificationPage() {
           onOpenChange={setIsNotificationModalOpen}
           notification={selectedNotification}
           notificationTypes={notificationTypes}
+          onSuccess={fetchData}
+        />
+
+        <ImportNotificationModal
+          open={isImportModalOpen}
+          onOpenChange={setIsImportModalOpen}
           onSuccess={fetchData}
         />
 

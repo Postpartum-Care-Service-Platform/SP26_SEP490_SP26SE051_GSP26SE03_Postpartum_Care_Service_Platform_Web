@@ -6,13 +6,16 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import menuService from '@/services/menu.service';
 import type { Menu } from '@/types/menu';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import { Pagination } from '@/components/ui/pagination';
 
 import {
   MenuListHeader,
-  MenuTable,
   MenuTableControls,
+  MenuTable,
   NewMenuModal,
+  MenuViewVisualizer,
+  ImportMenuModal
 } from './components';
 import styles from './menu.module.css';
 
@@ -64,6 +67,10 @@ export default function AdminMenuPage() {
   const [pageSize, setPageSize] = useState(10);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [view, setView] = useState<'table' | 'ui'>('table');
+
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [menuToDelete, setMenuToDelete] = useState<Menu | null>(null);
 
   const fetchMenus = async () => {
     try {
@@ -134,10 +141,16 @@ export default function AdminMenuPage() {
     }
   };
 
-  const handleDelete = async (menu: Menu) => {
+  const handleDelete = (menu: Menu) => {
+    setMenuToDelete(menu);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!menuToDelete) return;
     try {
-      setDeletingId(menu.id);
-      await menuService.deleteMenu(menu.id);
+      setDeletingId(menuToDelete.id);
+      await menuService.deleteMenu(menuToDelete.id);
       toast({ title: 'Xóa thực đơn thành công', variant: 'success' });
       await fetchMenus();
     } catch (error: unknown) {
@@ -147,22 +160,68 @@ export default function AdminMenuPage() {
       });
     } finally {
       setDeletingId(null);
+      setMenuToDelete(null);
+      setIsConfirmModalOpen(false);
+    }
+  };
+
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  const handleExport = async () => {
+    try {
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
+      const blob = await menuService.exportMenus();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Danh_sach_thuc_don_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Xuất dữ liệu thất bại', description: err.message, variant: 'error' });
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      toast({ title: 'Đang tải file mẫu...', variant: 'default' });
+      const blob = await menuService.downloadTemplateMenus();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Mau_nhap_thuc_don.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Tải file mẫu thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Tải file mẫu thất bại', description: err.message, variant: 'error' });
     }
   };
 
   return (
     <AdminPageLayout
-      header={<MenuListHeader />}
+      noCard={view === 'ui'}
+      header={<MenuListHeader view={view} onViewChange={setView} />}
       controlPanel={
-        <MenuTableControls
-          onSearch={(q) => setSearchQuery(q)}
-          onSortChange={(sort) => setSortKey(sort)}
-          onStatusChange={(status) => setStatusFilter(status)}
-          onNewMenu={() => setIsModalOpen(true)}
-        />
+        view === 'table' ? (
+          <MenuTableControls
+            onSearch={(q) => setSearchQuery(q)}
+            onSortChange={(sort) => setSortKey(sort)}
+            onStatusChange={(status) => setStatusFilter(status)}
+            onNewMenu={() => setIsModalOpen(true)}
+            onImport={() => setIsImportModalOpen(true)}
+            onExport={handleExport}
+            onDownloadTemplate={handleDownloadTemplate}
+          />
+        ) : null
       }
       pagination={
-        filteredMenus.length > 0 ? (
+        view === 'table' && filteredMenus.length > 0 ? (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -188,7 +247,7 @@ export default function AdminMenuPage() {
           <div className={styles.error}>
             <p>{error}</p>
           </div>
-        ) : (
+        ) : view === 'table' ? (
           <MenuTable
             menus={paginatedMenus}
             onEdit={handleEdit}
@@ -197,6 +256,8 @@ export default function AdminMenuPage() {
             currentPage={currentPage}
             pageSize={pageSize}
           />
+        ) : (
+          <MenuViewVisualizer menus={filteredMenus} />
         )}
       </div>
 
@@ -205,6 +266,23 @@ export default function AdminMenuPage() {
         onOpenChange={handleModalClose}
         onSuccess={fetchMenus}
         menuToEdit={editingMenu}
+      />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa thực đơn"
+        message={`Bạn có chắc chắn muốn xóa thực đơn "${menuToDelete?.menuName}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
+      />
+
+      <ImportMenuModal
+        open={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
+        onSuccess={fetchMenus}
       />
     </AdminPageLayout>
   );

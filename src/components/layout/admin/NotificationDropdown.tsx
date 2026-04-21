@@ -11,6 +11,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown/Dropdown';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNotificationHub, type NotificationPayload } from '@/hooks/useNotificationHub';
 import notificationService from '@/services/notification.service';
 import type { Notification } from '@/types/notification';
 
@@ -52,38 +54,42 @@ export function NotificationDropdown({ onViewAll, isSidebarOpen }: { onViewAll?:
   const [isOpen, setIsOpen] = React.useState(false);
   const [isTooltipOpen, setIsTooltipOpen] = React.useState(false);
 
-  const isFetchingRef = React.useRef(false);
+  const { session } = useAuth();
+  const token = session?.user?.accessToken;
 
-  const fetchData = React.useCallback(async () => {
-    if (isFetchingRef.current) return;
-
-    try {
-      isFetchingRef.current = true;
-      setIsLoading(true);
-
-      const notificationsData = await notificationService.getMyNotifications();
-      setNotifications(notificationsData);
-    } catch (error) {
-      console.error('Failed to fetch notifications:', error);
-    } finally {
-      isFetchingRef.current = false;
-      setIsLoading(false);
-    }
+  // Initial fetch
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const data = await notificationService.getMyNotifications();
+        setNotifications(data);
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    void fetchData();
   }, []);
 
-  // Fetch dữ liệu lần đầu khi mount và mỗi khi fetchData thay đổi
-  React.useEffect(() => {
-    void fetchData();
-  }, [fetchData]);
+  // Real-time: prepend new notification from SignalR
+  const handleReceive = React.useCallback((notification: NotificationPayload) => {
+    setNotifications((prev) => {
+      // Avoid duplicates
+      if (prev.some((n) => n.id === notification.id)) return prev;
+      
+      // Normalize status: backend SignalR sends 0/1, but type expects 'Unread'/'Read'
+      const normalized = {
+        ...notification,
+        status: notification.status === 0 || notification.status === 'Unread' ? 'Unread' : 'Read',
+      } as unknown as Notification;
+      
+      return [normalized, ...prev];
+    });
+  }, []);
 
-  // Tự động làm mới thông báo sau mỗi 30 giây để cập nhật badge count
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      fetchData();
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [fetchData]);
+  useNotificationHub({ token, onReceive: handleReceive });
 
   const unreadCount = notifications.filter((n) => n.status === 'Unread').length;
   const displayCount = unreadCount > 0 ? (unreadCount > 9 ? '9+' : `${unreadCount}`) : null;

@@ -1,0 +1,219 @@
+.triggerButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 240px;
+}
+
+.triggerButton:hover {
+  border-color: #fa8314;
+  background-color: #fff9f5;
+}
+
+.calendarIcon {
+  color: #fa8314;
+  width: 16px;
+  height: 16px;
+}
+
+.dateText {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+}
+
+.popoverContent {
+  padding: 0;
+  background-color: white !important;
+  border-radius: 4px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+  border: 1px solid #f0f0f0;
+  overflow: hidden;
+  margin-top: 10px;
+  max-width: none !important;
+  width: auto !important;
+  z-index: 100;
+}
+
+.calendarWrapper {
+  padding: 16px;
+  background-color: white;
+  position: relative;
+}
+
+/* DayPicker v9 specific styles */
+.months {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 640px) {
+  .months {
+    flex-direction: row;
+  }
+}
+
+.month {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.month_caption {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  align-items: center;
+  height: 32px;
+  margin-bottom: 8px;
+}
+
+.customCaption {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  text-transform: capitalize;
+}
+
+.captionMonth {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+}
+
+.captionYear {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  width: calc(100% - 32px); /* Matches wrapper padding */
+  justify-content: space-between;
+  top: 18px; /* Should now be exactly at the center of the 32px caption (16px padding + 16px half-height - 14px arrow) */
+  pointer-events: none;
+  z-index: 10;
+}
+
+.button_previous, .button_next {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+  pointer-events: auto;
+}
+
+.button_previous:hover, .button_next:hover {
+  border-color: #fa8314;
+  color: #fa8314;
+}
+
+.month_grid {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.weekdays {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.weekday {
+  color: #999;
+  width: 40px;
+  font-weight: 600;
+  font-size: 11px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.week {
+  display: flex;
+  width: 100%;
+  margin-top: 2px;
+}
+
+.day {
+  padding: 0;
+  margin: 0;
+}
+
+.day_button {
+  height: 36px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: #333;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.day_button:hover:not(.outside) {
+  background-color: #fff2e6;
+  color: #fa8314;
+}
+
+.today .day_button {
+  color: #fa8314;
+  font-weight: 800;
+  border: 1px solid #fff2e6;
+}
+
+.range_start .day_button {
+  background-color: #fa8314 !important;
+  color: white !important;
+  border-radius: 8px 0 0 8px !important;
+}
+
+.range_end .day_button {
+  background-color: #fa8314 !important;
+  color: white !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+.range_middle {
+  background-color: #fff2e6 !important;
+}
+
+.range_middle .day_button {
+  color: #fa8314 !important;
+  font-weight: 500;
+  border-radius: 0 !important;
+}
+
+.outside .day_button {
+  color: #ccc;
+  opacity: 0.5;
+}
+
+.disabled .day_button {
+  color: #eee;
+  cursor: not-allowed;
+}
+
+.hidden {
+  display: none;
+}

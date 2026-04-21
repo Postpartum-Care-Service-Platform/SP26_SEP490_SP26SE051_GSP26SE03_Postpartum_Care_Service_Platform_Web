@@ -6,7 +6,7 @@
 
 .activePatientsCard {
   background: linear-gradient(135deg, #fff4e6 0%, #ffe8cc 100%);
-  border-radius: 4.8px;
+  border-radius: 4px;
   padding: 16px;
   display: flex;
   justify-content: space-between;
@@ -75,7 +75,7 @@
   background-color: #fa8314;
   color: white;
   border: none;
-  border-radius: 4.8px;
+  border-radius: 4px;
   padding: 10px 20px;
   font-family: "Lexend Deca", sans-serif;
   font-size: 13px;
@@ -105,7 +105,7 @@
 
 .statCard {
   background: white;
-  border-radius: 4.8px;
+  border-radius: 4px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   display: flex;
@@ -133,7 +133,7 @@
 .iconWrapper {
   width: 39.99px;
   height: 39.99px;
-  border-radius: 4.8px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -230,7 +230,7 @@
 .dropdownContent {
   background-color: #fff;
   border: 1px solid #e9ecef;
-  border-radius: 4.8px;
+  border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 4px;
   min-width: 140px;

@@ -163,10 +163,37 @@ export default function AdminPackagePage() {
 
   const handleExport = async () => {
     try {
-      await packageService.exportPackages();
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
+      const blob = await packageService.exportPackages();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Goi_Dich_Vu_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
       toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
     } catch (err) {
       toast({ title: 'Xuất dữ liệu thất bại', variant: 'error' });
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      toast({ title: 'Đang tải file mẫu...', variant: 'default' });
+      const blob = await packageService.downloadTemplatePackages();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Mau_nhap_goi_dich_vu.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Tải file mẫu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: 'Tải file mẫu thất bại', variant: 'error' });
     }
   };
 
@@ -182,6 +209,7 @@ export default function AdminPackagePage() {
             onNewPackage={() => setIsModalOpen(true)}
             onImport={() => setIsImportModalOpen(true)}
             onExport={handleExport}
+            onDownloadTemplate={handleDownloadTemplate}
           />
         }
         pagination={

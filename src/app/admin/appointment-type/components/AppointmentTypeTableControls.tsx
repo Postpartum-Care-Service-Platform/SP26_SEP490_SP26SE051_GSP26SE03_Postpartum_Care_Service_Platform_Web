@@ -20,6 +20,7 @@ type Props = {
   onNewAppointmentType?: () => void;
   onImport?: () => void;
   onExport?: () => void;
+  onDownloadTemplate?: () => void;
 };
 
 const SORT_OPTIONS = [
@@ -35,7 +36,7 @@ const STATUS_OPTIONS: Array<{ value: 'all' | 'active' | 'inactive'; label: strin
   { value: 'inactive', label: 'Tạm dừng' },
 ];
 
-export function AppointmentTypeTableControls({ onSearch, onSortChange, onStatusChange, onNewAppointmentType, onImport, onExport }: Props) {
+export function AppointmentTypeTableControls({ onSearch, onSortChange, onStatusChange, onNewAppointmentType, onImport, onExport, onDownloadTemplate }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState<string>('createdAt-desc');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'inactive'>('all');
@@ -112,6 +113,10 @@ export function AppointmentTypeTableControls({ onSearch, onSortChange, onStatusC
             <DropdownMenuItem className={styles.dropdownItem} onClick={onExport}>
               <DownloadIcon className={styles.itemIcon} />
               Xuất ra Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onDownloadTemplate}>
+              <DownloadIcon size={16} className={styles.itemIcon} />
+              Tải file mẫu
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -9,7 +9,7 @@ type CountUpProps = {
 };
 
 export function CountUp({ value, format = 'number', duration = 2000 }: CountUpProps) {
-  const count = useCountUp(value, { duration, decimals: format === 'percentage' ? 0 : 0 });
+  const count = useCountUp(value, { duration, decimals: format === 'percentage' ? 2 : 0 });
 
   if (format === 'currency') {
     return (

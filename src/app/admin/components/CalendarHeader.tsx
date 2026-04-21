@@ -13,21 +13,25 @@ import styles from './calendar-header.module.css';
 
 type DateOption = 'today' | 'tomorrow' | 'yesterday';
 
-export function CalendarHeader() {
+type CalendarHeaderProps = {
+  onDateSelect: (date: Date) => void;
+};
+
+export function CalendarHeader({ onDateSelect }: CalendarHeaderProps) {
   const [selectedOption, setSelectedOption] = useState<DateOption>('today');
 
   const options: { value: DateOption; label: string }[] = [
-    { value: 'today', label: 'Today' },
-    { value: 'tomorrow', label: 'Tomorrow' },
-    { value: 'yesterday', label: 'Yesterday' },
+    { value: 'today', label: 'Hôm nay' },
+    { value: 'tomorrow', label: 'Ngày mai' },
+    { value: 'yesterday', label: 'Hôm qua' },
   ];
 
   const selectedLabel =
-    options.find((opt) => opt.value === selectedOption)?.label || 'Today';
+    options.find((opt) => opt.value === selectedOption)?.label || 'Hôm nay';
 
   return (
     <div className={styles.header}>
-      <h2 className={styles.title}>Schedule</h2>
+      <h2 className={styles.title}>Lịch hẹn</h2>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className={styles.dateButton} aria-label="Select date">
@@ -57,7 +61,16 @@ export function CalendarHeader() {
               className={`${styles.dropdownItem} ${
                 selectedOption === option.value ? styles.dropdownItemActive : ''
               }`}
-              onClick={() => setSelectedOption(option.value)}
+              onClick={() => {
+                setSelectedOption(option.value);
+                const targetDate = new Date();
+                if (option.value === 'tomorrow') {
+                  targetDate.setDate(targetDate.getDate() + 1);
+                } else if (option.value === 'yesterday') {
+                  targetDate.setDate(targetDate.getDate() - 1);
+                }
+                onDateSelect(targetDate);
+              }}
             >
               {option.label}
             </DropdownMenuItem>

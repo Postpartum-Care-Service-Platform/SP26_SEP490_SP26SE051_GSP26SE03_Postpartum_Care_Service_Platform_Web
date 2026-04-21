@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronDownIcon, MagnifyingGlassIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
-import { Download, Upload } from 'lucide-react';
+import { Download, Upload, FileIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -162,10 +162,37 @@ export default function AdminActivityTypePage() {
 
   const handleExport = async () => {
     try {
-      await activityTypeService.exportActivityTypes();
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
+      const blob = await activityTypeService.exportActivityTypes();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Loai_hoat_dong_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
       toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
     } catch (err) {
       toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      toast({ title: 'Đang tải file mẫu...', variant: 'default' });
+      const blob = await activityTypeService.downloadTemplateActivityTypes();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Mau_nhap_loai_hoat_dong.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Tải file mẫu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Tải file mẫu thất bại'), variant: 'error' });
     }
   };
 
@@ -220,6 +247,10 @@ export default function AdminActivityTypePage() {
             <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleDownloadTemplate}>
+              <FileIcon size={16} className={styles.itemIcon} />
+              Tải file mẫu
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

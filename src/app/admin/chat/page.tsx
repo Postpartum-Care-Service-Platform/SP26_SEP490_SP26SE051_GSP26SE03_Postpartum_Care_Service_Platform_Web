@@ -51,6 +51,10 @@ export default function AdminChatPage() {
     onReceiveMessage,
     onNewSupportRequest,
     onSupportRequestAccepted,
+    onUserJoined,
+    onUserLeft,
+    onStaffJoined,
+    onSupportResolved,
   } = useChatHub({
     token: token || '',
     autoConnect: !!token && !!user,
@@ -251,29 +255,30 @@ export default function AdminChatPage() {
     return Array.from(customersMap.values());
   }, [pinnedChats, allChats, conversations]);
 
-  // SignalR: Lắng nghe tin nhắn mới
+  // SignalR: Lắng nghe events chung (luôn đăng ký khi có kết nối)
   useEffect(() => {
-    if (!activeConversationId) return;
+    if (!isConnected) return;
 
-    const unsubscribe = onReceiveMessage((message) => {
+    // Lắng nghe tin nhắn mới
+    const offReceiveMessage = onReceiveMessage((message) => {
       // 1. Luôn cập nhật danh sách conversations tổng (để hiện số tin nhắn mới, preview tin nhắn cuối)
       setConversations((prev) => {
         if (!Array.isArray(prev)) return [];
         
         return prev.map((conv) => {
-          if (String(conv.id) === String(message.conversationId)) {
-            // Kiểm tra xem tin nhắn đã tồn tại chưa để tránh bị lặp
+          const messageConvId = String(message.conversationId || (message as any).ConversationId);
+          if (String(conv.id) === messageConvId) {
             const messages = Array.isArray(conv.messages) ? conv.messages : [];
             const isExist = messages.some(m => String(m.id) === String(message.id));
             if (isExist) return conv;
 
-            const isCurrentActive = String(message.conversationId) === activeConversationId;
+            const isCurrentActive = messageConvId === activeConversationId;
             
             return {
               ...conv,
               unreadCount: isCurrentActive ? 0 : (conv.unreadCount || 0) + 1,
               messages: [
-                ...(Array.isArray(conv.messages) ? conv.messages : []),
+                ...messages,
                 {
                   id: message.id,
                   content: message.content,
@@ -294,12 +299,14 @@ export default function AdminChatPage() {
       });
 
       // 2. Nếu đang đứng ở đúng cuộc trò chuyện đó thì cập nhật khung chat chính
-      if (String(message.conversationId) === activeConversationId) {
+      const messageConvId = String(message.conversationId || (message as any).ConversationId);
+      if (messageConvId === activeConversationId) {
         setActiveConversation((prev: ChatConversationType | null) => {
           if (!prev) return null;
-          // Tránh lặp tin nhắn
           const messages = Array.isArray(prev.messages) ? prev.messages : [];
           if (messages.some(m => m.id === String(message.id))) return prev;
+
+          const senderType = message.senderType || (message as any).SenderType;
 
           return {
             ...prev,
@@ -307,11 +314,11 @@ export default function AdminChatPage() {
               ...messages,
               {
                 id: String(message.id),
-                senderId: message.senderId || 'unknown',
-                senderName: message.senderName || 'Unknown',
-                senderAvatar: message.senderType === 'Customer' ? prev.participantAvatar : null,
-                content: message.content,
-                timestamp: message.createdAt,
+                senderId: (message.senderId || (message as any).SenderId) || 'unknown',
+                senderName: (message.senderName || (message as any).SenderName) || 'Unknown',
+                senderAvatar: senderType === 'Customer' ? prev.participantAvatar : null,
+                content: message.content || (message as any).Content,
+                timestamp: message.createdAt || (message as any).CreatedAt,
                 isRead: true,
               },
             ],
@@ -320,28 +327,154 @@ export default function AdminChatPage() {
       }
     });
 
-    return unsubscribe;
-  }, [activeConversationId, onReceiveMessage]);
-
-  // SignalR: Lắng nghe support request mới
-  useEffect(() => {
-    const unsubscribe = onNewSupportRequest((event) => {
+    // Lắng nghe support request mới
+    const offNewSupportRequest = onNewSupportRequest((event) => {
       console.log('New support request:', event);
-      loadSupportRequests();
+      void loadSupportRequests();
     });
 
-    return unsubscribe;
-  }, [onNewSupportRequest]);
-
-  // SignalR: Lắng nghe support request accepted
-  useEffect(() => {
-    const unsubscribe = onSupportRequestAccepted((event) => {
+    // Lắng nghe support request accepted
+    const offSupportRequestAccepted = onSupportRequestAccepted((event) => {
       console.log('Support request accepted:', event);
-      loadSupportRequests();
+      void loadSupportRequests();
     });
 
-    return unsubscribe;
-  }, [onSupportRequestAccepted]);
+    // Lắng nghe user join
+    const offUserJoined = onUserJoined((event) => {
+      console.log('User joined event:', event);
+      if (String(event.conversationId) === activeConversationId) {
+        setActiveConversation((prev) => {
+          if (!prev) return null;
+          const msgId = `user_join_${event.userId}_${event.timestamp}`;
+          if (prev.messages.some(m => m.id === msgId)) return prev;
+
+          return {
+            ...prev,
+            messages: [
+              ...prev.messages,
+              {
+                id: msgId,
+                senderId: 'system',
+                senderName: 'System',
+                senderAvatar: null,
+                content: `${event.userName} đã tham gia cuộc trò chuyện`,
+                timestamp: event.timestamp,
+                isRead: true,
+              }
+            ]
+          };
+        });
+      }
+    });
+
+    // Lắng nghe user left
+    const offUserLeft = onUserLeft((event) => {
+      console.log('User left event:', event);
+      if (String(event.conversationId) === activeConversationId) {
+        setActiveConversation((prev) => {
+          if (!prev) return null;
+          const msgId = `user_left_${event.userId}_${event.timestamp}`;
+          if (prev.messages.some(m => m.id === msgId)) return prev;
+
+          return {
+            ...prev,
+            messages: [
+              ...prev.messages,
+              {
+                id: msgId,
+                senderId: 'system',
+                senderName: 'System',
+                senderAvatar: null,
+                content: `${event.userName} đã rời khỏi cuộc trò chuyện`,
+                timestamp: event.timestamp,
+                isRead: true,
+              }
+            ]
+          };
+        });
+      }
+    });
+
+    // Lắng nghe staff joined
+    const offStaffJoined = onStaffJoined((event) => {
+      console.log('Staff joined event:', event);
+      if (String(event.conversationId) === activeConversationId) {
+        setActiveConversation((prev) => {
+          if (!prev) return null;
+          const msgId = `join_${event.requestId}_${event.timestamp}`;
+          if (prev.messages.some(m => m.id === msgId)) return prev;
+
+          return {
+            ...prev,
+            messages: [
+              ...prev.messages,
+              {
+                id: msgId,
+                senderId: 'system',
+                senderName: 'System',
+                senderAvatar: null,
+                content: event.message,
+                timestamp: event.timestamp,
+                isRead: true,
+              }
+            ]
+          };
+        });
+      }
+    });
+
+    // Lắng nghe support resolved
+    const offSupportResolved = onSupportResolved((event) => {
+      console.log('Support resolved event:', event);
+      if (String(event.conversationId) === activeConversationId) {
+        setActiveSupportRequestId(null);
+        setActiveConversation((prev) => {
+          if (!prev) return null;
+          const msgId = `resolve_${event.requestId}_${event.timestamp}`;
+          if (prev.messages.some(m => m.id === msgId)) return prev;
+
+          return {
+            ...prev,
+            messages: [
+              ...prev.messages,
+              {
+                id: msgId,
+                senderId: 'system',
+                senderName: 'System',
+                senderAvatar: null,
+                content: event.message,
+                timestamp: event.timestamp,
+                isRead: true,
+              }
+            ]
+          };
+        });
+      }
+    });
+
+    return () => {
+      offReceiveMessage();
+      offNewSupportRequest?.();
+      offSupportRequestAccepted?.();
+      offUserJoined();
+      offUserLeft();
+      offStaffJoined();
+      offSupportResolved();
+    };
+  }, [isConnected, activeConversationId, onReceiveMessage, onNewSupportRequest, onSupportRequestAccepted, onUserJoined, onUserLeft, onStaffJoined, onSupportResolved]);
+
+  // Tự động Join Group khi kết nối thành công (Fix race condition)
+  useEffect(() => {
+    if (isConnected && activeConversationId) {
+      joinConversation(Number(activeConversationId)).catch(err => {
+        console.error('[SignalR] Failed to auto-join group:', err);
+      });
+    }
+  }, [isConnected, activeConversationId, joinConversation]);
+
+
+
+
 
   // Tự động chọn cuộc trò chuyện đầu tiên khi dữ liệu đã tải xong
   useEffect(() => {
@@ -405,6 +538,8 @@ export default function AdminChatPage() {
       alert('Không thể gửi tin nhắn. Vui lòng thử lại.');
     }
   };
+
+
 
   const handleInfoClick = () => {
     console.log('Info clicked');
@@ -479,7 +614,11 @@ export default function AdminChatPage() {
     >
       <div className={styles.container}>
         <div className={styles.bottomSection}>
-          <ChatSidebar activeView={activeView} onViewChange={setActiveView} />
+          <ChatSidebar
+            activeView={activeView}
+            onViewChange={setActiveView}
+            supportRequestsBadgeCount={supportRequests.length}
+          />
           <div className={styles.mainContent}>
             {activeView === 'contacts' ? (
               <div className={styles.contactsFullWidth}>

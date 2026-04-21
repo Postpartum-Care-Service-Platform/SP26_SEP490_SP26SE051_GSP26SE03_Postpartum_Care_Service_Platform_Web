@@ -84,15 +84,27 @@ export interface PackageData {
     is_active: boolean;
 }
 
+export interface SupportRequestCustomerInfo {
+    id: string;
+    email?: string;
+    username?: string;
+    phone?: string;
+    avatarUrl?: string;
+    fullName?: string;
+}
+
 export interface SupportRequestResponse {
     id: number;
     conversationId: number;
-    customerId: string;
-    customerName: string;
+    customerId?: string;
+    customerName?: string;
     customerAvatar?: string;
+    customer?: SupportRequestCustomerInfo;
     reason?: string;
     status: string;
     createdAt: string;
+    assignedAt?: string | null;
+    resolvedAt?: string | null;
 }
 
 // Chat Service - baseUrl đã có /api nên chỉ cần /Chat/...

@@ -93,6 +93,11 @@
   width: 100%;
   position: relative;
   overflow: hidden;
+  outline: none;
+}
+
+.chartContainer *:focus {
+  outline: none !important;
 }
 
 .tooltip {

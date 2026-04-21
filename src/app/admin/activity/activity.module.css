@@ -4,3 +4,29 @@
   gap: 0;
   padding: 16px;
 }
+
+.loadingState,
+.errorState,
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  color: #6b7280;
+  font-size: 15px;
+  margin: 16px 0;
+}
+
+.errorState {
+  color: #ef4444;
+  border: 1px solid #fee2e2;
+}
+
+.emptyState {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px dashed #d1d5db;
+}

@@ -1,5 +1,4 @@
 import type { Activity, CreateActivityRequest, UpdateActivityRequest } from '@/types/activity';
-
 import apiClient from './apiClient';
 
 const activityService = {
@@ -19,23 +18,29 @@ const activityService = {
   deleteActivity: (id: number): Promise<void> => {
     return apiClient.delete(`/Activities/${id}`);
   },
-  // Import/Export Excel
+
+  // Standardized Master Data Export/Import
   exportActivities: (): Promise<Blob> => {
-    return apiClient.get('/Activities/export', {
+    return apiClient.get('/MasterDataExport/export/activities', {
       responseType: 'blob',
     });
   },
+
   importActivities: (file: File): Promise<any> => {
     const formData = new FormData();
     formData.append('file', file);
-    return apiClient.post('/Activities/import', formData, {
+    return apiClient.post('/MasterDataExport/import/activities', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
   },
+
+  downloadTemplateActivities: (): Promise<Blob> => {
+    return apiClient.get('/MasterDataExport/template/activities', {
+      responseType: 'blob',
+    });
+  },
 };
 
 export default activityService;
-
-

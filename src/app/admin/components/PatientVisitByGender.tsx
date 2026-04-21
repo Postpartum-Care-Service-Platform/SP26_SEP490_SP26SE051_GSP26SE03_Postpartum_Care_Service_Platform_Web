@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Area,
   AreaChart,
-  CartesianGrid,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -18,31 +18,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
 
+import statisticsService from '@/services/statistics.service';
 import styles from './patient-visit-by-gender.module.css';
 
-type GenderVisitData = {
+type MonthlyCompletionData = {
   month: string;
-  female: number;
-  male: number;
+  completed: number;
+  missed: number;
+  cancelled: number;
+  scheduled: number;
 };
-
-type PatientVisitByGenderProps = {
-  data?: GenderVisitData[];
-};
-
-const mockData: GenderVisitData[] = [
-  { month: 'Feb', female: 65, male: 40 },
-  { month: 'Mar', female: 85, male: 60 },
-  { month: 'Apr', female: 75, male: 55 },
-  { month: 'May', female: 55, male: 45 },
-  { month: 'Jun', female: 78, male: 62 },
-  { month: 'Jul', female: 50, male: 35 },
-  { month: 'Aug', female: 88, male: 68 },
-  { month: 'Sep', female: 65, male: 50 },
-  { month: 'Oct', female: 75, male: 60 },
-  { month: 'Nov', female: 80, male: 55 },
-  { month: 'Dec', female: 55, male: 30 },
-];
 
 type PatientVisitTooltipItem = {
   color?: string;
@@ -105,19 +90,103 @@ const CustomLegend = ({ payload }: PatientVisitLegendProps) => {
   );
 };
 
-export function PatientVisitByGender({
-  data = mockData,
-}: PatientVisitByGenderProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState('weekly');
+export function PatientVisitByGender() {
+  const [selectedPeriod, setSelectedPeriod] = useState('monthly');
+  const [chartData, setChartData] = useState<MonthlyCompletionData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Helper to get ranges based on period
+  const getRanges = (period: string) => {
+    const ranges = [];
+    const now = new Date();
+    
+    if (period === 'monthly') {
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const start = new Date(Date.UTC(d.getFullYear(), d.getMonth(), 1));
+        const end = new Date(Date.UTC(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59));
+        
+        ranges.push({
+          name: d.toLocaleString('vi-VN', { month: 'short' }).replace('.', ''),
+          start: start.toISOString().split('T')[0],
+          end: end.toISOString().split('T')[0]
+        });
+      }
+    } else {
+      // Weekly: get last 7 weeks
+      for (let i = 7; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - (i * 7 + (d.getDay() === 0 ? 6 : d.getDay() - 1))); // Start of week (Monday)
+        const start = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        const end = new Date(start);
+        end.setDate(end.getDate() + 6);
+        end.setHours(23, 59, 59);
+
+        ranges.push({
+          name: `Tuần ${7 - i + 1}`, // Simplified week name
+          label: `${start.getDate()}/${start.getMonth() + 1}`,
+          start: start.toISOString().split('T')[0],
+          end: end.toISOString().split('T')[0]
+        });
+      }
+    }
+    return ranges;
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const ranges = getRanges(selectedPeriod);
+        
+        const results = await Promise.all(
+          ranges.map(async (r) => {
+            try {
+              const res = await statisticsService.getActivityCompletionRate({
+                startDate: r.start,
+                endDate: r.end
+              });
+              return {
+                month: r.label || r.name,
+                completed: res?.completed || 0,
+                missed: res?.missed || 0,
+                cancelled: res?.cancelled || 0,
+                scheduled: res?.scheduled || 0,
+                total: res?.total || 0
+              };
+            } catch {
+              return { month: r.label || r.name, completed: 0, missed: 0, cancelled: 0, scheduled: 0, total: 0 };
+            }
+          })
+        );
+        
+        setChartData(results);
+      } catch (err) {
+        console.error('Error fetching activity history:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [selectedPeriod]);
+
+  const meta = [
+    { key: 'total', name: 'Tổng cộng', color: '#3B82F6' },
+    { key: 'completed', name: 'Hoàn thành', color: '#4ec5ad' },
+    { key: 'missed', name: 'Bỏ lỡ', color: '#fd6161' },
+    { key: 'scheduled', name: 'Đã lên lịch', color: '#a47bc8' },
+    { key: 'cancelled', name: 'Đã hủy', color: '#f5d178' },
+  ];
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h3 className={styles.title}>Patient visit by Gender</h3>
+        <h3 className={styles.title}>Thống kê Hoàn thành Hoạt động</h3>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className={styles.periodButton} aria-label="Select period">
-              <span>{selectedPeriod === 'monthly' ? 'Monthly' : 'Weekly'}</span>
+            <button className={styles.periodButton} aria-label="Chọn giai đoạn">
+              <span>{selectedPeriod === 'monthly' ? 'Hàng tháng' : 'Hàng tuần'}</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -141,13 +210,13 @@ export function PatientVisitByGender({
               className={`${styles.dropdownItem} ${selectedPeriod === 'monthly' ? styles.dropdownItemActive : ''}`}
               onClick={() => setSelectedPeriod('monthly')}
             >
-              Monthly
+              Hàng tháng
             </DropdownMenuItem>
             <DropdownMenuItem
               className={`${styles.dropdownItem} ${selectedPeriod === 'weekly' ? styles.dropdownItemActive : ''}`}
               onClick={() => setSelectedPeriod('weekly')}
             >
-              Weekly
+              Hàng tuần
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -155,87 +224,69 @@ export function PatientVisitByGender({
       <div className={styles.body}>
         <div className={styles.chartContainer}>
           <ResponsiveContainer width="100%" height="100%" minHeight={200}>
-            <AreaChart
-              data={data}
-              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-            >
-              <defs>
-                <linearGradient
-                  id="femaleGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset="0%" stopColor="#a47bc8" stopOpacity={0.3} />
-                  <stop offset="90%" stopColor="#a47bc8" stopOpacity={0} />
-                  <stop offset="100%" stopColor="#a47bc8" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient
-                  id="maleGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset="0%" stopColor="#f5d178" stopOpacity={0.3} />
-                  <stop offset="90%" stopColor="#f5d178" stopOpacity={0} />
-                  <stop offset="100%" stopColor="#f5d178" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="#f0f0f0"
-                vertical={true}
-                horizontal={false}
-              />
-              <XAxis
-                dataKey="month"
-                axisLine={false}
-                tickLine={false}
-                tick={{
-                  fill: '#888',
-                  fontSize: 12,
-                  fontFamily: 'inherit',
-                  fontWeight: 500
-                }}
-                dy={10}
-              />
-              <YAxis hide domain={['dataMin - 10', 'dataMax + 10']} />
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={{
-                  stroke: '#b6b6b6',
-                  strokeWidth: 1,
-                  strokeDasharray: '3 3',
-                }}
-              />
-              <Area
-                type="monotone"
-                dataKey="female"
-                stroke="#a47bc8"
-                strokeWidth={2}
-                fill="url(#femaleGradient)"
-                name="Female"
-                activeDot={{ r: 6, fill: '#a47bc8', stroke: '#fff', strokeWidth: 2 }}
-              />
-              <Area
-                type="monotone"
-                dataKey="male"
-                stroke="#f5d178"
-                strokeWidth={2}
-                fill="url(#maleGradient)"
-                name="Male"
-                activeDot={{ r: 6, fill: '#f5d178', stroke: '#fff', strokeWidth: 2 }}
-              />
-            </AreaChart>
+            {loading ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#888', fontSize: '12px' }}>
+                Đang tải dữ liệu thực tế...
+              </div>
+            ) : (
+              <AreaChart
+                data={chartData}
+                margin={{ top: 10, right: 10, left: 10, bottom: 0 }}
+              >
+                <defs>
+                  {meta.map(m => (
+                    <linearGradient key={m.key} id={`${m.key}Gradient`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={m.color} stopOpacity={0.2} />
+                      <stop offset="90%" stopColor={m.color} stopOpacity={0} />
+                    </linearGradient>
+                  ))}
+                </defs>
+                
+                {/* Horizontal dash lines */}
+                {[50, 100, 150, 200, 250].map((v) => (
+                  <ReferenceLine
+                    key={v}
+                    y={v}
+                    stroke="#eee"
+                    strokeDasharray="4 4"
+                    strokeWidth={1}
+                  />
+                ))}
+                <ReferenceLine y={0} stroke="#eee" strokeWidth={1} />
+
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#888', fontSize: 11 }}
+                  dy={10}
+                />
+                <YAxis 
+                  width={35}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#888', fontSize: 11 }}
+                  domain={['0', 'auto']}
+                />
+                <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#b6b6b6', strokeDasharray: '3 3' }} />
+                {meta.map(m => (
+                  <Area
+                    key={m.key}
+                    type="monotone"
+                    dataKey={m.key}
+                    stroke={m.color}
+                    strokeWidth={2}
+                    fill={`url(#${m.key}Gradient)`}
+                    name={m.name}
+                    activeDot={{ r: 5, fill: m.color, stroke: '#fff', strokeWidth: 2 }}
+                  />
+                ))}
+              </AreaChart>
+            )}
           </ResponsiveContainer>
         </div>
         <CustomLegend
-          payload={[
-            { value: 'Female', color: '#a47bc8' },
-            { value: 'Male', color: '#f5d178' },
-          ]}
+          payload={meta.map(m => ({ value: m.name, color: m.color }))}
         />
       </div>
     </div>

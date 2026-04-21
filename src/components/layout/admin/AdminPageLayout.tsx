@@ -3,6 +3,7 @@
 import React from 'react';
 
 import styles from './admin-page-layout.module.css';
+import { DataLoader } from '@/components/ui';
 
 interface AdminPageLayoutProps {
   children: React.ReactNode;
@@ -10,7 +11,10 @@ interface AdminPageLayoutProps {
   controlPanel?: React.ReactNode;
   pagination?: React.ReactNode;
   noScroll?: boolean;
+  noHorizontalScroll?: boolean;
   noCard?: boolean;
+  hideScrollbar?: boolean;
+  isLoading?: boolean;
 }
 
 export function AdminPageLayout({
@@ -19,14 +23,22 @@ export function AdminPageLayout({
   controlPanel,
   pagination,
   noScroll = false,
+  noHorizontalScroll = false,
   noCard = false,
+  hideScrollbar = false,
+  isLoading = false,
 }: AdminPageLayoutProps) {
   if (noCard) {
     return (
       <div className={styles.container}>
         {header && <div className={styles.header}>{header}</div>}
-        <div className={`${styles.scrollArea} ${noScroll ? styles.noScroll : ''}`}>
-          {children}
+        {controlPanel && <div className={styles.controlPanel}>{controlPanel}</div>}
+        <div className={`${styles.scrollArea} ${noScroll ? styles.noScroll : ''} ${noHorizontalScroll ? styles.noHorizontalScroll : ''} ${hideScrollbar ? styles.hideScrollbar : ''}`}>
+          {isLoading ? (
+            <div className={styles.dataLoaderWrapper}>
+              <DataLoader minHeight="calc(100vh - 200px)" />
+            </div>
+          ) : children}
         </div>
       </div>
     );
@@ -43,8 +55,14 @@ export function AdminPageLayout({
         {controlPanel && <div className={styles.controlPanel}>{controlPanel}</div>}
 
         {/* Scrollable Table Area */}
-        <div className={`${styles.scrollArea} ${noScroll ? styles.noScroll : ''}`}>
-          <div className={styles.tableContainer}>{children}</div>
+        <div className={`${styles.scrollArea} ${noScroll ? styles.noScroll : ''} ${hideScrollbar ? styles.hideScrollbar : ''}`}>
+          <div className={`${styles.horizontalScroll} ${noHorizontalScroll ? styles.noHorizontalScroll : ''}`}>
+            <div className={styles.tableContainer}>
+              {isLoading ? (
+                <DataLoader minHeight="calc(100vh - 350px)" />
+              ) : children}
+            </div>
+          </div>
         </div>
 
         {/* Pagination - Sticky bottom of card */}
@@ -53,4 +71,3 @@ export function AdminPageLayout({
     </div>
   );
 }
-
