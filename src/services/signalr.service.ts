@@ -99,12 +99,18 @@ export class SignalRService {
     private maxReconnectAttempts = 5;
     private handlers: Map<string, Map<any, any>> = new Map(); // Store wrappers to allow .off()
 
+    private connectionPromise: Promise<void> | null = null;
+
     /**
      * Tạo và khởi tạo connection đến SignalR Hub
      */
     async connect(token: string, hubUrl: string = '/hubs/chat'): Promise<void> {
         if (this.connection?.state === signalR.HubConnectionState.Connected) {
             return;
+        }
+
+        if (this.connection?.state === signalR.HubConnectionState.Connecting && this.connectionPromise) {
+            return this.connectionPromise;
         }
 
         // Xây dựng full URL
@@ -133,6 +139,9 @@ export class SignalRService {
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
+        // Đăng ký proxy listeners NGAY LẬP TỨC trước khi start
+        this.registerProxyListeners();
+
         // Setup reconnection handlers
         this.connection.onreconnecting((error) => {
             console.warn('SignalR reconnecting...', error);
@@ -151,13 +160,18 @@ export class SignalRService {
             }
         });
 
-        try {
-            await this.connection.start();
-            console.log('SignalR connected successfully');
-        } catch (error) {
-            console.error('Error connecting to SignalR:', error);
-            throw error;
-        }
+        this.connectionPromise = this.connection.start()
+            .then(() => {
+                console.log('SignalR connected successfully');
+                this.connectionPromise = null;
+            })
+            .catch((error) => {
+                console.error('Error connecting to SignalR:', error);
+                this.connectionPromise = null;
+                throw error;
+            });
+
+        return this.connectionPromise;
     }
 
     /**
@@ -252,16 +266,40 @@ export class SignalRService {
     // ==================== Event Listeners ====================
 
     /**
+     * Đăng ký các hàm proxy để nhận sự kiện từ Hub và phân phối cho các handler nội bộ
+     */
+    private registerProxyListeners(): void {
+        const events = [
+            'ReceiveMessage', 'UserJoined', 'UserLeft', 'UserTyping', 
+            'MessagesRead', 'StaffJoined', 'SupportRequestCreated', 
+            'NewSupportRequest', 'SupportRequestAccepted', 'SupportResolved'
+        ];
+
+        events.forEach(evt => {
+            const proxy = (...args: any[]) => {
+                const handlers = this.handlers.get(evt);
+                if (handlers) {
+                    handlers.forEach(wrapper => {
+                        try {
+                            wrapper(...args);
+                        } catch (err) {
+                            console.error(`[SignalR Proxy] Error in handler for ${evt}:`, err);
+                        }
+                    });
+                }
+            };
+            
+            // Đăng ký cả hai kiểu chữ (PascalCase và lowercase)
+            this.connection?.on(evt, proxy);
+            this.connection?.on(evt.toLowerCase(), proxy);
+        });
+    }
+
+    /**
      * Lắng nghe tin nhắn mới
      */
     onReceiveMessage(callback: (message: MessageEvent) => void): void {
-        const wrapper = (data: MessageEvent) => {
-            console.log('[SignalR] Event: ReceiveMessage', data);
-            callback(data);
-        };
-        
-        this.saveHandler('ReceiveMessage', callback, wrapper);
-        this.connection?.on('ReceiveMessage', wrapper);
+        this.saveHandler('ReceiveMessage', callback, callback);
     }
 
     private saveHandler(event: string, original: any, wrapper: any) {
@@ -271,94 +309,74 @@ export class SignalRService {
         this.handlers.get(event)?.set(original, wrapper);
     }
 
-    private getHandler(event: string, original: any) {
-        return this.handlers.get(event)?.get(original);
-    }
-
     /**
      * Lắng nghe typing indicator
      */
     onUserTyping(callback: (event: TypingEvent) => void): void {
-        this.connection?.on('UserTyping', (data) => {
-            console.log('[SignalR] Event: UserTyping', data);
-            callback(data);
-        });
+        this.saveHandler('UserTyping', callback, callback);
     }
 
     /**
      * Lắng nghe messages read
      */
     onMessagesRead(callback: (event: MessagesReadEvent) => void): void {
-        this.connection?.on('MessagesRead', callback);
+        this.saveHandler('MessagesRead', callback, callback);
     }
 
     /**
      * Lắng nghe staff joined
      */
     onStaffJoined(callback: (event: StaffJoinedEvent) => void): void {
-        this.connection?.on('StaffJoined', callback);
+        this.saveHandler('StaffJoined', callback, callback);
     }
 
     /**
      * Lắng nghe support request created (Customer)
      */
     onSupportRequestCreated(callback: (event: SupportRequestCreatedEvent) => void): void {
-        this.connection?.on('SupportRequestCreated', (data) => {
-            console.log('[SignalR] Event: SupportRequestCreated', data);
-            callback(data);
-        });
+        this.saveHandler('SupportRequestCreated', callback, callback);
     }
 
     /**
      * Lắng nghe new support request (Staff)
      */
     onNewSupportRequest(callback: (event: SupportRequestEvent) => void): void {
-        console.log('[SignalRService] Registering listener for NewSupportRequest');
-        this.connection?.on('NewSupportRequest', (event: SupportRequestEvent) => {
-            console.log('[SignalRService] RECEIVED EVENT: NewSupportRequest', event);
-            callback(event);
-        });
+        this.saveHandler('NewSupportRequest', callback, callback);
     }
 
     /**
      * Lắng nghe support request accepted (Staff)
      */
     onSupportRequestAccepted(callback: (event: SupportRequestAcceptedEvent) => void): void {
-        this.connection?.on('SupportRequestAccepted', (data) => {
-            console.log('[SignalR] Event: SupportRequestAccepted', data);
-            callback(data);
-        });
+        this.saveHandler('SupportRequestAccepted', callback, callback);
     }
 
     /**
      * Lắng nghe support resolved
      */
     onSupportResolved(callback: (event: SupportResolvedEvent) => void): void {
-        this.connection?.on('SupportResolved', callback);
+        this.saveHandler('SupportResolved', callback, callback);
     }
 
     /**
      * Lắng nghe user joined
      */
     onUserJoined(callback: (event: UserJoinedEvent) => void): void {
-        this.connection?.on('UserJoined', callback);
+        this.saveHandler('UserJoined', callback, callback);
     }
 
     /**
      * Lắng nghe user left
      */
     onUserLeft(callback: (event: UserLeftEvent) => void): void {
-        this.connection?.on('UserLeft', callback);
+        this.saveHandler('UserLeft', callback, callback);
     }
 
     /**
      * Lắng nghe errors
      */
     onError(callback: (error: ErrorEvent) => void): void {
-        this.connection?.on('Error', (data) => {
-            console.error('[SignalR] Event: Error', data);
-            callback(data);
-        });
+        this.saveHandler('Error', callback, callback);
     }
 
     /**
@@ -366,15 +384,8 @@ export class SignalRService {
      */
     off(eventName: string, callback?: (...args: unknown[]) => void): void {
         if (callback) {
-            const wrapper = this.getHandler(eventName, callback);
-            if (wrapper) {
-                this.connection?.off(eventName, wrapper);
-                this.handlers.get(eventName)?.delete(callback);
-            } else {
-                this.connection?.off(eventName, callback);
-            }
+            this.handlers.get(eventName)?.delete(callback);
         } else {
-            this.connection?.off(eventName);
             this.handlers.delete(eventName);
         }
     }

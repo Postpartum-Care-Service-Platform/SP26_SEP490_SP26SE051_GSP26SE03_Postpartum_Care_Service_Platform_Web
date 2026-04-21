@@ -26,7 +26,7 @@ const getDayName = (dayOfWeek: number) => {
 const getIntensityColor = (count: number, max: number) => {
   if (count === 0) return 'transparent';
   const colors = [
-    '#fff4e6', '#ffe8cc', '#ffd8a8', '#ffc078', '#ffa94d', 
+    '#fff4e6', '#ffe8cc', '#ffd8a8', '#ffc078', '#ffa94d',
     '#ff922b', '#fd7e14', '#f76707', '#e8590c', '#d9480f'
   ];
   const level = Math.min(Math.floor((count / (max || 1)) * 9), 9);
@@ -78,7 +78,7 @@ export function AppointmentHeatmap() {
       } : undefined;
 
       const res = await statisticsService.getAppointmentHeatmap(params);
-      
+
       // Lấy danh sách points
       const points = res?.points || res?.Points || [];
       setData(points);
@@ -143,13 +143,13 @@ export function AppointmentHeatmap() {
 
         <div className={styles.headerRight}>
           <div className={styles.viewToggle}>
-            <button 
+            <button
               className={`${styles.toggleBtn} ${viewMode === '2d' ? styles.activeToggle : ''}`}
               onClick={() => setViewMode('2d')}
             >
               2D
             </button>
-            <button 
+            <button
               className={`${styles.toggleBtn} ${viewMode === '3d' ? styles.activeToggle : ''}`}
               onClick={() => setViewMode('3d')}
             >
@@ -157,19 +157,19 @@ export function AppointmentHeatmap() {
             </button>
           </div>
           <div className={styles.presets}>
-            <button 
+            <button
               className={`${styles.presetBtn} ${dateRange?.from && format(dateRange.from, 'yyyy-MM-dd') === format(subDays(new Date(), 6), 'yyyy-MM-dd') ? styles.activePreset : ''}`}
               onClick={() => setPreset(7)}
             >
               7 ngày
             </button>
-            <button 
+            <button
               className={`${styles.presetBtn} ${dateRange?.from && format(dateRange.from, 'yyyy-MM-dd') === format(subDays(new Date(), 29), 'yyyy-MM-dd') ? styles.activePreset : ''}`}
               onClick={() => setPreset(30)}
             >
               30 ngày
             </button>
-            <button 
+            <button
               className={`${styles.presetBtn} ${dateRange?.from && dateRange.from.getDate() === 1 ? styles.activePreset : ''}`}
               onClick={() => setPreset('current_month')}
             >
@@ -195,12 +195,14 @@ export function AppointmentHeatmap() {
             ))}
 
             {sortedDates.map(dateGroup => {
+              const isToday = dateGroup.date === format(new Date(), 'yyyy-MM-dd');
               return (
                 <div key={dateGroup.date} className={styles.row}>
                   <div className={styles.dayLabel}>
                     <div className={styles.dateInfo}>
-                      <span className={styles.fullDate}>
+                      <span className={`${styles.fullDate} ${isToday ? styles.todayLabel : ''}`}>
                         {formatDateLabel(dateGroup.date, dateGroup.dayOfWeek)}
+                        <span className={styles.dailyTotalSimple}> ({dateGroup.points.reduce((sum, p) => sum + (p.count || 0), 0)})</span>
                       </span>
                     </div>
                   </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
 
 import styles from './admin-dashboard.module.css';
 import { AdminCalendar } from './components/AdminCalendar';
@@ -54,6 +54,7 @@ export default function AdminPage() {
   });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedDateAppointments, setSelectedDateAppointments] = useState<any[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -117,6 +118,40 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
+    const fetchCalendarEvents = async () => {
+      try {
+        const start = format(startOfMonth(selectedDate), 'yyyy-MM-dd');
+        const end = format(endOfMonth(selectedDate), 'yyyy-MM-dd');
+        const res = await statisticsService.getAppointmentHeatmap({ startDate: start, endDate: end });
+        
+        if (res && res.points) {
+          // Group points by date to see which days have appointments
+          const daysWithEvents = res.points
+            .filter((p: any) => p.count > 0)
+            .reduce((acc: any[], p: any) => {
+              const existing = acc.find(a => a.date === p.date);
+              if (existing) {
+                existing.count += p.count;
+              } else {
+                acc.push({ date: p.date, count: p.count });
+              }
+              return acc;
+            }, [])
+            .map((e: any) => ({
+              date: new Date(e.date),
+              count: e.count
+            }));
+          
+          setCalendarEvents(daysWithEvents);
+        }
+      } catch (error) {
+        console.error('Failed to fetch calendar events', error);
+      }
+    };
+    fetchCalendarEvents();
+  }, [selectedDate.getMonth(), selectedDate.getFullYear()]);
+
+  useEffect(() => {
     const fetchAppointments = async () => {
       try {
         const dateStr = format(selectedDate, 'yyyy-MM-dd');
@@ -157,7 +192,7 @@ export default function AdminPage() {
             <div className={styles.calendarSection}>
               <CalendarHeader onDateSelect={(date) => setSelectedDate(date)} />
               <AdminCalendar
-                events={[]}
+                events={calendarEvents}
                 selectedDate={selectedDate}
                 onDateSelect={(date) => {
                   setSelectedDate(date);
@@ -167,7 +202,7 @@ export default function AdminPage() {
                 }}
               />
               <AppointmentCarousel
-                appointments={selectedDateAppointments.map(app => ({
+                appointments={selectedDateAppointments.slice(0, 5).map(app => ({
                   id: String(app.id),
                   doctorName: app.appointmentTypeName,
                   specialty: app.customerName,
@@ -227,9 +262,6 @@ export default function AdminPage() {
           </div>
         </div>
         <PerformanceBulletCharts />
-        <div className={styles.invoiceRow}>
-          <InvoiceList transactions={transactions} />
-        </div>
 
         
       </div>

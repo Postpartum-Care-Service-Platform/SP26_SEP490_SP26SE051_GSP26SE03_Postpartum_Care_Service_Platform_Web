@@ -12,6 +12,7 @@
 }
 
 .appointmentCard {
+  flex: 0 0 100%;
   display: flex;
   align-items: flex-start;
   gap: 12px;
@@ -19,18 +20,13 @@
   background-color: #ffffff;
   border-radius: 4px;
   border: 1px solid #e0e0e0;
-  animation: slideInFromRight 0.4s ease-out;
+  box-sizing: border-box;
 }
 
-@keyframes slideInFromRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+.carouselTrack {
+  display: flex;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
 }
 
 .avatarContainer {
@@ -87,12 +83,12 @@
 .timeBadge {
   flex-shrink: 0;
   padding: 7px 8px;
-  background-color: #f2f2f4;
+  background-color: #ff9a3e;
   border-radius: 4px;
   font-family: 'Funnel Sans', sans-serif;
   font-size: 12px;
-  font-weight: 500;
-  color: #343a40;
+  font-weight: 600;
+  color: #ffffff;
 }
 
 

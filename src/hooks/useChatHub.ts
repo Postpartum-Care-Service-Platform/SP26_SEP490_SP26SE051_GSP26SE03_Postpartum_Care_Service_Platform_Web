@@ -240,6 +240,22 @@ export const useChatHub = (options: UseChatHubOptions) => {
     }, []);
 
     /**
+     * Subscribe to user joined event
+     */
+    const onUserJoined = useCallback((callback: (event: UserJoinedEvent) => void) => {
+        signalRRef.current.onUserJoined(callback);
+        return () => signalRRef.current.off('UserJoined', callback as (...args: unknown[]) => void);
+    }, []);
+
+    /**
+     * Subscribe to user left event
+     */
+    const onUserLeft = useCallback((callback: (event: UserLeftEvent) => void) => {
+        signalRRef.current.onUserLeft(callback);
+        return () => signalRRef.current.off('UserLeft', callback as (...args: unknown[]) => void);
+    }, []);
+
+    /**
      * Subscribe to error event
      */
     const onError = useCallback((callback: (error: ErrorEvent) => void) => {
@@ -309,6 +325,8 @@ export const useChatHub = (options: UseChatHubOptions) => {
 
         // Event listeners
         onReceiveMessage,
+        onUserJoined,
+        onUserLeft,
         onUserTyping,
         onMessagesRead,
         onStaffJoined,
