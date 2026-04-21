@@ -11,6 +11,8 @@ import {
     SupportRequestCreatedEvent,
     SupportRequestAcceptedEvent,
     SupportResolvedEvent,
+    UserJoinedEvent,
+    UserLeftEvent,
     ErrorEvent,
 } from '@/services/signalr.service';
 
