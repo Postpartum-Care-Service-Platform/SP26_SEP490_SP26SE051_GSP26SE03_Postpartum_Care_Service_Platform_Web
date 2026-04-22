@@ -7,14 +7,14 @@ import statisticsService from '@/services/statistics.service';
 import styles from '../admin/admin-dashboard.module.css';
 import { AdminCalendar } from '../admin/components/AdminCalendar';
 import { AppointmentCarousel } from '../admin/components/AppointmentCarousel';
-import { AppointmentsList } from '../admin/components/AppointmentsList';
+import { AppointmentAnalytics } from '../admin/components/AppointmentAnalytics';
 import { AveragePatientVisit } from '../admin/components/AveragePatientVisit';
 import { CalendarHeader } from '../admin/components/CalendarHeader';
 import { DashboardHeader } from '../admin/components/DashboardHeader';
 import { DashboardStatsCards } from '../admin/components/DashboardStatsCards';
 import { GenderStatsCard } from '../admin/components/GenderStatsCard';
 import { InvoiceList } from '../admin/components/InvoiceList';
-import { PatientByAge } from '../admin/components/PatientByAge';
+import { PatientStatusChart } from '../admin/components/PatientStatusChart';
 import { PatientVisitByGender } from '../admin/components/PatientVisitByGender';
 import { TeamProductivity } from '../admin/components/TeamProductivity';
 import { TopDoctors } from '../admin/components/TopDoctors';
@@ -134,8 +134,8 @@ export default function ManagerPage() {
           <InvoiceList />
         </div>
         <div className={styles.appointmentsRow}>
-          <AppointmentsList />
-          <PatientByAge />
+          <AppointmentAnalytics />
+          <PatientStatusChart />
         </div>
       </div>
     </div>

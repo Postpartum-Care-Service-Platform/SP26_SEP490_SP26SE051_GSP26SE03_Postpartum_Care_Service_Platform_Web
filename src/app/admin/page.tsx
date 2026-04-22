@@ -6,7 +6,6 @@ import { format, startOfMonth, endOfMonth } from 'date-fns';
 import styles from './admin-dashboard.module.css';
 import { AdminCalendar } from './components/AdminCalendar';
 import { AppointmentCarousel } from './components/AppointmentCarousel';
-import { AppointmentAnalytics } from './components/AppointmentAnalytics';
 import { AveragePatientVisit } from './components/AveragePatientVisit';
 import { CalendarHeader } from './components/CalendarHeader';
 import { DashboardHeader } from './components/DashboardHeader';
