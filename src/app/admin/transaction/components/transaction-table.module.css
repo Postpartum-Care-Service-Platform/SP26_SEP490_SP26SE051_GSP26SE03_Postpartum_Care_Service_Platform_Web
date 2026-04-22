@@ -9,8 +9,9 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow-x: auto;
+  overflow: auto;
   min-height: 0;
+  max-height: 320px; /* Reduced to fit the shrunken card */
 }
 
 .scrollContainer::-webkit-scrollbar {

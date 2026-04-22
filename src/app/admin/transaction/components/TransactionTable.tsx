@@ -114,13 +114,12 @@ export function TransactionTable({ transactions, onView, currentPage = 1, pageSi
               <th>Phương thức</th>
               <th>Ngày giao dịch</th>
               <th>Trạng thái</th>
-              <th className={styles.stickyColHeader}>Thao tác</th>
             </tr>
           </thead>
           <tbody>
             {transactions.length === 0 ? (
               <tr>
-                <td colSpan={9} className={styles.emptyState}>
+                <td colSpan={8} className={styles.emptyState}>
                   Chưa có giao dịch nào
                 </td>
               </tr>
@@ -155,22 +154,6 @@ export function TransactionTable({ transactions, onView, currentPage = 1, pageSi
                     <span className={`${styles.statusBadge} ${getStatusBadgeClass(transaction.status)}`}>
                       {getStatusLabel(transaction.status)}
                     </span>
-                  </td>
-                  <td className={styles.stickyActionsCol}>
-                    <div className={styles.actions}>
-                      <div className={styles.tooltipWrapper}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={`${styles.viewButton} btn-icon btn-sm`}
-                          onClick={() => onView?.(transaction)}
-                          aria-label={`Xem chi tiết giao dịch ${transaction.id}`}
-                        >
-                          <Eye size={16} />
-                        </Button>
-                        <span className={styles.tooltip}>Xem chi tiết</span>
-                      </div>
-                    </div>
                   </td>
                 </tr>
               ))

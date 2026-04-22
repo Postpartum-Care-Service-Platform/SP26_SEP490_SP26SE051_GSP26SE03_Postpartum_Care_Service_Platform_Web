@@ -98,8 +98,9 @@
 
 .metricItem {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
 }
 
 .metricValue {

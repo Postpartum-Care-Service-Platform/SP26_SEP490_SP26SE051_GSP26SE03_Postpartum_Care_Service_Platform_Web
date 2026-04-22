@@ -48,8 +48,8 @@ export const CashflowChart = () => {
           <div className={styles.loadingOverlay}>Đang tải dữ liệu...</div>
         ) : (
           <>
-            <TransactionTable 
-              transactions={currentTransactions} 
+            <TransactionTable
+              transactions={currentTransactions}
               currentPage={currentPage}
               pageSize={pageSize}
             />
