@@ -11,6 +11,14 @@ import { Pagination } from '@/components/ui/pagination';
 import { useToast } from '@/components/ui/toast/use-toast';
 import apiClient from '@/services/apiClient';
 
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown';
+import { ChevronDownIcon } from '@radix-ui/react-icons';
+
 import { WorkScheduleHeader } from '../../work-schedule/components/WorkScheduleHeader';
 
 import { SystemSettingsList, SystemSettingsModal } from './components';
@@ -74,8 +82,22 @@ export default function AdminSystemSettingsPage() {
     setCurrentPage(1);
   }, [activeTab, searchQuery]); // Reset page when tab or search changes
 
+  // Filter states
+  const [dataTypeFilter, setDataTypeFilter] = useState<string>('all');
+  const [isEditableFilter, setIsEditableFilter] = useState<string>('all');
+
   const filteredSettings = useMemo(() => {
-    let filtered = settings.filter((s) => s.group === activeTab); // Assuming 'group' matches 'activeTab'
+    let filtered = settings.filter((s) => s.group === activeTab);
+    
+    if (dataTypeFilter !== 'all') {
+      filtered = filtered.filter(s => s.dataType.toLowerCase() === dataTypeFilter.toLowerCase());
+    }
+    
+    if (isEditableFilter !== 'all') {
+      const editable = isEditableFilter === 'editable';
+      filtered = filtered.filter(s => s.isEditable === editable);
+    }
+
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
       filtered = filtered.filter(
@@ -84,8 +106,8 @@ export default function AdminSystemSettingsPage() {
           (s.description || '').toLowerCase().includes(q)
       );
     }
-    return filtered.sort((a, b) => a.key.localeCompare(b.key)); // Sort filtered settings
-  }, [settings, activeTab, searchQuery]);
+    return filtered.sort((a, b) => a.key.localeCompare(b.key));
+  }, [settings, activeTab, searchQuery, dataTypeFilter, isEditableFilter]);
 
   const totalPages = Math.ceil(filteredSettings.length / pageSize);
 
@@ -135,6 +157,20 @@ export default function AdminSystemSettingsPage() {
     />
   );
 
+  const dataTypeLabel = {
+    all: 'Kiểu dữ liệu (Tất cả)',
+    string: 'Chuỗi (String)',
+    int: 'Số nguyên (Int)',
+    decimal: 'Số thập phân (Decimal)',
+    boolean: 'Logic (Boolean)',
+  }[dataTypeFilter] || 'Kiểu dữ liệu (Tất cả)';
+
+  const editableLabel = {
+    all: 'Khả năng chỉnh sửa (Tất cả)',
+    editable: 'Có thể sửa',
+    readonly: 'Chỉ đọc',
+  }[isEditableFilter] || 'Khả năng chỉnh sửa (Tất cả)';
+
   const controlPanel = (
     <div className={styles.controls}>
       <div className={styles.controlsLeft}>
@@ -148,12 +184,23 @@ export default function AdminSystemSettingsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger className={styles.filterButton}>
+            <span>{dataTypeLabel}</span>
+            <ChevronDownIcon className={styles.chevronIcon} />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className={styles.dropdownContent}>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setDataTypeFilter('all')}>Kiểu dữ liệu (Tất cả)</DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setDataTypeFilter('string')}>Chuỗi (String)</DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setDataTypeFilter('int')}>Số nguyên (Int)</DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setDataTypeFilter('decimal')}>Số thập phân (Decimal)</DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={() => setDataTypeFilter('boolean')}>Logic (Boolean)</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
       <div className={styles.controlsRight}>
-        <Button variant="primary" size="sm" onClick={handleOpenCreate} className={styles.createButton}>
-          <PlusIcon className={styles.plusIcon} />
-          Cài đặt mới
-        </Button>
+        {/* Button removed */}
       </div>
     </div>
   );

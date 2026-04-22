@@ -315,8 +315,10 @@ export default function WorkSchedulePage() {
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {activeTab === 'summary' && (
-          <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
-            <WorkScheduleOverview />
+          <div style={{ flex: 1, padding: '24px', background: '#FFFFFF' }}>
+            <div style={{ marginBottom: '32px' }}>
+              <WorkScheduleOverview />
+            </div>
             <WorkScheduleStatusOverview />
           </div>
         )}

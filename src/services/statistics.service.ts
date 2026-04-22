@@ -142,6 +142,34 @@ const statisticsService = {
   getAppointmentHeatmap: (params?: { startDate?: string; endDate?: string }): Promise<any> => {
     return apiClient.get('/Statistics/appointments/heatmap', { params });
   },
+
+  /**
+   * Lấy xu hướng hoàn thành dịch vụ (Service Fulfillment Trends)
+   */
+  getServiceFulfillmentTrends: (params?: { year?: number }): Promise<any> => {
+    return apiClient.get('/Statistics/service-fulfillment-trends', { params });
+  },
+  
+  /**
+   * Lấy tóm tắt chỉ số lịch làm việc
+   */
+  getWorkScheduleSummary: (params?: { startDate?: string; endDate?: string }): Promise<any> => {
+    return apiClient.get('/Statistics/work-schedule/summary', { params });
+  },
+
+  /**
+   * Lấy phân bổ trạng thái lịch làm việc (cho biểu đồ Pie)
+   */
+  getWorkScheduleStatusBreakdown: (params?: { startDate?: string; endDate?: string }): Promise<any> => {
+    return apiClient.get('/Statistics/work-schedule/status-breakdown', { params });
+  },
+
+  /**
+   * Lấy danh sách hoạt động lịch làm việc gần đây
+   */
+  getRecentWorkActivities: (params?: { limit?: number }): Promise<any> => {
+    return apiClient.get('/Statistics/work-schedule/activities', { params });
+  },
 };
 
 export default statisticsService;

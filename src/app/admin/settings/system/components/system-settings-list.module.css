@@ -85,13 +85,13 @@
 .table tbody tr:hover {
   background-color: rgba(0, 0, 0, 0.03);
   position: relative;
-  z-index: 2000;
+  z-index: 40;
 }
 
 .table tbody tr:hover td:first-child,
 .table tbody tr:hover td:last-child {
-  background-color: #f8f9fa;
-  z-index: 3000 !important;
+  background-color: #f7f7f7; /* Matches rgba(0, 0, 0, 0.03) on white */
+  z-index: 50;
 }
 
 .table td {
@@ -234,7 +234,7 @@
   pointer-events: none;
   opacity: 0;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 9999;
+  z-index: 100;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
