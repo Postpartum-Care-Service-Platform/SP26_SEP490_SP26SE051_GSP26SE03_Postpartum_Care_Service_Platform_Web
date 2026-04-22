@@ -362,55 +362,18 @@ export function CalendarControlPanel({
             </Popover.Portal>
           </Popover.Root>
 
-          <div className={styles.statusWrap} ref={statusRef}>
+          <CalendarStatusDropdown
+            value={statusValue}
+            onChange={(val) => onStatusChange?.(val)}
+          >
             <button
               type="button"
-              className={`${styles.filterBtn} ${isStatusOpen ? styles.filterBtnActive : ''}`}
-              onClick={() => setIsStatusOpen(!isStatusOpen)}
+              className={`${styles.filterBtn} ${statusValue ? styles.filterBtnActive : ''}`}
             >
-              <span>Trạng thái</span>
+              <span>{statusValue ? (statusValue === 'Scheduled' ? 'Đã lên lịch' : statusValue === 'Done' ? 'Hoàn thành' : statusValue === 'Missed' ? 'Đã bỏ lỡ' : 'Đã hủy') : 'Trạng thái'}</span>
               <ChevronDownIcon />
             </button>
-
-            {isStatusOpen && (
-              <div className={styles.dropdown}>
-                <div className={styles.dropdownSearch}>
-                  <span className={styles.dropdownSearchIcon}><SearchIcon /></span>
-                  <input
-                    type="text"
-                    className={styles.dropdownInputFocus}
-                    placeholder="Tìm kiếm trạng thái"
-                    autoFocus
-                  />
-                </div>
-                <div className={styles.dropdownList}>
-                  <label className={styles.dropdownItem}>
-                    <input type="checkbox" defaultChecked />
-                    <span className={styles.checkText}>TẤT CẢ TRẠNG THÁI</span>
-                  </label>
-                  <label className={styles.dropdownItem}>
-                    <input type="checkbox" />
-                    <span className={`${styles.badge} ${styles.badgeScheduled}`}>ĐÃ LÊN LỊCH</span>
-                  </label>
-                  <label className={styles.dropdownItem}>
-                    <input type="checkbox" />
-                    <span className={`${styles.badge} ${styles.badgeCompleted}`}>HOÀN THÀNH</span>
-                  </label>
-                  <label className={styles.dropdownItem}>
-                    <input type="checkbox" />
-                    <span className={`${styles.badge} ${styles.badgeMissed}`}>ĐÃ BỎ LỠ</span>
-                  </label>
-                  <label className={styles.dropdownItem}>
-                    <input type="checkbox" />
-                    <span className={`${styles.badge} ${styles.badgeCancelled}`}>ĐÃ HỦY</span>
-                  </label>
-                </div>
-                <div className={styles.dropdownFooter}>
-                  5 trên 5
-                </div>
-              </div>
-            )}
-          </div>
+          </CalendarStatusDropdown>
         </div>
 
         <div className={styles.right}>

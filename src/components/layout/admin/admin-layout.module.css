@@ -73,6 +73,7 @@
   transition: background-color 0.2s ease;
   flex-shrink: 0;
   position: relative;
+  outline: none;
 }
 
 .iconBtn:hover {
@@ -127,6 +128,7 @@
   border-radius: var(--radius-sm);
   transition: background-color 0.2s ease;
   margin-bottom: 4px;
+  outline: none;
 }
 
 .sectionHeader:hover {
@@ -181,6 +183,7 @@
   transition: background-color 0.2s ease, color 0.2s ease;
   position: relative;
   letter-spacing: 0.0125rem;
+  outline: none;
 }
 
 .sidebarCollapsed .item {
@@ -321,6 +324,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  outline: none;
 }
 
 .subItemIcon {
@@ -409,6 +413,7 @@
   transition: background-color 0.2s ease;
   flex-shrink: 0;
   position: relative;
+  outline: none;
 }
 
 .headerToggleBtn:hover {
@@ -509,6 +514,7 @@
   color: var(--color-text-primary);
   cursor: pointer;
   transition: background-color 0.2s ease;
+  outline: none;
 }
 
 .iconGhostBtn:hover {

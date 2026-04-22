@@ -55,16 +55,30 @@ const TARGET_LABELS = {
 
 const normalizeImages = (images: any): string[] => {
   if (!images) return [];
-  if (Array.isArray(images)) return images;
+  if (Array.isArray(images)) return images.filter(img => typeof img === 'string' && img.trim() !== '');
+  
   if (typeof images === 'string') {
+    const trimmed = images.trim();
+    if (!trimmed || trimmed === '[]' || trimmed === '{}') return [];
+    
+    // Try JSON parsing first
     try {
-      const parsed = JSON.parse(images);
+      const parsed = JSON.parse(trimmed);
       return normalizeImages(parsed);
     } catch {
-      return [images];
+      // If not JSON, it might be a comma-separated string
+      if (trimmed.includes(',')) {
+        return trimmed.split(',').map(s => s.trim()).filter(s => s !== '');
+      }
+      return [trimmed];
     }
   }
-  if (typeof images === 'object') return Object.values(images) as string[];
+  
+  if (typeof images === 'object') {
+    const values = Object.values(images).filter(v => typeof v === 'string' && v !== '');
+    return values as string[];
+  }
+  
   return [];
 };
 
