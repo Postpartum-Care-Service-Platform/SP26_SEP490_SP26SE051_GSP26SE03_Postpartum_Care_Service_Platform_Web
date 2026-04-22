@@ -8,6 +8,9 @@
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: fit-content;
 }
 
 .trigger:hover {
