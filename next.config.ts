@@ -11,8 +11,8 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
 
+  typedRoutes: true,
   experimental: {
-    typedRoutes: true,
     optimizePackageImports: [
       '@radix-ui/react-icons',
       '@radix-ui/react-tooltip',

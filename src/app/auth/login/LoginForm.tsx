@@ -167,7 +167,7 @@ export function LoginForm() {
           router.push(ROUTES.receptionist);
           break;
         default:
-          router.push(ROUTES.main);
+          router.push(ROUTES.home);
       }
     } catch (err: unknown) {
       const { status, message, data } = getApiErrorDetails(err);

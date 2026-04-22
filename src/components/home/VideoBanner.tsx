@@ -28,7 +28,7 @@ export const VideoBanner: React.FC<VideoBannerProps> = ({
 
   // Hàm navigate đến trang booking
   const handleNavigateToBooking = () => {
-    router.push('/main/booking');
+    router.push('/booking');
   };
 
   return (

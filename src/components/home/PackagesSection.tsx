@@ -187,7 +187,7 @@ export const PackagesSection: React.FC = () => {
                   </div>
 
                   {/* Nút đặt gói dịch vụ */}
-                  <Link href={`/main/booking?packageId=${pkg.id}`} className={styles.viewDetailsButton}>
+                  <Link href={`/booking?packageId=${pkg.id}`} className={styles.viewDetailsButton}>
                     <span>Đặt Ngay</span>
                     <span className={styles.buttonArrow}>→</span>
                   </Link>

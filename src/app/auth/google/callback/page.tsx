@@ -67,7 +67,24 @@ export default function GoogleCallbackPage() {
         toast({ title: AUTH_LOGIN_MESSAGES.loginSuccess, variant: 'success' });
 
         const userRole = authResponse.user.role?.toLowerCase();
-        const redirectPath = userRole === 'admin' ? ROUTES.admin : ROUTES.main;
+        let redirectPath = ROUTES.home as string;
+        
+        switch (userRole) {
+          case 'admin':
+            redirectPath = ROUTES.admin;
+            break;
+          case 'manager':
+            redirectPath = ROUTES.manager;
+            break;
+          case 'receptionist':
+            redirectPath = ROUTES.receptionist;
+            break;
+          case 'staff':
+            redirectPath = '/staff';
+            break;
+          default:
+            redirectPath = ROUTES.home;
+        }
 
         window.location.href = redirectPath;
       } catch (err: unknown) {
