@@ -3,7 +3,12 @@
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Pagination } from '@/components/ui/pagination';
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from '@/components/ui/tooltip';
 
 import styles from './system-settings-list.module.css';
 
@@ -85,18 +90,44 @@ export function SystemSettingsList({
           ) : (
             paginatedSettings.map((setting, index) => {
               const isDisabled = !setting.isEditable;
+              const tooltipSide = index < 3 ? 'bottom' : 'top';
 
               return (
                 <tr key={setting.id}>
                   <td>{(currentPage - 1) * pageSize + index + 1}</td>
-                  <td className={styles.keyCell} title={setting.key}>
-                    {setting.key}
+                  <td className={styles.keyCell}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className={styles.cellContent}>{setting.key}</div>
+                      </TooltipTrigger>
+                      <TooltipContent side={tooltipSide} className={styles.tooltipContent}>
+                        {setting.key}
+                      </TooltipContent>
+                    </Tooltip>
                   </td>
-                  <td className={styles.valueCell} title={setting.value}>
-                    {setting.value}
+                  <td>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className={styles.valueCell}>
+                          {setting.value}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side={tooltipSide} className={styles.tooltipContent}>
+                        {setting.value}
+                      </TooltipContent>
+                    </Tooltip>
                   </td>
-                  <td className={styles.descCell} title={setting.description}>
-                    {setting.description || '-'}
+                  <td>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className={styles.descCell}>
+                          {setting.description || '-'}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side={tooltipSide} className={styles.tooltipContent}>
+                        {setting.description || 'Chưa có mô tả'}
+                      </TooltipContent>
+                    </Tooltip>
                   </td>
                   <td>
                     <span className={styles.dataTypeBadge}>{setting.dataType}</span>
