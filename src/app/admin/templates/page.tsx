@@ -384,6 +384,7 @@ export default function AdminTemplatesPage() {
                         <div className={styles.editorCard} style={{ position: 'relative' }}>
                             {loadingDetail && <div className={styles.loadingOverlay}><div className={styles.spinner} /></div>}
 
+                        <div className={styles.stickyHeader}>
                             <div className={styles.editorCardHeader}>
                                 <div className={styles.editorCardHeaderLeft}>
                                     <span className={`${styles.editorTypeBadge} ${selected.type === 'contract' ? styles.contract : styles.email}`}>
@@ -403,6 +404,7 @@ export default function AdminTemplatesPage() {
                                     <input className={styles.subjectInput} value={editSubject} onChange={(e) => setEditSubject(e.target.value)} placeholder="Nhập tiêu đề email..." />
                                 </div>
                             )}
+                        </div>
 
                             <div className={styles.editorContent}>
                                 <RichTextEditor
