@@ -88,7 +88,14 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
         fetchStaffSchedules(),
         contractService.getNoScheduleContracts()
       ]);
-      setStaffs(staffData);
+      
+      // Sort: Available staff first, then Busy staff
+      const sortedStaffs = [...staffData].sort((a, b) => {
+        if (a.isScheduled === b.isScheduled) return 0;
+        return a.isScheduled ? 1 : -1;
+      });
+      
+      setStaffs(sortedStaffs);
       setContracts(contractData);
       if (contractData.length > 0) {
         setSelectedContract(contractData[0] || null);

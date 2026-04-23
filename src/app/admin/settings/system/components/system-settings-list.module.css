@@ -143,22 +143,69 @@
 
 .keyCell {
   font-weight: 500;
-  max-width: 200px;
+  max-width: 180px;
+}
+
+.cellContent {
+  width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .valueCell {
-  max-width: 300px;
+  max-width: 450px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  word-break: break-all;
+  line-height: 1.5;
 }
 
 .descCell {
-  max-width: 250px;
+  max-width: 350px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.tooltipContent {
+  max-width: 900px;
+  max-height: 500px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  background-color: #343a40;
+  color: #fff;
+  font-weight: 400;
+}
+
+/* Custom scrollbar for tooltip */
+.tooltipContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tooltipContent::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.tooltipContent::-webkit-scrollbar-thumb {
+  background: rgba(250, 131, 20, 0.4);
+  border-radius: 3px;
+}
+
+.tooltipContent::-webkit-scrollbar-thumb:hover {
+  background: rgba(250, 131, 20, 0.6);
 }
 
 .valueInput {

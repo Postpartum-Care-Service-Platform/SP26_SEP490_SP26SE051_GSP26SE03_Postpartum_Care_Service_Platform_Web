@@ -13,8 +13,8 @@ export type StaffSchedule = {
   isActive: boolean;
   avatarUrl: string | null;
   isScheduled: boolean;
-  scheduledAt: string;
-  scheduledUntil: string;
+  scheduledAt?: string | null;
+  scheduledUntil?: string | null;
 };
 
 export async function fetchStaffSchedules(): Promise<StaffSchedule[]> {
