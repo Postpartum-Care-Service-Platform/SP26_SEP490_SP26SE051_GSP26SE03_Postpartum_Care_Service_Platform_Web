@@ -57,7 +57,7 @@ export function AdminPageLayout({
         {/* Scrollable Table Area */}
         <div className={`${styles.scrollArea} ${noScroll ? styles.noScroll : ''} ${hideScrollbar ? styles.hideScrollbar : ''}`}>
           <div className={`${styles.horizontalScroll} ${noHorizontalScroll ? styles.noHorizontalScroll : ''}`}>
-            <div className={styles.tableContainer}>
+            <div className={styles.tableContainer} style={noScroll ? { height: '100%' } : {}}>
               {isLoading ? (
                 <DataLoader minHeight="calc(100vh - 350px)" />
               ) : children}

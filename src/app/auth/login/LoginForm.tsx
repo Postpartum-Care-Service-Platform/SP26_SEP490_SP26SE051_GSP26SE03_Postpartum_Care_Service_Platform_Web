@@ -211,9 +211,10 @@ export function LoginForm() {
           Email hoặc tên đăng nhập
           <input
             className={`${styles.input} ${fieldErrors.emailOrUsername ? styles.inputError : ''}`}
+            name="username"
             type="text"
             placeholder="Nhập email hoặc tên đăng nhập"
-            autoComplete="chrome-off"
+            autoComplete="username"
             value={emailOrUsername}
             onFocus={() => setShowSavedAccounts(true)}
             onClick={() => setShowSavedAccounts(true)}
@@ -267,6 +268,7 @@ export function LoginForm() {
           <div className={styles.passwordWrap}>
             <input
               className={`${styles.passwordInput} ${fieldErrors.password ? styles.inputError : ''}`}
+              name="password"
               type={showPassword ? 'text' : 'password'}
               placeholder="Nhập mật khẩu"
               autoComplete="current-password"
