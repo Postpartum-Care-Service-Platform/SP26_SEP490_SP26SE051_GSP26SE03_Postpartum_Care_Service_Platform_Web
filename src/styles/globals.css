@@ -427,3 +427,17 @@ wc-nextjs-dev-indicator {
     transform: rotate(-360deg) translateZ(0);
   }
 }
+
+/* Tippy.js Global Overrides (for Rich Text Editor Suggestions) */
+.tippy-box {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.tippy-content {
+  padding: 0 !important;
+}
+
+.tippy-arrow {
+  display: none !important;
+}

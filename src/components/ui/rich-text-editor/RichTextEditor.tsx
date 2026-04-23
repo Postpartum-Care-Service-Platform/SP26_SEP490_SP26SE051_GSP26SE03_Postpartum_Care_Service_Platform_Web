@@ -9,6 +9,8 @@ import { TextStyle, Color, FontFamily } from "@tiptap/extension-text-style";
 import Underline from "@tiptap/extension-underline";
 import { useEditor, EditorContent, Extension, Node, mergeAttributes } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import tippy from 'tippy.js';
+import 'tippy.js/dist/tippy.css';
 
 import {
   Bold,
@@ -45,7 +47,8 @@ import { createPortal } from "react-dom";
 
 import { PlaceholderChip } from "./PlaceholderChip";
 import styles from "./RichTextEditor.module.css";
-import { PlaceholderSuggestion } from "./SuggestionExtension";
+import { PlaceholderSuggestionExtension, updatePlaceholderData } from "./PlaceholderSuggestionExtension";
+import type { PlaceholderItem } from "@/services/placeholder.service";
 
 // Node extension cho <div> - preserve style/class
 const Div = Node.create({
@@ -90,6 +93,18 @@ const PreserveStyles = Extension.create({
         },
       },
     ];
+  },
+});
+
+const TabKey = Extension.create({
+  name: 'tabKey',
+  addKeyboardShortcuts() {
+    return {
+      Tab: () => {
+        this.editor.chain().focus().insertContent('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0').run();
+        return true; // Stop browser default behavior
+      },
+    };
   },
 });
 
@@ -144,8 +159,9 @@ interface RichTextEditorProps {
   placeholder?: string;
   editable?: boolean;
   editorRef?: React.MutableRefObject<unknown>;
-  placeholders?: PlaceholderSuggestion[];
+  placeholders?: PlaceholderItem[];
   onPlaceholderSelect?: (key: string, label: string) => void;
+  fetchPlaceholders?: () => Promise<PlaceholderItem[]>;
   zoom?: number;
 }
 
@@ -689,6 +705,7 @@ export default function RichTextEditor({
   editorRef,
   placeholders = [],
   onPlaceholderSelect,
+  fetchPlaceholders,
   zoom = 1,
 }: RichTextEditorProps) {
   const [showFontSizeDropdown, setShowFontSizeDropdown] = useState(false);
@@ -696,10 +713,8 @@ export default function RichTextEditor({
   const [showHighlightPicker, setShowHighlightPicker] = useState(false);
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
-  const [suggestions, setSuggestions] = useState<PlaceholderSuggestion[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestionIndex, setSuggestionIndex] = useState(0);
-  const [cursorPos, setCursorPos] = useState({ top: 0, left: 0 });
+  const [dynamicPlaceholders, setDynamicPlaceholders] = useState<PlaceholderItem[]>(placeholders || []);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   
   // Ruler margin states
   const [leftMargin, setLeftMargin] = useState(45);
@@ -769,6 +784,8 @@ export default function RichTextEditor({
       PreserveStyles,
       FontSize,
       PlaceholderChip,
+      TabKey,
+      PlaceholderSuggestionExtension,
     ],
     content: editorContent,
     editable,
@@ -793,98 +810,38 @@ export default function RichTextEditor({
     }, 0);
     return () => clearTimeout(t);
   }, [content, editor]);
-
-  // Detect {{ and show suggestions
+  // Update dynamic placeholders when prop changes
   useEffect(() => {
-    if (!editor || !placeholders.length) return;
-
-    const handleUpdate = () => {
-      const { $from } = editor.state.selection;
-      const parentText = $from.parent.textContent ?? '';
-      const textBefore = parentText.slice(0, $from.parentOffset);
-      const match = textBefore.match(/\{\{([a-zA-Z0-9_]*)$/);
-
-      if (match) {
-        const searchText = match[1];
-        const filtered = placeholders.filter(p =>
-          p.key.toLowerCase().includes(searchText.toLowerCase()) ||
-          p.label.toLowerCase().includes(searchText.toLowerCase())
-        ).slice(0, 8);
-
-        // Calculate cursor position for dropdown
-        const { from } = editor.state.selection;
-        const coords = editor.view.coordsAtPos(from);
-        const editorDom = editor.view.dom as HTMLElement;
-        const editorRect = editorDom.getBoundingClientRect();
-
-        // Get scroll position
-        const scrollTop = editorDom.scrollTop || 0;
-        const scrollLeft = editorDom.scrollLeft || 0;
-
-        setCursorPos({
-          top: coords.top - editorRect.top + scrollTop + 20,
-          left: coords.left - editorRect.left + scrollLeft,
-        });
-
-        setSuggestions(filtered);
-        setShowSuggestions(filtered.length > 0);
-        setSuggestionIndex(0);
-      } else {
-        setShowSuggestions(false);
-      }
-    };
-
-    editor.on('update', handleUpdate);
-    editor.on('selectionUpdate', handleUpdate);
-    return () => {
-      editor.off('update', handleUpdate);
-      editor.off('selectionUpdate', handleUpdate);
-    };
-  }, [editor, placeholders]);
-
-  const [, setUpdateTrigger] = useState(0);
-
-  // Force re-render on each transaction to update UI controls (font size, active marks, etc.)
-  useEffect(() => {
-    if (!editor) return;
-    const handleTransaction = () => {
-      setUpdateTrigger(prev => prev + 1);
-    };
-    editor.on('transaction', handleTransaction);
-    return () => {
-      editor.off('transaction', handleTransaction);
-    };
-  }, [editor]);
-
-  // Handle suggestion selection
-  const selectSuggestion = (key: string, label: string) => {
-    if (!editor) return;
-
-    const { $from } = editor.state.selection;
-    const parentText = $from.parent.textContent ?? '';
-    const textBefore = parentText.slice(0, $from.parentOffset);
-    const match = textBefore.match(/\{\{([a-zA-Z0-9_]*)$/);
-
-    if (match) {
-      const deleteCount = match[0].length;
-      editor.chain().focus().deleteRange({
-        from: editor.state.selection.from - deleteCount,
-        to: editor.state.selection.from,
-      }).run();
+    if (placeholders && placeholders.length > 0) {
+      setDynamicPlaceholders(placeholders);
+      updatePlaceholderData(placeholders);
     }
+  }, [placeholders]);
 
-    editor
-      .chain()
-      .focus()
-      .insertContent({
-        type: 'placeholderChip',
-        attrs: { key, label },
-      })
-      .run();
-
-    setShowSuggestions(false);
-    onPlaceholderSelect?.(key, label);
-  };
+  // Initial fetch for placeholders if needed
+  useEffect(() => {
+    if (fetchPlaceholders) {
+      const load = async () => {
+        setIsLoadingSuggestions(true);
+        try {
+          console.log('Fetching placeholders...');
+          const data = await fetchPlaceholders();
+          console.log('Fetched placeholders result:', data);
+          
+          const validData = Array.isArray(data) ? data : [];
+          if (validData.length > 0) {
+            setDynamicPlaceholders(validData);
+            updatePlaceholderData(validData); // Update module-level ref for items() to read
+          }
+        } catch (err) {
+          console.error('Failed to fetch placeholders:', err);
+        } finally {
+          setIsLoadingSuggestions(false);
+        }
+      };
+      load();
+    }
+  }, [fetchPlaceholders]);
 
   useEffect(() => {
     if (editorRef) {
@@ -1169,58 +1126,6 @@ export default function RichTextEditor({
         <div className={styles.page}>
           <EditorContent editor={editor} className={styles.richEditor} />
 
-          {/* Placeholder Suggestions Dropdown */}
-          {showSuggestions && suggestions.length > 0 && (
-            <div style={{
-              position: 'absolute',
-              top: cursorPos.top,
-              left: cursorPos.left,
-              zIndex: 1000,
-              background: 'white',
-              border: '1px solid #ddd',
-              borderRadius: '7px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              maxHeight: '180px',
-              overflow: 'auto',
-              minWidth: '180px',
-            }}>
-              <div style={{ padding: '6px 10px', fontSize: '11px', color: '#888', borderBottom: '1px solid #eee' }}>
-                Chọn trường dữ liệu
-              </div>
-              {suggestions.map((item, idx) => (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => selectSuggestion(item.key, item.label)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    width: '100%',
-                    padding: '6px 10px',
-                    border: 'none',
-                    background: idx === suggestionIndex ? 'rgba(250, 131, 20, 0.1)' : 'transparent',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                  }}
-                >
-                  <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    padding: '2px 8px',
-                    background: 'linear-gradient(135deg, #fa8314 0%, #e06b00 100%)',
-                    color: '#fff',
-                    borderRadius: '10px',
-                    fontSize: '11px',
-                    fontWeight: 500,
-                    marginRight: '8px',
-                  }}>
-                    {item.label}
-                  </span>
-                  <span style={{ fontSize: '10px', color: '#666' }}>{item.key}</span>
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </div>

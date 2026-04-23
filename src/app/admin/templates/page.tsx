@@ -33,6 +33,8 @@ import emailTemplateService, {
 } from "@/services/email-template.service";
 import placeholderService, { PlaceholderItem } from "@/services/placeholder.service";
 
+import { useToast } from "@/components/ui/toast/use-toast";
+
 import styles from "./templates.module.css";
 
 type TemplateType = 'contract' | 'email';
@@ -99,6 +101,7 @@ function ConfirmDeleteModal({ name, onClose, onConfirm }: { name: string; onClos
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function AdminTemplatesPage() {
+    const { toast } = useToast();
     const [contractTemplates, setContractTemplates] = useState<ContractTemplate[]>([]);
     const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
     const [placeholders, setPlaceholders] = useState<PlaceholderItem[]>([]);
@@ -126,6 +129,8 @@ export default function AdminTemplatesPage() {
     const [tooltipData, setTooltipData] = useState<{ text: string; top: number; left: number } | null>(null);
     const [zoomLevel, setZoomLevel] = useState(100);
     const [viewMode, setViewMode] = useState<'print' | 'read' | 'web'>('print');
+
+    const handleFetchPlaceholders = useCallback(() => placeholderService.getAll(), []);
 
     // ── Fetch data ──
     const fetchAll = useCallback(async () => {
@@ -206,7 +211,11 @@ export default function AdminTemplatesPage() {
                 setActiveEmail(updated);
                 setEmailTemplates((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
             }
-        } catch (err) { console.error('Error saving:', err); }
+            toast({ title: 'Đã lưu thay đổi thành công', variant: 'success' });
+        } catch (err) { 
+            console.error('Error saving:', err);
+            toast({ title: 'Lỗi khi lưu mẫu', variant: 'error' });
+        }
         finally { setSaving(false); }
     };
 
@@ -224,7 +233,11 @@ export default function AdminTemplatesPage() {
             setSelected(null);
             setActiveContract(null);
             setActiveEmail(null);
-        } catch (err) { console.error('Error deleting:', err); }
+            toast({ title: 'Đã xóa mẫu thành công', variant: 'success' });
+        } catch (err) { 
+            console.error('Error deleting:', err);
+            toast({ title: 'Lỗi khi xóa mẫu', variant: 'error' });
+        }
         finally { setDeleteModal(false); }
     };
 
@@ -413,6 +426,10 @@ export default function AdminTemplatesPage() {
                                     placeholder="Nhập nội dung mẫu..."
                                     editorRef={editorRef}
                                     placeholders={filteredPlaceholders}
+                                    fetchPlaceholders={handleFetchPlaceholders}
+                                    onPlaceholderSelect={(key, label) => {
+                                        console.log('Selected placeholder:', key, label);
+                                    }}
                                     zoom={zoomLevel / 100}
                                 />
                             </div>
