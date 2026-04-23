@@ -88,6 +88,7 @@ export function CalendarDayView({
   dayCount = 1,
   selectedStaffId,
   onStaffSelect,
+  onRefresh,
 }: {
   dayCursor: Date;
   schedules: StaffSchedule[];
@@ -96,6 +97,7 @@ export function CalendarDayView({
   dayCount?: number;
   selectedStaffId: string | null;
   onStaffSelect: (staffId: string | null) => void;
+  onRefresh?: () => void;
 }) {
   const [selectedSchedule, setSelectedSchedule] = React.useState<StaffSchedule | null>(null);
   const [anchorRect, setAnchorRect] = React.useState<DOMRect | null>(null);
@@ -336,6 +338,7 @@ export function CalendarDayView({
           schedule={selectedSchedule}
           anchorRect={anchorRect || undefined}
           sideOffset={-400}
+          onRefresh={onRefresh}
         />
       </div>
     </Tooltip.Provider>

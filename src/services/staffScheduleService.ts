@@ -32,3 +32,7 @@ export async function createStaffScheduleRange(data: CreateStaffScheduleRangeReq
 export async function getStaffsByFamilyScheduleId(familyScheduleId: number): Promise<StaffSchedule[]> {
   return apiClient.get(`/StaffSchedule/family-schedule/${familyScheduleId}/staffs`);
 }
+
+export async function changeStaff(familyScheduleId: number, newStaffId: string): Promise<void> {
+  return apiClient.patch(`/StaffSchedule/change-staff/${familyScheduleId}/${newStaffId}`);
+}

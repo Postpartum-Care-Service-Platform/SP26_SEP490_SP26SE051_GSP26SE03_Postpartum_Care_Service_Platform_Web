@@ -203,6 +203,18 @@ export const adminNav: AdminNavSection[] = [
         icon: CreditCard,
       },
       {
+        key: 'staff-skill',
+        label: 'Kỹ năng nhân viên',
+        href: '/admin/staff-skill',
+        icon: Activity,
+      },
+      {
+        key: 'page-builder',
+        label: 'Page Builder (Meta)',
+        href: '/admin/page-builder',
+        icon: LayoutTemplate,
+      },
+      {
         key: 'templates',
         label: 'Mẫu',
         icon: LayoutTemplate,

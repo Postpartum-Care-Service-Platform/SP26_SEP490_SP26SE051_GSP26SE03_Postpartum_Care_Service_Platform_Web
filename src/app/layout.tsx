@@ -8,6 +8,9 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import type { Metadata } from 'next';
 
 import '@/styles/globals.css';
+import { BoneyardProvider } from '@/components/providers/BoneyardProvider';
+
+
 
 const hennyPenny = Henny_Penny({
   weight: '400',
@@ -42,10 +45,13 @@ export default function RootLayout({
         />
         <AuthProvider>
           <ToastProvider>
-            {children}
+            <BoneyardProvider>
+              {children}
+            </BoneyardProvider>
             <ConditionalSupportWidget />
           </ToastProvider>
         </AuthProvider>
+
       </body>
     </html>
   );

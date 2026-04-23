@@ -20,6 +20,8 @@ import { ContactsList } from './components/ContactsList';
 import { MediaView } from './components/MediaView';
 import { RecentChatsSidebar } from './components/RecentChatsSidebar';
 import { SupportRequestsList } from './components/SupportRequestsList';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
+import { useToast } from '@/components/ui/toast/use-toast';
 
 import type {
   ChatConversation as ChatConversationType,
@@ -40,6 +42,8 @@ export default function AdminChatPage() {
     useState<number | null>(null);
   const [supportRequests, setSupportRequests] = useState<SupportRequestResponse[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const { toast } = useToast();
 
   // SignalR for realtime chat
   const {
@@ -535,7 +539,11 @@ export default function AdminChatPage() {
       }
     } catch (error) {
       console.error('Failed to send message:', error);
-      alert('Không thể gửi tin nhắn. Vui lòng thử lại.');
+      toast({
+        title: 'Lỗi gửi tin nhắn',
+        description: 'Không thể gửi tin nhắn. Vui lòng thử lại.',
+        variant: 'error',
+      });
     }
   };
 
@@ -573,18 +581,22 @@ export default function AdminChatPage() {
       }
     } catch (error) {
       console.error('Failed to accept support request:', error);
-      alert('Không thể nhận yêu cầu hỗ trợ.');
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể nhận yêu cầu hỗ trợ.',
+        variant: 'error',
+      });
     }
   };
 
   // Handle resolve support
-  const handleResolveSupport = async () => {
+  const handleResolveSupport = () => {
     if (!activeSupportRequestId) return;
+    setIsConfirmModalOpen(true);
+  };
 
-    const confirmResolve = confirm(
-      'Bạn có chắc muốn hoàn thành tư vấn? Conversation sẽ chuyển về AI.'
-    );
-    if (!confirmResolve) return;
+  const handleConfirmResolve = async () => {
+    if (!activeSupportRequestId) return;
 
     try {
       if (isConnected) {
@@ -599,10 +611,20 @@ export default function AdminChatPage() {
       // Reload support requests
       await loadSupportRequests();
 
-      alert('Đã hoàn thành tư vấn. Conversation đã chuyển về AI.');
+      toast({
+        title: 'Hoàn thành tư vấn',
+        description: 'Conversation đã chuyển về AI.',
+        variant: 'success',
+      });
     } catch (error) {
       console.error('Failed to resolve support:', error);
-      alert('Không thể hoàn thành tư vấn.');
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể hoàn thành tư vấn.',
+        variant: 'error',
+      });
+    } finally {
+      setIsConfirmModalOpen(false);
     }
   };
 
@@ -689,6 +711,16 @@ export default function AdminChatPage() {
           </div>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmResolve}
+        title="Xác nhận hoàn thành tư vấn"
+        message="Bạn có chắc muốn hoàn thành tư vấn? Cuộc hội thoại này sẽ được chuyển giao lại cho AI xử lý."
+        confirmLabel="Hoàn thành"
+        cancelLabel="Tiếp tục tư vấn"
+        variant="warning"
+      />
     </AdminPageLayout>
   );
 }

@@ -6,6 +6,9 @@ import { MapPin } from 'lucide-react';
 import React from 'react';
 
 import type { StaffSchedule } from '@/types/staff-schedule';
+import { changeStaff } from '@/services/staffScheduleService';
+import { AssigneePicker, type Assignee } from './AssigneePicker';
+import { useToast } from '@/components/ui/toast/use-toast';
 
 import styles from './schedule-detail-popover.module.css';
 
@@ -15,6 +18,7 @@ interface ScheduleDetailPopoverProps {
   schedule: StaffSchedule | null;
   anchorRect?: DOMRect;
   sideOffset?: number;
+  onRefresh?: () => void;
 }
 
 function formatTime(time: string): string {
@@ -87,7 +91,8 @@ export function ScheduleDetailPopover({
   onOpenChange,
   schedule,
   anchorRect,
-  sideOffset = 12
+  sideOffset = 12,
+  onRefresh
 }: ScheduleDetailPopoverProps) {
   return (
     <Popover.Root open={open} onOpenChange={onOpenChange}>
@@ -118,7 +123,7 @@ export function ScheduleDetailPopover({
               Đang tải...
             </div>
           ) : (
-            <ScheduleContent schedule={schedule} />
+            <ScheduleContent schedule={schedule} onRefresh={onRefresh} onClose={() => onOpenChange(false)} />
           )}
           <Popover.Arrow className={styles.arrow} />
         </Popover.Content>
@@ -127,11 +132,47 @@ export function ScheduleDetailPopover({
   );
 }
 
-function ScheduleContent({ schedule }: { schedule: StaffSchedule }) {
+function ScheduleContent({
+  schedule,
+  onRefresh,
+  onClose
+}: {
+  schedule: StaffSchedule;
+  onRefresh?: () => void;
+  onClose: () => void;
+}) {
   const { familyScheduleResponse: fs } = schedule;
   const statusKey = (fs.status || 'Pending') as keyof typeof STATUS_COLORS;
-  const statusLabelsKey = (fs.status || 'Pending') as keyof typeof STATUS_LABELS;
   const statusStyle = STATUS_COLORS[statusKey] || STATUS_COLORS.Pending;
+  const { toast } = useToast();
+  const [isPickerOpen, setIsPickerOpen] = React.useState(false);
+  const [isChanging, setIsChanging] = React.useState(false);
+
+  const handleStaffChange = async (assignee: Assignee | null) => {
+    if (!assignee) return;
+    if (assignee.id === schedule.staffId) return;
+
+    setIsChanging(true);
+    try {
+      await changeStaff(schedule.familyScheduleId, assignee.id);
+      toast({
+        title: 'Thành công',
+        description: `Đã đổi nhân viên sang ${assignee.name}`,
+        variant: 'success',
+      });
+      onRefresh?.();
+      onClose();
+    } catch (error: any) {
+      console.error('Failed to change staff:', error);
+      toast({
+        title: 'Lỗi',
+        description: error.message || 'Không thể đổi nhân viên',
+        variant: 'error',
+      });
+    } finally {
+      setIsChanging(false);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -244,7 +285,35 @@ function ScheduleContent({ schedule }: { schedule: StaffSchedule }) {
             <span className={styles.infoLabel} style={{ color: '#6366F1' }}>Nhân viên thực hiện</span>
             <span className={styles.customerNameText}>{schedule.staffName || 'Chưa phân công'}</span>
           </div>
-          <span className={styles.staffRoleBadge}>{schedule.staffMemberType || 'Chưa xác định'}</span>
+          <div className={styles.staffActionRow}>
+            <span className={styles.staffRoleBadge}>{schedule.staffMemberType || 'Chưa xác định'}</span>
+            {!schedule.isChecked && (
+              <Popover.Root open={isPickerOpen} onOpenChange={setIsPickerOpen}>
+                <Popover.Trigger asChild>
+                  <button
+                    className={styles.changeStaffBtn}
+                    disabled={isChanging}
+                  >
+                    {isChanging ? '...' : 'Đổi nhân viên'}
+                  </button>
+                </Popover.Trigger>
+                <Popover.Portal>
+                  <Popover.Content
+                    className={styles.pickerPopover}
+                    side="bottom"
+                    align="start"
+                    sideOffset={5}
+                  >
+                    <AssigneePicker
+                      value={null}
+                      onChange={handleStaffChange}
+                      onClose={() => setIsPickerOpen(false)}
+                    />
+                  </Popover.Content>
+                </Popover.Portal>
+              </Popover.Root>
+            )}
+          </div>
         </div>
       </div>
 

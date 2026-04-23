@@ -20,6 +20,33 @@ import { MemberTypeModal } from './MemberTypeModal';
 import { ImportMemberTypeModal } from './components/ImportMemberTypeModal';
 import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './member-types.module.css';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+
+// Internal Premium Skeleton Component
+const SkeletonBone = ({ width, height, circle = false, margin = '0' }: { width?: string | number, height?: string | number, circle?: boolean, margin?: string }) => (
+  <div 
+    style={{ 
+      width: width || '100%', 
+      height: height || '20px', 
+      backgroundColor: '#f1f5f9',
+      borderRadius: circle ? '50%' : '4px',
+      position: 'relative',
+      overflow: 'hidden',
+      margin: margin
+    }}
+  >
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+      animation: 'skeleton-shimmer-run 1.8s infinite linear',
+      transform: 'translateX(-100%)'
+    }} />
+  </div>
+);
 
 /* ── Role name mapping ── */
 const ROLE_LABELS: Record<string, string> = {
@@ -97,8 +124,6 @@ const sortItems = (items: MemberType[], key: SortKey) => {
   }
 };
 
-import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
-
 export default function AdminMemberTypePage() {
   const [items, setItems]           = useState<MemberType[]>([]);
   const [loading, setLoading]       = useState(true);
@@ -115,10 +140,7 @@ export default function AdminMemberTypePage() {
   const [editingItem, setEditingItem] = useState<MemberType | null>(null);
   const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
 
-  // Import Modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-
-  // Confirm Modal state
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<MemberType | null>(null);
 
@@ -128,6 +150,8 @@ export default function AdminMemberTypePage() {
     try {
       setLoading(true);
       setError(null);
+      // Premium 2s delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
       const data = await memberTypeService.getAll();
       setItems(data);
     } catch (err: unknown) {
@@ -146,9 +170,7 @@ export default function AdminMemberTypePage() {
       filtered = filtered.filter((item) => item.name.toLowerCase().includes(q));
     }
     if (statusFilter !== 'all') {
-      filtered = filtered.filter((item) =>
-        statusFilter === 'active' ? item.isActive : !item.isActive,
-      );
+      filtered = filtered.filter((item) => statusFilter === 'active' ? item.isActive : !item.isActive);
     }
     return sortItems(filtered, sortKey);
   }, [items, searchQuery, statusFilter, sortKey]);
@@ -162,12 +184,15 @@ export default function AdminMemberTypePage() {
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);
 
-  /* ── Modal handlers ── */
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleOpenCreate = () => { setEditingItem(null); setIsModalOpen(true); };
   const handleOpenEdit   = (item: MemberType) => { setEditingItem(item); setIsModalOpen(true); };
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingItem(null); };
 
-  /* ── Delete ── */
   const handleDeleteTrigger = (item: MemberType) => {
     setItemToDelete(item);
     setIsConfirmModalOpen(true);
@@ -203,8 +228,6 @@ export default function AdminMemberTypePage() {
           // @ts-ignore
           await memberTypeService.restore(item.id);
           toast({ title: 'Khôi phục loại thành viên thành công', variant: 'success' });
-        } else {
-          toast({ title: 'Phương thức khôi phục chưa được hỗ trợ', variant: 'error' });
         }
       } else {
         await memberTypeService.delete(item.id);
@@ -258,6 +281,44 @@ export default function AdminMemberTypePage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, backgroundColor: '#ffffff', minHeight: '100vh' }}>
+        <style>{`
+          @keyframes skeleton-shimmer-run {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        `}</style>
+        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <SkeletonBone width={320} height={42} />
+              <SkeletonBone width={150} height={42} />
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <SkeletonBone width={120} height={42} />
+              <SkeletonBone width={100} height={42} />
+              <SkeletonBone width={120} height={42} />
+            </div>
+          </div>
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '4px', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
+            <div style={{ height: '48px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }} />
+            {[...Array(pageSize)].map((_, i) => (
+              <div key={i} style={{ height: '64px', borderBottom: i === pageSize - 1 ? 'none' : '1px solid #f8fafc', display: 'flex', alignItems: 'center', padding: '0 24px', gap: '24px' }}>
+                <SkeletonBone width={40} height={16} />
+                <div style={{ flex: 1 }}><SkeletonBone width="60%" height={16} /></div>
+                <div style={{ width: '150px' }}><SkeletonBone width="70%" height={16} /></div>
+                <div style={{ width: '100px' }}><SkeletonBone width="50%" height={16} /></div>
+                <SkeletonBone width={100} height={32} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const selectedSortLabel   = SORT_OPTIONS.find((o) => o.value === sortKey)?.label ?? 'Sắp xếp';
   const selectedStatusLabel = STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? 'Tất cả';
 
@@ -266,62 +327,44 @@ export default function AdminMemberTypePage() {
       <div className={styles.controlsLeft}>
         <div className={styles.searchWrapper}>
           <MagnifyingGlassIcon className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Tìm kiếm loại thành viên..."
-            className={styles.searchInput}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <input type="text" placeholder="Tìm kiếm loại thành viên..." className={styles.searchInput} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         </div>
-
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className={styles.filterButton}>
-              <MixerHorizontalIcon className={styles.filterIcon} />
-              {selectedSortLabel}
+              <MixerHorizontalIcon className={styles.filterIcon} /> {selectedSortLabel}
               <ChevronDownIcon className={styles.chevronIcon} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent}>
             {SORT_OPTIONS.map((opt) => (
-              <DropdownMenuItem
-                key={opt.value}
-                className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
-                onClick={() => setSortKey(opt.value)}
-              >
+              <DropdownMenuItem key={opt.value} className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`} onClick={() => setSortKey(opt.value)}>
                 {opt.label}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
       <div className={styles.controlsRight}>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className={styles.exportButton}>
-              <Download size={16} className={styles.exportIcon} />
-              Nhập/Xuất
+              <Download size={16} className={styles.exportIcon} /> Nhập/Xuất
               <ChevronDownIcon className={styles.chevronIcon} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
             <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
-              <Upload size={16} className={styles.itemIcon} />
-              Nhập từ Excel
+              <Upload size={16} className={styles.itemIcon} /> Nhập từ Excel
             </DropdownMenuItem>
             <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
-              <Download size={16} className={styles.itemIcon} />
-              Xuất ra Excel
+              <Download size={16} className={styles.itemIcon} /> Xuất ra Excel
             </DropdownMenuItem>
             <DropdownMenuItem className={styles.dropdownItem} onClick={handleDownloadTemplate}>
-              <FileIcon size={16} className={styles.itemIcon} />
-              Tải file mẫu
+              <FileIcon size={16} className={styles.itemIcon} /> Tải file mẫu
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className={styles.statusButton}>
@@ -331,32 +374,24 @@ export default function AdminMemberTypePage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent}>
             {STATUS_OPTIONS.map((opt) => (
-              <DropdownMenuItem
-                key={opt.value}
-                className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`}
-                onClick={() => setStatusFilter(opt.value)}
-              >
+              <DropdownMenuItem key={opt.value} className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`} onClick={() => setStatusFilter(opt.value)}>
                 {opt.label}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-
         <Button variant="primary" size="sm" className={styles.createButton} onClick={handleOpenCreate}>
-          <PlusIcon className={styles.plusIcon} />
-          Loại mới
+          <PlusIcon className={styles.plusIcon} /> Loại mới
         </Button>
       </div>
     </div>
   );
 
-  const pagination = !loading && !error && filteredItems.length > 0 && totalPages > 0 ? (
+  const pagination = !error && filteredItems.length > 0 && totalPages > 0 ? (
     <Pagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      pageSize={pageSize}
+      currentPage={currentPage} totalPages={totalPages} pageSize={pageSize}
       totalItems={filteredItems.length}
-      onPageChange={(page) => { setCurrentPage(page); }}
+      onPageChange={handlePageChange}
       pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
       onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
       showResultCount={true}
@@ -364,130 +399,74 @@ export default function AdminMemberTypePage() {
   ) : null;
 
   return (
-    <AdminPageLayout
-      controlPanel={controlPanel}
-      pagination={pagination}
-    >
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th style={{ width: '50px' }}>STT</th>
-              <th>Tên loại thành viên</th>
-              <th>Vai trò</th>
-              <th>Trạng thái</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={5} className={styles.emptyState}>Đang tải dữ liệu...</td></tr>
-            ) : error ? (
-              <tr><td colSpan={5} className={styles.emptyState}>{error}</td></tr>
-            ) : paginatedItems.length === 0 ? (
+    <div className="flex flex-col flex-1 h-full min-h-0 bg-white">
+      <AdminPageLayout controlPanel={controlPanel} pagination={pagination}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <td colSpan={5} className={styles.emptyState}>
-                  {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có loại thành viên nào.'}
-                </td>
+                <th style={{ width: '50px' }}>STT</th>
+                <th>Tên loại thành viên</th>
+                <th>Vai trò</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
               </tr>
-            ) : (
-              paginatedItems.map((item, index) => {
-                const stt = (currentPage - 1) * pageSize + index + 1;
-                return (
-                  <tr key={item.id}>
-                    <td><span className={styles.sttCell}>{stt}</span></td>
-                    <td className={styles.nameCell}>{item.name}</td>
-                    <td>
-                      <span className={styles.roleBadge}>
-                        {mapRoleName(item.roleName)}
-                      </span>
-                    </td>
-                    <td>
-                      <div className={styles.tooltipWrapper}>
-                        <DropdownMenu modal={false}>
-                          <DropdownMenuTrigger asChild>
-                            <button
-                              type="button"
-                              className={`${styles.plainTrigger} ${item.isActive ? styles.statusActive : styles.statusInactive}`}
-                              disabled={updatingStatusIds.has(item.id)}
-                            >
-                              <div className={`${styles.statusIndicator} ${styles.statusAnimated}`}>
-                                <span className={styles.statusCircle}></span>
-                              </div>
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className={styles.statusMenu} align="start" sideOffset={4}>
-                            <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(item, true)}>
-                              Hoạt động
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(item, false)}>
-                              Tạm dừng
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <span className={styles.tooltip}>
-                          {item.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
+            </thead>
+            <tbody>
+              {error ? (
+                <tr><td colSpan={5} className={styles.emptyState}>{error}</td></tr>
+              ) : paginatedItems.length === 0 ? (
+                <tr><td colSpan={5} className={styles.emptyState}>
+                  {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có loại thành viên nào.'}
+                </td></tr>
+              ) : (
+                paginatedItems.map((item, index) => {
+                  const stt = (currentPage - 1) * pageSize + index + 1;
+                  return (
+                    <tr key={item.id}>
+                      <td><span className={styles.sttCell}>{stt}</span></td>
+                      <td className={styles.nameCell}>{item.name}</td>
+                      <td><span className={styles.roleBadge}>{mapRoleName(item.roleName)}</span></td>
+                      <td>
                         <div className={styles.tooltipWrapper}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={styles.editButton}
-                          onClick={() => handleOpenEdit(item)}
-                        >
-                          <EditIcon />
-                        </Button>
-                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                          <DropdownMenu modal={false}>
+                            <DropdownMenuTrigger asChild>
+                              <button type="button" className={`${styles.plainTrigger} ${item.isActive ? styles.statusActive : styles.statusInactive}`} disabled={updatingStatusIds.has(item.id)}>
+                                <div className={`${styles.statusIndicator} ${styles.statusAnimated}`}><span className={styles.statusCircle}></span></div>
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className={styles.statusMenu} align="start" sideOffset={4}>
+                              <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(item, true)}>Hoạt động</DropdownMenuItem>
+                              <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(item, false)}>Tạm dừng</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          <span className={styles.tooltip}>{item.isActive ? 'Đang hoạt động' : 'Tạm dừng'}</span>
                         </div>
-                        <div className={styles.tooltipWrapper}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className={styles.deleteButton}
-                          onClick={() => handleDeleteTrigger(item)}
-                          disabled={deletingId === item.id}
-                        >
-                          <TrashIcon />
-                        </Button>
-                          <span className={styles.tooltip}>Xóa</span>
+                      </td>
+                      <td>
+                        <div className={styles.actions}>
+                          <div className={styles.tooltipWrapper}>
+                            <Button variant="outline" size="sm" className={styles.editButton} onClick={() => handleOpenEdit(item)}><EditIcon /></Button>
+                            <span className={styles.tooltip}>Chỉnh sửa</span>
+                          </div>
+                          <div className={styles.tooltipWrapper}>
+                            <Button variant="outline" size="sm" className={styles.deleteButton} onClick={() => handleDeleteTrigger(item)} disabled={deletingId === item.id}><TrashIcon /></Button>
+                            <span className={styles.tooltip}>Xóa</span>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      <MemberTypeModal
-        open={isModalOpen}
-        onOpenChange={handleModalClose}
-        onSuccess={fetchData}
-        itemToEdit={editingItem}
-      />
-
-      <ConfirmModal
-        isOpen={isConfirmModalOpen}
-        onClose={() => setIsConfirmModalOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="Xác nhận xóa loại thành viên"
-        message={`Bạn có chắc chắn muốn xóa loại thành viên "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
-        confirmLabel="Xóa ngay"
-        cancelLabel="Suy nghĩ lại"
-        variant="danger"
-      />
-
-      <ImportMemberTypeModal
-        open={isImportModalOpen}
-        onOpenChange={setIsImportModalOpen}
-        onSuccess={fetchData}
-      />
-    </AdminPageLayout>
+        <MemberTypeModal open={isModalOpen} onOpenChange={handleModalClose} onSuccess={fetchData} itemToEdit={editingItem} />
+        <ConfirmModal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} onConfirm={handleConfirmDelete} title="Xác nhận xóa loại thành viên" message={`Bạn có chắc chắn muốn xóa loại thành viên "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`} confirmLabel="Xóa ngay" cancelLabel="Suy nghĩ lại" variant="danger" />
+        <ImportMemberTypeModal open={isImportModalOpen} onOpenChange={setIsImportModalOpen} onSuccess={fetchData} />
+      </AdminPageLayout>
+    </div>
   );
 }
