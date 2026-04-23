@@ -14,12 +14,12 @@ export interface PlaceholderItem {
 const placeholderService = {
   getAll: async (): Promise<PlaceholderItem[]> => {
     const response = await apiClient.get<PlaceholderItem[]>('/template-placeholders');
-    return response.data ?? [];
+    return response || [];
   },
 
   getByType: async (type: 'contract' | 'email'): Promise<PlaceholderItem[]> => {
     const response = await apiClient.get<PlaceholderItem[]>(`/template-placeholders/by-type/${type}`);
-    return response.data ?? [];
+    return response || [];
   },
 
   // Standardized Master Data Export/Import
