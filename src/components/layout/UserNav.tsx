@@ -69,9 +69,9 @@ export function UserNav() {
 
   return (
     <div className="tjn-header__user-nav">
-      {/* <NotificationDropdown /> */}
+      <NotificationDropdown />
 
-      {/* <DropdownMenu.Root modal={false}>
+      <DropdownMenu.Root modal={false}>
         <DropdownMenu.Trigger asChild>
           <button className="tjn-header__avatar-button" aria-label="User menu">
             {!loading && avatarUrl ? (
@@ -123,7 +123,7 @@ export function UserNav() {
             Đăng xuất
           </DropdownMenu.Item>
         </DropdownMenu.Content>
-      </DropdownMenu.Root> */}
+      </DropdownMenu.Root>
     </div>
   );
 }

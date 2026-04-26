@@ -45,6 +45,32 @@ const sortTransactions = (items: Transaction[], sort: string) => {
   }
 };
 
+// Internal Premium Skeleton Component for consistent look
+const SkeletonBone = ({ width, height, circle = false, margin = '0' }: { width?: string | number, height?: string | number, circle?: boolean, margin?: string }) => (
+  <div 
+    style={{ 
+      width: width || '100%', 
+      height: height || '20px', 
+      backgroundColor: '#f1f5f9',
+      borderRadius: circle ? '50%' : '4px',
+      position: 'relative',
+      overflow: 'hidden',
+      margin: margin
+    }}
+  >
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+      animation: 'skeleton-shimmer-run 1.8s infinite linear',
+      transform: 'translateX(-100%)'
+    }} />
+  </div>
+);
+
 export default function AdminTransactionPage() {
   const { toast } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -59,24 +85,25 @@ export default function AdminTransactionPage() {
   const [pageSize, setPageSize] = useState(10);
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await transactionService.getAllTransactions();
-        setTransactions(data);
-      } catch (err: unknown) {
-        const errorMessage = getErrorMessage(err, 'Không thể tải danh sách giao dịch');
-        setError(errorMessage);
-        toast({ title: errorMessage, variant: 'error' });
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchTransactions = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      // Artificial delay for premium feel
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const data = await transactionService.getAllTransactions();
+      setTransactions(data);
+    } catch (err: unknown) {
+      const errorMessage = getErrorMessage(err, 'Không thể tải danh sách giao dịch');
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    void fetchTransactions();
-  }, [toast]);
+  useEffect(() => {
+    fetchTransactions();
+  }, []);
 
   const filteredTransactions = useMemo(() => {
     let filtered = [...transactions];
@@ -120,6 +147,79 @@ export default function AdminTransactionPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  if (loading) {
+    return (
+      <div className="flex flex-col flex-1 h-full min-h-0 bg-white">
+        <style>{`
+          @keyframes skeleton-shimmer-run {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        `}</style>
+        
+        <AdminPageLayout
+          header={<TransactionHeader />}
+          controlPanel={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '12px 16px' }}>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <SkeletonBone width={320} height={42} />
+              </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <SkeletonBone width={180} height={42} />
+                <SkeletonBone width={120} height={42} />
+              </div>
+            </div>
+          }
+        >
+          <div style={{ 
+            backgroundColor: '#ffffff', 
+            borderRadius: '4px', 
+            border: '1px solid #f1f5f9', 
+            overflow: 'hidden',
+            margin: '0 4px'
+          }}>
+            <div style={{ height: '48px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }} />
+            {[...Array(pageSize || 10)].map((_, i) => (
+              <div key={i} style={{ 
+                height: '64px', 
+                borderBottom: i === (pageSize || 10) - 1 ? 'none' : '1px solid #f8fafc', 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: '0 24px', 
+                gap: '24px' 
+              }}>
+                <SkeletonBone width={40} height={16} />
+                <div style={{ flex: 1 }}>
+                  <SkeletonBone width="60%" height={16} />
+                </div>
+                <div style={{ flex: 2 }}>
+                  <SkeletonBone width="80%" height={16} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <SkeletonBone width="70%" height={16} />
+                </div>
+                <SkeletonBone width={100} height={32} />
+              </div>
+            ))}
+          </div>
+        </AdminPageLayout>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
+        <AdminPageLayout header={<TransactionHeader />}>
+          <div style={{ textAlign: 'center', padding: '60px', color: '#ef4444' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>Đã xảy ra lỗi</h3>
+            <p>{error}</p>
+          </div>
+        </AdminPageLayout>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col flex-1 h-full min-h-0">
       <AdminPageLayout
@@ -154,22 +254,13 @@ export default function AdminTransactionPage() {
           ) : null
         }
       >
-        {loading ? (
-          <div className={styles.loadingState}>
-            <p>Đang tải dữ liệu...</p>
-          </div>
-        ) : error ? (
-          <div className={styles.errorState}>
-            <p>{error}</p>
-          </div>
-        ) : (
-          <TransactionTable
-            transactions={paginatedTransactions}
-            currentPage={currentPage}
-            pageSize={pageSize}
-          />
-        )}
+        <TransactionTable
+          transactions={paginatedTransactions}
+          currentPage={currentPage}
+          pageSize={pageSize}
+        />
       </AdminPageLayout>
     </div>
   );
 }
+

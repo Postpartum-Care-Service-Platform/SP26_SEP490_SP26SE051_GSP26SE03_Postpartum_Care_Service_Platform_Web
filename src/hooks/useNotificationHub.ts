@@ -28,7 +28,6 @@ export function useNotificationHub({ token, onReceive }: UseNotificationHubOptio
   }, [onReceive]);
 
   const getToken = useCallback((): string | null => {
-    // Ưu tiên prop token, fallback về localStorage
     if (token) return token;
     if (typeof window !== 'undefined') return localStorage.getItem('token');
     return null;
@@ -39,7 +38,6 @@ export function useNotificationHub({ token, onReceive }: UseNotificationHubOptio
 
     const accessToken = getToken();
     if (!accessToken) {
-      console.warn('[NotificationHub] No token available, skipping connection');
       return;
     }
 
@@ -59,13 +57,12 @@ export function useNotificationHub({ token, onReceive }: UseNotificationHubOptio
       .configureLogging(signalR.LogLevel.Warning)
       .build();
 
-    connection.on('ReceiveNotification', (notification: NotificationPayload) => {
+    connection.on('ReceiveNotification', (notification: any) => {
       onReceiveRef.current(notification);
     });
 
     connection.onreconnected((id) => console.log('[NotificationHub] Reconnected:', id));
-    connection.onclose((err) => console.warn('[NotificationHub] Closed:', err));
-
+    
     connectionRef.current = connection;
 
     try {
@@ -73,7 +70,7 @@ export function useNotificationHub({ token, onReceive }: UseNotificationHubOptio
     } catch (err) {
       console.error('[NotificationHub] Connection error:', err);
     }
-  }, []);
+  }, [getToken]);
 
   useEffect(() => {
     void connect();

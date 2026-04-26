@@ -92,29 +92,37 @@
   gap: var(--spacing-sm);
 }
 
-.addButton {
+.importExportButton {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px var(--spacing-sm);
-  background-color: var(--color-brand-accent);
-  color: var(--color-text-inverse);
-  border: none;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #f8f9fa;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
   font-family: var(--font-body);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
 
-.addButton:hover {
-  background-color: #e67310;
+.importExportButton:hover {
+  background-color: #e9ecef;
+  border-color: var(--color-brand-accent);
 }
 
-.plusIcon {
+.exportIcon {
   width: 16px;
   height: 16px;
+  color: #6c757d;
+}
+
+.itemIcon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
 }
 
 .tableContainer {
@@ -225,24 +233,82 @@
   color: #fa8314;
 }
 
-.statusButton {
-  padding: 4px 12px;
+/* Status Dot Styles */
+.plainTrigger {
+  background: transparent;
   border: none;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  width: 100%;
 }
 
-.statusActive {
-  background: #d4edda;
-  color: #155724;
+.statusIndicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 8px;
+  height: 8px;
 }
 
-.statusInactive {
-  background: #f8d7da;
-  color: #721c24;
+.statusCircle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
 }
+
+.statusAnimated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: inherit;
+  z-index: 1;
+  animation: statusPulse 2s infinite;
+}
+
+@keyframes statusPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  70% { transform: scale(2.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+.statusActive .statusCircle { background-color: #10B981; }
+.statusActive .statusIndicator.statusAnimated::after { background-color: #10B981; }
+.statusInactive .statusCircle { background-color: #EF4444; }
+.statusInactive .statusIndicator.statusAnimated::after { background-color: #EF4444; }
+
+.statusMenu {
+  min-width: 160px;
+  padding: 6px 0;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  z-index: 1000;
+}
+
+.statusMenuItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: #343a40;
+}
+
+.statusMenuItem:hover { background: rgba(0, 0, 0, 0.05); }
 
 .sttCol {
   position: sticky;
@@ -531,10 +597,29 @@
   background-color: rgba(250, 131, 20, 0.1) !important;
 }
 
-.dropdownItemActive {
-  color: var(--color-brand-accent) !important;
-  background-color: rgba(250, 131, 20, 0.1) !important;
-  font-weight: normal !important;
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background-color: var(--color-brand-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.addButton:hover {
+  background-color: #e67310;
+}
+
+.plusIcon {
+  width: 16px;
+  height: 16px;
 }
 
 /* Override Radix UI default styles - wrapped in global inside a local class */

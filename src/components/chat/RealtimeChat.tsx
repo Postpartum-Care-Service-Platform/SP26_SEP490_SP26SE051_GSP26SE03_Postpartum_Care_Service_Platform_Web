@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useChatHub } from '@/hooks/useChatHub';
 import { MessageEvent } from '@/services/signalr.service';
+import { useToast } from '@/components/ui/toast/use-toast';
 
 interface RealtimeChatProps {
     conversationId: number;
@@ -23,6 +24,7 @@ export default function RealtimeChat({ conversationId, onClose }: RealtimeChatPr
     const [isStaffAvailable, setIsStaffAvailable] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const { toast } = useToast();
 
     const {
         isConnected,
@@ -160,7 +162,11 @@ export default function RealtimeChat({ conversationId, onClose }: RealtimeChatPr
     useEffect(() => {
         const unsubscribe = onError((error) => {
             console.error('SignalR error:', error);
-            alert(`Lỗi: ${error.message}`);
+            toast({
+                title: 'Lỗi kết nối',
+                description: `Lỗi: ${error.message}`,
+                variant: 'error',
+            });
         });
 
         return unsubscribe;
@@ -181,7 +187,11 @@ export default function RealtimeChat({ conversationId, onClose }: RealtimeChatPr
             await notifyTyping(conversationId, false);
         } catch (err) {
             console.error('Error sending message:', err);
-            alert('Không thể gửi tin nhắn. Vui lòng thử lại.');
+            toast({
+                title: 'Lỗi',
+                description: 'Không thể gửi tin nhắn. Vui lòng thử lại.',
+                variant: 'error',
+            });
         }
     };
 
@@ -215,7 +225,11 @@ export default function RealtimeChat({ conversationId, onClose }: RealtimeChatPr
             await requestSupport(conversationId, reason || undefined);
         } catch (err) {
             console.error('Error requesting support:', err);
-            alert('Không thể gửi yêu cầu hỗ trợ. Vui lòng thử lại.');
+            toast({
+                title: 'Lỗi',
+                description: 'Không thể gửi yêu cầu hỗ trợ. Vui lòng thử lại.',
+                variant: 'error',
+            });
         }
     };
 

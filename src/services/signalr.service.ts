@@ -289,8 +289,15 @@ export class SignalRService {
                 }
             };
             
-            // Đăng ký cả hai kiểu chữ (PascalCase và lowercase)
+            // Đăng ký cả ba kiểu chữ để đảm bảo nhận được sự kiện
+            // 1. PascalCase (Original): NewSupportRequest
             this.connection?.on(evt, proxy);
+            // 2. camelCase: newSupportRequest
+            const camelCaseEvt = evt.charAt(0).toLowerCase() + evt.slice(1);
+            if (camelCaseEvt !== evt) {
+                this.connection?.on(camelCaseEvt, proxy);
+            }
+            // 3. lowercase: newsupportrequest
             this.connection?.on(evt.toLowerCase(), proxy);
         });
     }

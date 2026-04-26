@@ -414,6 +414,7 @@ export default function WorkSchedulePage() {
                     schedules={filteredSchedules}
                     selectedStaffId={selectedStaffId}
                     onStaffSelect={handleSelectStaff}
+                    onRefresh={fetchSchedules}
                   />
                 </div>
               ) : calendarViewMode === 'Week' ? (
@@ -426,6 +427,7 @@ export default function WorkSchedulePage() {
                   }}
                   selectedStaffId={selectedStaffId}
                   onStaffSelect={handleSelectStaff}
+                  onRefresh={fetchSchedules}
                 />
               ) : (
                 <CalendarDayView
@@ -436,6 +438,7 @@ export default function WorkSchedulePage() {
                   schedules={filteredSchedules}
                   selectedStaffId={selectedStaffId}
                   onStaffSelect={handleSelectStaff}
+                  onRefresh={fetchSchedules}
                 />
               )}
             </div>

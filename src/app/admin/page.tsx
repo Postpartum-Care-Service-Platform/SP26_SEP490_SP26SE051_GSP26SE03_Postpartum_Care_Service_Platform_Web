@@ -28,6 +28,40 @@ import statisticsService from '@/services/statistics.service';
 import { Transaction } from '@/types/transaction';
 import transactionService from '@/services/transaction.service';
 
+// Custom Premium Skeleton Components
+const SkeletonPulse = () => (
+  <div className={styles.skeletonPulse}>
+    <div className={styles.shimmer} />
+  </div>
+);
+
+const StatsSkeleton = () => (
+  <div className={styles.statsSkeletonGrid}>
+    {[1, 2, 3, 4].map(i => (
+      <div key={i} className={styles.skeletonCard}><SkeletonPulse /></div>
+    ))}
+  </div>
+);
+
+const ChartSkeleton = ({ height = 350 }) => (
+  <div className={styles.skeletonCard} style={{ height }}>
+    <div className={styles.skeletonHeader}><SkeletonPulse /></div>
+    <div className={styles.skeletonChartBody}>
+      {[60, 80, 40, 90, 70, 50, 85].map((h, i) => (
+        <div key={i} className={styles.skeletonBar} style={{ height: `${h}%` }}><SkeletonPulse /></div>
+      ))}
+    </div>
+  </div>
+);
+
+const ListSkeleton = ({ items = 3 }) => (
+  <div className={styles.skeletonList}>
+    {Array.from({ length: items }).map((_, i) => (
+      <div key={i} className={styles.skeletonListItem}><SkeletonPulse /></div>
+    ))}
+  </div>
+);
+
 type DashboardStats = {
   activePatients: number;
   outstandingBalance: number;
@@ -59,6 +93,9 @@ export default function AdminPage() {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
+        // Artificial delay to see the Premium Skeleton effect
+        await new Promise(resolve => setTimeout(resolve, 2500));
+        
         const [
           activePatientsRes, 
           weeklyAppointmentsRes, 
@@ -165,10 +202,45 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div>
+      <div className={styles.pageContainer}>
         <DashboardHeader />
-        <div className={styles.loading}>
-          <p>Đang tải dữ liệu...</p>
+        <StatsSkeleton />
+        
+        <div className={styles.chartSection}>
+          <div className={styles.revenueChartWrapper}>
+            <ChartSkeleton height={400} />
+          </div>
+        </div>
+
+        <div className={styles.bottomSection}>
+          <div className={styles.topRow}>
+            <div className={styles.leftColumn}>
+              <div className={styles.calendarSection}>
+                <div style={{ height: '30px', width: '200px', marginBottom: '20px' }}><SkeletonPulse /></div>
+                <div style={{ height: '300px', marginBottom: '20px' }}><SkeletonPulse /></div>
+                <ListSkeleton items={2} />
+              </div>
+            </div>
+            <div className={styles.middleColumn}>
+              <div className={styles.skeletonCard} style={{ height: '474px' }}><SkeletonPulse /></div>
+            </div>
+            <div className={styles.averagePatientVisitWrapper}>
+              <div className={styles.skeletonCard} style={{ height: '474px' }}><SkeletonPulse /></div>
+            </div>
+          </div>
+          
+          <div className={styles.middleRow}>
+            <div className={styles.popularityWrapperSide}>
+              <div className={styles.skeletonCard} style={{ height: '320px' }}><SkeletonPulse /></div>
+            </div>
+            <div className={styles.cashflowWrapper}>
+              <ChartSkeleton height={320} />
+            </div>
+          </div>
+
+          <div className={styles.heatmapSection}>
+            <div className={styles.skeletonCard} style={{ height: '250px' }}><SkeletonPulse /></div>
+          </div>
         </div>
       </div>
     );
@@ -261,8 +333,6 @@ export default function AdminPage() {
           </div>
         </div>
         <PerformanceBulletCharts />
-
-        
       </div>
     </div>
   );

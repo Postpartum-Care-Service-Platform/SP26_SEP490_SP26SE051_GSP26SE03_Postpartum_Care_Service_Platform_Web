@@ -22,6 +22,32 @@ import { FoodTypeModal } from './components/FoodTypeModal';
 import { ImportFoodTypeModal } from './components/ImportFoodTypeModal';
 import styles from './food-type.module.css';
 
+// Internal Premium Skeleton Component
+const SkeletonBone = ({ width, height, circle = false, margin = '0' }: { width?: string | number, height?: string | number, circle?: boolean, margin?: string }) => (
+  <div 
+    style={{ 
+      width: width || '100%', 
+      height: height || '20px', 
+      backgroundColor: '#f1f5f9',
+      borderRadius: circle ? '50%' : '4px',
+      position: 'relative',
+      overflow: 'hidden',
+      margin: margin
+    }}
+  >
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+      animation: 'skeleton-shimmer-run 1.8s infinite linear',
+      transform: 'translateX(-100%)'
+    }} />
+  </div>
+);
+
 /* ── SVG icons ── */
 const EditIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24" fill="currentColor">
@@ -104,10 +130,7 @@ export default function AdminFoodTypePage() {
   const [editingItem, setEditingItem] = useState<FoodType | null>(null);
   const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
 
-  // Import Modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-
-  // Confirm Modal state
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<FoodType | null>(null);
 
@@ -117,6 +140,8 @@ export default function AdminFoodTypePage() {
     try {
       setLoading(true);
       setError(null);
+      // Premium 2s delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
       const data = await foodTypeService.getAllFoodTypes();
       setItems(data);
     } catch (err: unknown) {
@@ -148,6 +173,11 @@ export default function AdminFoodTypePage() {
   }, [filteredItems, currentPage, pageSize]);
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleOpenCreate = () => { setEditingItem(null); setIsModalOpen(true); };
   const handleOpenEdit   = (item: FoodType) => { setEditingItem(item); setIsModalOpen(true); };
@@ -250,6 +280,43 @@ export default function AdminFoodTypePage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, backgroundColor: '#ffffff', minHeight: '100vh' }}>
+        <style>{`
+          @keyframes skeleton-shimmer-run {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        `}</style>
+        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <SkeletonBone width={320} height={42} />
+              <SkeletonBone width={180} height={42} />
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <SkeletonBone width={120} height={42} />
+              <SkeletonBone width={100} height={42} />
+              <SkeletonBone width={120} height={42} />
+            </div>
+          </div>
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '4px', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
+            <div style={{ height: '48px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }} />
+            {[...Array(pageSize)].map((_, i) => (
+              <div key={i} style={{ height: '64px', borderBottom: i === pageSize - 1 ? 'none' : '1px solid #f8fafc', display: 'flex', alignItems: 'center', padding: '0 24px', gap: '24px' }}>
+                <SkeletonBone width={40} height={16} />
+                <div style={{ flex: 1 }}><SkeletonBone width="60%" height={16} /></div>
+                <div style={{ width: '120px' }}><SkeletonBone width="80%" height={16} /></div>
+                <SkeletonBone width={100} height={32} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const selectedSortLabel   = SORT_OPTIONS.find((o) => o.value === sortKey)?.label ?? 'Sắp xếp';
   const selectedStatusLabel = STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? 'Tất cả';
 
@@ -258,27 +325,18 @@ export default function AdminFoodTypePage() {
       <div className={styles.controlsLeft}>
         <div className={styles.searchWrapper}>
           <MagnifyingGlassIcon className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Tìm kiếm loại thực phẩm..."
-            className={styles.searchInput}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <input type="text" placeholder="Tìm kiếm loại thực phẩm..." className={styles.searchInput} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         </div>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className={styles.filterButton}>
-              <MixerHorizontalIcon className={styles.filterIcon} />
-              {selectedSortLabel}
+              <MixerHorizontalIcon className={styles.filterIcon} /> {selectedSortLabel}
               <ChevronDownIcon className={styles.chevronIcon} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent}>
             {SORT_OPTIONS.map((opt) => (
-              <DropdownMenuItem key={opt.value}
-                className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
-                onClick={() => setSortKey(opt.value)}>
+              <DropdownMenuItem key={opt.value} className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`} onClick={() => setSortKey(opt.value)}>
                 {opt.label}
               </DropdownMenuItem>
             ))}
@@ -289,27 +347,22 @@ export default function AdminFoodTypePage() {
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className={styles.exportButton}>
-              <Download size={16} className={styles.exportIcon} />
-              Nhập/Xuất
+              <Download size={16} className={styles.exportIcon} /> Nhập/Xuất
               <ChevronDownIcon className={styles.chevronIcon} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
             <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
-              <Upload size={16} className={styles.itemIcon} />
-              Nhập từ Excel
+              <Upload size={16} className={styles.itemIcon} /> Nhập từ Excel
             </DropdownMenuItem>
             <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
-              <Download size={16} className={styles.itemIcon} />
-              Xuất ra Excel
+              <Download size={16} className={styles.itemIcon} /> Xuất ra Excel
             </DropdownMenuItem>
             <DropdownMenuItem className={styles.dropdownItem} onClick={handleDownloadTemplate}>
-              <FileIcon size={16} className={styles.itemIcon} />
-              Tải file mẫu
+              <FileIcon size={16} className={styles.itemIcon} /> Tải file mẫu
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className={styles.statusButton}>
@@ -319,29 +372,24 @@ export default function AdminFoodTypePage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent}>
             {STATUS_OPTIONS.map((opt) => (
-              <DropdownMenuItem key={opt.value}
-                className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`}
-                onClick={() => setStatusFilter(opt.value)}>
+              <DropdownMenuItem key={opt.value} className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`} onClick={() => setStatusFilter(opt.value)}>
                 {opt.label}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
         <Button variant="primary" size="sm" className={styles.createButton} onClick={handleOpenCreate}>
-          <PlusIcon className={styles.plusIcon} />
-          Loại mới
+          <PlusIcon className={styles.plusIcon} /> Loại mới
         </Button>
       </div>
     </div>
   );
 
-  const pagination = !loading && !error && filteredItems.length > 0 && totalPages > 0 ? (
+  const pagination = !error && filteredItems.length > 0 && totalPages > 0 ? (
     <Pagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      pageSize={pageSize}
+      currentPage={currentPage} totalPages={totalPages} pageSize={pageSize}
       totalItems={filteredItems.length}
-      onPageChange={(page) => { setCurrentPage(page); }}
+      onPageChange={handlePageChange}
       pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
       onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
       showResultCount={true}
@@ -349,124 +397,79 @@ export default function AdminFoodTypePage() {
   ) : null;
 
   return (
-    <AdminPageLayout
-      controlPanel={controlPanel}
-      pagination={pagination}
-    >
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th style={{ width: '50px' }}>STT</th>
-              <th>Tên loại thực phẩm</th>
-              <th>Trạng thái</th>
-              <th className={styles.stickyActionsCol}>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={4} className={styles.emptyState}>Đang tải dữ liệu...</td></tr>
-            ) : error ? (
-              <tr><td colSpan={4} className={styles.emptyState}>{error}</td></tr>
-            ) : paginatedItems.length === 0 ? (
-              <tr><td colSpan={4} className={styles.emptyState}>
-                {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có loại thực phẩm nào.'}
-              </td></tr>
-            ) : (
-              paginatedItems.map((item, index) => {
-                const stt = (currentPage - 1) * pageSize + index + 1;
-                return (
-                  <tr key={item.id}>
-                    <td><span className={styles.sttCell}>{stt}</span></td>
-                    <td className={styles.nameCell}>{item.name}</td>
-                    <td>
-                      <div className={styles.tooltipWrapper}>
-                        <DropdownMenu modal={false}>
-                          <DropdownMenuTrigger asChild>
-                            <button
-                              type="button"
-                              className={`${styles.plainTrigger} ${item.isActive ? styles.statusActive : styles.statusInactive}`}
-                              disabled={updatingStatusIds.has(item.id)}
-                            >
-                              <div className={`${styles.statusIndicator} ${styles.statusAnimated}`}>
-                                <span className={styles.statusCircle}></span>
-                              </div>
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className={styles.statusMenu} align="start" sideOffset={4}>
-                            <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(item, true)}>
-                              Hoạt động
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(item, false)}>
-                              Tạm dừng
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <span className={styles.tooltip}>
-                          {item.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className={styles.stickyActionsCol}>
-                      <div className={styles.actions}>
+    <div className="flex flex-col flex-1 h-full min-h-0 bg-white">
+      <AdminPageLayout controlPanel={controlPanel} pagination={pagination}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th style={{ width: '50px' }}>STT</th>
+                <th>Tên loại thực phẩm</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+              </tr>
+            </thead>
+            <tbody>
+              {error ? (
+                <tr><td colSpan={4} className={styles.emptyState}>{error}</td></tr>
+              ) : paginatedItems.length === 0 ? (
+                <tr><td colSpan={4} className={styles.emptyState}>
+                  {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có loại thực phẩm nào.'}
+                </td></tr>
+              ) : (
+                paginatedItems.map((item, index) => {
+                  const stt = (currentPage - 1) * pageSize + index + 1;
+                  return (
+                    <tr key={item.id}>
+                      <td><span className={styles.sttCell}>{stt}</span></td>
+                      <td className={styles.nameCell}>{item.name}</td>
+                      <td>
                         <div className={styles.tooltipWrapper}>
-                        <Button variant="outline" size="sm" className={styles.editButton}
-                            onClick={() => handleOpenEdit(item)}>
-                          <EditIcon />
-                        </Button>
-                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                          <DropdownMenu modal={false}>
+                            <DropdownMenuTrigger asChild>
+                              <button type="button" className={`${styles.plainTrigger} ${item.isActive ? styles.statusActive : styles.statusInactive}`} disabled={updatingStatusIds.has(item.id)}>
+                                <div className={`${styles.statusIndicator} ${styles.statusAnimated}`}><span className={styles.statusCircle}></span></div>
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className={styles.statusMenu} align="start" sideOffset={4}>
+                              <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(item, true)}>Hoạt động</DropdownMenuItem>
+                              <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(item, false)}>Tạm dừng</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          <span className={styles.tooltip}>{item.isActive ? 'Đang hoạt động' : 'Tạm dừng'}</span>
                         </div>
-                        {item.isActive ? (
+                      </td>
+                      <td>
+                        <div className={styles.actions}>
                           <div className={styles.tooltipWrapper}>
-                          <Button variant="outline" size="sm" className={styles.deleteButton}
-                              onClick={() => handleDeleteTrigger(item)} disabled={deletingId === item.id}>
-                            <TrashIcon />
-                          </Button>
-                            <span className={styles.tooltip}>Xóa</span>
+                            <Button variant="outline" size="sm" className={styles.editButton} onClick={() => handleOpenEdit(item)}><EditIcon /></Button>
+                            <span className={styles.tooltip}>Chỉnh sửa</span>
                           </div>
-                        ) : (
-                          <div className={styles.tooltipWrapper}>
-                          <Button variant="outline" size="sm" className={styles.restoreButton}
-                              onClick={() => handleRestore(item)} disabled={deletingId === item.id}>
-                            <RestoreIcon />
-                          </Button>
-                            <span className={styles.tooltip}>Khôi phục</span>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                          {item.isActive ? (
+                            <div className={styles.tooltipWrapper}>
+                              <Button variant="outline" size="sm" className={styles.deleteButton} onClick={() => handleDeleteTrigger(item)} disabled={deletingId === item.id}><TrashIcon /></Button>
+                              <span className={styles.tooltip}>Xóa</span>
+                            </div>
+                          ) : (
+                            <div className={styles.tooltipWrapper}>
+                              <Button variant="outline" size="sm" className={styles.restoreButton} onClick={() => handleRestore(item)} disabled={deletingId === item.id}><RestoreIcon /></Button>
+                              <span className={styles.tooltip}>Khôi phục</span>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      <FoodTypeModal
-        open={isModalOpen}
-        onOpenChange={handleModalClose}
-        item={editingItem}
-        onSuccess={fetchData}
-      />
-
-      <ConfirmModal
-        isOpen={isConfirmModalOpen}
-        onClose={() => setIsConfirmModalOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="Xác nhận xóa loại thực phẩm"
-        message={`Bạn có chắc chắn muốn xóa loại thực phẩm "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
-        confirmLabel="Xóa ngay"
-        cancelLabel="Suy nghĩ lại"
-        variant="danger"
-      />
-
-      <ImportFoodTypeModal
-        open={isImportModalOpen}
-        onOpenChange={setIsImportModalOpen}
-        onSuccess={fetchData}
-      />
-    </AdminPageLayout>
+        <FoodTypeModal open={isModalOpen} onOpenChange={handleModalClose} item={editingItem} onSuccess={fetchData} />
+        <ConfirmModal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} onConfirm={handleConfirmDelete} title="Xác nhận xóa loại thực phẩm" message={`Bạn có chắc chắn muốn xóa loại thực phẩm "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`} confirmLabel="Xóa ngay" cancelLabel="Suy nghĩ lại" variant="danger" />
+        <ImportFoodTypeModal open={isImportModalOpen} onOpenChange={setIsImportModalOpen} onSuccess={fetchData} />
+      </AdminPageLayout>
+    </div>
   );
 }
-
