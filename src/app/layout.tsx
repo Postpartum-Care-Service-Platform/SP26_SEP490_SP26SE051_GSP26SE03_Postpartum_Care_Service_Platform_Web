@@ -9,6 +9,7 @@ import type { Metadata } from 'next';
 
 import '@/styles/globals.css';
 import { BoneyardProvider } from '@/components/providers/BoneyardProvider';
+import { SystemNotificationListener } from '@/components/providers/SystemNotificationListener';
 
 
 
@@ -45,6 +46,7 @@ export default function RootLayout({
         />
         <AuthProvider>
           <ToastProvider>
+            <SystemNotificationListener />
             <BoneyardProvider>
               {children}
             </BoneyardProvider>

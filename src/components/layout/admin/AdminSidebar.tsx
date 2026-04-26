@@ -47,27 +47,27 @@ export function AdminSidebar({ collapsed, onToggleCollapsed, navSections, brandT
   });
   const [tooltipPos, setTooltipPos] = useState<{ top: number; label: string } | null>(null);
 
-  // Auto-expand groups that have active children
+  // Auto-expand groups that have active children only when the path changes
   React.useEffect(() => {
-    const newOpenKeys = { ...openKeys };
-    let changed = false;
+    setOpenKeys((prev) => {
+      const newOpenKeys = { ...prev };
+      let changed = false;
 
-    navSections.forEach((section) => {
-      section.items.forEach((item) => {
-        if (item.children && !openKeys[item.key]) {
-          const hasActiveChild = item.children.some((child: { href: string }) => pathname === child.href);
-          if (hasActiveChild) {
-            newOpenKeys[item.key] = true;
-            changed = true;
+      navSections.forEach((section) => {
+        section.items.forEach((item) => {
+          if (item.children) {
+            const hasActiveChild = item.children.some((child: { href: string }) => pathname === child.href);
+            if (hasActiveChild && !prev[item.key]) {
+              newOpenKeys[item.key] = true;
+              changed = true;
+            }
           }
-        }
+        });
       });
-    });
 
-    if (changed) {
-      setOpenKeys(newOpenKeys);
-    }
-  }, [pathname, openKeys, navSections]);
+      return changed ? newOpenKeys : prev;
+    });
+  }, [pathname, navSections]);
 
   const toggleSection = (key: string) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));

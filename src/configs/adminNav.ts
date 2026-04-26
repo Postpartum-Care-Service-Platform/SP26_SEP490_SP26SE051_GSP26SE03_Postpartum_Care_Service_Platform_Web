@@ -28,6 +28,7 @@ import {
   Settings,
   Shield,
   Undo2,
+  Award
 } from 'lucide-react';
 
 export type AdminNavItem = {
@@ -206,7 +207,13 @@ export const adminNav: AdminNavSection[] = [
         key: 'staff-skill',
         label: 'Kỹ năng nhân viên',
         href: '/admin/staff-skill',
-        icon: Activity,
+        icon: Award,
+      },
+      {
+        key: 'medical-record',
+        label: 'Hồ sơ y tế',
+        href: '/admin/medical-record',
+        icon: FileHeart,
       },
       {
         key: 'page-builder',

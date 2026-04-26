@@ -15,10 +15,10 @@ import styles from './roles.module.css';
 
 // Internal Premium Skeleton Component
 const SkeletonBone = ({ width, height, circle = false, margin = '0' }: { width?: string | number, height?: string | number, circle?: boolean, margin?: string }) => (
-  <div 
-    style={{ 
-      width: width || '100%', 
-      height: height || '20px', 
+  <div
+    style={{
+      width: width || '100%',
+      height: height || '20px',
       backgroundColor: '#f1f5f9',
       borderRadius: circle ? '50%' : '4px',
       position: 'relative',
@@ -88,9 +88,9 @@ export default function AdminRolesPage() {
         err instanceof Error
           ? err.message
           : typeof err === 'object' &&
-              err !== null &&
-              'message' in err &&
-              typeof (err as { message?: unknown }).message === 'string'
+            err !== null &&
+            'message' in err &&
+            typeof (err as { message?: unknown }).message === 'string'
             ? (err as { message: string }).message
             : 'Khong the tai danh sach vai tro';
       setError(message);
@@ -167,9 +167,9 @@ export default function AdminRolesPage() {
         err instanceof Error
           ? err.message
           : typeof err === 'object' &&
-              err !== null &&
-              'message' in err &&
-              typeof (err as { message?: unknown }).message === 'string'
+            err !== null &&
+            'message' in err &&
+            typeof (err as { message?: unknown }).message === 'string'
             ? (err as { message: string }).message
             : 'Xóa vai trò thất bại';
       toast({ title: message, variant: 'error' });

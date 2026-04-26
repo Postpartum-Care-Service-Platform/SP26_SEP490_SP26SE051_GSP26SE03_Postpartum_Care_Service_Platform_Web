@@ -3,8 +3,8 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Bell, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
-import React from 'react';
+import { Bell, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info, Activity } from 'lucide-react';
+import React, { useCallback, useEffect } from 'react';
 
 import {
   DropdownMenu,
@@ -27,8 +27,11 @@ const getNotificationIcon = (_typeId: number | null, typeName: string | null) =>
   if (name.includes('báo cáo') || name.includes('tài liệu') || name.includes('document') || name.includes('report')) {
     return FileText;
   }
-  if (name.includes('đơn hàng') || name.includes('order') || name.includes('cart')) {
+  if (name.includes('đơn hàng') || name.includes('order') || name.includes('cart') || name.includes('gói') || name.includes('package')) {
     return ShoppingCart;
+  }
+  if (name.includes('dịch vụ') || name.includes('amenity') || name.includes('tiện ích')) {
+    return Activity;
   }
   if (name.includes('cuộc họp') || name.includes('nhóm') || name.includes('meeting') || name.includes('group')) {
     return Users;
@@ -54,24 +57,24 @@ export function NotificationDropdown({ onViewAll, isSidebarOpen }: { onViewAll?:
   const [isOpen, setIsOpen] = React.useState(false);
   const [isTooltipOpen, setIsTooltipOpen] = React.useState(false);
 
-  const { session } = useAuth();
-  const token = session?.user?.accessToken;
+  const { token } = useAuth();
+
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const data = await notificationService.getMyNotifications();
+      setNotifications(data);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   // Initial fetch
   React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const data = await notificationService.getMyNotifications();
-        setNotifications(data);
-      } catch (error) {
-        console.error('Failed to fetch notifications:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     void fetchData();
-  }, []);
+  }, [fetchData]);
 
   // Real-time: prepend new notification from SignalR
   const handleReceive = React.useCallback((notification: NotificationPayload) => {
@@ -152,7 +155,7 @@ export function NotificationDropdown({ onViewAll, isSidebarOpen }: { onViewAll?:
             <div className={styles.empty}>Không có thông báo</div>
           ) : (
             notifications.slice(0, 5).map((notification) => {
-              const Icon = getNotificationIcon(notification.notificationTypeId, notification.notificationTypeName);
+              const Icon = getNotificationIcon((notification.notificationTypeId ?? 0) as number, notification.notificationTypeName);
               const isUnread = notification.status === 'Unread';
               return (
                 <div

@@ -245,8 +245,8 @@ export function LoginForm() {
                   </div>
                 ))
               ) : (
-                <div 
-                  className={styles.dropdownEmpty} 
+                <div
+                  className={styles.dropdownEmpty}
                   onMouseDown={(e) => {
                     e.preventDefault();
                     e.stopPropagation();

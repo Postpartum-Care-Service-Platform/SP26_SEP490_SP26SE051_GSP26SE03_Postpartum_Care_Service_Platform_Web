@@ -32,7 +32,7 @@ export default function PageBuilderList() {
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0' }}>
       <h1 style={{ fontSize: '20px', fontWeight: 600 }}>Quản lý Trang động</h1>
       <Link href="/admin/page-builder/create">
-        <Button variant="primary">
+        <Button className={styles.designBtn}>
           <PlusIcon size={18} /> Thiết kế trang mới
         </Button>
       </Link>

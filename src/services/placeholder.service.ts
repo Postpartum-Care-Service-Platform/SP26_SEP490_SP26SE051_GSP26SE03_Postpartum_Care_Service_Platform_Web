@@ -13,13 +13,13 @@ export interface PlaceholderItem {
 
 const placeholderService = {
   getAll: async (): Promise<PlaceholderItem[]> => {
-    const response = await apiClient.get<PlaceholderItem[]>('/template-placeholders');
-    return response || [];
+    const response = await apiClient.get<any>('/template-placeholders');
+    return (response as unknown as PlaceholderItem[]) || [];
   },
 
   getByType: async (type: 'contract' | 'email'): Promise<PlaceholderItem[]> => {
-    const response = await apiClient.get<PlaceholderItem[]>(`/template-placeholders/by-type/${type}`);
-    return response || [];
+    const response = await apiClient.get<any>(`/template-placeholders/by-type/${type}`);
+    return (response as unknown as PlaceholderItem[]) || [];
   },
 
   // Standardized Master Data Export/Import
