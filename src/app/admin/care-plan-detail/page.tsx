@@ -197,7 +197,7 @@ export default function AdminCarePlanDetailPage() {
         `}</style>
         
         <AdminPageLayout
-          header={<CarePlanDetailHeader />}
+          header={<CarePlanDetailListHeader />}
           controlPanel={
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '12px 16px' }}>
               <div style={{ display: 'flex', gap: '16px' }}>

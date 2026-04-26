@@ -538,7 +538,6 @@ export default function AdminFeedbackPage() {
               </tbody>
             </table>
           </div>
-        )}
       </div>
 
       <FeedbackDetailModal
