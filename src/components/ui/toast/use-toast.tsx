@@ -61,7 +61,7 @@ function ToastViewport({ items }: { items: ToastInternal[] }) {
         right: 16,
         display: 'grid',
         gap: 10,
-        zIndex: 9999,
+        zIndex: 1000000,
       }}
       aria-live="polite"
       aria-relevant="additions"
