@@ -22,6 +22,7 @@ type Props = {
   onImport?: () => void;
   onExport?: () => void;
   onDownloadTemplate?: () => void;
+  onOpenRequests?: () => void;
 };
 
 const SORT_OPTIONS = [
@@ -41,7 +42,7 @@ const STATUS_OPTIONS: Array<{ value: 'all' | 'active' | 'inactive'; label: strin
   { value: 'inactive', label: 'Tạm dừng' },
 ];
 
-export function PackageTableControls({ onSearch, onSortChange, onStatusChange, onNewPackage, onImport, onExport, onDownloadTemplate }: Props) {
+export function PackageTableControls({ onSearch, onSortChange, onStatusChange, onNewPackage, onImport, onExport, onDownloadTemplate, onOpenRequests }: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState<string>('createdAt-desc');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'inactive'>('all');
@@ -145,6 +146,11 @@ export function PackageTableControls({ onSearch, onSortChange, onStatusChange, o
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <Button size="sm" className={styles.packageRequestButton} onClick={onOpenRequests}>
+          <FileIcon size={16} className={styles.itemIcon} />
+          Yêu cầu gói
+        </Button>
 
         <Button variant="primary" size="sm" className={styles.newPackageButton} onClick={onNewPackage}>
           <PlusIcon className={styles.plusIcon} />

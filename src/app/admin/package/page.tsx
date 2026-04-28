@@ -7,7 +7,7 @@ import packageService from '@/services/package.service';
 import type { Package } from '@/types/package';
 import { Pagination } from '@/components/ui/pagination';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
-import { ImportPackageModal, NewPackageModal, PackageListHeader, PackageTable, PackageTableControls } from './components';
+import { ImportPackageModal, NewPackageModal, PackageListHeader, PackageTable, PackageTableControls, PackageRequestListModal } from './components';
 import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './package.module.css';
 
@@ -83,6 +83,9 @@ export default function AdminPackagePage() {
 
   // Import Modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Requests Modal state
+  const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
 
   const fetchPackages = async () => {
     try {
@@ -307,6 +310,7 @@ export default function AdminPackagePage() {
             onImport={() => setIsImportModalOpen(true)}
             onExport={handleExport}
             onDownloadTemplate={handleDownloadTemplate}
+            onOpenRequests={() => setIsRequestsModalOpen(true)}
           />
         }
         pagination={
@@ -358,6 +362,11 @@ export default function AdminPackagePage() {
         onConfirm={handleConfirmDelete}
         title="Xác nhận xóa gói dịch vụ"
         message={`Bạn có chắc chắn muốn xóa gói dịch vụ "${itemToDelete?.packageName}"? Hành động này không thể hoàn tác.`}
+      />
+
+      <PackageRequestListModal
+        open={isRequestsModalOpen}
+        onOpenChange={setIsRequestsModalOpen}
       />
     </>
   );
