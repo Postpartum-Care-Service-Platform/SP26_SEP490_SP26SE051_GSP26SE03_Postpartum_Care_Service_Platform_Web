@@ -163,6 +163,7 @@ export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountI
           familyScheduleId: item.id,
           isChecked: item.staffSchedules?.[0]?.isChecked || false,
           checkedAt: item.staffSchedules?.[0]?.checkedAt || null,
+          images: [],
           familyScheduleResponse: {
             id: item.id,
             customerId: item.customerId,
@@ -220,6 +221,7 @@ export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountI
             familyScheduleId: -ticket.id,
             isChecked: ticket.status === 'Completed',
             checkedAt: null,
+            images: [],
             familyScheduleResponse: {
               id: -ticket.id,
               customerId: ticket.customerId,

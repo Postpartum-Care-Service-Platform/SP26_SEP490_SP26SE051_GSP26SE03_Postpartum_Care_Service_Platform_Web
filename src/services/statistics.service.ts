@@ -1,5 +1,46 @@
 import apiClient from './apiClient';
 
+// ── Staff statistics types ──────────────────────────────────────────────────
+export interface StaffPerformanceItem {
+  staffId: string;
+  staffName: string;
+  totalHours: number;
+  serviceCount: number;
+  avgRating: number | null;
+}
+
+export interface StaffCompletionRateItem {
+  staffId: string;
+  staffName: string;
+  totalTasks: number;
+  completedTasks: number;
+  missedTasks: number;
+  cancelledTasks: number;
+  completionRate: number;
+  missedRate: number;
+}
+
+export interface StaffCompletionRateResponse {
+  staff: StaffCompletionRateItem[];
+  startDate: string | null;
+  endDate: string | null;
+}
+
+export interface BestRatedStaffItem {
+  staffId: string;
+  staffName: string;
+  avatar: string | null;
+  avgRating: number | null;
+  totalFeedback: number;
+  totalRevenue: number;
+}
+
+export interface BestRatedStaffResponse {
+  staff: BestRatedStaffItem[];
+  startDate: string | null;
+  endDate: string | null;
+}
+
 const statisticsService = {
   /**
    * Lấy số dư chưa thanh toán (Outstanding Balance)
@@ -65,10 +106,24 @@ const statisticsService = {
   },
 
   /**
-   * Lấy hiệu suất nhân viên (Staff Performance)
+   * Lấy hiệu suất nhân viên (Staff Performance) — toàn bộ staff
    */
-  getStaffPerformance: (params?: { startDate?: string; endDate?: string }): Promise<any> => {
-    return apiClient.get('/Statistics/staff/performance', { params });
+  getStaffPerformance: (startDate?: string, endDate?: string): Promise<StaffPerformanceItem[]> => {
+    return apiClient.get('/Statistics/staff/performance', { params: { startDate, endDate } });
+  },
+
+  /**
+   * Lấy tỉ lệ hoàn thành của từng nhân viên
+   */
+  getStaffCompletionRate: (startDate?: string, endDate?: string): Promise<StaffCompletionRateResponse> => {
+    return apiClient.get('/Statistics/staff/completion-rate', { params: { startDate, endDate } });
+  },
+
+  /**
+   * Lấy nhân viên được đánh giá tốt nhất
+   */
+  getBestRatedStaff: (startDate?: string, endDate?: string, limit = 50): Promise<BestRatedStaffResponse> => {
+    return apiClient.get('/Statistics/staff/best-rated', { params: { startDate, endDate, limit } });
   },
 
   /**

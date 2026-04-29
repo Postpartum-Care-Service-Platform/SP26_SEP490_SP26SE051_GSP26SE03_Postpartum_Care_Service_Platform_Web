@@ -1,12 +1,16 @@
 import type { Account, CustomerDetail } from '@/types/account';
+import type { FamilyProfile } from '@/types/family-profile';
 
 import apiClient from './apiClient';
 
 const userService = {
 
-
   getAllAccounts: (): Promise<Account[]> => {
     return apiClient.get('/Account/GetAll');
+  },
+
+  getStaffDetail: (accountId: string): Promise<FamilyProfile[]> => {
+    return apiClient.get(`/FamilyProfile/GetByAccountId/${accountId}`);
   },
 
   getAccountById: (id: string): Promise<Account> => {
