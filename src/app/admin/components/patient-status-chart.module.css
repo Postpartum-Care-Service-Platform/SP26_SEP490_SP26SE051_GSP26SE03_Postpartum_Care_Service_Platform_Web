@@ -1,81 +1,82 @@
 .card {
   background: white;
-  border-radius: 4.8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .cardHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #e9ecef;
+  padding: 16px 20px;
+  border-bottom: 1px solid #f8f9fa;
 }
 
 .title {
-  font-family: "Funnel Sans", sans-serif;
-  font-size: 13px;
+  font-family: inherit;
+  font-size: 14px;
   font-weight: 600;
-  color: #343A40;
+  color: #333;
   margin: 0;
 }
 
 .timeframeButton {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   padding: 6px 12px;
-  background-color: transparent;
-  border: 1px solid #dee2e6;
+  background-color: #fff;
+  border: 1px solid #eee;
   border-radius: 4px;
-  font-family: "Funnel Sans", sans-serif;
-  font-size: 13px;
-  color: #343A40;
+  font-family: inherit;
+  font-size: 12px;
+  color: #666;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
 }
 
 .timeframeButton:hover {
   background-color: #f8f9fa;
+  border-color: #ddd;
 }
 
 .chevronIcon {
   width: 14px;
   height: 14px;
-  transition: transform 0.2s;
-}
-
-.timeframeButton[data-state='open'] .chevronIcon {
-  transform: rotate(180deg);
+  color: #999;
 }
 
 .dropdownContent {
   background-color: #fff;
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-md);
+  border: 1px solid #eee;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   padding: 4px;
   min-width: 120px;
+  z-index: 100;
 }
 
 .dropdownItem {
   padding: 8px 12px;
-  font-family: "Funnel Sans", sans-serif;
-  font-size: 13px;
-  color: var(--color-text-primary);
+  font-size: 12px;
+  color: #666;
   cursor: pointer;
-  border-radius: var(--radius-sm);
-  transition: background-color 0.2s;
+  border-radius: 4px;
+  outline: none;
 }
 
 .dropdownItem:hover {
-  background-color: rgba(250, 131, 20, 0.1);
+  background-color: #f8f9fa;
+  color: #fa8314;
 }
 
 .dropdownItemActive {
-  color: var(--color-brand-accent);
-  background-color: rgba(250, 131, 20, 0.1);
+  background-color: rgba(250, 131, 20, 0.05);
+  color: #fa8314;
+  font-weight: 600;
 }
 
 .cardBody {
@@ -86,41 +87,51 @@
 .chartWrapper {
   width: 100%;
   height: 100%;
+  outline: none;
+}
+
+.chartWrapper *:focus {
+  outline: none !important;
 }
 
 .tooltip {
-  background-color: #fff;
-  border: 1px solid #e9ecef;
-  border-radius: 4px;
-  padding: 8px 12px;
-  font-family: "Lexend Deca", sans-serif;
-  font-size: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
 .tooltipLabel {
-  font-weight: 600;
-  color: #343A40;
-  margin-bottom: 8px;
   font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
 }
 
 .tooltipItem {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 4px;
-  color: #343A40;
   font-size: 12px;
-}
-
-.tooltipItem:last-child {
-  margin-bottom: 0;
+  color: #666;
 }
 
 .tooltipIcon {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  flex-shrink: 0;
+}
+
+.loadingState,
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 140px;
+  font-size: 13px;
+  color: #aaa;
 }

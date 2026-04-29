@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import styles from './main/home.module.css';
+import styles from './home.module.css';
 
 const CAROUSEL_IMAGES = [
   '/thejoyfulnest/experience/carousel/167c7e0e-dcb3-4a5d-9193-a019a63b5709.jpg',

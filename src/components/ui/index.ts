@@ -11,4 +11,5 @@ export * from './tabs';
 export * from './skeleton';
 export * from './logo-loader';
 export * from './page-loader';
+export * from './data-loader';
 export * from './scroll-to-top';

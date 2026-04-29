@@ -110,13 +110,14 @@
 }
 
 .dayToday {
-  background-color: #ffefdb !important;
+  background-color: #ff9d00 !important;
   font-weight: 600;
-  color: #343a40 !important;
+  color: #fff !important;
 }
 
 .dayToday.daySelected {
-  background-color: #e0d9ed !important;
+  background-color: #ff7a00 !important;
+  color: #fff !important;
 }
 
 .daySelected {

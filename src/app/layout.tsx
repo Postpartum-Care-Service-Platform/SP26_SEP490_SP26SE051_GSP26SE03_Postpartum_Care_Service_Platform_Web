@@ -1,3 +1,4 @@
+import NextTopLoader from 'nextjs-toploader';
 import { Henny_Penny } from 'next/font/google';
 
 import { ConditionalSupportWidget } from '@/components/layout/ConditionalSupportWidget';
@@ -7,6 +8,10 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import type { Metadata } from 'next';
 
 import '@/styles/globals.css';
+import { BoneyardProvider } from '@/components/providers/BoneyardProvider';
+import { SystemNotificationListener } from '@/components/providers/SystemNotificationListener';
+
+
 
 const hennyPenny = Henny_Penny({
   weight: '400',
@@ -28,12 +33,27 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning className={hennyPenny.variable}>
       <body className="app-shell" suppressHydrationWarning>
+        <NextTopLoader
+          color="#FF9B42"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={true}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #FF9B42,0 0 5px #FF9B42"
+        />
         <AuthProvider>
           <ToastProvider>
-            {children}
+            <SystemNotificationListener />
+            <BoneyardProvider>
+              {children}
+            </BoneyardProvider>
             <ConditionalSupportWidget />
           </ToastProvider>
         </AuthProvider>
+
       </body>
     </html>
   );

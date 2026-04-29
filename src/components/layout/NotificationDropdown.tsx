@@ -3,10 +3,12 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { AlertCircle, Bell, CheckCircle, ChevronRight, Clock, FileText, Info, ShoppingCart, Users, XCircle } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { AlertCircle, Bell, CheckCircle, ChevronRight, Clock, FileText, Info, ShoppingCart, Users, XCircle, Activity } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
 
 import notificationService from '@/services/notification.service';
+import { useNotificationHub, type NotificationPayload } from '@/hooks/useNotificationHub';
+import { useAuth } from '@/contexts/AuthContext';
 import type { Notification } from '@/types/notification';
 
 import styles from './notification-dropdown.module.css';
@@ -20,8 +22,11 @@ const getNotificationIcon = (typeId: number, typeName: string | null) => {
   if (name.includes('báo cáo') || name.includes('tài liệu') || name.includes('document') || name.includes('report')) {
     return FileText;
   }
-  if (name.includes('đơn hàng') || name.includes('order') || name.includes('cart')) {
+  if (name.includes('đơn hàng') || name.includes('order') || name.includes('cart') || name.includes('gói') || name.includes('package')) {
     return ShoppingCart;
+  }
+  if (name.includes('dịch vụ') || name.includes('amenity') || name.includes('tiện ích')) {
+    return Activity;
   }
   if (name.includes('cuộc họp') || name.includes('nhóm') || name.includes('meeting') || name.includes('group')) {
     return Users;
@@ -46,26 +51,37 @@ export function NotificationDropdown() {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const { token } = useAuth();
+
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const notificationsData = await notificationService.getMyNotifications();
+      setNotifications(notificationsData);
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const notificationsData = await notificationService.getMyNotifications();
-        setNotifications(notificationsData);
-      } catch (error) {
-        console.error('Failed to fetch notifications:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    fetchData();
+  }, [fetchData]);
 
-    if (isOpen) {
-      fetchData();
-      // Reset showAll khi mở dropdown
-      setShowAll(false);
-    }
-  }, [isOpen]);
+  // SignalR real-time update
+  const handleReceive = useCallback((notification: NotificationPayload) => {
+    setNotifications((prev) => {
+      if (prev.some((n) => n.id === notification.id)) return prev;
+      const normalized = {
+        ...notification,
+        status: (notification.status === 0 || notification.status === 'Unread') ? 'Unread' : 'Read',
+      } as unknown as Notification;
+      return [normalized, ...prev];
+    });
+  }, []);
+
+  useNotificationHub({ token, onReceive: handleReceive });
 
   const handleNotificationClick = async (notification: Notification) => {
     if (notification.status === 'Unread') {
@@ -115,7 +131,7 @@ export function NotificationDropdown() {
             <div className={styles.empty}>Không có thông báo</div>
           ) : (
             (showAll ? notifications : notifications.slice(0, 5)).map((notification) => {
-              const Icon = getNotificationIcon(notification.notificationTypeId, notification.notificationTypeName);
+              const Icon = getNotificationIcon((notification.notificationTypeId ?? 0) as number, notification.notificationTypeName);
               const isUnread = notification.status === 'Unread';
               return (
                 <div

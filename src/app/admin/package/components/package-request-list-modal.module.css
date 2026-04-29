@@ -1,0 +1,777 @@
+.modalContent {
+  background-color: #ffffff !important;
+  border-radius: 4px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  border: none !important;
+  overflow: visible !important;
+  z-index: 99999 !important;
+}
+
+.modalHeader {
+  padding: 6px 24px;
+  background-color: #fff;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  border-bottom: 1px solid #f3f4f6;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.closeButton {
+  position: absolute;
+  right: 16px;
+  top: 6px;
+  padding: 4px;
+  border-radius: 4px;
+  color: #9ca3af;
+  transition: all 0.2s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+}
+
+.closeButton:hover {
+  color: #ef4444;
+}
+
+.modalTitle {
+  font-family: 'Lexend Deca', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111;
+  text-align: left;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  margin-right: 8px;
+  background: transparent !important;
+  border: none !important;
+  color: #9ca3af !important;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 50%;
+}
+
+.backButton:hover {
+  color: #4b5563 !important;
+}
+
+.controlsRow {
+  display: flex;
+  gap: 12px;
+  padding: 12px 24px;
+  background-color: #fff;
+}
+
+.searchInputWrapper {
+  position: relative;
+  flex: 1;
+  max-width: 350px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  width: 18px;
+  height: 18px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 12px 8px 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #fff;
+}
+
+.scrollArea {
+  background-color: #fff;
+}
+
+.priceInput {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  background-color: #fff;
+  transition: all 0.2s;
+  width: 140px;
+  outline: none;
+}
+
+.priceInput:focus {
+  border-color: #fa8314;
+  box-shadow: 0 0 0 2px rgba(250, 131, 20, 0.1);
+}
+
+.priceInput:hover {
+  border-color: #fa8314;
+  background-color: #f9fafb;
+}
+
+.tableContainer {
+  padding: 0 24px 24px 24px;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Lexend Deca', sans-serif;
+}
+
+.thead {
+  background-color: #f8f9fa;
+}
+
+.th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #edf2f7;
+  white-space: nowrap;
+}
+
+.tr {
+  border-bottom: 1px solid #edf2f7;
+  transition: background-color 0.2s;
+}
+
+.tr:hover {
+  background-color: #f9fafb;
+}
+
+.td {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #4b5563;
+  vertical-align: middle;
+}
+
+.stt {
+  font-weight: 600;
+  color: #9ca3af;
+  width: 50px;
+}
+
+.customerCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.customerName {
+  font-weight: 500;
+  color: #111827;
+}
+
+.titleText {
+  font-weight: 500;
+  color: #fa8314;
+}
+
+.description {
+  max-width: 300px;
+  font-size: 12px;
+  color: #9ca3af;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.modalFooter {
+  padding: 16px 24px;
+  background-color: #fff;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.paginationInfo {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.pagination {
+  display: flex;
+  gap: 8px;
+}
+
+.pageBtn {
+  font-family: 'Lexend Deca', sans-serif;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+.pageBtnActive {
+  background-color: #fa8314;
+  color: #fff;
+  border-color: #fa8314;
+}
+
+.loadingContainer,
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+  color: #9ca3af;
+}
+
+.statusIndicatorWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  overflow: visible !important;
+  height: 24px;
+}
+
+.statusDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: block;
+  cursor: help;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  z-index: 2;
+}
+
+.statusDot:hover {
+  transform: scale(1.3);
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* Subtle pulse animation - Always active */
+.statusDot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: currentColor;
+  transform: translate(-50%, -50%);
+  animation: statusPulse 2s infinite ease-out;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes statusPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(3.5);
+    opacity: 0;
+  }
+}
+
+.eyeButton {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 6px !important;
+  color: #63b3ed !important;
+  cursor: pointer;
+  transition: color 0.2s;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.eyeButton:hover {
+  color: #4299e1 !important;
+}
+
+/* Details View Styles */
+.detailsContainer {
+  background-color: #f9fafb;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.healthLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.healthBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background-color: #fff7ed;
+  color: #f97316;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #ffedd5;
+}
+
+.healthMetricGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.healthMetricCard {
+  background-color: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 4px;
+  border: 1px solid #f1f5f9;
+  transition: all 0.2s;
+  flex: 1;
+  min-width: 140px;
+}
+
+.healthMetricCard:hover {
+  background-color: #fff;
+  border-color: #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.healthMetricLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.healthMetricValue {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.healthMetricUnit {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-left: 2px;
+  font-weight: 500;
+}
+
+.healthGeneralCondition {
+  padding: 16px;
+  background-color: #f0f9ff;
+  border-radius: 4px;
+  border: 1px solid #e0f2fe;
+  color: #0369a1;
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.healthNoteBox {
+  padding: 16px;
+  background-color: #f8fafc;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.6;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
+}
+
+.summaryHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background-color: #fff;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.summaryTop {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.summaryDescription {
+  padding: 10px 16px;
+  background-color: #fff9f5;
+  border: 1px solid #ffedd5;
+  border-radius: 8px;
+  max-width: 100%;
+}
+
+.summaryDescriptionText {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #475569;
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summaryLabel {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summaryValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.summaryCustomerAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.detailsContent {
+  padding: 16px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.detailsRow {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 24px;
+  align-items: start;
+}
+
+.activitiesList {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: none;
+  /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none;
+  /* Hide scrollbar for IE/Edge */
+}
+
+.activitiesList::-webkit-scrollbar {
+  display: none;
+  /* Hide scrollbar for Chrome/Safari */
+}
+
+.activityCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  padding-bottom: 28px;
+  /* Space for checkbox at bottom right */
+  background-color: #fff;
+  border: 1.5px solid #f1f5f9;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-height: 80px;
+}
+
+.activityCard:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+}
+
+.activityCardActive {
+  border-color: #f97316 !important;
+}
+
+.activityCheckbox {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  background-color: #fff;
+}
+
+.activityCheckboxActive {
+  background-color: #f97316;
+  border-color: #f97316;
+  color: #fff;
+}
+
+.activityInfo {
+  flex: 1;
+}
+
+.activityName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
+  /* Limit width to ensure truncation works */
+}
+
+.activityType {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.activityPrice {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f97316;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cardTitle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 20px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.infoItemLabel {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.infoItemValue {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+}
+
+
+.tabsList {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background-color: #f1f5f9;
+  border-radius: 12px;
+  width: fit-content;
+}
+
+.tabItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  border-radius: 8px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  border: none;
+}
+
+.tabItem:hover {
+  color: #1e293b;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.tabItemActive {
+  background-color: #f97316 !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.2);
+}
+
+.tabBadge {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  background-color: #e2e8f0;
+  color: #64748b;
+  border-radius: 100px;
+  text-transform: uppercase;
+}
+
+.tabItemActive .tabBadge {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.familyItem {
+  background-color: #fff;
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+}
+
+.familyIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  border: 1px solid #f1f5f9;
+}
+
+.familyName {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 2px;
+}
+
+.familyType {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.actionFooter {
+  padding: 16px 24px;
+  background-color: #fff;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  z-index: 10;
+}
+
+.btnBack {
+  padding: 10px 24px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnBack:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.btnReject {
+  padding: 10px 24px;
+  background-color: #f43f5e;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(244, 63, 94, 0.2);
+}
+
+.btnApprove {
+  padding: 10px 24px;
+  background-color: #10b981;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+}

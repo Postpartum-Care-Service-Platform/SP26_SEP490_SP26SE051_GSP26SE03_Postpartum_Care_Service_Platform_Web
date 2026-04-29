@@ -99,6 +99,7 @@ export function CalendarWeekView({
   onDateChange,
   selectedStaffId,
   onStaffSelect,
+  onRefresh,
 }: {
   weekCursor: Date;
   schedules: StaffSchedule[];
@@ -106,6 +107,7 @@ export function CalendarWeekView({
   onDateChange?: (date: Date) => void;
   selectedStaffId: string | null;
   onStaffSelect: (staffId: string | null) => void;
+  onRefresh?: () => void;
 }) {
   const [selectedDateTime, setSelectedDateTime] = React.useState<{
     date: Date;
@@ -370,6 +372,7 @@ export function CalendarWeekView({
           onOpenChange={setIsPopoverOpen}
           schedule={selectedSchedule}
           anchorRect={scheduleAnchorRect || undefined}
+          onRefresh={onRefresh}
         />
       </div>
     </Tooltip.Provider>

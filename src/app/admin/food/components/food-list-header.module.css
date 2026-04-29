@@ -1,7 +1,45 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
+}
+
+.viewSwitchContainer {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 2px;
+  overflow: hidden;
+}
+
+.switchButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #888;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.switchButton:hover {
+  color: #333;
+  background: #f5f5f5;
+}
+
+.switchButton.active {
+  color: var(--color-brand-accent);
+  background: rgba(250, 131, 20, 0.1);
+}
+
+.switchButton svg {
+  display: block;
 }
 
 @media (max-width: 768px) {

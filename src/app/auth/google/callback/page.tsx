@@ -39,9 +39,13 @@ export default function GoogleCallbackPage() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const { login } = useAuth();
+  const hasCalled = React.useRef(false);
   const [isProcessing, setIsProcessing] = React.useState(true);
 
   React.useEffect(() => {
+    if (hasCalled.current) return;
+    hasCalled.current = true;
+
     const handleGoogleCallback = async () => {
       const hash = window.location.hash.startsWith('#') ? window.location.hash.substring(1) : '';
       const hashParams = new URLSearchParams(hash);
@@ -52,7 +56,7 @@ export default function GoogleCallbackPage() {
       if (error || !idToken) {
         toast({ title: 'Đăng nhập Google thất bại', variant: 'error' });
         setTimeout(() => {
-          window.location.href = ROUTES.login;
+          router.push(ROUTES.login);
         }, 1500);
         return;
       }
@@ -67,15 +71,33 @@ export default function GoogleCallbackPage() {
         toast({ title: AUTH_LOGIN_MESSAGES.loginSuccess, variant: 'success' });
 
         const userRole = authResponse.user.role?.toLowerCase();
-        const redirectPath = userRole === 'admin' ? ROUTES.admin : ROUTES.main;
+        let redirectPath = ROUTES.home as string;
+        
+        switch (userRole) {
+          case 'admin':
+            redirectPath = ROUTES.admin;
+            break;
+          case 'manager':
+            redirectPath = ROUTES.manager;
+            break;
+          case 'receptionist':
+            redirectPath = ROUTES.receptionist;
+            break;
+          case 'staff':
+            redirectPath = '/staff';
+            break;
+          default:
+            redirectPath = ROUTES.home;
+        }
 
-        window.location.href = redirectPath;
+        // Use router.push instead of window.location.href for smoother navigation
+        router.push(redirectPath);
       } catch (err: unknown) {
         console.error('Google login error:', err);
         const message = getErrorMessage(err, 'Đăng nhập Google thất bại');
         toast({ title: message, variant: 'error' });
         setTimeout(() => {
-          window.location.href = ROUTES.login;
+          router.push(ROUTES.login);
         }, 1500);
       } finally {
         setIsProcessing(false);

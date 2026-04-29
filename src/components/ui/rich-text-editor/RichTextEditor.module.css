@@ -18,7 +18,8 @@
   background: #fafafa;
   border-bottom: 1px solid var(--color-border-default, #e0e0e0);
   flex-wrap: wrap;
-  position: relative;
+  position: sticky;
+  top: 0;
   z-index: 100;
 }
 
@@ -715,7 +716,7 @@
 
 .proseMirror th,
 .proseMirror td {
-  border: 1px solid #ddd;
+  border: 1px solid #f0f0f0; /* Very light border like Word/Docs */
   padding: 10px 14px;
   text-align: left;
 }
@@ -988,4 +989,75 @@
 .confirmBtn:hover {
   background: #1765cc;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Suggestion List (Standard Tippy) */
+.suggestionListWrapper {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  overflow: hidden;
+  min-width: 280px;
+  max-height: 350px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* Global Tippy Overrides moved to globals.css to satisfy CSS Modules purity requirements */
+
+
+.suggestionListHeader {
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #888;
+  background: #f9f9f9;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.suggestionListItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suggestionListItem:hover,
+.suggestionListItem.isSelected {
+  background: rgba(250, 131, 20, 0.08);
+}
+
+.suggestionBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  background: linear-gradient(135deg, #fa8314 0%, #e06b00 100%);
+  color: #fff;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+.suggestionKey {
+  font-size: 12px;
+  color: #555;
+  font-family: monospace;
+}
+
+.suggestionListEmpty {
+  padding: 12px;
+  font-size: 13px;
+  color: #aaa;
+  text-align: center;
 }

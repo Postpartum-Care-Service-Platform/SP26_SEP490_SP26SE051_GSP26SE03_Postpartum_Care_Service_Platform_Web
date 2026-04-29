@@ -33,6 +33,8 @@ import emailTemplateService, {
 } from "@/services/email-template.service";
 import placeholderService, { PlaceholderItem } from "@/services/placeholder.service";
 
+import { useToast } from "@/components/ui/toast/use-toast";
+
 import styles from "./templates.module.css";
 
 type TemplateType = 'contract' | 'email';
@@ -41,6 +43,32 @@ interface SelectedTemplate {
     type: TemplateType;
     id: number;
 }
+
+// Internal Premium Skeleton Component
+const SkeletonBone = ({ width, height, circle = false, margin = '0' }: { width?: string | number, height?: string | number, circle?: boolean, margin?: string }) => (
+  <div 
+    style={{ 
+      width: width || '100%', 
+      height: height || '20px', 
+      backgroundColor: '#f1f5f9',
+      borderRadius: circle ? '50%' : '4px',
+      position: 'relative',
+      overflow: 'hidden',
+      margin: margin
+    }}
+  >
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+      animation: 'skeleton-shimmer-run 1.8s infinite linear',
+      transform: 'translateX(-100%)'
+    }} />
+  </div>
+);
 
 // ── New template modal ─────────────────────────────────────────────────────────
 function NewTemplateModal({
@@ -99,6 +127,7 @@ function ConfirmDeleteModal({ name, onClose, onConfirm }: { name: string; onClos
 
 // ── Main page ──────────────────────────────────────────────────────────────────
 export default function AdminTemplatesPage() {
+    const { toast } = useToast();
     const [contractTemplates, setContractTemplates] = useState<ContractTemplate[]>([]);
     const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
     const [placeholders, setPlaceholders] = useState<PlaceholderItem[]>([]);
@@ -127,10 +156,14 @@ export default function AdminTemplatesPage() {
     const [zoomLevel, setZoomLevel] = useState(100);
     const [viewMode, setViewMode] = useState<'print' | 'read' | 'web'>('print');
 
+    const handleFetchPlaceholders = useCallback(() => placeholderService.getAll(), []);
+
     // ── Fetch data ──
     const fetchAll = useCallback(async () => {
         setLoadingList(true);
         try {
+            // Premium 2s delay
+            await new Promise(resolve => setTimeout(resolve, 2000));
             const [contracts, emails, placeholderData] = await Promise.all([
                 contractTemplateService.getAll().catch(() => [] as ContractTemplate[]),
                 emailTemplateService.getAll().catch(() => [] as EmailTemplate[]),
@@ -139,7 +172,6 @@ export default function AdminTemplatesPage() {
             setContractTemplates(Array.isArray(contracts) ? contracts.filter((t) => t.isActive !== false) : []);
             setEmailTemplates(Array.isArray(emails) ? emails.filter((t) => t.isActive !== false) : []);
 
-            // Filter placeholders by type
             const allPlaceholders = Array.isArray(placeholderData) ? placeholderData : [];
             setPlaceholders(allPlaceholders);
         } catch (err) {
@@ -170,7 +202,6 @@ export default function AdminTemplatesPage() {
                 setActiveContract(null);
                 setEditName(data.name);
                 setEditSubject(data.subject || '');
-                // Neu la full HTML document, luu wrapper de wrap lai khi save
                 const body = data.body || '';
                 const bm = body.match(/([\s\S]*?<body[^>]*>)([\s\S]*?)(<\/body>[\s\S]*)/i);
                 htmlWrapperRef.current = bm ? { before: bm[1], after: bm[3] } : null;
@@ -196,7 +227,6 @@ export default function AdminTemplatesPage() {
                 setActiveContract(updated);
                 setContractTemplates((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
             } else if (selected.type === 'email' && activeEmail) {
-                // Neu content goc la full HTML document, wrap lai truoc khi save
                 let bodyToSave = convertChipsToPlaceholders(editorContent);
                 if (htmlWrapperRef.current) {
                     bodyToSave = htmlWrapperRef.current.before + bodyToSave + htmlWrapperRef.current.after;
@@ -206,7 +236,11 @@ export default function AdminTemplatesPage() {
                 setActiveEmail(updated);
                 setEmailTemplates((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
             }
-        } catch (err) { console.error('Error saving:', err); }
+            toast({ title: 'Đã lưu thay đổi thành công', variant: 'success' });
+        } catch (err) { 
+            console.error('Error saving:', err);
+            toast({ title: 'Lỗi khi lưu mẫu', variant: 'error' });
+        }
         finally { setSaving(false); }
     };
 
@@ -224,7 +258,11 @@ export default function AdminTemplatesPage() {
             setSelected(null);
             setActiveContract(null);
             setActiveEmail(null);
-        } catch (err) { console.error('Error deleting:', err); }
+            toast({ title: 'Đã xóa mẫu thành công', variant: 'success' });
+        } catch (err) { 
+            console.error('Error deleting:', err);
+            toast({ title: 'Lỗi khi xóa mẫu', variant: 'error' });
+        }
         finally { setDeleteModal(false); }
     };
 
@@ -262,7 +300,6 @@ export default function AdminTemplatesPage() {
 
     const currentName = selected?.type === 'contract' ? activeContract?.name : activeEmail?.name;
 
-    // Filter placeholders by template type
     const filteredPlaceholders = useMemo(() => {
         const typeValue = selected?.type === 'contract' ? 1 : 2;
         return placeholders.filter(p => p.isActive && (p.templateType === typeValue || p.templateType === 0));
@@ -300,6 +337,12 @@ export default function AdminTemplatesPage() {
             }
             noScroll={true}
         >
+            <style>{`
+                @keyframes skeleton-shimmer-run {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(100%); }
+                }
+            `}</style>
             <div className={styles.pageContainer}>
                 {/* ── Sidebar ── */}
                 <aside className={`${styles.sidebar} ${isSidebarCollapsed ? styles.collapsed : ''}`}>
@@ -308,13 +351,22 @@ export default function AdminTemplatesPage() {
                             <p className={styles.sidebarTitle}>Danh sách mẫu</p>
                             <p className={styles.sidebarSubtitle}>Mẫu hợp đồng & email hệ thống</p>
                         </div>
-                        <button className={styles.toggleSidebarBtn} onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} title={isSidebarCollapsed ? "Mở rộng Sidebar" : "Thu gọn Sidebar"}>
+                        <button className={styles.toggleSidebarBtn} onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}>
                             {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
                         </button>
                     </div>
                     <div className={styles.sidebarScroll}>
                         {loadingList ? (
-                            <div className={styles.sidebarLoading}>Đang tải...</div>
+                            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <SkeletonBone width={140} height={16} />
+                                    {[...Array(5)].map((_, i) => <SkeletonBone key={i} width="90%" height={32} />)}
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
+                                    <SkeletonBone width={120} height={16} />
+                                    {[...Array(4)].map((_, i) => <SkeletonBone key={i} width="90%" height={32} />)}
+                                </div>
+                            </div>
                         ) : (
                             <>
                                 <div className={styles.section}>
@@ -326,7 +378,7 @@ export default function AdminTemplatesPage() {
                                             <span className={styles.sectionText}>Mẫu hợp đồng</span>
                                             <span className={styles.sectionCount}>{contractTemplates.length}</span>
                                         </span>
-                                        <button className={styles.sectionAddBtn} title="Tạo mẫu hợp đồng mới" onClick={() => setNewModal('contract')}><Plus size={14} /></button>
+                                        <button className={styles.sectionAddBtn} onClick={() => setNewModal('contract')}><Plus size={14} /></button>
                                     </div>
                                     {contractOpen && (
                                         <div className={styles.templateList}>
@@ -351,7 +403,7 @@ export default function AdminTemplatesPage() {
                                             <span className={styles.sectionText}>Mẫu email</span>
                                             <span className={styles.sectionCount}>{emailTemplates.length}</span>
                                         </span>
-                                        <button className={styles.sectionAddBtn} title="Tạo mẫu email mới" onClick={() => setNewModal('email')}><Plus size={14} /></button>
+                                        <button className={styles.sectionAddBtn} onClick={() => setNewModal('email')}><Plus size={14} /></button>
                                     </div>
                                     {emailOpen && (
                                         <div className={styles.templateList}>
@@ -375,7 +427,23 @@ export default function AdminTemplatesPage() {
 
                 {/* ── Editor area ── */}
                 <div className={styles.editorArea}>
-                    {!selected ? (
+                    {loadingList ? (
+                        <div className={styles.editorCard} style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                    <SkeletonBone width={80} height={24} />
+                                    <SkeletonBone width={300} height={32} />
+                                </div>
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <SkeletonBone width={80} height={36} />
+                                    <SkeletonBone width={100} height={36} />
+                                </div>
+                             </div>
+                             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', flex: 1, marginTop: '20px' }}>
+                                <SkeletonBone width="100%" height={400} />
+                             </div>
+                        </div>
+                    ) : !selected ? (
                         <div className={styles.emptyState}>
                             <FileText size={56} className={styles.emptyStateIcon} />
                             <p className={styles.emptyStateText}>Chọn một mẫu để bắt đầu chỉnh sửa</p>
@@ -384,6 +452,7 @@ export default function AdminTemplatesPage() {
                         <div className={styles.editorCard} style={{ position: 'relative' }}>
                             {loadingDetail && <div className={styles.loadingOverlay}><div className={styles.spinner} /></div>}
 
+                        <div className={styles.stickyHeader}>
                             <div className={styles.editorCardHeader}>
                                 <div className={styles.editorCardHeaderLeft}>
                                     <span className={`${styles.editorTypeBadge} ${selected.type === 'contract' ? styles.contract : styles.email}`}>
@@ -403,6 +472,7 @@ export default function AdminTemplatesPage() {
                                     <input className={styles.subjectInput} value={editSubject} onChange={(e) => setEditSubject(e.target.value)} placeholder="Nhập tiêu đề email..." />
                                 </div>
                             )}
+                        </div>
 
                             <div className={styles.editorContent}>
                                 <RichTextEditor
@@ -411,25 +481,29 @@ export default function AdminTemplatesPage() {
                                     placeholder="Nhập nội dung mẫu..."
                                     editorRef={editorRef}
                                     placeholders={filteredPlaceholders}
+                                    fetchPlaceholders={handleFetchPlaceholders}
+                                    onPlaceholderSelect={(key, label) => {
+                                        console.log('Selected placeholder:', key, label);
+                                    }}
                                     zoom={zoomLevel / 100}
                                 />
                             </div>
 
-                            {/* ── Status Bar (Word style) ── */}
+                            {/* ── Status Bar ── */}
                             <div className={styles.statusBar}>
                                 <div className={styles.viewModes}>
-                                    <button className={`${styles.viewBtn} ${viewMode === 'read' ? styles.active : ''}`} onClick={() => setViewMode('read')} title="Chế độ đọc">
+                                    <button className={`${styles.viewBtn} ${viewMode === 'read' ? styles.active : ''}`} onClick={() => setViewMode('read')}>
                                         <BookOpen size={15} />
                                     </button>
-                                    <button className={`${styles.viewBtn} ${viewMode === 'print' ? styles.active : ''}`} onClick={() => setViewMode('print')} title="Bố cục in">
+                                    <button className={`${styles.viewBtn} ${viewMode === 'print' ? styles.active : ''}`} onClick={() => setViewMode('print')}>
                                         <FileText size={15} />
                                     </button>
-                                    <button className={`${styles.viewBtn} ${viewMode === 'web' ? styles.active : ''}`} onClick={() => setViewMode('web')} title="Bố cục Web">
+                                    <button className={`${styles.viewBtn} ${viewMode === 'web' ? styles.active : ''}`} onClick={() => setViewMode('web')}>
                                         <Globe size={15} />
                                     </button>
                                 </div>
                                 <div className={styles.zoomControls}>
-                                    <button className={styles.zoomBtn} onClick={() => setZoomLevel(prev => Math.max(10, prev - 10))} title="Thu nhỏ">
+                                    <button className={styles.zoomBtn} onClick={() => setZoomLevel(prev => Math.max(10, prev - 10))}>
                                         <Minus size={14} />
                                     </button>
                                     <div className={styles.zoomSliderContainer}>
@@ -441,12 +515,12 @@ export default function AdminTemplatesPage() {
                                             onChange={(e) => setZoomLevel(parseInt(e.target.value))}
                                             className={styles.zoomSlider}
                                         />
-                                        <div className={styles.zoomMark} style={{ left: '18%' }} /> {/* 100% mark approx */}
+                                        <div className={styles.zoomMark} style={{ left: '18%' }} />
                                     </div>
-                                    <button className={styles.zoomBtn} onClick={() => setZoomLevel(prev => Math.min(500, prev + 10))} title="Phóng to">
+                                    <button className={styles.zoomBtn} onClick={() => setZoomLevel(prev => Math.min(500, prev + 10))}>
                                         <Plus size={14} />
                                     </button>
-                                    <span className={styles.zoomValue} onClick={() => setZoomLevel(100)} title="Đặt lại 100%">{zoomLevel}%</span>
+                                    <span className={styles.zoomValue} onClick={() => setZoomLevel(100)}>{zoomLevel}%</span>
                                 </div>
                             </div>
                         </div>
@@ -457,7 +531,6 @@ export default function AdminTemplatesPage() {
                 {newModal && <NewTemplateModal type={newModal} onClose={() => setNewModal(null)} onCreate={handleCreate} />}
                 {deleteModal && currentName && <ConfirmDeleteModal name={currentName} onClose={() => setDeleteModal(false)} onConfirm={handleDelete} />}
 
-                {/* Fixed tooltip */}
                 {tooltipData && (
                     <div className={styles.fixedTooltip} style={{ top: tooltipData.top, left: tooltipData.left }}>
                         <span className={styles.tooltipArrow} />

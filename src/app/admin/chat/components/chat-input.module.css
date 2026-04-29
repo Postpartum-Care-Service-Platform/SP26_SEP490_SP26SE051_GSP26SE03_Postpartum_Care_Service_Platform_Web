@@ -1,6 +1,6 @@
 .chatInput {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: var(--spacing-xs);
   padding: var(--spacing-sm);
   background-color: #fff;
@@ -44,6 +44,11 @@
   background-color: #fff;
   outline: none;
   transition: border-color 0.2s ease;
+  min-height: 40px;
+  max-height: 140px;
+  resize: none;
+  overflow-y: auto;
+  line-height: 1.4;
 }
 
 .input:focus {

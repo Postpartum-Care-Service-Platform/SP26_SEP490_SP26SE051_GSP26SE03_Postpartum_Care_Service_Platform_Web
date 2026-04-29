@@ -2,11 +2,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  /* Reduced gap */
+  gap: 12px;
   padding: 10px 0;
   position: relative;
   z-index: 110;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none; /* Firefox */
+}
+
+.wrap::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
 }
 
 .left {
@@ -61,8 +67,9 @@
   font-size: 14px;
   font-weight: 400;
   cursor: pointer;
-  min-width: 0;
-  width: auto; /* Allow growth */
+  min-width: fit-content;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .filterBtn span {
@@ -214,13 +221,15 @@
 
 .todayBtn {
   height: 32px;
-  padding: 0 10px;
+  padding: 0 12px;
   border-radius: 4px;
   border: 1px solid rgba(9, 30, 66, 0.14);
   background: #fff;
   color: #172b4d;
   font-weight: 400;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .todayBtn:hover {
@@ -235,6 +244,7 @@
   border: 1px solid rgba(9, 30, 66, 0.14);
   background: #fff;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .navArrow {

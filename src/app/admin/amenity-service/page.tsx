@@ -82,6 +82,32 @@ const sortAmenityServices = (items: AmenityService[], sort: string) => {
   }
 };
 
+// Internal Premium Skeleton Component for consistent look
+const SkeletonBone = ({ width, height, circle = false, margin = '0' }: { width?: string | number, height?: string | number, circle?: boolean, margin?: string }) => (
+  <div 
+    style={{ 
+      width: width || '100%', 
+      height: height || '20px', 
+      backgroundColor: '#f1f5f9',
+      borderRadius: circle ? '50%' : '4px',
+      position: 'relative',
+      overflow: 'hidden',
+      margin: margin
+    }}
+  >
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+      animation: 'skeleton-shimmer-run 1.8s infinite linear',
+      transform: 'translateX(-100%)'
+    }} />
+  </div>
+);
+
 export default function AdminAmenityServicePage() {
   const { toast } = useToast();
   const [amenityServices, setAmenityServices] = useState<AmenityService[]>([]);
@@ -109,6 +135,8 @@ export default function AdminAmenityServicePage() {
     try {
       setLoading(true);
       setError(null);
+      // Wait for 2s for premium skeleton feel
+      await new Promise(resolve => setTimeout(resolve, 2000));
       const data = await amenityServiceService.getAllAmenityServices();
       setAmenityServices(data);
     } catch (err: unknown) {
@@ -210,6 +238,75 @@ export default function AdminAmenityServicePage() {
       toast({ title: 'Thất bại', description: 'Không thể xuất file Excel.', variant: 'error' });
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col flex-1 h-full min-h-0 bg-white">
+        <style>{`
+          @keyframes skeleton-shimmer-run {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        `}</style>
+        
+        <AdminPageLayout
+          header={<AmenityServiceListHeader />}
+          controlPanel={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '12px 16px' }}>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <SkeletonBone width={320} height={42} />
+                <SkeletonBone width={180} height={42} />
+              </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <SkeletonBone width={120} height={42} />
+                <SkeletonBone width={100} height={42} />
+                <SkeletonBone width={120} height={42} />
+              </div>
+            </div>
+          }
+        >
+          <div style={{ 
+            backgroundColor: '#ffffff', 
+            overflow: 'hidden',
+            padding: '0 16px'
+          }}>
+            <div style={{ height: '48px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }} />
+            {[...Array(pageSize || 10)].map((_, i) => (
+              <div key={i} style={{ 
+                height: '64px', 
+                borderBottom: i === (pageSize || 10) - 1 ? 'none' : '1px solid #f8fafc', 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: '0 24px', 
+                gap: '24px' 
+              }}>
+                <SkeletonBone width={40} height={16} />
+                <div style={{ flex: 1 }}>
+                  <SkeletonBone width="60%" height={16} />
+                </div>
+                <div style={{ flex: 2 }}>
+                  <SkeletonBone width="80%" height={16} />
+                </div>
+                <SkeletonBone width={100} height={32} />
+              </div>
+            ))}
+          </div>
+        </AdminPageLayout>
+      </div>
+    );
+  }
+
+
+  if (error) {
+    return (
+      <div style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
+        <div style={{ textAlign: 'center', padding: '60px', color: '#ef4444' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>Đã xảy ra lỗi</h3>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col flex-1 h-full min-h-0">
@@ -332,15 +429,7 @@ export default function AdminAmenityServicePage() {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
-                <tr>
-                   <td colSpan={8} className={styles.loadingCell}>Đang tải dữ liệu...</td>
-                </tr>
-              ) : error ? (
-                <tr>
-                  <td colSpan={8} className={styles.errorCell}>{error}</td>
-                </tr>
-              ) : paginatedAmenityServices.length === 0 ? (
+              {paginatedAmenityServices.length === 0 ? (
                 <tr>
                   <td colSpan={8} className={styles.emptyRow}>
                     <div className={styles.emptyState}>
@@ -459,3 +548,4 @@ export default function AdminAmenityServicePage() {
     </div>
   );
 }
+

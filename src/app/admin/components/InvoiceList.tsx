@@ -12,6 +12,7 @@ import { Transaction } from '@/types/transaction';
 
 type InvoiceListProps = {
   transactions?: Transaction[];
+  hideHeader?: boolean;
 };
 
 const formatCurrency = (amount: number) => {
@@ -106,7 +107,7 @@ const Edit2OutlineIcon = ({
 );
 
 
-export function InvoiceList({ transactions = [] }: InvoiceListProps) {
+export function InvoiceList({ transactions = [], hideHeader = false }: InvoiceListProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const PAGE_SIZE_OPTIONS = [5, 10, 20];
@@ -117,13 +118,15 @@ export function InvoiceList({ transactions = [] }: InvoiceListProps) {
   const currentTransactions = transactions.slice(startIndex, endIndex);
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <h3 className={styles.title}>Danh sách giao dịch</h3>
-        <a href="#" className={styles.seeAllLink}>
-          Xem tất cả <span className={styles.arrow}>→</span>
-        </a>
-      </div>
+    <div className={`${styles.container} ${hideHeader ? styles.containerNoPadding : ''}`}>
+      {!hideHeader && (
+        <div className={styles.header}>
+          <h3 className={styles.title}>Danh sách giao dịch</h3>
+          <a href="#" className={styles.seeAllLink}>
+            Xem tất cả <span className={styles.arrow}>→</span>
+          </a>
+        </div>
+      )}
       <div className={styles.body}>
         <table className={styles.table}>
           <thead>

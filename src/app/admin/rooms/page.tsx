@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronDownIcon, MagnifyingGlassIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
-import { Download, Upload } from 'lucide-react';
+import { Download, Upload, FileIcon } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
@@ -21,6 +21,32 @@ import type { RoomType } from '@/types/room-type';
 import { RoomTypeModal } from './components/RoomTypeModal';
 import { ImportRoomTypeModal } from './components/ImportRoomTypeModal';
 import styles from './rooms.module.css';
+
+// Internal Premium Skeleton Component
+const SkeletonBone = ({ width, height, circle = false, margin = '0' }: { width?: string | number, height?: string | number, circle?: boolean, margin?: string }) => (
+  <div 
+    style={{ 
+      width: width || '100%', 
+      height: height || '20px', 
+      backgroundColor: '#f1f5f9',
+      borderRadius: circle ? '50%' : '4px',
+      position: 'relative',
+      overflow: 'hidden',
+      margin: margin
+    }}
+  >
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+      animation: 'skeleton-shimmer-run 1.8s infinite linear',
+      transform: 'translateX(-100%)'
+    }} />
+  </div>
+);
 
 /* ── SVG icons ── */
 const EditIcon = () => (
@@ -112,10 +138,7 @@ export default function AdminRoomsPage() {
   const [editingRoom, setEditingRoom]   = useState<RoomType | null>(null);
   const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
 
-  // Import Modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-
-  // Confirm Modal state
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<RoomType | null>(null);
 
@@ -125,8 +148,16 @@ export default function AdminRoomsPage() {
     try {
       setLoading(true);
       setError(null);
+      // Premium 2s delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
       const data = await roomTypeService.getAdminRoomTypes();
-      setRooms(data);
+      let roomsList = [];
+      if (Array.isArray(data)) {
+        roomsList = data;
+      } else if (data && typeof data === 'object') {
+        roomsList = (data as any).data || (data as any).$values || [];
+      }
+      setRooms(Array.isArray(roomsList) ? roomsList : []);
     } catch (err: unknown) {
       setError(getErrorMessage(err, 'Không thể tải danh sách loại phòng'));
     } finally {
@@ -159,7 +190,11 @@ export default function AdminRoomsPage() {
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);
 
-  /* ── Handlers ── */
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleOpenCreate = () => { setEditingRoom(null); setIsModalOpen(true); };
   const handleOpenEdit   = (room: RoomType) => { setEditingRoom(room); setIsModalOpen(true); };
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingRoom(null); };
@@ -227,12 +262,79 @@ export default function AdminRoomsPage() {
 
   const handleExport = async () => {
     try {
-      await roomTypeService.exportRoomTypes();
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
+      const blob = await roomTypeService.exportRoomTypes();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Loai_phong_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
       toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
-    } catch (err) {
-      toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
+    } catch (err: any) {
+      toast({ title: 'Xuất dữ liệu thất bại', description: err.message, variant: 'error' });
     }
   };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      toast({ title: 'Đang tải file mẫu...', variant: 'default' });
+      const blob = await roomTypeService.downloadTemplateRoomTypes();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Mau_nhap_loai_phong.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Tải file mẫu thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Tải file mẫu thất bại', description: err.message, variant: 'error' });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, backgroundColor: '#ffffff', minHeight: '100vh' }}>
+        <style>{`
+          @keyframes skeleton-shimmer-run {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        `}</style>
+        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <SkeletonBone width={320} height={42} />
+              <SkeletonBone width={180} height={42} />
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <SkeletonBone width={120} height={42} />
+              <SkeletonBone width={100} height={42} />
+              <SkeletonBone width={120} height={42} />
+            </div>
+          </div>
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '4px', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
+            <div style={{ height: '48px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }} />
+            {[...Array(pageSize)].map((_, i) => (
+              <div key={i} style={{ height: '64px', borderBottom: i === pageSize - 1 ? 'none' : '1px solid #f8fafc', display: 'flex', alignItems: 'center', padding: '0 24px', gap: '24px' }}>
+                <SkeletonBone width={40} height={16} />
+                <div style={{ flex: 1 }}><SkeletonBone width="50%" height={16} /></div>
+                <div style={{ width: '150px' }}><SkeletonBone width="80%" height={16} /></div>
+                <div style={{ width: '80px' }}><SkeletonBone width="60%" height={16} /></div>
+                <div style={{ width: '120px' }}><SkeletonBone width="70%" height={16} /></div>
+                <div style={{ width: '80px' }}><SkeletonBone width={40} height={16} /></div>
+                <SkeletonBone width={100} height={32} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const selectedSortLabel   = SORT_OPTIONS.find((o) => o.value === sortKey)?.label ?? 'Sắp xếp';
   const selectedStatusLabel = STATUS_OPTIONS.find((o) => o.value === statusFilter)?.label ?? 'Tất cả';
@@ -242,37 +344,24 @@ export default function AdminRoomsPage() {
       <div className={styles.controlsLeft}>
         <div className={styles.searchWrapper}>
           <MagnifyingGlassIcon className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Tìm kiếm loại phòng..."
-            className={styles.searchInput}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <input type="text" placeholder="Tìm kiếm loại phòng..." className={styles.searchInput} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         </div>
-
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className={styles.filterButton}>
-              <MixerHorizontalIcon className={styles.filterIcon} />
-              {selectedSortLabel}
+              <MixerHorizontalIcon className={styles.filterIcon} /> {selectedSortLabel}
               <ChevronDownIcon className={styles.chevronIcon} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent}>
             {SORT_OPTIONS.map((opt) => (
-              <DropdownMenuItem
-                key={opt.value}
-                className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
-                onClick={() => setSortKey(opt.value)}
-              >
+              <DropdownMenuItem key={opt.value} className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`} onClick={() => setSortKey(opt.value)}>
                 {opt.label}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-
       <div className={styles.controlsRight}>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
@@ -283,52 +372,43 @@ export default function AdminRoomsPage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent}>
             {STATUS_OPTIONS.map((opt) => (
-              <DropdownMenuItem
-                key={opt.value}
-                className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`}
-                onClick={() => setStatusFilter(opt.value)}
-              >
+              <DropdownMenuItem key={opt.value} className={`${styles.dropdownItem} ${statusFilter === opt.value ? styles.dropdownItemActive : ''}`} onClick={() => setStatusFilter(opt.value)}>
                 {opt.label}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className={styles.exportButton}>
-              <Download size={16} className={styles.exportIcon} />
-              Nhập/Xuất
+              <Download size={16} className={styles.exportIcon} /> Nhập/Xuất
               <ChevronDownIcon className={styles.chevronIcon} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
             <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
-              <Upload size={16} className={styles.itemIcon} />
-              Nhập từ Excel
+              <Upload size={16} className={styles.itemIcon} /> Nhập từ Excel
             </DropdownMenuItem>
             <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
-              <Download size={16} className={styles.itemIcon} />
-              Xuất ra Excel
+              <Download size={16} className={styles.itemIcon} /> Xuất ra Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleDownloadTemplate}>
+              <FileIcon size={16} className={styles.itemIcon} /> Tải file mẫu
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
         <Button variant="primary" size="sm" className={styles.createButton} onClick={handleOpenCreate}>
-          <PlusIcon className={styles.plusIcon} />
-          Loại mới
+          <PlusIcon className={styles.plusIcon} /> Loại mới
         </Button>
       </div>
     </div>
   );
 
-  const pagination = !loading && !error && filteredItems.length > 0 && totalPages > 0 ? (
+  const pagination = !error && filteredItems.length > 0 && totalPages > 0 ? (
     <Pagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      pageSize={pageSize}
+      currentPage={currentPage} totalPages={totalPages} pageSize={pageSize}
       totalItems={filteredItems.length}
-      onPageChange={(page) => { setCurrentPage(page); }}
+      onPageChange={handlePageChange}
       pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
       onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
       showResultCount={true}
@@ -336,156 +416,85 @@ export default function AdminRoomsPage() {
   ) : null;
 
   return (
-    <AdminPageLayout
-      controlPanel={controlPanel}
-      pagination={pagination}
-    >
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th style={{ width: '50px' }}>STT</th>
-              <th>Tên loại phòng</th>
-              <th>Mô tả</th>
-              <th>Sức chứa</th>
-              <th>Giá cơ bản</th>
-              <th>Trạng thái</th>
-              <th>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={7} className={styles.placeholder}>Đang tải dữ liệu...</td></tr>
-            ) : error ? (
-              <tr><td colSpan={7} className={styles.placeholder}>{error}</td></tr>
-            ) : paginatedItems.length === 0 ? (
+    <div className="flex flex-col flex-1 h-full min-h-0 bg-white">
+      <AdminPageLayout controlPanel={controlPanel} pagination={pagination}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <td colSpan={7} className={styles.emptyState}>
-                  {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có loại phòng nào.'}
-                </td>
+                <th style={{ width: '50px' }}>STT</th>
+                <th>Tên loại phòng</th>
+                <th>Mô tả</th>
+                <th>Sức chứa</th>
+                <th>Giá cơ bản</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
               </tr>
-            ) : (
-              paginatedItems.map((room, index) => {
-                const stt = (currentPage - 1) * pageSize + index + 1;
-                return (
-                  <tr key={room.id}>
-                    <td>
-                      <span className={styles.sttCell}>{stt}</span>
-                    </td>
-                    <td className={styles.nameCell}>
-                      <div className={styles.tooltipWrapper}>
-                        <span className={styles.textTruncate}>{room.name}</span>
-                        <span className={styles.tooltip}>{room.name}</span>
-                      </div>
-                    </td>
-                    <td className={styles.descCell}>
-                      {room.description ? (
+            </thead>
+            <tbody>
+              {error ? (
+                <tr><td colSpan={7} className={styles.placeholder}>{error}</td></tr>
+              ) : paginatedItems.length === 0 ? (
+                <tr><td colSpan={7} className={styles.emptyState}>
+                  {searchQuery ? 'Không tìm thấy kết quả phù hợp.' : 'Chưa có loại phòng nào.'}
+                </td></tr>
+              ) : (
+                paginatedItems.map((room, index) => {
+                  const stt = (currentPage - 1) * pageSize + index + 1;
+                  return (
+                    <tr key={room.id}>
+                      <td><span className={styles.sttCell}>{stt}</span></td>
+                      <td className={styles.nameCell}>{room.name}</td>
+                      <td className={styles.descCell}>{room.description || '-'}</td>
+                      <td>{room.capacity ?? '-'}</td>
+                      <td className={styles.priceCell}>{formatPrice(room.basePrice)}</td>
+                      <td>
                         <div className={styles.tooltipWrapper}>
-                          <span className={styles.textTruncate}>{room.description}</span>
-                          <span className={styles.tooltip}>{room.description}</span>
+                          <DropdownMenu modal={false}>
+                            <DropdownMenuTrigger asChild>
+                              <button type="button" className={`${styles.plainTrigger} ${room.isActive ? styles.statusActive : styles.statusInactive}`} disabled={updatingStatusIds.has(room.id)}>
+                                <div className={`${styles.statusIndicator} ${styles.statusAnimated}`}><span className={styles.statusCircle}></span></div>
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className={styles.statusMenu} align="start" sideOffset={4}>
+                              <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(room, true)}>Hoạt động</DropdownMenuItem>
+                              <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(room, false)}>Tạm dừng</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                          <span className={styles.tooltip}>{room.isActive ? 'Đang hoạt động' : 'Tạm dừng'}</span>
                         </div>
-                      ) : '-'}
-                    </td>
-                    <td>{room.capacity ?? '-'}</td>
-                    <td className={styles.priceCell}>{formatPrice(room.basePrice)}</td>
-                    <td>
-                      <div className={styles.tooltipWrapper}>
-                        <DropdownMenu modal={false}>
-                          <DropdownMenuTrigger asChild>
-                            <button
-                              type="button"
-                              className={`${styles.plainTrigger} ${room.isActive ? styles.statusActive : styles.statusInactive}`}
-                              disabled={updatingStatusIds.has(room.id)}
-                            >
-                              <div className={`${styles.statusIndicator} ${styles.statusAnimated}`}>
-                                <span className={styles.statusCircle}></span>
-                              </div>
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent className={styles.statusMenu} align="start" sideOffset={4}>
-                            <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(room, true)}>
-                              Hoạt động
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className={styles.statusMenuItem} onClick={() => handleToggleStatus(room, false)}>
-                              Tạm dừng
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <span className={styles.tooltip}>
-                          {room.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        <div className={styles.tooltipWrapper}>
-                          <Button
-                            variant="outline" size="sm"
-                            className={styles.editButton}
-                            onClick={() => handleOpenEdit(room)}
-                          >
-                            <EditIcon />
-                          </Button>
-                          <span className={styles.tooltip}>Chỉnh sửa</span>
+                      </td>
+                      <td>
+                        <div className={styles.actions}>
+                          <div className={styles.tooltipWrapper}>
+                            <Button variant="outline" size="sm" className={styles.editButton} onClick={() => handleOpenEdit(room)}><EditIcon /></Button>
+                            <span className={styles.tooltip}>Chỉnh sửa</span>
+                          </div>
+                          {room.isActive ? (
+                            <div className={styles.tooltipWrapper}>
+                              <Button variant="outline" size="sm" className={styles.deleteButton} onClick={() => handleDeleteTrigger(room)} disabled={deletingId === room.id}><TrashIcon /></Button>
+                              <span className={styles.tooltip}>Xóa</span>
+                            </div>
+                          ) : (
+                            <div className={styles.tooltipWrapper}>
+                              <Button variant="outline" size="sm" className={styles.restoreButton} onClick={() => handleRestore(room)} disabled={deletingId === room.id}><RestoreIcon /></Button>
+                              <span className={styles.tooltip}>Khôi phục</span>
+                            </div>
+                          )}
                         </div>
-                        {room.isActive ? (
-                          <div className={styles.tooltipWrapper}>
-                            <Button
-                              variant="outline" size="sm"
-                              className={styles.deleteButton}
-                              onClick={() => handleDeleteTrigger(room)}
-                              disabled={deletingId === room.id}
-                            >
-                              <TrashIcon />
-                            </Button>
-                            <span className={styles.tooltip}>Xóa</span>
-                          </div>
-                        ) : (
-                          <div className={styles.tooltipWrapper}>
-                            <Button
-                              variant="outline" size="sm"
-                              className={styles.restoreButton}
-                              onClick={() => handleRestore(room)}
-                              disabled={deletingId === room.id}
-                            >
-                              <RestoreIcon />
-                            </Button>
-                            <span className={styles.tooltip}>Khôi phục</span>
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      <RoomTypeModal
-        open={isModalOpen}
-        onOpenChange={handleModalClose}
-        room={editingRoom}
-        onSuccess={fetchData}
-      />
-
-      <ConfirmModal
-        isOpen={isConfirmModalOpen}
-        onClose={() => setIsConfirmModalOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="Xác nhận xóa loại phòng"
-        message={`Bạn có chắc chắn muốn xóa loại phòng "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
-        confirmLabel="Xóa ngay"
-        cancelLabel="Suy nghĩ lại"
-        variant="danger"
-      />
-
-      <ImportRoomTypeModal
-        open={isImportModalOpen}
-        onOpenChange={setIsImportModalOpen}
-        onSuccess={fetchData}
-      />
-    </AdminPageLayout>
+        <RoomTypeModal open={isModalOpen} onOpenChange={handleModalClose} room={editingRoom} onSuccess={fetchData} />
+        <ConfirmModal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} onConfirm={handleConfirmDelete} title="Xác nhận xóa loại phòng" message={`Bạn có chắc chắn muốn xóa loại phòng "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`} confirmLabel="Xóa ngay" cancelLabel="Suy nghĩ lại" variant="danger" />
+        <ImportRoomTypeModal open={isImportModalOpen} onOpenChange={setIsImportModalOpen} onSuccess={fetchData} />
+      </AdminPageLayout>
+    </div>
   );
 }

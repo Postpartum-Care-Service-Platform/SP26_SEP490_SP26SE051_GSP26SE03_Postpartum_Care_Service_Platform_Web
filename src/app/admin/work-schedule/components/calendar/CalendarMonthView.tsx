@@ -98,6 +98,7 @@ export function CalendarMonthView({
   schedules,
   selectedStaffId,
   onStaffSelect,
+  onRefresh,
 }: {
   monthCursor: Date;
   selectedDate?: Date;
@@ -105,6 +106,7 @@ export function CalendarMonthView({
   schedules: StaffSchedule[];
   selectedStaffId: string | null;
   onStaffSelect: (staffId: string | null) => void;
+  onRefresh?: () => void;
 }) {
   const [internalSelectedDate, setInternalSelectedDate] = React.useState<Date>(new Date());
   const [openDayKey, setOpenDayKey] = React.useState<string | null>(null);
@@ -375,6 +377,7 @@ export function CalendarMonthView({
           onOpenChange={setIsPopoverOpen}
           schedule={selectedSchedule}
           anchorRect={anchorRect || undefined}
+          onRefresh={onRefresh}
         />
       </div>
     </Tooltip.Provider>

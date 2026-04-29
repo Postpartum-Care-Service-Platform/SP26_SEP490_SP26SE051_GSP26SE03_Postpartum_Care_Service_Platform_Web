@@ -1,155 +1,50 @@
 .container {
   width: 100%;
-  height: 100%;
-  background-color: #ffffff;
-  border-radius: 4px;
-  overflow: hidden;
+  height: 450px;
   display: flex;
   flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 4px;
   padding: 16px;
   border: 1px solid #eaeaea;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .title {
   font-family: 'Funnel Sans', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: #343a40;
   margin: 0;
 }
 
-.headerRight {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.legend {
-  display: flex;
-  gap: 12px;
-}
-
-.legendItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Funnel Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: #343a40;
-}
-
-.legendDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-}
-
-.periodButton {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #f7f7f7;
-  border: 1px solid #eaeaea;
-  outline: none;
-  font-family: 'Funnel Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  color: #343a40;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: opacity 0.2s;
-}
-
-.periodButton:hover {
-  background-color: #eee;
-}
-
-.chevron {
-  transition: transform 0.2s;
-}
-
 .body {
-  display: flex;
-  align-items: flex-end;
-  gap: 20px;
+  width: 100%;
   flex: 1;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
 }
 
-.balanceBlock {
+.loadingOverlay {
   display: flex;
-  flex-direction: column;
   justify-content: center;
-  width: 130px;
-  flex-shrink: 0;
-  margin-bottom: auto;
-  margin-top: 10px;
-}
-
-.balanceLabel {
-  font-size: 11px;
-  font-weight: 500;
-  color: #888;
-  margin-bottom: 4px;
-}
-
-.balanceValue {
-  font-size: 24px;
-  font-weight: 700;
-  color: #204642;
-}
-
-.chartContainer {
-  flex: 1;
-  min-width: 0;
-  height: 220px;
-  position: relative;
-}
-
-.tooltip {
-  background-color: #ffffff;
-  border: 1px solid #eaeaea;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-  min-width: 140px;
-}
-
-.tooltipLabel {
-  font-family: 'Funnel Sans', sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  color: #888;
-  margin: 0 0 10px 0;
-}
-
-.tooltipContent {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.tooltipItem {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  height: 200px;
+  color: #868e96;
   font-family: 'Funnel Sans', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  color: #343a40;
+  font-size: 14px;
 }
 
-.tooltipName {
-  font-weight: 500;
-  color: #666;
-  font-size: 12px;
+.paginationWrapper {
+  margin-top: auto;
+  padding-top: 16px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
 }

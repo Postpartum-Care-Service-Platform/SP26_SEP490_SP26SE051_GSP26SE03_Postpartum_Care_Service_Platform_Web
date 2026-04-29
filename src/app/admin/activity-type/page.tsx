@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronDownIcon, MagnifyingGlassIcon, MixerHorizontalIcon, PlusIcon } from '@radix-ui/react-icons';
-import { Download, Upload } from 'lucide-react';
+import { Download, Upload, FileIcon } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +19,33 @@ import type { ActivityType } from '@/types/activity-type';
 import { ActivityTypeModal, ActivityTypeListHeader, ImportActivityTypeModal } from './components';
 import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './activity-type.module.css';
+import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+
+// Internal Premium Skeleton Component
+const SkeletonBone = ({ width, height, circle = false, margin = '0' }: { width?: string | number, height?: string | number, circle?: boolean, margin?: string }) => (
+  <div 
+    style={{ 
+      width: width || '100%', 
+      height: height || '20px', 
+      backgroundColor: '#f1f5f9',
+      borderRadius: circle ? '50%' : '4px',
+      position: 'relative',
+      overflow: 'hidden',
+      margin: margin
+    }}
+  >
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+      animation: 'skeleton-shimmer-run 1.8s infinite linear',
+      transform: 'translateX(-100%)'
+    }} />
+  </div>
+);
 
 /* ── SVG icons ── */
 const EditIcon = () => (
@@ -72,10 +99,6 @@ const sortItems = (items: ActivityType[], key: SortKey) => {
   }
 };
 
-import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
-// ActivityType doesn't seem to have a separate header component, so we'll make one or just use Breadcrumbs directly if needed. 
-// But let's check if there's any header in components/index.ts
-
 export default function AdminActivityTypePage() {
   const [items, setItems] = useState<ActivityType[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,10 +113,7 @@ export default function AdminActivityTypePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ActivityType | null>(null);
 
-  // Import Modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-
-  // Confirm Modal state
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<ActivityType | null>(null);
 
@@ -103,6 +123,8 @@ export default function AdminActivityTypePage() {
     try {
       setLoading(true);
       setError(null);
+      // Premium 2s delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
       const data = await activityTypeService.getAllActivityTypes();
       setItems(data);
     } catch (err: unknown) {
@@ -135,6 +157,11 @@ export default function AdminActivityTypePage() {
 
   const totalPages = Math.ceil(filteredItems.length / pageSize);
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleOpenCreate = () => { setEditingItem(null); setIsModalOpen(true); };
   const handleOpenEdit = (item: ActivityType) => { setEditingItem(item); setIsModalOpen(true); };
   const handleModalClose = (open: boolean) => { setIsModalOpen(open); if (!open) setEditingItem(null); };
@@ -162,12 +189,76 @@ export default function AdminActivityTypePage() {
 
   const handleExport = async () => {
     try {
-      await activityTypeService.exportActivityTypes();
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
+      const blob = await activityTypeService.exportActivityTypes();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Loai_hoat_dong_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
       toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
     } catch (err) {
       toast({ title: getErrorMessage(err, 'Xuất dữ liệu thất bại'), variant: 'error' });
     }
   };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      toast({ title: 'Đang tải file mẫu...', variant: 'default' });
+      const blob = await activityTypeService.downloadTemplateActivityTypes();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Mau_nhap_loai_hoat_dong.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Tải file mẫu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: getErrorMessage(err, 'Tải file mẫu thất bại'), variant: 'error' });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, backgroundColor: '#ffffff', minHeight: '100vh' }}>
+        <style>{`
+          @keyframes skeleton-shimmer-run {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        `}</style>
+        <ActivityTypeListHeader />
+        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <SkeletonBone width={320} height={42} />
+              <SkeletonBone width={180} height={42} />
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <SkeletonBone width={120} height={42} />
+              <SkeletonBone width={120} height={42} />
+            </div>
+          </div>
+          <div style={{ backgroundColor: '#ffffff', borderRadius: '4px', border: '1px solid #f1f5f9', overflow: 'hidden' }}>
+            <div style={{ height: '48px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }} />
+            {[...Array(pageSize)].map((_, i) => (
+              <div key={i} style={{ height: '64px', borderBottom: i === pageSize - 1 ? 'none' : '1px solid #f8fafc', display: 'flex', alignItems: 'center', padding: '0 24px', gap: '24px' }}>
+                <SkeletonBone width={40} height={16} />
+                <div style={{ flex: 1 }}><SkeletonBone width="70%" height={16} /></div>
+                <div style={{ flex: 2 }}><SkeletonBone width="90%" height={16} /></div>
+                <SkeletonBone width={100} height={32} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const selectedSortLabel = SORT_OPTIONS.find((o) => o.value === sortKey)?.label ?? 'Sắp xếp';
 
@@ -176,13 +267,7 @@ export default function AdminActivityTypePage() {
       <div className={styles.controlsLeft}>
         <div className={styles.searchWrapper}>
           <MagnifyingGlassIcon className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Tìm kiếm loại hoạt động..."
-            className={styles.searchInput}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+          <input type="text" placeholder="Tìm kiếm loại hoạt động..." className={styles.searchInput} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         </div>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
@@ -194,9 +279,7 @@ export default function AdminActivityTypePage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent}>
             {SORT_OPTIONS.map((opt) => (
-              <DropdownMenuItem key={opt.value}
-                className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`}
-                onClick={() => setSortKey(opt.value)}>
+              <DropdownMenuItem key={opt.value} className={`${styles.dropdownItem} ${sortKey === opt.value ? styles.dropdownItemActive : ''}`} onClick={() => setSortKey(opt.value)}>
                 {opt.label}
               </DropdownMenuItem>
             ))}
@@ -214,31 +297,28 @@ export default function AdminActivityTypePage() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className={styles.dropdownContent} align="end">
             <DropdownMenuItem className={styles.dropdownItem} onClick={() => setIsImportModalOpen(true)}>
-              <Upload size={16} className={styles.itemIcon} />
-              Nhập từ Excel
+              <Upload size={16} className={styles.itemIcon} /> Nhập từ Excel
             </DropdownMenuItem>
             <DropdownMenuItem className={styles.dropdownItem} onClick={handleExport}>
-              <Download size={16} className={styles.itemIcon} />
-              Xuất ra Excel
+              <Download size={16} className={styles.itemIcon} /> Xuất ra Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={handleDownloadTemplate}>
+              <FileIcon size={16} className={styles.itemIcon} /> Tải file mẫu
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-
         <Button variant="primary" size="sm" className={styles.createButton} onClick={handleOpenCreate}>
-          <PlusIcon className={styles.plusIcon} />
-          Loại mới
+          <PlusIcon className={styles.plusIcon} /> Loại mới
         </Button>
       </div>
     </div>
   );
 
-  const pagination = !loading && !error && filteredItems.length > 0 && totalPages > 0 ? (
+  const pagination = !error && filteredItems.length > 0 && totalPages > 0 ? (
     <Pagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      pageSize={pageSize}
+      currentPage={currentPage} totalPages={totalPages} pageSize={pageSize}
       totalItems={filteredItems.length}
-      onPageChange={(page) => { setCurrentPage(page); }}
+      onPageChange={handlePageChange}
       pageSizeOptions={[...PAGE_SIZE_OPTIONS]}
       onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
       showResultCount={true}
@@ -246,12 +326,8 @@ export default function AdminActivityTypePage() {
   ) : null;
 
   return (
-    <div className="flex flex-col flex-1 h-full min-h-0">
-      <AdminPageLayout
-        header={<ActivityTypeListHeader />}
-        controlPanel={controlPanel}
-        pagination={pagination}
-      >
+    <div className="flex flex-col flex-1 h-full min-h-0 bg-white">
+      <AdminPageLayout header={<ActivityTypeListHeader />} controlPanel={controlPanel} pagination={pagination}>
         <div className={styles.tableWrapper}>
           <table className={styles.table}>
             <thead>
@@ -263,9 +339,7 @@ export default function AdminActivityTypePage() {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
-                <tr><td colSpan={4} className={styles.emptyState}>Đang tải dữ liệu...</td></tr>
-              ) : error ? (
+              {error ? (
                 <tr><td colSpan={4} className={styles.emptyState}>{error}</td></tr>
               ) : paginatedItems.length === 0 ? (
                 <tr><td colSpan={4} className={styles.emptyState}>
@@ -282,17 +356,11 @@ export default function AdminActivityTypePage() {
                       <td className={styles.stickyActionsCol}>
                         <div className={styles.actions}>
                           <div className={styles.tooltipWrapper}>
-                            <Button variant="outline" size="sm" className={styles.editButton}
-                              onClick={() => handleOpenEdit(item)}>
-                              <EditIcon />
-                            </Button>
+                            <Button variant="outline" size="sm" className={styles.editButton} onClick={() => handleOpenEdit(item)}><EditIcon /></Button>
                             <span className={styles.tooltip}>Chỉnh sửa</span>
                           </div>
                           <div className={styles.tooltipWrapper}>
-                            <Button variant="outline" size="sm" className={styles.deleteButton}
-                              onClick={() => handleDeleteTrigger(item)} disabled={deletingId === item.id}>
-                              <TrashIcon />
-                            </Button>
+                            <Button variant="outline" size="sm" className={styles.deleteButton} onClick={() => handleDeleteTrigger(item)} disabled={deletingId === item.id}><TrashIcon /></Button>
                             <span className={styles.tooltip}>Xóa</span>
                           </div>
                         </div>
@@ -305,31 +373,10 @@ export default function AdminActivityTypePage() {
           </table>
         </div>
 
-        <ActivityTypeModal
-          open={isModalOpen}
-          onOpenChange={handleModalClose}
-          item={editingItem}
-          onSuccess={fetchData}
-        />
-
-        <ConfirmModal
-          isOpen={isConfirmModalOpen}
-          onClose={() => setIsConfirmModalOpen(false)}
-          onConfirm={handleConfirmDelete}
-          title="Xác nhận xóa loại hoạt động"
-          message={`Bạn có chắc chắn muốn xóa loại hoạt động "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`}
-          confirmLabel="Xóa ngay"
-          cancelLabel="Suy nghĩ lại"
-          variant="danger"
-        />
-
-        <ImportActivityTypeModal
-          open={isImportModalOpen}
-          onOpenChange={setIsImportModalOpen}
-          onSuccess={fetchData}
-        />
+        <ActivityTypeModal open={isModalOpen} onOpenChange={handleModalClose} item={editingItem} onSuccess={fetchData} />
+        <ConfirmModal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} onConfirm={handleConfirmDelete} title="Xác nhận xóa loại hoạt động" message={`Bạn có chắc chắn muốn xóa loại hoạt động "${itemToDelete?.name}"? Hành động này không thể hoàn tác.`} confirmLabel="Xóa ngay" cancelLabel="Suy nghĩ lại" variant="danger" />
+        <ImportActivityTypeModal open={isImportModalOpen} onOpenChange={setIsImportModalOpen} onSuccess={fetchData} />
       </AdminPageLayout>
     </div>
   );
 }
-

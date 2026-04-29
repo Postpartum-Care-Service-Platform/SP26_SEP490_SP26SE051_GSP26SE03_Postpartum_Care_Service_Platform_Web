@@ -21,24 +21,17 @@ const paymentTypeService = {
   importPaymentTypes: (file: File): Promise<void> => {
     const formData = new FormData();
     formData.append('file', file);
-    return apiClient.post('/PaymentType/import', formData, {
+    return apiClient.post('/MasterDataExport/import/payment-types', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
-  exportPaymentTypes: async (): Promise<void> => {
-    const response = await apiClient.get('/PaymentType/export', { responseType: 'blob' });
-    const blob = new Blob([response.data], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', `Loai_thanh_toan_${new Date().getTime()}.xlsx`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
+  exportPaymentTypes: (): Promise<Blob> => {
+    return apiClient.get('/MasterDataExport/export/payment-types', { responseType: 'blob' });
+  },
+
+  downloadTemplatePaymentTypes: (): Promise<Blob> => {
+    return apiClient.get('/MasterDataExport/template/payment-types', { responseType: 'blob' });
   },
 };
 

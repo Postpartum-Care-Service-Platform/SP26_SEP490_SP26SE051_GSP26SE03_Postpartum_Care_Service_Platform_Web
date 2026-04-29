@@ -186,6 +186,43 @@
   width: fit-content;
 }
 
+.staffActionRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.changeStaffBtn {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6366F1;
+  background-color: #EEF2FF;
+  border: 1px solid #C7D2FE;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.changeStaffBtn:hover {
+  background-color: #E0E7FF;
+  border-color: #A5B4FC;
+}
+
+.pickerPopover {
+  z-index: 10002;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border: 1px solid #E5E7EB;
+  overflow: hidden;
+  animation: fadeIn 150ms ease-out;
+}
+
 .avatarWrapper {
   width: 44px;
   height: 44px;

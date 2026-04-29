@@ -98,14 +98,32 @@
 
 /* ── Table ── */
 .tableWrapper {
-  overflow-x: auto;
+  overflow: auto;
   margin-bottom: 24px;
+  max-height: 360px; /* Fixed height for exactly ~5 rows */
+  border: 1px solid #f1f5f9;
+}
+
+.tableWrapper::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
+}
+
+.table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .table th {

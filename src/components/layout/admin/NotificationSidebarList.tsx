@@ -5,6 +5,8 @@ import { vi } from 'date-fns/locale';
 import { AlertCircle, CheckCircle, FileText, Info, ShoppingCart, Users, XCircle } from 'lucide-react';
 import React from 'react';
 
+import { useAuth } from '@/contexts/AuthContext';
+import { useNotificationHub, type NotificationPayload } from '@/hooks/useNotificationHub';
 import notificationService from '@/services/notification.service';
 import type { Notification } from '@/types/notification';
 
@@ -28,6 +30,9 @@ export function NotificationSidebarList() {
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
+  const { session } = useAuth();
+  const token = session?.user?.accessToken;
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -43,6 +48,22 @@ export function NotificationSidebarList() {
 
     fetchData();
   }, []);
+
+  const handleReceive = React.useCallback((notification: NotificationPayload) => {
+    setNotifications((prev) => {
+      if (prev.some((n) => n.id === notification.id)) return prev;
+      
+      // Normalize status: backend SignalR sends 0/1, but type expects 'Unread'/'Read'
+      const normalized = {
+        ...notification,
+        status: notification.status === 0 || notification.status === 'Unread' ? 'Unread' : 'Read',
+      } as unknown as Notification;
+      
+      return [normalized, ...prev];
+    });
+  }, []);
+
+  useNotificationHub({ token, onReceive: handleReceive });
 
   const formatTime = (dateString: string) => {
     try {

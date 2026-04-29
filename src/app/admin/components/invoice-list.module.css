@@ -7,6 +7,13 @@
   overflow: hidden;
 }
 
+.containerNoPadding {
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
 .header {
   padding: 16px;
   display: flex;

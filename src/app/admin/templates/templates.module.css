@@ -63,6 +63,10 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
 }
 
 .sidebarTitle {
@@ -258,6 +262,13 @@
     border: none;
     overflow: hidden;
     height: 100%;
+}
+
+.stickyHeader {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: #fff;
 }
 
 .editorCardHeader {

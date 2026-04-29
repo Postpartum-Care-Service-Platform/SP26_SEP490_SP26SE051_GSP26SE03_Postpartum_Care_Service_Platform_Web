@@ -106,4 +106,9 @@
   height: 125px;
   flex-shrink: 0;
   position: relative;
+  outline: none;
+}
+
+.chartContainer *:focus {
+  outline: none !important;
 }

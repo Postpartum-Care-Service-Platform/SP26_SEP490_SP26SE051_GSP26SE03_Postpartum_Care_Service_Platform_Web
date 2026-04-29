@@ -14,6 +14,7 @@ import { AUTH_LOGIN_REGEX } from '@/messages/auth/login.regex';
 import { ROUTES } from '@/routes/routes';
 import authService from '@/services/auth.service';
 
+import { LogoLoader } from '@/components/ui/logo-loader';
 import styles from './login.module.css';
 
 type ApiError = {
@@ -166,7 +167,7 @@ export function LoginForm() {
           router.push(ROUTES.receptionist);
           break;
         default:
-          router.push(ROUTES.main);
+          router.push(ROUTES.home);
       }
     } catch (err: unknown) {
       const { status, message, data } = getApiErrorDetails(err);
@@ -210,9 +211,10 @@ export function LoginForm() {
           Email hoặc tên đăng nhập
           <input
             className={`${styles.input} ${fieldErrors.emailOrUsername ? styles.inputError : ''}`}
+            name="username"
             type="text"
             placeholder="Nhập email hoặc tên đăng nhập"
-            autoComplete="chrome-off"
+            autoComplete="username"
             value={emailOrUsername}
             onFocus={() => setShowSavedAccounts(true)}
             onClick={() => setShowSavedAccounts(true)}
@@ -243,8 +245,8 @@ export function LoginForm() {
                   </div>
                 ))
               ) : (
-                <div 
-                  className={styles.dropdownEmpty} 
+                <div
+                  className={styles.dropdownEmpty}
                   onMouseDown={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -266,6 +268,7 @@ export function LoginForm() {
           <div className={styles.passwordWrap}>
             <input
               className={`${styles.passwordInput} ${fieldErrors.password ? styles.inputError : ''}`}
+              name="password"
               type={showPassword ? 'text' : 'password'}
               placeholder="Nhập mật khẩu"
               autoComplete="current-password"
@@ -303,7 +306,14 @@ export function LoginForm() {
         </div>
 
         <button type="submit" className={styles.submit} disabled={isLoading}>
-          {isLoading ? 'Đang xử lý...' : 'Đăng nhập'}
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <LogoLoader size="sm" />
+              <span>Đang xử lý...</span>
+            </div>
+          ) : (
+            'Đăng nhập'
+          )}
         </button>
       </form>
 

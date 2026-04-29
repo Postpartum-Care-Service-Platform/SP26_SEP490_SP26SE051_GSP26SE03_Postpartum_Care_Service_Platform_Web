@@ -1,7 +1,7 @@
 'use client';
 
 import { MagnifyingGlassIcon, PlusIcon, MixerHorizontalIcon, ChevronDownIcon } from '@radix-ui/react-icons';
-import { Download } from 'lucide-react';
+import { Download, Upload, FileIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,9 @@ type Props = {
   onSearch?: (query: string) => void;
   onStatusChange?: (status: 'all' | 'unread' | 'read') => void;
   onSortChange?: (sort: 'createdAt-desc' | 'createdAt-asc') => void;
+  onImport?: () => void;
+  onExport?: () => void;
+  onDownloadTemplate?: () => void;
 };
 
 const STATUS_OPTIONS: Array<{ value: 'all' | 'unread' | 'read'; label: string }> = [
@@ -32,7 +35,15 @@ const SORT_OPTIONS: Array<{ value: 'createdAt-desc' | 'createdAt-asc'; label: st
   { value: 'createdAt-asc', label: 'Cũ nhất' },
 ];
 
-export function NotificationTableControls({ onCreateClick, onSearch, onStatusChange, onSortChange }: Props) {
+export function NotificationTableControls({ 
+  onCreateClick, 
+  onSearch, 
+  onStatusChange, 
+  onSortChange,
+  onImport,
+  onExport,
+  onDownloadTemplate
+}: Props) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'unread' | 'read'>('all');
   const [selectedSort, setSelectedSort] = useState<'createdAt-desc' | 'createdAt-asc'>('createdAt-desc');
@@ -113,10 +124,30 @@ export function NotificationTableControls({ onCreateClick, onSearch, onStatusCha
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button variant="outline" size="sm" className={styles.exportButton} onClick={() => console.log('Export')}>
-          <Download size={16} className={styles.exportIcon} />
-          Xuất file
-        </Button>
+
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className={styles.exportButton}>
+              <Download size={16} className={styles.exportIcon} />
+              Nhập/Xuất
+              <ChevronDownIcon className={styles.chevronIcon} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={styles.dropdownContent} align="end">
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onImport}>
+              <Upload size={16} className={styles.itemIcon} />
+              Nhập từ Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onExport}>
+              <Download size={16} className={styles.itemIcon} />
+              Xuất ra Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem className={styles.dropdownItem} onClick={onDownloadTemplate}>
+              <FileIcon size={16} className={styles.itemIcon} />
+              Tải file mẫu
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <Button variant="primary" size="sm" className={styles.newNotificationButton} onClick={onCreateClick}>
           <PlusIcon className={styles.plusIcon} />

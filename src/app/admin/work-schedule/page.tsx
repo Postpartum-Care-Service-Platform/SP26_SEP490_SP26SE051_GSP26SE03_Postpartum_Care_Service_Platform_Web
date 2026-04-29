@@ -70,7 +70,7 @@ const flattenSchedules = (res: StaffScheduleAllResponse[]): StaffSchedule[] => {
           familyScheduleId: activity.familyScheduleId,
           isChecked: activity.isChecked,
           checkedAt: activity.checkedAt,
-          images: activity.images || [],
+          images: (activity as any).images || (activity as any).imageUrls || [],
           familyScheduleResponse: {
             id: activity.familyScheduleId,
             customerId: booking.customerId,
@@ -82,11 +82,11 @@ const flattenSchedules = (res: StaffScheduleAllResponse[]): StaffSchedule[] => {
             startTime: activity.startTime,
             endTime: activity.endTime,
             dayNo: activity.dayNo,
-            activity: activity.activity,
-            title: activity.title,
+            activity: activity.activity || activity.title || 'Hoạt động',
+            title: activity.title || activity.activity,
             target: activity.target as any,
             status: activity.status as any,
-            note: activity.note,
+            note: activity.note || activity.description,
             contractId: null
           }
         });
@@ -186,37 +186,57 @@ export default function WorkSchedulePage() {
         to = format(end, 'yyyy-MM-dd');
       }
 
-      const rawData = await staffScheduleService.getAllSchedules(from, to);
-      setRawDataSchedules(rawData);
+      let flattened: StaffSchedule[] = [];
 
-      // Use the existing staffList (all staff) for the customStaffList in dropdown
-      // but convert it to the Assignee format and filter out Admin/Manager
-      const allStaffAssignees: Assignee[] = staffList
-        .filter(s => {
-          const mType = s.memberTypeName?.toLowerCase() || '';
-          return !mType.includes('admin') && !mType.includes('manager');
-        })
-        .map(s => ({
-          id: s.id,
-          name: s.fullName,
-          avatarUrl: s.avatarUrl,
-          memberTypeName: s.memberTypeName,
-          type: 'user' as const
-        }));
-      setCustomStaffList(allStaffAssignees);
-
-      let flattened = flattenSchedules(rawData);
-
-      // Frontend filter by staff if selected
       if (selectedStaffId) {
-        flattened = flattened.filter((s: StaffSchedule) => s.staffId === selectedStaffId);
+        // Fetch specific staff schedule which includes images
+        const staffData = await staffScheduleService.getStaffSchedule({
+          staffId: selectedStaffId,
+          from,
+          to
+        });
+        flattened = staffData;
+      } else {
+        // Fetch all schedules for overview
+        const rawData = await staffScheduleService.getAllSchedules(from, to);
+        setRawDataSchedules(rawData);
+
+        // Map the all-staff assignees for the dropdown filter
+        const allStaffAssignees: Assignee[] = staffList
+          .filter(s => {
+            const mType = s.memberTypeName?.toLowerCase() || '';
+            return !mType.includes('admin') && !mType.includes('manager');
+          })
+          .map(s => ({
+            id: s.id,
+            name: s.fullName,
+            avatarUrl: s.avatarUrl,
+            memberTypeName: s.memberTypeName,
+            type: 'user' as const
+          }));
+        setCustomStaffList(allStaffAssignees);
+
+        flattened = flattenSchedules(rawData);
       }
 
       setSchedules(flattened);
     } catch (e) {
       console.error('Failed to fetch schedules:', e);
     }
-  }, [activeTab, calendarMonth, selectedStaffId]);
+  }, [activeTab, calendarMonth, selectedStaffId, staffList]);
+
+  // Handle F5 and Ctrl+R for soft refresh
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F5' || (e.ctrlKey && e.key === 'r')) {
+        e.preventDefault(); // Prevent full page reload
+        fetchSchedules();   // Just refresh data
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [fetchSchedules]);
 
   // Fetch schedules when relevant state changes
   React.useEffect(() => {
@@ -248,7 +268,11 @@ export default function WorkSchedulePage() {
 
     if (calendarStatus) {
       result = result.filter(
-        (schedule) => schedule.familyScheduleResponse.status === calendarStatus
+        (schedule) => {
+          const sStatus = schedule.familyScheduleResponse.status;
+          if (!sStatus) return false;
+          return sStatus.toLowerCase() === calendarStatus.toLowerCase();
+        }
       );
     }
 
@@ -291,8 +315,10 @@ export default function WorkSchedulePage() {
 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {activeTab === 'summary' && (
-          <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
-            <WorkScheduleOverview />
+          <div style={{ flex: 1, padding: '24px', background: '#FFFFFF' }}>
+            <div style={{ marginBottom: '32px' }}>
+              <WorkScheduleOverview />
+            </div>
             <WorkScheduleStatusOverview />
           </div>
         )}
@@ -388,6 +414,7 @@ export default function WorkSchedulePage() {
                     schedules={filteredSchedules}
                     selectedStaffId={selectedStaffId}
                     onStaffSelect={handleSelectStaff}
+                    onRefresh={fetchSchedules}
                   />
                 </div>
               ) : calendarViewMode === 'Week' ? (
@@ -400,6 +427,7 @@ export default function WorkSchedulePage() {
                   }}
                   selectedStaffId={selectedStaffId}
                   onStaffSelect={handleSelectStaff}
+                  onRefresh={fetchSchedules}
                 />
               ) : (
                 <CalendarDayView
@@ -410,6 +438,7 @@ export default function WorkSchedulePage() {
                   schedules={filteredSchedules}
                   selectedStaffId={selectedStaffId}
                   onStaffSelect={handleSelectStaff}
+                  onRefresh={fetchSchedules}
                 />
               )}
             </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronDownIcon, MixerHorizontalIcon, PlusIcon, MagnifyingGlassIcon } from '@radix-ui/react-icons';
-import { Download, Upload } from 'lucide-react';
+import { Download, Upload, FileIcon } from 'lucide-react';
 import React from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,7 @@ interface RoomTableControlsProps {
   onNewRoom: () => void;
   onImportClick: () => void;
   onExportClick: () => void;
+  onDownloadTemplate?: () => void;
   activeSortKey: SortKey;
   activeFilter: 'all' | 'active' | 'inactive';
 }
@@ -49,6 +50,7 @@ export function RoomTableControls({
   onNewRoom,
   onImportClick,
   onExportClick,
+  onDownloadTemplate,
   activeSortKey,
   activeFilter,
 }: RoomTableControlsProps) {
@@ -137,6 +139,12 @@ export function RoomTableControls({
               <Download size={16} className={styles.itemIcon} />
               Xuất ra Excel
             </DropdownMenuItem>
+            {onDownloadTemplate && (
+              <DropdownMenuItem className={styles.dropdownItem} onClick={onDownloadTemplate}>
+                <FileIcon size={16} className={styles.itemIcon} />
+                Tải file mẫu
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
 

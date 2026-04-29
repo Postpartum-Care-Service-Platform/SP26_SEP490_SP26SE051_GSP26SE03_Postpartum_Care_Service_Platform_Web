@@ -3,14 +3,16 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { Bell, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info } from 'lucide-react';
-import React from 'react';
+import { Bell, ChevronRight, FileText, ShoppingCart, Users, AlertCircle, CheckCircle, XCircle, Info, Activity } from 'lucide-react';
+import React, { useCallback, useEffect } from 'react';
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown/Dropdown';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNotificationHub, type NotificationPayload } from '@/hooks/useNotificationHub';
 import notificationService from '@/services/notification.service';
 import type { Notification } from '@/types/notification';
 
@@ -25,8 +27,11 @@ const getNotificationIcon = (_typeId: number | null, typeName: string | null) =>
   if (name.includes('báo cáo') || name.includes('tài liệu') || name.includes('document') || name.includes('report')) {
     return FileText;
   }
-  if (name.includes('đơn hàng') || name.includes('order') || name.includes('cart')) {
+  if (name.includes('đơn hàng') || name.includes('order') || name.includes('cart') || name.includes('gói') || name.includes('package')) {
     return ShoppingCart;
+  }
+  if (name.includes('dịch vụ') || name.includes('amenity') || name.includes('tiện ích')) {
+    return Activity;
   }
   if (name.includes('cuộc họp') || name.includes('nhóm') || name.includes('meeting') || name.includes('group')) {
     return Users;
@@ -52,38 +57,42 @@ export function NotificationDropdown({ onViewAll, isSidebarOpen }: { onViewAll?:
   const [isOpen, setIsOpen] = React.useState(false);
   const [isTooltipOpen, setIsTooltipOpen] = React.useState(false);
 
-  const isFetchingRef = React.useRef(false);
+  const { token } = useAuth();
 
-  const fetchData = React.useCallback(async () => {
-    if (isFetchingRef.current) return;
-
+  const fetchData = useCallback(async () => {
     try {
-      isFetchingRef.current = true;
       setIsLoading(true);
-
-      const notificationsData = await notificationService.getMyNotifications();
-      setNotifications(notificationsData);
+      const data = await notificationService.getMyNotifications();
+      setNotifications(data);
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     } finally {
-      isFetchingRef.current = false;
       setIsLoading(false);
     }
   }, []);
 
-  // Fetch dữ liệu lần đầu khi mount và mỗi khi fetchData thay đổi
+  // Initial fetch
   React.useEffect(() => {
     void fetchData();
   }, [fetchData]);
 
-  // Tự động làm mới thông báo sau mỗi 30 giây để cập nhật badge count
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      fetchData();
-    }, 30000);
+  // Real-time: prepend new notification from SignalR
+  const handleReceive = React.useCallback((notification: NotificationPayload) => {
+    setNotifications((prev) => {
+      // Avoid duplicates
+      if (prev.some((n) => n.id === notification.id)) return prev;
+      
+      // Normalize status: backend SignalR sends 0/1, but type expects 'Unread'/'Read'
+      const normalized = {
+        ...notification,
+        status: notification.status === 0 || notification.status === 'Unread' ? 'Unread' : 'Read',
+      } as unknown as Notification;
+      
+      return [normalized, ...prev];
+    });
+  }, []);
 
-    return () => clearInterval(interval);
-  }, [fetchData]);
+  useNotificationHub({ token, onReceive: handleReceive });
 
   const unreadCount = notifications.filter((n) => n.status === 'Unread').length;
   const displayCount = unreadCount > 0 ? (unreadCount > 9 ? '9+' : `${unreadCount}`) : null;
@@ -146,7 +155,7 @@ export function NotificationDropdown({ onViewAll, isSidebarOpen }: { onViewAll?:
             <div className={styles.empty}>Không có thông báo</div>
           ) : (
             notifications.slice(0, 5).map((notification) => {
-              const Icon = getNotificationIcon(notification.notificationTypeId, notification.notificationTypeName);
+              const Icon = getNotificationIcon((notification.notificationTypeId ?? 0) as number, notification.notificationTypeName);
               const isUnread = notification.status === 'Unread';
               return (
                 <div

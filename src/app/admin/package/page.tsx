@@ -7,7 +7,7 @@ import packageService from '@/services/package.service';
 import type { Package } from '@/types/package';
 import { Pagination } from '@/components/ui/pagination';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
-import { ImportPackageModal, NewPackageModal, PackageListHeader, PackageTable, PackageTableControls } from './components';
+import { ImportPackageModal, NewPackageModal, PackageListHeader, PackageTable, PackageTableControls, PackageRequestListModal } from './components';
 import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import styles from './package.module.css';
 
@@ -35,6 +35,32 @@ const sortPackages = (items: Package[], sort: string) => {
   }
 };
 
+// Internal Premium Skeleton Component for consistent look
+const SkeletonBone = ({ width, height, circle = false, margin = '0' }: { width?: string | number, height?: string | number, circle?: boolean, margin?: string }) => (
+  <div 
+    style={{ 
+      width: width || '100%', 
+      height: height || '20px', 
+      backgroundColor: '#f1f5f9',
+      borderRadius: circle ? '50%' : '4px',
+      position: 'relative',
+      overflow: 'hidden',
+      margin: margin
+    }}
+  >
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+      animation: 'skeleton-shimmer-run 1.8s infinite linear',
+      transform: 'translateX(-100%)'
+    }} />
+  </div>
+);
+
 export default function AdminPackagePage() {
   const { toast } = useToast();
   const [packages, setPackages] = useState<Package[]>([]);
@@ -58,10 +84,15 @@ export default function AdminPackagePage() {
   // Import Modal state
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
+  // Requests Modal state
+  const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
+
   const fetchPackages = async () => {
     try {
       setLoading(true);
       setError(null);
+      // Wait for 2s for premium skeleton feel
+      await new Promise(resolve => setTimeout(resolve, 2000));
       const data = await packageService.getAllPackages();
       setPackages(data);
     } catch (err: unknown) {
@@ -163,12 +194,108 @@ export default function AdminPackagePage() {
 
   const handleExport = async () => {
     try {
-      await packageService.exportPackages();
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
+      const blob = await packageService.exportPackages();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Goi_Dich_Vu_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
       toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
     } catch (err) {
       toast({ title: 'Xuất dữ liệu thất bại', variant: 'error' });
     }
   };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      toast({ title: 'Đang tải file mẫu...', variant: 'default' });
+      const blob = await packageService.downloadTemplatePackages();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Mau_nhap_goi_dich_vu.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Tải file mẫu thành công', variant: 'success' });
+    } catch (err) {
+      toast({ title: 'Tải file mẫu thất bại', variant: 'error' });
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col flex-1 h-full min-h-0 bg-white">
+        <style>{`
+          @keyframes skeleton-shimmer-run {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        `}</style>
+        
+        <AdminPageLayout
+          header={<PackageListHeader />}
+          controlPanel={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '12px 16px' }}>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <SkeletonBone width={320} height={42} />
+                <SkeletonBone width={180} height={42} />
+              </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <SkeletonBone width={120} height={42} />
+                <SkeletonBone width={100} height={42} />
+                <SkeletonBone width={120} height={42} />
+              </div>
+            </div>
+          }
+        >
+          <div style={{ 
+            backgroundColor: '#ffffff', 
+            overflow: 'hidden',
+            padding: '0 16px'
+          }}>
+            <div style={{ height: '48px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }} />
+            {[...Array(pageSize || 10)].map((_, i) => (
+              <div key={i} style={{ 
+                height: '64px', 
+                borderBottom: i === (pageSize || 10) - 1 ? 'none' : '1px solid #f8fafc', 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: '0 24px', 
+                gap: '24px' 
+              }}>
+                <SkeletonBone width={40} height={16} />
+                <div style={{ flex: 1 }}>
+                  <SkeletonBone width="60%" height={16} />
+                </div>
+                <div style={{ flex: 2 }}>
+                  <SkeletonBone width="80%" height={16} />
+                </div>
+                <SkeletonBone width={100} height={32} />
+              </div>
+            ))}
+          </div>
+        </AdminPageLayout>
+      </div>
+    );
+  }
+
+
+  if (error) {
+    return (
+      <div style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
+        <div style={{ textAlign: 'center', padding: '60px', color: '#ef4444' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>Đã xảy ra lỗi</h3>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -182,6 +309,8 @@ export default function AdminPackagePage() {
             onNewPackage={() => setIsModalOpen(true)}
             onImport={() => setIsImportModalOpen(true)}
             onExport={handleExport}
+            onDownloadTemplate={handleDownloadTemplate}
+            onOpenRequests={() => setIsRequestsModalOpen(true)}
           />
         }
         pagination={
@@ -202,26 +331,16 @@ export default function AdminPackagePage() {
           ) : null
         }
       >
-        {loading ? (
-          <div className={styles.content}>
-            <p>Đang tải dữ liệu...</p>
-          </div>
-        ) : error ? (
-          <div className={styles.content}>
-            <p>{error}</p>
-          </div>
-        ) : (
-          <PackageTable
-            packages={paginatedPackages}
-            onEdit={handleEdit}
-            onDelete={handleDeleteTrigger}
-            deletingId={deletingId}
-            pagination={{
-              currentPage,
-              pageSize,
-            } as any}
-          />
-        )}
+        <PackageTable
+          packages={paginatedPackages}
+          onEdit={handleEdit}
+          onDelete={handleDeleteTrigger}
+          deletingId={deletingId}
+          pagination={{
+            currentPage,
+            pageSize,
+          } as any}
+        />
       </AdminPageLayout>
 
       <NewPackageModal
@@ -244,6 +363,12 @@ export default function AdminPackagePage() {
         title="Xác nhận xóa gói dịch vụ"
         message={`Bạn có chắc chắn muốn xóa gói dịch vụ "${itemToDelete?.packageName}"? Hành động này không thể hoàn tác.`}
       />
+
+      <PackageRequestListModal
+        open={isRequestsModalOpen}
+        onOpenChange={setIsRequestsModalOpen}
+      />
     </>
   );
 }
+

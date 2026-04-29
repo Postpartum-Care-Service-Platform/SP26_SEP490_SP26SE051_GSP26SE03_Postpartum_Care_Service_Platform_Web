@@ -13,8 +13,8 @@ export type StaffSchedule = {
   isActive: boolean;
   avatarUrl: string | null;
   isScheduled: boolean;
-  scheduledAt: string;
-  scheduledUntil: string;
+  scheduledAt?: string | null;
+  scheduledUntil?: string | null;
 };
 
 export async function fetchStaffSchedules(): Promise<StaffSchedule[]> {
@@ -31,4 +31,8 @@ export async function createStaffScheduleRange(data: CreateStaffScheduleRangeReq
 }
 export async function getStaffsByFamilyScheduleId(familyScheduleId: number): Promise<StaffSchedule[]> {
   return apiClient.get(`/StaffSchedule/family-schedule/${familyScheduleId}/staffs`);
+}
+
+export async function changeStaff(familyScheduleId: number, newStaffId: string): Promise<void> {
+  return apiClient.patch(`/StaffSchedule/change-staff/${familyScheduleId}/${newStaffId}`);
 }

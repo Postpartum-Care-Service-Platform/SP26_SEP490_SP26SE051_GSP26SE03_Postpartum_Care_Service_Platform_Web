@@ -11,6 +11,8 @@ import { streamMessage } from '@/services/chat-stream.service';
 import chatService, { type AiStructuredResponse, type ConversationResponse, type MessageResponse } from '@/services/chat.service';
 import type { ChatMessage, ChatMode, ChatSender, ChatStructuredData } from '@/types/chat';
 
+import { useToast } from '@/components/ui/toast/use-toast';
+
 import '@/styles/support-widget.css';
 
 const USE_STREAMING = true;
@@ -72,6 +74,8 @@ export function SupportWidget() {
     token: token || '',
     autoConnect: !!token && !!user,
   });
+
+  const { toast } = useToast();
 
   const initConversation = React.useCallback(async () => {
     if (conversation) return;
@@ -437,7 +441,11 @@ export function SupportWidget() {
       await requestSupport(conversation.id, 'Yêu cầu hỗ trợ từ khách hàng');
     } catch (error) {
       console.error('Failed to request support:', error);
-      alert('Không thể gửi yêu cầu hỗ trợ. Vui lòng thử lại.');
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể gửi yêu cầu hỗ trợ. Vui lòng thử lại.',
+        variant: 'error',
+      });
     }
   };
 

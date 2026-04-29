@@ -99,10 +99,37 @@ export default function AddRoomAllotmentPage() {
 
   const handleExport = async () => {
     try {
-      await roomAllotmentService.exportRooms();
+      toast({ title: 'Đang chuẩn bị file xuất...', variant: 'default' });
+      const blob = await roomAllotmentService.exportRooms();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Danh_sach_phong_${new Date().getTime()}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
       toast({ title: 'Xuất dữ liệu thành công', variant: 'success' });
-    } catch (err) {
-      toast({ title: 'Xuất dữ liệu thất bại', variant: 'error' });
+    } catch (err: any) {
+      toast({ title: 'Xuất dữ liệu thất bại', description: err.message, variant: 'error' });
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      toast({ title: 'Đang tải file mẫu...', variant: 'default' });
+      const blob = await roomAllotmentService.downloadTemplateRooms();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'Mau_nhap_phong.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast({ title: 'Tải file mẫu thành công', variant: 'success' });
+    } catch (err: any) {
+      toast({ title: 'Tải file mẫu thất bại', description: err.message, variant: 'error' });
     }
   };
 
@@ -132,7 +159,15 @@ export default function AddRoomAllotmentPage() {
       ]);
       const roomTypeMap = new Map((roomTypesData || []).map(rt => [rt.id, rt.name]));
 
-      const mappedData = Array.isArray(data) ? data.map(room => ({
+      // Robust data extraction for various API response formats
+      let roomsList = [];
+      if (Array.isArray(data)) {
+        roomsList = data;
+      } else if (data && typeof data === 'object') {
+        roomsList = (data as any).data || (data as any).$values || [];
+      }
+      
+      const mappedData = Array.isArray(roomsList) ? roomsList.map((room: any) => ({
         ...room,
         roomTypeName: room.roomTypeName || roomTypeMap.get(room.roomTypeId) || '-'
       })) : [];
@@ -210,9 +245,9 @@ export default function AddRoomAllotmentPage() {
   return (
     <div className="flex flex-col flex-1 h-full min-h-0">
       <AdminPageLayout
+        isLoading={loading}
         header={<RoomAllotmentHeader />}
         controlPanel={
-
           <RoomTableControls
             onSearch={setSearchQuery}
             onSortChange={setSortKey}
@@ -220,6 +255,7 @@ export default function AddRoomAllotmentPage() {
             onNewRoom={handleOpenCreate}
             onImportClick={() => setIsImportModalOpen(true)}
             onExportClick={handleExport}
+            onDownloadTemplate={handleDownloadTemplate}
             activeSortKey={sortKey}
             activeFilter={activeFilter}
           />
@@ -239,9 +275,7 @@ export default function AddRoomAllotmentPage() {
           ) : null
         }
       >
-        {loading ? (
-          <div className={styles.placeholder}>Đang tải dữ liệu...</div>
-        ) : error ? (
+        {error ? (
           <div className={styles.placeholder}>{error}</div>
         ) : (
           <RoomTable

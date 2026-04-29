@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronDownIcon } from '@radix-ui/react-icons';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   CartesianGrid,
   Line,
@@ -19,78 +19,46 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown';
 
+import statisticsService from '@/services/statistics.service';
 import styles from './patient-status-chart.module.css';
 
-const dayLabelMap: Record<string, string> = {
-  Mon: 'Thứ 2',
-  Tue: 'Thứ 3',
-  Wed: 'Thứ 4',
-  Thu: 'Thứ 5',
-  Fri: 'Thứ 6',
-  Sat: 'Thứ 7',
-  Sun: 'Chủ nhật',
-};
-
-const mockData = [
-  { day: 'Mon', dayLabel: 'Thứ 2', admissions: 54, discharges: 36 },
-  { day: 'Tue', dayLabel: 'Thứ 3', admissions: 7, discharges: 15 },
-  { day: 'Wed', dayLabel: 'Thứ 4', admissions: 75, discharges: 50 },
-  { day: 'Thu', dayLabel: 'Thứ 5', admissions: 25, discharges: 12 },
-  { day: 'Fri', dayLabel: 'Thứ 6', admissions: 60, discharges: 35 },
-  { day: 'Sat', dayLabel: 'Thứ 7', admissions: 15, discharges: 5 },
-  { day: 'Sun', dayLabel: 'Chủ nhật', admissions: 20, discharges: 10 },
-];
-
 const TIME_OPTIONS = [
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'monthly', label: 'Monthly' },
-  { value: 'yearly', label: 'Yearly' },
+  { value: 'weekly', label: 'Theo tuần' },
+  { value: 'monthly', label: 'Theo tháng' },
+  { value: 'yearly', label: 'Theo năm' },
 ];
 
-type PatientStatusTooltipItem = {
+type TooltipItem = {
   dataKey?: string;
   value?: number;
   payload?: {
-    day?: string;
-    dayLabel?: string;
+    month?: string;
+    monthLabel?: string;
   };
 };
 
-type PatientStatusTooltipProps = {
+type CustomTooltipProps = {
   active?: boolean;
-  payload?: PatientStatusTooltipItem[];
+  payload?: TooltipItem[];
 };
 
-const CustomTooltip = ({ active, payload }: PatientStatusTooltipProps) => {
+const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
-    const admissionsData = payload.find((p) => p.dataKey === 'admissions');
-    const dischargesData = payload.find((p) => p.dataKey === 'discharges');
+    const growthData = payload.find((p) => p.dataKey === 'count');
     const row = payload[0]?.payload;
-    const dayLabel =
-      row?.dayLabel || (row?.day ? dayLabelMap[row.day] : '') || '';
+    const monthLabel = row?.monthLabel || '';
 
     return (
       <div className={styles.tooltip}>
-        <div className={styles.tooltipLabel}>{dayLabel}</div>
-        {admissionsData && (
+        <div className={styles.tooltipLabel}>{monthLabel}</div>
+        {growthData && (
           <div className={styles.tooltipItem}>
             <span
               className={styles.tooltipIcon}
               style={{ backgroundColor: '#A47BC8' }}
             ></span>
             <span>
-              Admissions: <strong>{admissionsData.value}</strong> Patients
-            </span>
-          </div>
-        )}
-        {dischargesData && (
-          <div className={styles.tooltipItem}>
-            <span
-              className={styles.tooltipIcon}
-              style={{ backgroundColor: '#5288AF' }}
-            ></span>
-            <span>
-              Discharges: <strong>{dischargesData.value}</strong> Patients
+              Khách hàng mới: <strong>{growthData.value}</strong>
             </span>
           </div>
         )}
@@ -100,17 +68,48 @@ const CustomTooltip = ({ active, payload }: PatientStatusTooltipProps) => {
   return null;
 };
 
+const formatMonthLabel = (monthStr: string) => {
+  if (!monthStr) return '';
+  const [year, month] = monthStr.split('-');
+  return `Tháng ${parseInt(month)}/${year}`;
+};
+
 export function PatientStatusChart() {
-  const [selectedTimeframe, setSelectedTimeframe] = useState('weekly');
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedTimeframe, setSelectedTimeframe] = useState('monthly');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Hiện tại chỉ có API Monthly Growth, ta mockup hoặc dùng tạm dữ liệu này cho các options khác
+        const res = await statisticsService.getCustomerGrowth();
+        if (Array.isArray(res)) {
+          const formattedData = res.map((item: any) => ({
+            ...item,
+            monthLabel: formatMonthLabel(item.month),
+            shortLabel: item.month.split('-')[1],
+          }));
+          setData(formattedData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch customer growth data', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [selectedTimeframe]);
 
   const selectedLabel =
     TIME_OPTIONS.find((opt) => opt.value === selectedTimeframe)?.label ||
-    'Weekly';
+    'Theo tháng';
 
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
-        <h4 className={styles.title}>Patient Status</h4>
+        <h4 className={styles.title}>Tăng trưởng khách hàng</h4>
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <button className={styles.timeframeButton}>
@@ -136,43 +135,49 @@ export function PatientStatusChart() {
         </DropdownMenu>
       </div>
       <div className={styles.cardBody}>
-        <div className={styles.chartWrapper}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={mockData}
-              margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e9ecef" />
-              <XAxis dataKey="day" hide />
-              <YAxis hide />
-              <Tooltip
-                content={<CustomTooltip />}
-                cursor={{
-                  stroke: '#6c757d',
-                  strokeWidth: 1,
-                  strokeDasharray: '3 3',
-                }}
-                labelFormatter={() => null}
-              />
-              <Line
-                type="monotone"
-                dataKey="admissions"
-                stroke="#A47BC8"
-                strokeWidth={2}
-                dot={false}
-                name="Admissions"
-              />
-              <Line
-                type="monotone"
-                dataKey="discharges"
-                stroke="#5288AF"
-                strokeWidth={2}
-                dot={false}
-                name="Discharges"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+        {loading ? (
+          <div className={styles.loadingState}>Đang tải dữ liệu...</div>
+        ) : data.length > 0 ? (
+          <div className={styles.chartWrapper}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={data}
+                margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" vertical={false} />
+                <XAxis 
+                  dataKey="shortLabel" 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 10, fill: '#888' }}
+                  interval={0}
+                  tickFormatter={(val) => `T${val}`}
+                />
+                <YAxis hide />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  cursor={{
+                    stroke: '#A47BC8',
+                    strokeWidth: 1,
+                    strokeDasharray: '3 3',
+                  }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="count"
+                  stroke="#A47BC8"
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: '#A47BC8', strokeWidth: 0 }}
+                  activeDot={{ r: 6, strokeWidth: 0 }}
+                  name="Khách hàng mới"
+                  animationDuration={1500}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className={styles.emptyState}>Chưa có dữ liệu tăng trưởng</div>
+        )}
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { useToast } from '@/components/ui/toast/use-toast';
 import menuRecordService from '@/services/menu-record.service';
 import type { MenuRecord } from '@/types/menu-record';
 import { AdminPageLayout } from '@/components/layout/admin/AdminPageLayout';
+import { ConfirmModal } from '@/components/ui/modal/ConfirmModal';
 import { Pagination } from '@/components/ui/pagination';
 import userService from '@/services/user.service';
 import menuService from '@/services/menu.service';
@@ -41,6 +42,32 @@ const sortMenuRecords = (items: MenuRecord[], sort: string) => {
   }
 };
 
+// Internal Premium Skeleton Component for consistent look
+const SkeletonBone = ({ width, height, circle = false, margin = '0' }: { width?: string | number, height?: string | number, circle?: boolean, margin?: string }) => (
+  <div 
+    style={{ 
+      width: width || '100%', 
+      height: height || '20px', 
+      backgroundColor: '#f1f5f9',
+      borderRadius: circle ? '50%' : '4px',
+      position: 'relative',
+      overflow: 'hidden',
+      margin: margin
+    }}
+  >
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+      animation: 'skeleton-shimmer-run 1.8s infinite linear',
+      transform: 'translateX(-100%)'
+    }} />
+  </div>
+);
+
 export default function AdminMenuRecordPage() {
   const { toast } = useToast();
   const [menuRecords, setMenuRecords] = useState<MenuRecord[]>([]);
@@ -59,10 +86,17 @@ export default function AdminMenuRecordPage() {
   const PAGE_SIZE_OPTIONS = [10, 20, 50];
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [menuRecordToDelete, setMenuRecordToDelete] = useState<MenuRecord | null>(null);
+
+  const [view, setView] = useState<'table' | 'ui'>('table');
+
   const fetchMenuRecords = async () => {
     try {
       setLoading(true);
       setError(null);
+      // Wait for 2s for premium skeleton feel
+      await new Promise(resolve => setTimeout(resolve, 2000));
       const [recordsData, accountsData, menusData] = await Promise.all([
         menuRecordService.getAllMenuRecords(),
         userService.getAllAccounts(),
@@ -127,10 +161,16 @@ export default function AdminMenuRecordPage() {
     }
   };
 
-  const handleDelete = async (menuRecord: MenuRecord) => {
+  const handleDelete = (menuRecord: MenuRecord) => {
+    setMenuRecordToDelete(menuRecord);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!menuRecordToDelete) return;
     try {
-      setDeletingId(menuRecord.id);
-      await menuRecordService.deleteMenuRecord(menuRecord.id);
+      setDeletingId(menuRecordToDelete.id);
+      await menuRecordService.deleteMenuRecord(menuRecordToDelete.id);
       toast({ title: 'Xóa bản ghi thực đơn thành công', variant: 'success' });
       await fetchMenuRecords();
     } catch (error: unknown) {
@@ -140,22 +180,95 @@ export default function AdminMenuRecordPage() {
       });
     } finally {
       setDeletingId(null);
+      setMenuRecordToDelete(null);
+      setIsConfirmModalOpen(false);
     }
   };
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, backgroundColor: '#ffffff', minHeight: '100vh' }}>
+        <style>{`
+          @keyframes skeleton-shimmer-run {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+        `}</style>
+        
+        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          {/* Controls Area Placeholder */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <SkeletonBone width={320} height={42} />
+              <SkeletonBone width={180} height={42} />
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <SkeletonBone width={120} height={42} />
+              <SkeletonBone width={100} height={42} />
+              <SkeletonBone width={120} height={42} />
+            </div>
+          </div>
+
+          {/* Table Area Placeholder */}
+          <div style={{ 
+            backgroundColor: '#ffffff', 
+            borderRadius: '4px', 
+            border: '1px solid #f1f5f9', 
+            overflow: 'hidden'
+          }}>
+            <div style={{ height: '48px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }} />
+            {[...Array(pageSize)].map((_, i) => (
+              <div key={i} style={{ 
+                height: '64px', 
+                borderBottom: i === pageSize - 1 ? 'none' : '1px solid #f8fafc', 
+                display: 'flex', 
+                alignItems: 'center', 
+                padding: '0 24px', 
+                gap: '24px' 
+              }}>
+                <SkeletonBone width={40} height={16} />
+                <div style={{ flex: 1 }}>
+                  <SkeletonBone width="60%" height={16} />
+                </div>
+                <div style={{ flex: 2 }}>
+                  <SkeletonBone width="80%" height={16} />
+                </div>
+                <SkeletonBone width={100} height={32} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
+        <div style={{ textAlign: 'center', padding: '60px', color: '#ef4444' }}>
+          <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>Đã xảy ra lỗi</h3>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AdminPageLayout
-      header={<MenuRecordListHeader />}
+      noCard={view === 'ui'}
+      header={<MenuRecordListHeader view={view} onViewChange={setView} />}
       controlPanel={
-        <MenuRecordTableControls
-          onSearch={(q) => setSearchQuery(q)}
-          onSortChange={(sort) => setSortKey(sort)}
-          onStatusChange={(status) => setStatusFilter(status)}
-          onNewMenuRecord={() => setIsModalOpen(true)}
-        />
+        view === 'table' ? (
+          <MenuRecordTableControls
+            onSearch={(q) => setSearchQuery(q)}
+            onSortChange={(sort) => setSortKey(sort)}
+            onStatusChange={(status) => setStatusFilter(status)}
+            onNewMenuRecord={() => setIsModalOpen(true)}
+          />
+        ) : null
       }
       pagination={
-        filteredMenuRecords.length > 0 ? (
+        view === 'table' && filteredMenuRecords.length > 0 ? (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -173,15 +286,7 @@ export default function AdminMenuRecordPage() {
       }
     >
       <div className={styles.pageContainer}>
-        {loading ? (
-          <div className={styles.loading}>
-            <p>Đang tải dữ liệu...</p>
-          </div>
-        ) : error ? (
-          <div className={styles.error}>
-            <p>{error}</p>
-          </div>
-        ) : (
+        {view === 'table' ? (
           <MenuRecordTable
             menuRecords={paginatedMenuRecords}
             accounts={accounts}
@@ -192,6 +297,10 @@ export default function AdminMenuRecordPage() {
             currentPage={currentPage}
             pageSize={pageSize}
           />
+        ) : (
+          <div className={styles.emptyState}>
+            <p>Dạng xem UI đang được cập nhật...</p>
+          </div>
         )}
       </div>
 
@@ -201,6 +310,18 @@ export default function AdminMenuRecordPage() {
         onSuccess={fetchMenuRecords}
         menuRecordToEdit={editingMenuRecord}
       />
+
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xác nhận xóa bản ghi thực đơn"
+        message={`Bạn có chắc chắn muốn xóa bản ghi thực đơn "${menuRecordToDelete?.name}"? Hành động này không thể hoàn tác.`}
+        confirmLabel="Xóa ngay"
+        cancelLabel="Suy nghĩ lại"
+        variant="danger"
+      />
     </AdminPageLayout>
   );
 }
+

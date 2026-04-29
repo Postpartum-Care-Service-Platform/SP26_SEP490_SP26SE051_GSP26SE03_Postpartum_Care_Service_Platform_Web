@@ -1,7 +1,5 @@
 .tableWrapper {
   background-color: #fff;
-  flex: 1;
-  min-height: 0;
 }
 
 .table {
@@ -199,7 +197,8 @@
 
 .tooltipWrapper .tooltip {
   position: absolute;
-  top: calc(100% + 8px); /* Changed from bottom to top to avoid header clipping */
+  top: calc(100% + 8px);
+  /* Changed from bottom to top to avoid header clipping */
   left: 50%;
   transform: translateX(-50%) scale(0.9);
   background-color: #333;
