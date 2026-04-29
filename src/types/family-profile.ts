@@ -3,6 +3,7 @@ export interface FamilyProfile {
   memberTypeId: number | null;
   memberTypeName: string | null;
   customerId: string;
+  accountId?: string;
   fullName: string | null;
   dateOfBirth: string | null;
   gender: string | null;
@@ -13,6 +14,9 @@ export interface FamilyProfile {
   isOwner: boolean;
   createdAt?: string;
   updatedAt?: string;
+  // Staff-only fields
+  certificate?: string | null;
+  experience?: number | null;
 }
 
 export interface CreateFamilyProfileRequest {

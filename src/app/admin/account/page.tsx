@@ -134,14 +134,23 @@ export default function AdminPatientsPage() {
   };
 
   const handleViewProfile = (patient: Patient) => {
-    // Ưu tiên dùng customerId để xem hồ sơ gia đình, nếu không có thì dùng accountId
     const targetId = patient.customerId || patient.accountId;
-    if (targetId) {
-      const currentPath = window.location.pathname;
-      const baseRoute = currentPath.includes('/manager') ? '/manager/customers' : '/admin/account';
-      router.push(`${baseRoute}/${targetId}`);
-    } else {
+    if (!targetId) {
       console.warn('Không tìm thấy ID hợp lệ để xem hồ sơ:', patient);
+      return;
+    }
+
+    const currentPath = window.location.pathname;
+    const baseRoute = currentPath.includes('/manager') ? '/manager/customers' : '/admin/account';
+
+    // Staff, manager, admin, amenity_manager → trang hồ sơ nhân viên riêng
+    const staffRoles = ['staff', 'manager', 'admin', 'amenity manager', 'amenity_manager', 'amenity-manager'];
+    const isStaff = staffRoles.includes((patient.role || '').toLowerCase().trim());
+
+    if (isStaff) {
+      router.push(`${baseRoute}/${targetId}/staff`);
+    } else {
+      router.push(`${baseRoute}/${targetId}`);
     }
   };
 
@@ -186,14 +195,14 @@ export default function AdminPatientsPage() {
 
   const paginationConfig = totalPages > 0
     ? {
-        currentPage,
-        totalPages,
-        pageSize,
-        totalItems: filteredPatients.length,
-        onPageChange: handlePageChange,
-        pageSizeOptions: [...PAGE_SIZE_OPTIONS],
-        onPageSizeChange: handlePageSizeChange,
-      }
+      currentPage,
+      totalPages,
+      pageSize,
+      totalItems: filteredPatients.length,
+      onPageChange: handlePageChange,
+      pageSizeOptions: [...PAGE_SIZE_OPTIONS],
+      onPageSizeChange: handlePageSizeChange,
+    }
     : undefined;
 
   return (

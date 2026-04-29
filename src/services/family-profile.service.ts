@@ -38,6 +38,10 @@ const familyProfileService = {
     });
   },
 
+  updateStaffLevel: (id: number, payload: { certificate: string | null; experience: number }): Promise<FamilyProfile> => {
+    return apiClient.put(`/FamilyProfile/UpdateStaffLevel/${id}`, payload);
+  },
+
   deleteFamilyProfile: (id: number): Promise<void> => {
     return apiClient.delete(`/FamilyProfile/Delete/${id}`);
   },
