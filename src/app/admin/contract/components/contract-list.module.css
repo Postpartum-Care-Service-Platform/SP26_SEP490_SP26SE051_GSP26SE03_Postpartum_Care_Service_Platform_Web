@@ -156,41 +156,49 @@
 .statusExpired { background-color: rgba(107, 114, 128, 0.1); color: #6b7280; }
 .statusDraft { background-color: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 
-.actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.actionButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.viewButton { background-color: rgba(59, 130, 246, 0.1); color: #3b82f6; }
-.viewButton:hover { background-color: #3b82f6; color: #fff; }
-
-.editButton { background-color: rgba(164, 123, 200, 0.1); color: #a47bc8; }
-.editButton:hover { background-color: #a47bc8; color: #fff; }
-
-.deleteButton { background-color: rgba(253, 97, 97, 0.1); color: #fd6161; }
-.deleteButton:hover { background-color: #fd6161; color: #fff; }
-
+/* Unused styles can be removed or kept, I will remove the ones related to action buttons */
 .emptyState {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 0;
-  color: #9ca3af;
+  padding: 80px 40px;
+  text-align: center;
+  background-color: #ffffff;
+}
+
+.emptyIconWrapper {
+  width: 100px;
+  height: 100px;
+  background-color: #f8fafc;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: #cbd5e1;
+  transition: all 0.3s ease;
+}
+
+.emptyState:hover .emptyIconWrapper {
+  background-color: #fff7ed;
+  color: #fb923c;
+  transform: translateY(-4px);
+}
+
+.emptyTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 8px 0;
+}
+
+.emptyText {
+  font-size: 14px;
+  color: #64748b;
+  max-width: 320px;
+  line-height: 1.6;
+  margin: 0;
 }
 
 /* Tooltip */
@@ -232,4 +240,23 @@
 .table td[class*="sticky"]:has(.tooltipWrapper:hover) {
   position: sticky;
   z-index: 2000 !important;
+}
+
+.imageThumbnail {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc;
+  flex-shrink: 0;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }

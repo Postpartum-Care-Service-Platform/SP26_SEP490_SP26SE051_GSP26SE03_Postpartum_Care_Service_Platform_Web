@@ -17,12 +17,12 @@ import styles from './transaction-table-controls.module.css';
 
 type Props = {
   searchQuery: string;
-  statusFilter: 'all' | 'Paid' | 'Pending' | 'Failed';
-  typeFilter: 'all' | 'Deposit' | 'Payment' | 'Refund';
+  statusFilter: string;
+  typeFilter: string;
   sortKey: string;
   onSearchChange: (query: string) => void;
-  onStatusChange: (status: 'all' | 'Paid' | 'Pending' | 'Failed') => void;
-  onTypeChange: (type: 'all' | 'Deposit' | 'Payment' | 'Refund') => void;
+  onStatusChange: (status: any) => void;
+  onTypeChange: (type: any) => void;
   onSortChange: (sort: string) => void;
 };
 
@@ -33,9 +33,12 @@ const STATUS_OPTIONS: Array<{ value: 'all' | 'Paid' | 'Pending' | 'Failed'; labe
   { value: 'Failed', label: 'Thất bại' },
 ];
 
-const TYPE_OPTIONS: Array<{ value: 'all' | 'Deposit' | 'Payment' | 'Refund'; label: string }> = [
+const TYPE_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'all', label: 'Tất cả loại' },
   { value: 'Deposit', label: 'Tiền đặt cọc' },
+  { value: 'Remaining', label: 'Tiền còn lại' },
+  { value: 'Full', label: 'Thanh toán toàn bộ' },
+  { value: 'PlatformCommission', label: 'Phí hệ thống' },
   { value: 'Payment', label: 'Thanh toán' },
   { value: 'Refund', label: 'Hoàn tiền' },
 ];

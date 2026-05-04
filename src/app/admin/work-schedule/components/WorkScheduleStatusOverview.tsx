@@ -190,13 +190,13 @@ export function WorkScheduleStatusOverview() {
                     <div className={styles.activityHeader}>
                       <div className={styles.avatarWrapper}>
                         {act.staffAvatar ? (
-                          <img src={act.staffAvatar} alt={act.staffName} className={styles.avatarImg} />
+                          <img src={act.staffAvatar} alt={act.staffFullName || act.staffName} className={styles.avatarImg} />
                         ) : (
-                          <div className={styles.avatarPlaceholder}>{act.staffName.charAt(0)}</div>
+                          <div className={styles.avatarPlaceholder}>{(act.staffFullName || act.staffName).charAt(0)}</div>
                         )}
                       </div>
                       <div className={styles.activityContent}>
-                        <div className={styles.staffName}>{act.staffName}</div>
+                        <div className={styles.staffName}>{act.staffFullName || act.staffName}</div>
                         <div className={styles.activityActionText}>
                           {act.action}: <strong className={styles.taskName}>{act.taskName}</strong>
                         </div>

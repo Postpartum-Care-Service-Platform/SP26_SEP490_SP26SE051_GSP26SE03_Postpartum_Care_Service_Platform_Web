@@ -1,0 +1,224 @@
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Modal Content */
+.modalContent {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 600px;
+  max-width: 90vw;
+  overflow: hidden;
+}
+
+/* Modal Header */
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modalTitle {
+  color: #343A40;
+  font-family: "Funnel Sans", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.closeButton {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: #868e96;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease-in-out;
+}
+
+.closeButton:hover {
+  color: #dc3545;
+}
+
+/* Modal Body */
+.modalBody {
+  padding: 16px;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  display: block;
+  color: #343A40;
+  font-family: "Funnel Sans", sans-serif;
+  font-size: 13px;
+  margin: 0px 0px 6px;
+  font-weight: 600;
+}
+
+.required {
+  color: #dc3545;
+}
+
+.formControl {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 8px 14px;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #495057;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.formControl[data-type='textarea'] {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.formControl:focus {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.formControl.invalid {
+  border-color: #dc3545;
+}
+
+.formControl:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+/* Custom dropdown */
+.dropdownTrigger {
+  width: 100%;
+  height: 42px;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+  padding: 8px 14px;
+  font-size: 14px;
+  color: #495057;
+  background-color: #f8f9fa;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dropdownTrigger:focus-visible {
+  outline: none;
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.dropdownValue {
+  color: #495057;
+}
+
+.dropdownChevron {
+  width: 16px;
+  height: 16px;
+  color: #8a92a4;
+}
+
+.dropdownContent {
+  min-width: 250px;
+  background-color: #fff;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  padding: 4px;
+  z-index: 1200;
+}
+
+.dropdownItem {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+}
+
+.dropdownItemActive {
+  background-color: rgba(250, 131, 20, 0.12);
+  color: #fa8314;
+  font-weight: 600;
+}
+
+.errorMessage {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+/* Modal Footer */
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px;
+  border-top: 1px solid #e9ecef;
+}
+
+.button {
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.buttonPrimary {
+  background-color: #fa8314;
+  color: white;
+  border-color: #fa8314;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background-color: #e67310;
+  border-color: #d96d10;
+  box-shadow: 0 2px 8px rgba(250, 131, 20, 0.3);
+}
+
+.buttonOutline {
+  background-color: white;
+  color: #6c757d;
+  border-color: #ced4da;
+}
+
+.buttonOutline:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  color: #343a40;
+}

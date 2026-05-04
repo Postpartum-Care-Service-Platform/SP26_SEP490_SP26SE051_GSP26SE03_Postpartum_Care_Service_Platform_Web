@@ -48,7 +48,7 @@ const MOCK_CARE_PROGRESS = {
       endTime: "08:00:00",
       target: "Mom" as const,
       status: "Done" as const,
-      staffName: "center-staff",
+      staffName: "Nguyễn Thị Hương",
       staffAvatar: "https://res.cloudinary.com/dj4dqbzks/image/upload/v1773717210/family_avatars/Ảnh_chụp_màn_hình_2026-03-17_090807_cl3prb.png",
     },
     {
@@ -59,7 +59,7 @@ const MOCK_CARE_PROGRESS = {
       endTime: "09:00:00",
       target: "Baby" as const,
       status: "Missed" as const,
-      staffName: "string2",
+      staffName: "Nhân viên chăm sóc",
       staffAvatar: "https://res.cloudinary.com/dj4dqbzks/image/upload/v1773717210/family_avatars/Ảnh_chụp_màn_hình_2026-03-17_090807_cl3prb.png",
     },
     {
@@ -70,7 +70,7 @@ const MOCK_CARE_PROGRESS = {
       endTime: "10:00:00",
       target: "Mom" as const,
       status: "Pending" as const,
-      staffName: "string2",
+      staffName: "Nhân viên chăm sóc",
       staffAvatar: "https://res.cloudinary.com/dj4dqbzks/image/upload/v1773717210/family_avatars/Ảnh_chụp_màn_hình_2026-03-17_090807_cl3prb.png",
     },
   ]

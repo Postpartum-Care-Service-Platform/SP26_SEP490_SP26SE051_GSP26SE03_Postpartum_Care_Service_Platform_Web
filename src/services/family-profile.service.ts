@@ -41,6 +41,9 @@ const familyProfileService = {
   deleteFamilyProfile: (id: number): Promise<void> => {
     return apiClient.delete(`/FamilyProfile/Delete/${id}`);
   },
+  getUnsuitableActivities: (familyProfileId: number): Promise<any> => {
+    return apiClient.get(`/ActivityCondition/IneligibleActivities/${familyProfileId}`);
+  },
 };
 
 export default familyProfileService;

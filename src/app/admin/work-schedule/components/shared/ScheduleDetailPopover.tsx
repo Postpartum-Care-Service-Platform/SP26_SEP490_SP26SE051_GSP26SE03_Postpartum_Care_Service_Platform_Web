@@ -269,7 +269,7 @@ function ScheduleContent({
           {schedule.staffAvatar ? (
             <img
               src={schedule.staffAvatar}
-              alt={schedule.staffName}
+              alt={schedule.staffFullName || schedule.staffName}
               className={styles.avatarImage}
             />
           ) : (
@@ -283,7 +283,7 @@ function ScheduleContent({
         <div className={styles.customerMainInfo}>
           <div className={styles.labelGroup}>
             <span className={styles.infoLabel} style={{ color: '#6366F1' }}>Nhân viên thực hiện</span>
-            <span className={styles.customerNameText}>{schedule.staffName || 'Chưa phân công'}</span>
+            <span className={styles.customerNameText}>{schedule.staffFullName || schedule.staffName || 'Chưa phân công'}</span>
           </div>
           <div className={styles.staffActionRow}>
             <span className={styles.staffRoleBadge}>{schedule.staffMemberType || 'Chưa xác định'}</span>

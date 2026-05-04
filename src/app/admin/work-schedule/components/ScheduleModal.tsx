@@ -9,12 +9,18 @@ import {
   PersonIcon,
   CheckIcon
 } from '@radix-ui/react-icons';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { format, parseISO } from 'date-fns';
 import Image from 'next/image';
 import React, { useEffect, useState } from 'react';
 
 import contractService from '@/services/contract.service';
-import { fetchStaffSchedules, createStaffScheduleRange, type StaffSchedule } from '@/services/staffScheduleService';
+import { fetchStaffSchedules, createStaffScheduleRange, changeStaffAll, type StaffSchedule } from '@/services/staffScheduleService';
 import bookingService from '@/services/booking.service';
 import type { Booking } from '@/types/booking';
 import type { Contract } from '@/types/contract';
@@ -56,6 +62,7 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
   const [loadingContracts, setLoadingContracts] = useState(false);
   const [loadingBooking, setLoadingBooking] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<'unassigned' | 'inuse'>('unassigned');
 
   useEffect(() => {
     if (open) {
@@ -73,33 +80,49 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
   }, [open]);
 
   useEffect(() => {
+    if (open) {
+      void loadData();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
     if (selectedContract) {
       void loadBookingDetails(selectedContract.bookingId);
+      if (activeTab === 'inuse') {
+        const existingStaffIds = selectedContract.staffMiniResponses?.map(s => s.staffId) || [];
+        setSelectedStaffIds(existingStaffIds);
+      } else {
+        setSelectedStaffIds([]);
+      }
     } else {
       setSelectedBooking(null);
+      setSelectedStaffIds([]);
     }
-  }, [selectedContract]);
+  }, [selectedContract, activeTab]);
 
   const loadData = async () => {
     setLoadingStaffs(true);
     setLoadingContracts(true);
     try {
+      const fetchContracts = activeTab === 'unassigned'
+        ? contractService.getNoScheduleContracts()
+        : contractService.getInProgressContracts();
+
       const [staffData, contractData] = await Promise.all([
         fetchStaffSchedules(),
-        contractService.getNoScheduleContracts()
+        fetchContracts
       ]);
-      
+
       // Sort: Available staff first, then Busy staff
       const sortedStaffs = [...staffData].sort((a, b) => {
         if (a.isScheduled === b.isScheduled) return 0;
         return a.isScheduled ? 1 : -1;
       });
-      
+
       setStaffs(sortedStaffs);
       setContracts(contractData);
-      if (contractData.length > 0) {
-        setSelectedContract(contractData[0] || null);
-      }
+      setSelectedContract(contractData.length > 0 ? contractData[0] : null);
+      setSelectedStaffIds([]);
     } catch (error) {
       console.error('Failed to fetch modal data:', error);
       toast({ title: 'Lỗi', description: 'Không thể tải dữ liệu.', variant: 'error' });
@@ -141,11 +164,25 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
 
     setIsSaving(true);
     try {
-      await createStaffScheduleRange({
-        staffIds: selectedStaffIds,
-        contractId: selectedContract.id
+      if (activeTab === 'unassigned') {
+        await createStaffScheduleRange({
+          staffIds: selectedStaffIds,
+          contractId: selectedContract.id
+        });
+      } else {
+        // Replacement logic for In Progress contracts
+        // If the backend only supports single replacement, we might need to call it multiple times
+        // or check if there's a range replacement API. For now, we apply to all selected.
+        await Promise.all(selectedStaffIds.map(id => changeStaffAll(selectedContract.id, id)));
+      }
+
+      toast({
+        title: 'Thành công',
+        description: activeTab === 'unassigned'
+          ? 'Đã phân công lịch làm việc thành công.'
+          : 'Đã thay đổi nhân viên thành công.',
+        variant: 'success'
       });
-      toast({ title: 'Thành công', description: 'Đã phân công lịch làm việc thành công.', variant: 'success' });
       onOpenChange(false);
     } catch (error: any) {
       console.error('Failed to create range schedule:', error);
@@ -282,6 +319,20 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
             {/* Left Sidebar: Pending Contract List */}
             <aside className={styles.sidebar}>
               <div className={styles.sidebarHeader}>
+                <div className={styles.tabGroup}>
+                  <button
+                    className={`${styles.tabButton} ${activeTab === 'unassigned' ? styles.tabButtonActive : ''}`}
+                    onClick={() => setActiveTab('unassigned')}
+                  >
+                    Chưa assign
+                  </button>
+                  <button
+                    className={`${styles.tabButton} ${activeTab === 'inuse' ? styles.tabButtonActive : ''}`}
+                    onClick={() => setActiveTab('inuse')}
+                  >
+                    Đang sử dụng
+                  </button>
+                </div>
                 <div className={styles.searchBox}>
                   <span className={styles.searchIcon}><MagnifyingGlassIcon /></span>
                   <input type="text" placeholder="Tìm hợp đồng..." className={styles.searchInput} />
@@ -302,9 +353,43 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
                     >
                       <div className={styles.contractID}>{contract.contractCode}</div>
                       <div className={styles.contractCustomer}>Lịch cho {formatDate(contract.effectiveFrom)}</div>
-                      <div className={styles.contractDates}>
-                        <CalendarIcon style={{ width: '12px', height: '12px' }} />
-                        {formatDate(contract.effectiveFrom)} - {formatDate(contract.effectiveTo)}
+                      <div className={styles.contractCardFooter}>
+                        <div className={styles.contractDates}>
+                          <CalendarIcon style={{ width: '12px', height: '12px' }} />
+                          {formatDate(contract.effectiveFrom)} - {formatDate(contract.effectiveTo)}
+                        </div>
+
+                        {/* Assigned Staff Avatars (Aligned Right) */}
+                        {contract.staffMiniResponses && contract.staffMiniResponses.length > 0 && (
+                          <div className={styles.staffSmallAvatarGroup} onClick={(e) => e.stopPropagation()}>
+                            <TooltipProvider delayDuration={200}>
+                              {contract.staffMiniResponses.map((staff) => (
+                                <Tooltip key={staff.staffId}>
+                                  <TooltipTrigger asChild>
+                                    <div className={styles.avatarWrapper}>
+                                      {staff.avatarUrl ? (
+                                        <Image
+                                          src={staff.avatarUrl}
+                                          alt={staff.fullName}
+                                          width={22}
+                                          height={22}
+                                          className={styles.staffSmallAvatar}
+                                        />
+                                      ) : (
+                                        <div className={styles.staffSmallInitials}>
+                                          {getInitials(staff.fullName)}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="top">
+                                    <p>{staff.fullName}</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              ))}
+                            </TooltipProvider>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))
@@ -403,7 +488,7 @@ export function ScheduleModal({ open, onOpenChange }: Props) {
             onClick={handleSave}
             disabled={isSaving || !selectedContract || selectedStaffIds.length === 0}
           >
-            {isSaving ? 'Đang lưu...' : 'Xác nhận phân công'}
+            {isSaving ? 'Đang lưu...' : (activeTab === 'unassigned' ? 'Xác nhận phân công' : 'Xác nhận thay đổi')}
           </button>
         </div>
       </div>

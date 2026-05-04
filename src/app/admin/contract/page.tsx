@@ -10,7 +10,6 @@ import type { Contract } from '@/types/contract';
 
 import { AddContractModal } from './components/AddContractModal';
 import { ImportContractModal } from './ImportContractModal';
-import { ContractCustomerInfo } from './components/ContractCustomerInfo';
 import { ContractList } from './components/ContractList';
 import { ContractTableControls } from './components/ContractTableControls';
 import { ContractHeader } from './components/ContractHeader';
@@ -278,27 +277,14 @@ export default function AdminContractPage() {
           ) : null
         }
       >
-        <div className={`${styles.columnsContainer} ${selectedContract ? styles.withSidebar : ''}`}>
+        <div className={styles.columnsContainer}>
           <div className={styles.contentColumn}>
             <ContractList
               contracts={paginatedContracts}
               selectedContractId={selectedContract?.id || null}
-              onSelectContract={handleSelectContract}
-              onEdit={(contract) => {
-                console.log('Edit contract:', contract);
-              }}
-              onDelete={(contract) => {
-                setItemToDelete(contract);
-                setIsConfirmModalOpen(true);
-              }}
+              onSelectContract={(contract) => setSelectedContract(prev => prev?.id === contract.id ? null : contract)}
             />
           </div>
-          {selectedContract && (
-            <ContractCustomerInfo
-              customer={selectedContract.customer}
-              onClose={handleCloseCustomerInfo}
-            />
-          )}
         </div>
 
         <AddContractModal

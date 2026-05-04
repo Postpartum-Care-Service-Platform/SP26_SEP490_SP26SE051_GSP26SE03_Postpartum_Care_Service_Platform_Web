@@ -13,6 +13,7 @@ type ConfirmModalProps = {
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: 'danger' | 'warning';
+  isLoading?: boolean;
 };
 
 export const ConfirmModal: React.FC<ConfirmModalProps> = ({
@@ -23,12 +24,13 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   message = 'Bạn có chắc chắn muốn thực hiện hành động này? Hành động này không thể hoàn tác.',
   confirmLabel = 'Xác nhận',
   cancelLabel = 'Hủy',
-  variant = 'danger'
+  variant = 'danger',
+  isLoading = false
 }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay} onClick={() => !isLoading && onClose()}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div 
            className={styles.iconWrapper} 
@@ -52,6 +54,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             type="button" 
             className={`${styles.button} ${styles.cancelButton}`} 
             onClick={onClose}
+            disabled={isLoading}
           >
             {cancelLabel}
           </button>
@@ -60,10 +63,11 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             className={`${styles.button} ${variant === 'danger' ? styles.confirmButton : styles.confirmButtonWarning}`} 
             onClick={() => {
               onConfirm();
-              onClose();
+              // Removed onClose() here because usually handleConfirm will close it after API success
             }}
+            disabled={isLoading}
           >
-            {confirmLabel}
+            {isLoading ? 'Đang xử lý...' : confirmLabel}
           </button>
         </div>
       </div>

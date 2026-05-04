@@ -78,8 +78,8 @@ export default function AdminTransactionPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'Paid' | 'Pending' | 'Failed'>('all');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'Deposit' | 'Payment' | 'Refund'>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
   const [sortKey, setSortKey] = useState<string>('date-desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);

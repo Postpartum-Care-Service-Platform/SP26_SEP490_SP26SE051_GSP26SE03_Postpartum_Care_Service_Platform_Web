@@ -19,6 +19,7 @@ interface CustomDropdownProps {
   contentClassName?: string;
   itemClassName?: string;
   children?: ReactNode;
+  fixedLabel?: string;
 }
 
 export function CustomDropdown({
@@ -29,11 +30,12 @@ export function CustomDropdown({
   triggerClassName,
   contentClassName,
   itemClassName,
+  fixedLabel,
 }: CustomDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedLabel = options.find((opt) => opt.value === value)?.label || placeholder;
+  const selectedLabel = fixedLabel || options.find((opt) => opt.value === value)?.label || placeholder;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

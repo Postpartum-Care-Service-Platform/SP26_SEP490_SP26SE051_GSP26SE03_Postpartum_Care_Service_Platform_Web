@@ -36,3 +36,7 @@ export async function getStaffsByFamilyScheduleId(familyScheduleId: number): Pro
 export async function changeStaff(familyScheduleId: number, newStaffId: string): Promise<void> {
   return apiClient.patch(`/StaffSchedule/change-staff/${familyScheduleId}/${newStaffId}`);
 }
+
+export async function changeStaffAll(contractId: number, newStaffId: string): Promise<void> {
+  return apiClient.patch(`/StaffSchedule/change-staff-all/${contractId}/${newStaffId}`);
+}

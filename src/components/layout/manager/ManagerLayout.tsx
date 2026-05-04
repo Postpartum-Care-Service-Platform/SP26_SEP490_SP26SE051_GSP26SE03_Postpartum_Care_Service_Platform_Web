@@ -20,7 +20,7 @@ export function ManagerLayout({ children }: { children: React.ReactNode }) {
         collapsed={collapsed}
         onToggleCollapsed={() => setCollapsed(!collapsed)}
         navSections={managerNav}
-        brandText="Serena Manager"
+        brandText="The Joyful Nest"
       />
       <div className={`${styles.main} ${collapsed ? styles.mainCollapsed : ''}`}>
         <AdminHeader

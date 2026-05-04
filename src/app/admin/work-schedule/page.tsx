@@ -60,6 +60,7 @@ const flattenSchedules = (res: StaffScheduleAllResponse[]): StaffSchedule[] => {
           id: activity.staffScheduleId,
           staffId: staff.staffId,
           staffName: staff.staffFullName,
+          staffFullName: staff.staffFullName,
           staffAvatar: staff.staffAvatar,
           staffRole: staff.staffRole,
           staffMemberType: staff.staffMemberType,
@@ -195,7 +196,13 @@ export default function WorkSchedulePage() {
           from,
           to
         });
-        flattened = staffData;
+        
+        // Enrich with fullName from staffList if available
+        const staffInfo = staffList.find(s => s.id === selectedStaffId);
+        flattened = staffData.map(s => ({
+          ...s,
+          staffFullName: staffInfo?.fullName || s.staffFullName || s.staffName
+        }));
       } else {
         // Fetch all schedules for overview
         const rawData = await staffScheduleService.getAllSchedules(from, to);

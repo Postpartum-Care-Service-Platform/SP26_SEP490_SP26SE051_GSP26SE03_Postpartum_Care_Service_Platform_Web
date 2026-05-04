@@ -42,9 +42,25 @@
   width: 100%;
   overflow-x: auto;
   overflow-y: visible;
-  min-height: 0;
+  flex: 1;
   display: flex;
   flex-direction: column;
+}
+
+.horizontalScroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.horizontalScroll::-webkit-scrollbar-track {
+  background: #f8fafc;
+}
+
+.horizontalScroll::-webkit-scrollbar-thumb {
+  background-color: #fb923c;
+}
+
+.horizontalScroll::-webkit-scrollbar-thumb:hover {
+  background-color: #f97316;
 }
 
 .noScroll {

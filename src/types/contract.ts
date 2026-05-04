@@ -8,6 +8,12 @@ export interface ContractCustomer {
 
 export type ContractStatus = 'Sent' | 'Signed' | 'Cancelled' | 'Expired' | string;
 
+export interface StaffMiniResponse {
+  staffId: string;
+  fullName: string;
+  avatarUrl: string | null;
+}
+
 export interface Contract {
   id: number;
   bookingId: number;
@@ -22,5 +28,6 @@ export interface Contract {
   status: ContractStatus;
   createdAt: string;
   customer: ContractCustomer;
+  staffMiniResponses?: StaffMiniResponse[];
 }
 

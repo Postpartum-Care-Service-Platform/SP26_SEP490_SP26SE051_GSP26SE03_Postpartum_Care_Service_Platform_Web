@@ -338,7 +338,7 @@ export function CalendarWeekView({
                               {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
                             </div>
                             <div className={styles.tooltipCode}>{fs.packageName}</div>
-                            {schedule.staffName && <div className={styles.tooltipCode}>{schedule.staffName}</div>}
+                            {(schedule.staffFullName || schedule.staffName) && <div className={styles.tooltipCode}>{schedule.staffFullName || schedule.staffName}</div>}
                             {fs.note && <div className={styles.tooltipCode}>{fs.note}</div>}
                             <Tooltip.Arrow className={styles.tooltipArrow} />
                           </Tooltip.Content>

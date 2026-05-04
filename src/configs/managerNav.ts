@@ -48,12 +48,6 @@ export const managerNav: ManagerNavSection[] = [
     label: 'Chính',
     items: [
       {
-        key: 'dashboard',
-        label: 'Bảng điều khiển',
-        href: '/manager',
-        icon: LayoutDashboard,
-      },
-      {
         key: 'patients',
         label: 'Khách hàng',
         href: '/manager/customers',
@@ -155,6 +149,12 @@ export const managerNav: ManagerNavSection[] = [
             href: '/manager/package-activities',
             icon: ClipboardCheck,
           },
+          {
+            key: 'package-request',
+            label: 'Yêu cầu gói',
+            href: '/manager/package-request',
+            icon: FileText,
+          },
         ],
       },
       {
@@ -180,30 +180,6 @@ export const managerNav: ManagerNavSection[] = [
         label: 'Lịch làm việc',
         href: '/manager/work-schedule',
         icon: CalendarDays,
-      },
-    ],
-  },
-  {
-    key: 'settings',
-    label: 'Cài đặt',
-    items: [
-      {
-        key: 'types-config',
-        label: 'Cấu hình danh mục',
-        href: '/manager/types-config',
-        icon: Settings2,
-      },
-      {
-        key: 'system-settings',
-        label: 'Cài đặt hệ thống',
-        href: '/manager/settings/system',
-        icon: Settings,
-      },
-      {
-        key: 'roles-privileges',
-        label: 'Vai trò & Quyền',
-        href: '/manager/settings/roles',
-        icon: ShieldCheck,
       },
     ],
   },

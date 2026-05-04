@@ -87,6 +87,12 @@ const getTypeLabel = (type: string) => {
       return 'Thanh toán';
     case 'Refund':
       return 'Hoàn tiền';
+    case 'PlatformCommission':
+      return 'Phí hệ thống';
+    case 'Remaining':
+      return 'Tiền còn lại';
+    case 'Full':
+      return 'Thanh toán toàn bộ';
     default:
       return type;
   }

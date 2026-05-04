@@ -122,19 +122,19 @@ export function DaySchedulesPopover({
                               {item.staffAvatar ? (
                                 <img
                                   src={item.staffAvatar}
-                                  alt={item.staffName}
+                                  alt={item.staffFullName || item.staffName}
                                   className={styles.itemAvatar}
                                 />
                               ) : (
                                 <div className={styles.itemAvatarPlaceholder}>
-                                  {item.staffName?.charAt(0) || 'S'}
+                                  {(item.staffFullName || item.staffName)?.charAt(0) || 'S'}
                                 </div>
                               )}
                             </div>
                           </Tooltip.Trigger>
                           <Tooltip.Portal>
                             <Tooltip.Content className={styles.miniTooltip} side="top" sideOffset={5}>
-                              {item.staffName}
+                              {item.staffFullName || item.staffName}
                               <Tooltip.Arrow className={styles.miniTooltipArrow} />
                             </Tooltip.Content>
                           </Tooltip.Portal>
