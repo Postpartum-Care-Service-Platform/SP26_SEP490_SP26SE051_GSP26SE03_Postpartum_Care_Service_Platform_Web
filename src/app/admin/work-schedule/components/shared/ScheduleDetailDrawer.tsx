@@ -130,7 +130,7 @@ export function ScheduleDetailDrawer({ open, onOpenChange, schedule }: ScheduleD
           <div className={styles.row}>
             <div className={styles.field}>
               <span className={styles.label}>Nhân viên</span>
-              <span className={styles.value}>{schedule.staffName}</span>
+              <span className={styles.value}>{schedule.staffFullName || schedule.staffName}</span>
             </div>
             <div className={styles.field}>
               <span className={styles.label}>Quản lý</span>

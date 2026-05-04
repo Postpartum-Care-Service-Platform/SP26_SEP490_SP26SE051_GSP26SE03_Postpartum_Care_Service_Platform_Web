@@ -22,6 +22,7 @@ export interface StaffSchedule {
   id: number;
   staffId: string;
   staffName: string;
+  staffFullName?: string;
   staffAvatar: string | null;
   staffRole?: string;
   staffMemberType?: string;

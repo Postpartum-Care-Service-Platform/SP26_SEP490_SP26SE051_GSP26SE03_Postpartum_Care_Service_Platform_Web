@@ -4,7 +4,7 @@ import Image from 'next/image';
 import React from 'react';
 
 import { useToast } from '@/components/ui/toast/use-toast';
-import { fetchStaffSchedules, type StaffSchedule } from '@/services/staffScheduleService';
+import { fetchStaffSchedules, getStaffsByFamilyScheduleId, type StaffSchedule } from '@/services/staffScheduleService';
 
 import styles from './assignee-picker.module.css';
 
@@ -19,6 +19,7 @@ export type Assignee = {
   roleName?: string;
   memberTypeName?: string;
   isActive?: boolean;
+  isScheduled?: boolean;
 };
 
 type Props = {
@@ -28,6 +29,7 @@ type Props = {
   hideSpecialOptions?: boolean;
   roleNameFilter?: string[];
   customStaffList?: Assignee[];
+  familyScheduleId?: number;
 };
 
 
@@ -64,6 +66,7 @@ function staffToAssignee(staff: StaffSchedule): Assignee {
     roleName: staff.roleName,
     memberTypeName: staff.memberTypeName,
     isActive: staff.isActive,
+    isScheduled: staff.isScheduled,
   };
 }
 
@@ -125,6 +128,7 @@ export function AssigneePicker({
   hideSpecialOptions = false,
   roleNameFilter,
   customStaffList,
+  familyScheduleId,
 }: Props) {
   const [query, setQuery] = React.useState('');
   const [users, setUsers] = React.useState<Assignee[]>([]);
@@ -147,10 +151,17 @@ export function AssigneePicker({
 
       setIsLoading(true);
       try {
-        const staffs = await fetchStaffSchedules();
+        let staffs: StaffSchedule[] = [];
+        
+        if (familyScheduleId) {
+          staffs = await getStaffsByFamilyScheduleId(familyScheduleId);
+        } else {
+          staffs = await fetchStaffSchedules();
+        }
+
         const activeStaffs = staffs.filter((staff) => {
           const mType = staff.memberTypeName?.toLowerCase() || '';
-          return staff.isActive && !mType.includes('admin') && !mType.includes('manager');
+          return staff.isActive && !mType.includes('admin') && !mType.includes('manager') && !staff.isScheduled;
         });
 
         const normalizedRoleFilter = roleNameFilter?.map((r) => r.trim().toLowerCase()).filter(Boolean);
@@ -163,10 +174,6 @@ export function AssigneePicker({
         setUsers(mapped);
       } catch (error) {
         console.error('Failed to fetch staff schedules:', error);
-        const message =
-          typeof error === 'object' && error && 'message' in error ? String((error as { message?: unknown }).message) : '';
-        toast({ title: message || 'Không thể tải danh sách nhân viên', variant: 'error' });
-        if (!mounted) return;
         setUsers([]);
       } finally {
         if (mounted) setIsLoading(false);
@@ -178,7 +185,7 @@ export function AssigneePicker({
     return () => {
       mounted = false;
     };
-  }, [roleNameFilter, toast, customStaffList]);
+  }, [roleNameFilter, familyScheduleId, customStaffList]);
 
   const items = React.useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -253,6 +260,16 @@ export function AssigneePicker({
                 <div className={styles.userInfo}>
                   <div className={styles.userName}>Tất cả nhân viên</div>
                 </div>
+              </div>
+            )}
+            {items.length === 0 && !isLoading && (
+              <div className={styles.emptyState}>
+                <div className={styles.emptyIcon}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                </div>
+                <span>Không tìm thấy nhân viên nào</span>
               </div>
             )}
             {items.map((a) => {

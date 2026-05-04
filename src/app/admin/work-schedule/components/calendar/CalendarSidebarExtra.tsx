@@ -98,7 +98,7 @@ export function CalendarSidebarExtra({
                           {formatDateVN(fs.workDate)} • {formatEventTime(fs.startTime)} - {formatEventTime(fs.endTime)}
                         </div>
                         <div className={styles.tooltipCode}>{fs.packageName}</div>
-                        {task.staffName && <div className={styles.tooltipCode}>{task.staffName}</div>}
+                        {(task.staffFullName || task.staffName) && <div className={styles.tooltipCode}>{task.staffFullName || task.staffName}</div>}
                         {fs.note && <div className={styles.tooltipCode}>{fs.note}</div>}
                         
                         <Tooltip.Arrow className={styles.tooltipArrow} />

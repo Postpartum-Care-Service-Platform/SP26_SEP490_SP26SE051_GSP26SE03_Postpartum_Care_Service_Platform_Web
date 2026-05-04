@@ -75,6 +75,8 @@ export function ContractPreviewModal({ contract, onClose }: ContractPreviewModal
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 10, 300));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 10, 50));
 
+  const urls = contract.fileUrl?.split(',').filter(u => u.trim()) || [];
+
   return (
     <div 
       onClick={onClose}
@@ -116,30 +118,35 @@ export function ContractPreviewModal({ contract, onClose }: ContractPreviewModal
             position: 'relative',
             overflow: 'auto',
             display: 'flex',
-            justifyContent: 'center',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '20px',
             padding: '40px 20px'
           }}
         >
-          {contract.fileUrl ? (
-            <div style={{ 
-              maxWidth: '900px', 
-              width: `${zoom}%`, 
-              backgroundColor: '#fff', 
-              boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', 
-              padding: '0',
-              transition: 'width 0.2s ease-in-out'
-            }}>
-              <img 
-                src={contract.fileUrl}
-                style={{
-                  width: '100%',
-                  height: 'auto',
-                  display: 'block'
-                }}
-                title={`Hợp đồng ${contract.code}`}
-                alt={`Hợp đồng ${contract.code}`}
-              />
-            </div>
+          {urls.length > 0 ? (
+            urls.map((url, idx) => (
+              <div key={idx} style={{ 
+                maxWidth: '900px', 
+                width: `${zoom}%`, 
+                backgroundColor: '#fff', 
+                boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', 
+                padding: '0',
+                transition: 'width 0.2s ease-in-out',
+                flexShrink: 0
+              }}>
+                <img 
+                  src={url.trim()}
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    display: 'block'
+                  }}
+                  title={`Hợp đồng ${contract.code} - Trang ${idx + 1}`}
+                  alt={`Hợp đồng ${contract.code} - Trang ${idx + 1}`}
+                />
+              </div>
+            ))
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#6b7280', flexDirection: 'column', gap: '10px' }}>
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -166,7 +173,7 @@ export function ContractPreviewModal({ contract, onClose }: ContractPreviewModal
           color: '#6b7280',
           fontSize: '13px'
         }}>
-          <div>Trang 1/1</div>
+          <div>Tổng cộng {urls.length} hình ảnh</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <span style={{ fontWeight: 500 }}>{zoom}%</span>
             <div style={{ display: 'flex', gap: '5px' }}>

@@ -2,7 +2,7 @@
 
 import { ChevronDownIcon } from '@radix-ui/react-icons';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { Eye, MessageCircle } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
@@ -25,7 +25,6 @@ import type { Patient } from './patientTypes';
 type Props = {
   patients: Patient[];
   onViewProfile?: (patient: Patient) => void;
-  onChat?: (patient: Patient) => void;
   onRoleUpdated?: () => void;
   currentPage?: number;
   pageSize?: number;
@@ -88,7 +87,6 @@ const getRoleBadgeClass = (role: string | null | undefined) => {
 export function PatientTable({
   patients,
   onViewProfile,
-  onChat,
   onRoleUpdated,
   currentPage = 1,
   pageSize = 10,
@@ -165,7 +163,7 @@ export function PatientTable({
       <table className={styles.table}>
         <thead>
           <tr>
-            <th style={{ textAlign: 'center' }}>
+            <th className={styles.stickySttCol} style={{ textAlign: 'center' }}>
               <TooltipPrimitive.Root>
                 <TooltipPrimitive.Trigger asChild>
                   <span>STT</span>
@@ -197,7 +195,7 @@ export function PatientTable({
 
             return (
               <tr key={patient.id}>
-                <td style={{ textAlign: 'center' }}>{patientStt}</td>
+                <td className={styles.stickySttCol} style={{ textAlign: 'center' }}>{patientStt}</td>
                 <td className={styles.avatarCell}>
                   {patient.avatar ? (
                     <Image
@@ -342,18 +340,6 @@ export function PatientTable({
                         <Eye size={16} color="#3B82F6" />
                       </Button>
                       <span className={styles.tooltip}>Xem hồ sơ</span>
-                    </div>
-                    <div className={styles.tooltipWrapper}>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={styles.deleteButton}
-                        onClick={() => onChat?.(patient)}
-                        aria-label={`Chat với ${patient.name}`}
-                      >
-                        <MessageCircle size={16} color="#10B981" />
-                      </Button>
-                      <span className={styles.tooltip}>Chat</span>
                     </div>
                   </div>
                 </td>

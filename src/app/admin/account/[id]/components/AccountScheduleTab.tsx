@@ -10,6 +10,7 @@ import { CalendarWeekView } from '@/app/admin/work-schedule/components/calendar/
 import { TASK_TYPES } from '@/app/admin/work-schedule/components/TaskTypePicker';
 
 import amenityTicketService from '@/services/amenity-ticket.service';
+import contractService, { type StaffSchedule as StaffListMember } from '@/services/contract.service';
 import familyScheduleService from '@/services/family-schedule.service';
 import { getStaffsByFamilyScheduleId } from '@/services/staffScheduleService';
 import userService from '@/services/user.service';
@@ -48,11 +49,13 @@ export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountI
   const [familyStaff, setFamilyStaff] = React.useState<Assignee[]>([]);
   const [accounts, setAccounts] = React.useState<Account[]>([]);
   const [amenityStaff, setAmenityStaff] = React.useState<{ id: string; fullName: string }[]>([]);
+  const [staffList, setStaffList] = React.useState<StaffListMember[]>([]);
 
   // Fetch all accounts to resolve IDs to names (for tooltips)
   React.useEffect(() => {
     userService.getAllAccounts().then(data => setAccounts(Array.isArray(data) ? data : []));
     amenityTicketService.getAllStaff().then(data => setAmenityStaff(Array.isArray(data) ? data : []));
+    contractService.getStaffSchedules().then(data => setStaffList(Array.isArray(data) ? data : []));
   }, []);
 
   // Fetch-related state update: Filter and collect all unique staff from current schedules
@@ -139,14 +142,22 @@ export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountI
 
         // If still no staffName but we have a staffId from the object or schedules, try lookups
         if ((!staffName || staffName === 'Tiện ích' || staffName === 'Chưa phân công') && staffId) {
-          const acc = accounts.find(a => a.id === staffId);
-          if (acc) {
-            staffName = acc.ownerProfile?.fullName || acc.username || acc.email;
-            staffAvatar = acc.avatarUrl || null;
+          // 1. Try staffList (most reliable for staff)
+          const sInfo = staffList.find(s => s.id === staffId);
+          if (sInfo) {
+            staffName = sInfo.fullName;
           } else {
-            const amStaff = amenityStaff.find(s => s.id === staffId);
-            if (amStaff) {
-              staffName = amStaff.fullName;
+            // 2. Try accounts
+            const acc = accounts.find(a => a.id === staffId);
+            if (acc) {
+              staffName = acc.ownerProfile?.fullName || acc.username || acc.email;
+              staffAvatar = acc.avatarUrl || null;
+            } else {
+              // 3. Try amenityStaff
+              const amStaff = amenityStaff.find(s => s.id === staffId);
+              if (amStaff) {
+                staffName = amStaff.fullName;
+              }
             }
           }
         }
@@ -155,6 +166,7 @@ export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountI
           id: item.id,
           staffId,
           staffName: staffName || 'Chưa phân công',
+          staffFullName: staffName || 'Chưa phân công',
           staffAvatar,
           roomId: item.roomId,
           roomName: item.roomName,
@@ -213,6 +225,7 @@ export const AccountScheduleTab: React.FC<AccountScheduleTabProps> = ({ accountI
             id: -ticket.id, // Negative to avoid collision
             staffId: ticket.staffId || '',
             staffName: staffName,
+            staffFullName: staffName,
             staffAvatar: staffAvatar,
             roomId: null,
             roomName: null,

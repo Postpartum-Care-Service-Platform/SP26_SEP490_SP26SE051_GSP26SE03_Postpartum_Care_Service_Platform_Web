@@ -153,80 +153,72 @@ export default function AdminPatientsPage() {
     }
   };
 
-  const handleChat = (patient: Patient) => console.log('Chat:', patient);
   const handleNewPatient = () => setIsNewAccountOpen(true);
   const handleImport = () => setIsImportModalOpen(true);
   const handleSortChange = (sort: string) => { setSortKey(sort); setCurrentPage(1); };
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, backgroundColor: '#ffffff', minHeight: '100vh' }}>
+      <AdminPageLayout
+        header={<PatientListHeader />}
+        controlPanel={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '12px 16px' }}>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <SkeletonBone width={300} height={40} />
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <SkeletonBone width={100} height={40} />
+                <SkeletonBone width={100} height={40} />
+                <SkeletonBone width={100} height={40} />
+              </div>
+            </div>
+          </div>
+        }
+      >
         <style>{`
           @keyframes skeleton-shimmer-run {
             0% { transform: translateX(-100%); }
             100% { transform: translateX(100%); }
           }
         `}</style>
-        <PatientListHeader />
-        
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {/* Controls Area */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <SkeletonBone width={300} height={40} />
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <SkeletonBone width={100} height={40} />
-              <SkeletonBone width={100} height={40} />
-              <SkeletonBone width={100} height={40} />
-            </div>
-          </div>
-
-          {/* Table Area */}
-          <div style={{ 
-            backgroundColor: '#ffffff', 
-            borderRadius: '16px', 
-            border: '1px solid #f1f5f9', 
-            overflow: 'hidden',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
-          }}>
-            {/* Table Header Placeholder */}
-            <div style={{ height: '56px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }} />
-            
-            {/* Table Rows */}
-            {[...Array(pageSize)].map((_, i) => (
-              <div key={i} style={{ 
-                height: '80px', 
-                borderBottom: i === pageSize - 1 ? 'none' : '1px solid #f8fafc', 
-                display: 'flex', 
-                alignItems: 'center', 
-                padding: '0 24px', 
-                gap: '24px' 
-              }}>
-                <SkeletonBone width={40} height={20} />
-                <SkeletonBone width={48} height={48} circle />
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <SkeletonBone width="60%" height={16} />
-                  <SkeletonBone width="35%" height={12} />
-                </div>
-                <SkeletonBone width={150} height={16} />
-                <SkeletonBone width={120} height={16} />
-                <SkeletonBone width={100} height={36} />
+        <div style={{ 
+          backgroundColor: '#ffffff', 
+          overflow: 'hidden',
+          padding: '0 16px'
+        }}>
+          <div style={{ height: '56px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }} />
+          {[...Array(pageSize)].map((_, i) => (
+            <div key={i} style={{ 
+              height: '80px', 
+              borderBottom: i === pageSize - 1 ? 'none' : '1px solid #f8fafc', 
+              display: 'flex', 
+              alignItems: 'center', 
+              padding: '0 24px', 
+              gap: '24px' 
+            }}>
+              <SkeletonBone width={40} height={20} />
+              <SkeletonBone width={48} height={48} circle />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <SkeletonBone width="60%" height={16} />
+                <SkeletonBone width="35%" height={12} />
               </div>
-            ))}
-          </div>
+              <SkeletonBone width={150} height={16} />
+              <SkeletonBone width={120} height={16} />
+              <SkeletonBone width={100} height={36} />
+            </div>
+          ))}
         </div>
-      </div>
+      </AdminPageLayout>
     );
   }
 
   if (error) {
     return (
-      <div style={{ backgroundColor: '#ffffff', minHeight: '100vh' }}>
-        <PatientListHeader />
+      <AdminPageLayout header={<PatientListHeader />}>
         <div style={{ textAlign: 'center', padding: '60px', color: '#ef4444' }}>
           <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>Đã xảy ra lỗi</h3>
           <p>{error}</p>
         </div>
-      </div>
+      </AdminPageLayout>
     );
   }
 
@@ -243,38 +235,35 @@ export default function AdminPatientsPage() {
     : undefined;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, backgroundColor: '#ffffff' }}>
-      <AdminPageLayout
-        header={<PatientListHeader />}
-        controlPanel={
-          <PatientTableControls
-            onSearch={handleSearch}
-            onSortChange={handleSortChange}
-            onStatusChange={handleStatusChange}
-            onRoleChange={handleRoleChange}
-            onNewPatient={handleNewPatient}
-            onImport={handleImport}
-          />
-        }
-        pagination={
-          paginationConfig ? (
-            <div style={{ padding: '0 16px' }}>
-              <Pagination {...paginationConfig} />
-            </div>
-          ) : undefined
-        }
-      >
-        <PatientTable
-          patients={paginatedPatients}
-          onViewProfile={handleViewProfile}
-          onChat={handleChat}
-          onRoleUpdated={fetchPatients}
-          currentPage={currentPage}
-          pageSize={pageSize}
+    <AdminPageLayout
+      header={<PatientListHeader />}
+      controlPanel={
+        <PatientTableControls
+          onSearch={handleSearch}
+          onSortChange={handleSortChange}
+          onStatusChange={handleStatusChange}
+          onRoleChange={handleRoleChange}
+          onNewPatient={handleNewPatient}
+          onImport={handleImport}
         />
-        <NewAccountModal open={isNewAccountOpen} onOpenChange={setIsNewAccountOpen} onSuccess={fetchPatients} />
-        <ImportExcelModal open={isImportModalOpen} onOpenChange={setIsImportModalOpen} onSuccess={fetchPatients} />
-      </AdminPageLayout>
-    </div>
+      }
+      pagination={
+        paginationConfig ? (
+          <div style={{ padding: '0 16px' }}>
+            <Pagination {...paginationConfig} />
+          </div>
+        ) : undefined
+      }
+    >
+      <PatientTable
+        patients={paginatedPatients}
+        onViewProfile={handleViewProfile}
+        onRoleUpdated={fetchPatients}
+        currentPage={currentPage}
+        pageSize={pageSize}
+      />
+      <NewAccountModal open={isNewAccountOpen} onOpenChange={setIsNewAccountOpen} onSuccess={fetchPatients} />
+      <ImportExcelModal open={isImportModalOpen} onOpenChange={setIsImportModalOpen} onSuccess={fetchPatients} />
+    </AdminPageLayout>
   );
 }

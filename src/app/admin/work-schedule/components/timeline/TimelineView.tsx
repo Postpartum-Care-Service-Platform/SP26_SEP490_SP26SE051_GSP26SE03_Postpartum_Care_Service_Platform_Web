@@ -229,7 +229,7 @@ export function TimelineView({ staffData = [] }: TimelineViewProps) {
               <EpicIcon />
               <div className={styles.activityInfo}>
                 <div className={styles.epicText}>{row.title}</div>
-                <div className={styles.subText}>{row.staffName} • {row.packageName}</div>
+                <div className={styles.subText}>{row.staffFullName || row.staffName} • {row.packageName}</div>
               </div>
             </div>
           ))}

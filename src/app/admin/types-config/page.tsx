@@ -1,6 +1,6 @@
 'use client';
 
-import { Activity, Bell, CalendarCheck, MessageSquare, Package, UserCircle2, Utensils } from 'lucide-react';
+import { Activity, Bell, CalendarCheck, HeartPulse, MessageSquare, Package, UserCircle2, Utensils } from 'lucide-react';
 import React from 'react';
 
 import AdminActivityTypePage from '../activity-type/page';
@@ -12,6 +12,7 @@ import AdminNotificationTypePage from '../notification-type/page';
 import AdminPackageTypePage from '../package-type/page';
 import AdminRoomsPage from '../rooms/page';
 import AdminFoodTypePage from '../food-type/page';
+import AdminHealthConditionCategoryPage from '../health-condition-category/page';
 import { WorkScheduleHeader } from '../work-schedule/components/WorkScheduleHeader';
 
 const tabs = [
@@ -24,6 +25,7 @@ const tabs = [
   { key: 'package-types', label: 'Loại gói dịch vụ', icon: <Package size={16} /> },
   { key: 'room-types', label: 'Loại phòng', icon: <Package size={16} /> },
   { key: 'food-types', label: 'Loại thực phẩm', icon: <Utensils size={16} /> },
+  { key: 'health-condition-categories', label: 'Danh mục sức khỏe', icon: <HeartPulse size={16} /> },
 ];
 
 export default function AdminTypesConfigPage() {
@@ -50,6 +52,7 @@ export default function AdminTypesConfigPage() {
         {activeTab === 'package-types' && <AdminPackageTypePage />}
         {activeTab === 'room-types' && <AdminRoomsPage />}
         {activeTab === 'food-types' && <AdminFoodTypePage />}
+        {activeTab === 'health-condition-categories' && <AdminHealthConditionCategoryPage />}
       </div>
     </div>
   );

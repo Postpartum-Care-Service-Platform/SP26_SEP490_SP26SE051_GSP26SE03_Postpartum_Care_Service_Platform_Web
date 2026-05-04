@@ -120,6 +120,18 @@
   min-width: 120px;
 }
 
+.stickySttCol {
+  position: sticky;
+  left: 0;
+  z-index: 20;
+  background-color: #fff;
+}
+
+thead th.stickySttCol {
+  z-index: 110;
+  background-color: #f2f2f4 !important;
+}
+
 .stickyActionsCol {
   position: sticky;
   right: 0;
@@ -127,12 +139,10 @@
   background-color: #fff;
   box-shadow: -4px 0 8px rgba(0, 0, 0, 0.05);
   overflow: visible !important;
-  /* Crucial for tooltips in sticky cells */
 }
 
 thead th.stickyActionsCol {
   z-index: 110;
-  /* Must be higher than normal thead z-index */
   background-color: #f2f2f4 !important;
 }
 
@@ -149,12 +159,11 @@ thead th.stickyActionsCol {
   background-color: #f8f9fa;
   position: relative;
   z-index: 90;
-  /* Increased to stay above the row above it */
 }
 
-.table tbody tr:hover td:nth-child(12) {
+.table tbody tr:hover .stickySttCol,
+.table tbody tr:hover .stickyActionsCol {
   background-color: #f8f9fa;
-  overflow: visible !important;
 }
 
 .expandableRow {

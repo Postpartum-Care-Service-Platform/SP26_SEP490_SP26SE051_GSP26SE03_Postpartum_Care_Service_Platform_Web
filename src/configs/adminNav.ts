@@ -7,6 +7,7 @@ import {
   ClipboardCheck,
   FileHeart,
   FileText,
+  Heart,
   LayoutDashboard,
   LayoutTemplate,
   MessageCircle,
@@ -171,6 +172,12 @@ export const adminNav: AdminNavSection[] = [
             href: '/admin/package-activities',
             icon: ClipboardCheck,
           },
+          {
+            key: 'package-request',
+            label: 'Yêu cầu gói',
+            href: '/admin/package-request',
+            icon: FileText,
+          },
         ],
       },
       {
@@ -214,6 +221,12 @@ export const adminNav: AdminNavSection[] = [
         label: 'Hồ sơ y tế',
         href: '/admin/medical-record',
         icon: FileHeart,
+      },
+      {
+        key: 'health-condition',
+        label: 'Tình trạng sức khỏe',
+        href: '/admin/health-condition',
+        icon: Heart,
       },
       {
         key: 'page-builder',

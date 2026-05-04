@@ -19,10 +19,10 @@ import type { Appointment, AppointmentStatus } from './components/types';
 
 // Internal Premium Skeleton Component for consistent look
 const SkeletonBone = ({ width, height, circle = false, margin = '0' }: { width?: string | number, height?: string | number, circle?: boolean, margin?: string }) => (
-  <div 
-    style={{ 
-      width: width || '100%', 
-      height: height || '20px', 
+  <div
+    style={{
+      width: width || '100%',
+      height: height || '20px',
       backgroundColor: '#f1f5f9',
       borderRadius: circle ? '50%' : '4px',
       position: 'relative',
@@ -105,7 +105,7 @@ export default function AdminAppointmentPage() {
 
   const formatTimeOnly = (timeOnly: string | null | undefined): string => {
     if (!timeOnly) return '-';
-    return timeOnly.slice(0, 5); 
+    return timeOnly.slice(0, 5);
   };
 
   const mapAppointment = useCallback((apt: ApiAppointment): Appointment => {
@@ -209,7 +209,7 @@ export default function AdminAppointmentPage() {
   const header = <AppointmentHeader />;
 
   const controlPanel = (
-    <AppointmentTableControls 
+    <AppointmentTableControls
       onStatusChange={handleStatusChange}
       onAddClick={() => setIsNewModalOpen(true)}
       onImportClick={() => setIsImportModalOpen(true)}
@@ -242,7 +242,7 @@ export default function AdminAppointmentPage() {
             100% { transform: translateX(100%); }
           }
         `}</style>
-        
+
         <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {/* Controls Area Placeholder */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -258,21 +258,21 @@ export default function AdminAppointmentPage() {
           </div>
 
           {/* Table Area Placeholder */}
-          <div style={{ 
-            backgroundColor: '#ffffff', 
-            borderRadius: '4px', 
-            border: '1px solid #f1f5f9', 
+          <div style={{
+            backgroundColor: '#ffffff',
+            borderRadius: '4px',
+            border: '1px solid #f1f5f9',
             overflow: 'hidden'
           }}>
             <div style={{ height: '48px', backgroundColor: '#f8fafc', borderBottom: '1px solid #f1f5f9' }} />
             {[...Array(pageSize)].map((_, i) => (
-              <div key={i} style={{ 
-                height: '64px', 
-                borderBottom: i === pageSize - 1 ? 'none' : '1px solid #f8fafc', 
-                display: 'flex', 
-                alignItems: 'center', 
-                padding: '0 24px', 
-                gap: '24px' 
+              <div key={i} style={{
+                height: '64px',
+                borderBottom: i === pageSize - 1 ? 'none' : '1px solid #f8fafc',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '0 24px',
+                gap: '24px'
               }}>
                 <SkeletonBone width={40} height={16} />
                 <div style={{ flex: 1 }}>

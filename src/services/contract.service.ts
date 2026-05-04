@@ -38,6 +38,9 @@ const contractService = {
   getNoScheduleContracts: (): Promise<Contract[]> => {
     return apiClient.get('/Contract/no-staff-schedule');
   },
+  getInProgressContracts: (): Promise<Contract[]> => {
+    return apiClient.get('/Contract/in-progress');
+  },
   getStaffSchedules: (): Promise<StaffSchedule[]> => {
     return apiClient.get('/StaffSchedule/staffs');
   },

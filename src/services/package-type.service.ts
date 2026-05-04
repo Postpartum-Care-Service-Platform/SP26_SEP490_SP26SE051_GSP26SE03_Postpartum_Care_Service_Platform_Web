@@ -5,6 +5,9 @@ const packageTypeService = {
   getAllPackageTypes: (): Promise<PackageType[]> => {
     return apiClient.get('/PackageType');
   },
+  getAdminPackageTypes: (): Promise<PackageType[]> => {
+    return apiClient.get('/PackageType/for-admin');
+  },
   getPackageTypeById: (id: number): Promise<PackageType> => {
     return apiClient.get(`/PackageType/${id}`);
   },

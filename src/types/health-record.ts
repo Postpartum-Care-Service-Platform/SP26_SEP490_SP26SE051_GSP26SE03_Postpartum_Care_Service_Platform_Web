@@ -1,8 +1,12 @@
 export interface HealthCondition {
   id: number;
   name: string;
+  code: string;
+  description: string;
   category: string;
   appliesTo: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface HealthRecord {
@@ -18,4 +22,12 @@ export interface HealthRecord {
   gestationalAgeWeeks?: number;
   birthWeightGrams?: number;
   conditions: HealthCondition[];
+}
+export interface HealthConditionCategory {
+  id: number;
+  name: string;
+  description: string | null;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
